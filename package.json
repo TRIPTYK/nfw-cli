@@ -1,6 +1,6 @@
 {
   "name": "triptyk_portal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Portal to create mvc app from github",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,6 @@
     "clui": "^0.3.6",
     "figlet": "^1.2.1",
     "inquirer": "^6.2.2",
-    "minimist": "^1.2.0",
     "yargs": "^13.2.1"
   }
 }
