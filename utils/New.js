@@ -7,6 +7,10 @@ const operatingSystem = process.platform;
 const path = require('path');
 var newPath = undefined;
 module.exports = {
+    /**
+        @description Generate a new project
+        @generator
+     */
     New: async () => {
         draw.header();
         const answer = await inquirer.askPathValidation();

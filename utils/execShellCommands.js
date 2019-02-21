@@ -7,9 +7,16 @@ const fs = require('fs');
 const read = util.promisify(fs.readFile);
 const status = new Spinner('Cloning files, please wait ...');
 const kickstart = new Spinner('Generating app ...');
-const operatingSystem = process.platform;
+const migrate = new Spinner('Generating migration ...');
 const path = require('path');
 module.exports = {
+    /**
+     * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
+     * @param  {Object.<string>} command
+     * @param  {Object.<string>} command2
+     * @param  {<string>} name
+     * @param  {<string>} newPath
+     */
     execGit: async (command,command2, name, newPath) =>{
         status.start();
         const dir = newPath === undefined ?"": command.currentDirectory + newPath.path + " && ";
@@ -30,6 +37,12 @@ module.exports = {
         console.log(chalk.green("Project successfully set up ...."));
         status.stop();
     },
+    /**
+     * @description Execute commands from a associative array send as parameter, in this case, hte function execute the kickstart script from the generated project
+     * @param  {Object.<string>} command
+     * @param  {<string>} name
+     * @param  {<string>} newPath
+     */
     execCommand: async (command, name, newPath) =>{
         kickstart.start();
         const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
@@ -39,6 +52,12 @@ module.exports = {
         console.log(chalk.green("Compiled successfully"));
         kickstart.stop();
     },
+    /**
+     * @description Generate a small config file to indicate that the folder is a generated project"
+     * @param  {Object.<string>} command
+     * @param  {<string>} newPath
+     * @param  {<string>} name
+     */
     generateConfig:  async (command,newPath,name) =>{
         const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
         const config = {
@@ -48,10 +67,28 @@ module.exports = {
         const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> cfg.tpf`);
         console.log(chalk.green("Config file generated successfully"));
     },
+    /**
+     * @description Generate a new model in the project
+     * @param  {<string>} modelName
+     * @param  {<string>} crud
+     */
     generateModel: async(modelName, crud) => {
         const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
         await cli(modelName, crud);
+        migrate.start();
+        var {stdout, stderr} = await exec(`typeorm migration:generate -n ${modelName}`);
+        console.log(chalk.green('Migration generated successfully ...'));
+        var {stdout, stderr} = await exec(`tsc`);
+        console.log(chalk.green('Typescript compiled successfully ... '));
+        var {stdout, stderr} = await exec(`typeorm migration:run`);
+        console.log(chalk.green('Migration executed successfully ...'))
+        migrate.stop();        
+        process.exit(0);
     },
+    /**
+     * @description Delete a generated model from the project
+     * @param  {<string>} modelName
+     */
     deleteModel:  async(modelName)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
         await del(modelName);

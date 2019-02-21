@@ -6,6 +6,7 @@ const yargs = require('yargs');
 const chalk = require('chalk');
 const path = require('path');
 const commands = require('./utils/execShellCommands');
+const test = require('./utils/tests');
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
     console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
@@ -28,7 +29,8 @@ yargs
     desc: 'Execute unit tests',
     builder: () => {},
     handler: () => {
-      commands.execUnitTests();
+      validateDirectory();
+      test.execUnitTests();
     }
   })
   .command({

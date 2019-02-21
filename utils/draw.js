@@ -1,6 +1,9 @@
 const figlet = require('figlet');
 const chalk = require('chalk');
 module.exports = {
+    /**
+     * @description Display app name in huge letter in the command prompt
+     */
     header : () => {
         console.log(
             chalk.blue(
