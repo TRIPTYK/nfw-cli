@@ -76,6 +76,8 @@ module.exports = {
         const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
         await cli(modelName, crud);
         migrate.start();
+        var {stdout, stderr} = await exec(`tsc`);
+        console.log(chalk.green('Typescript compiled successfully ... '));
         var {stdout, stderr} = await exec(`typeorm migration:generate -n ${modelName}`);
         console.log(chalk.green('Migration generated successfully ...'));
         var {stdout, stderr} = await exec(`tsc`);
