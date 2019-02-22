@@ -9,6 +9,8 @@ const status = new Spinner('Cloning files, please wait ...');
 const kickstart = new Spinner('Generating app ...');
 const migrate = new Spinner('Generating migration ...');
 const path = require('path');
+const modelSpecs = require('./modelSpecs');
+const inquirer = require('../lib/inquirer');
 module.exports = {
     /**
      * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
@@ -73,6 +75,28 @@ module.exports = {
      * @param  {<string>} crud
      */
     generateModel: async(modelName, crud) => {
+        var spinner = new Spinner("Checking for existing entities ....");
+        spinner.start();
+        const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
+        const isExisting = await modelWrite("check", modelName);
+        spinner.stop();
+        if(!isExisting){
+            const data = await inquirer.askForChoice();
+            switch(data.value){
+                case "create an entity":
+                    const entity = await modelSpecs.dbParams(modelName);
+                    await modelWrite("write", modelName, entity);
+                    break;
+                case "create a basic model":
+                    await modelWrite("basic", modelName);
+                    break;
+                case "nothing":
+                    console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
+                    process.exit(0);
+                    break;
+            }
+        }else await modelWrite('db', modelName);
+        
         const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
         await cli(modelName, crud);
         migrate.start();
@@ -84,7 +108,7 @@ module.exports = {
         console.log(chalk.green('Typescript compiled successfully ... '));
         var {stdout, stderr} = await exec(`typeorm migration:run`);
         console.log(chalk.green('Migration executed successfully ...'))
-        migrate.stop();        
+        migrate.stop();
         process.exit(0);
     },
     /**
