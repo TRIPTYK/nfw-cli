@@ -3,11 +3,15 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const operatingSystem = process.platform;
 const chalk = require('chalk');
+const CLUI         = require('clui');
+const Spinner     = CLUI.Spinner;
+const status = new Spinner('Executing unit tests, please wait ...');
 module.exports = {
     /**
      * @description Execute unit tests
      */
     execUnitTests: async(logs) =>{
+        status.start();
         const commands = require('./commands')
         let command = operatingSystem === "win32" ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
         const unitTestOutput = await exec(command.test);  
@@ -15,6 +19,7 @@ module.exports = {
         if(logs){
             var regex = new RegExp('(√.*|.*passing.*|(?<=\\s)\\-.*)|((?<=\\s)[0-9]+\\).*|.*failing.*|(?<=\\s)\\+.*)',"gm").exec(string);
             var output = string.match(regex);
+            status.stop();
             console.log(regex);
         }else{
             /**
@@ -29,6 +34,7 @@ module.exports = {
                 errors += output[i] + "\n";   
             }
         }
+        status.stop();
         console.log(`${chalk.green(output[0])} \n ${output[1] !== undefined ? chalk.bgRed(chalk.black(output[1]+" =>")) : ""} \n ${errors !== undefined ? chalk.red(errors) : ""}`);
         }
     }
