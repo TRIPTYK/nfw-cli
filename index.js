@@ -28,9 +28,9 @@ yargs
     aliases: ['t'],
     desc: 'Execute unit tests',
     builder: () => {},
-    handler: () => {
+    handler: (argv) => {
       validateDirectory();
-      test.execUnitTests();
+      test.execUnitTests(argv.logs);
     }
   })
   .command({
@@ -66,4 +66,3 @@ yargs
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('tpf')
   .argv;
-
