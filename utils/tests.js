@@ -13,7 +13,9 @@ module.exports = {
         const unitTestOutput = await exec(command.test);  
         var string = unitTestOutput.stdout;
         if(logs){
-            console.log(string);
+            var regex = new RegExp('(√.*|.*passing.*|(?<=\\s)\\-.*)|((?<=\\s)[0-9]+\\).*|.*failing.*|(?<=\\s)\\+.*)',"gm").exec(string);
+            var output = string.match(regex);
+            console.log(regex);
         }else{
             /**
          * @description Returns how many unit test passed, failed, and which one failed
