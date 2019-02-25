@@ -52,7 +52,7 @@ yargs
     handler: (argv) => {
       validateDirectory();
       if(argv.db){
-        
+
       }else{
         commands.generateModel(argv.modelName,argv.CRUD);
       }
@@ -76,8 +76,6 @@ yargs
     handler: () => {
       console.log(chalk.bgGreen('Made by :')+ "\n Amaury Deflorenne \n Romain Verliefden \n Samuel Antoine \n Steve Lebleu");
     }
-  })
-  .command({
   })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
