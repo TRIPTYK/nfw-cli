@@ -44,18 +44,20 @@ yargs
     desc: 'Generate a new model',
     builder: (yargs) => {
       yargs.default('CRUD', 'CRUD');
-      yargs.option('db',{
-        desc: "Generate entities from the database data",
-        type: "boolean"
-      })
     },
     handler: (argv) => {
       validateDirectory();
-      if(argv.db){
-
-      }else{
-        commands.generateModel(argv.modelName,argv.CRUD);
-      }
+      commands.generateModel(argv.modelName,argv.CRUD);
+    }
+  })
+  .command({
+    command: 'import',
+    aliases: ["imp"],
+    desc: "Generate all the files from existing tables in the databse",
+    builder: () => {},
+    handler: () => {
+      validateDirectory();
+      commands.generateFromDB();
     }
   })
   .command({

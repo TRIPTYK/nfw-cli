@@ -120,7 +120,13 @@ module.exports = {
         await del(modelName);
     },
     generateFromDB: async() => {
-        const generator = require(path.resolve(process.cwd()+"/cli/generate/generateFromDB.js"));
-        await generator();
+        var confirm = await inquirer.askForDBConfirmation();
+        if(confirm.confirmation){
+            const generator = require(path.resolve(process.cwd()+"/cli/generate/generateFromDB"));
+            await generator();
+        }else{
+            console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
+            process.exit(0);
+        }
     }
 }
