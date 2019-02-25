@@ -75,6 +75,15 @@ module.exports = {
      * @param  {<string>} crud
      */
     generateModel: async(modelName, crud) => {
+        const modelExistsVerification = require(path.resolve(process.cwd()+"/cli/generate/Exists"));
+        const modelExists = await modelExistsVerification(modelName);
+        if(modelExists){
+            const question = await inquirer.askForOverride(modelName);
+            if(!question.override){
+                console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
+                process.exit(0);
+            }
+        }
         var spinner = new Spinner("Checking for existing entities ....");
         spinner.start();
         const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
