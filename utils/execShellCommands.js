@@ -40,7 +40,7 @@ module.exports = {
         status.stop();
     },
     /**
-     * @description Execute commands from a associative array send as parameter, in this case, hte function execute the kickstart script from the generated project
+     * @description Execute commands from a associative array send as parameter, in this case, the function execute the kickstart script from the generated project
      * @param  {Object.<string>} command
      * @param  {<string>} name
      * @param  {<string>} newPath
