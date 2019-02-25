@@ -118,5 +118,9 @@ module.exports = {
     deleteModel:  async(modelName)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
         await del(modelName);
+    },
+    generateFromDB: async() => {
+        const generator = require(path.resolve(process.cwd()+"/cli/generate/generateFromDB.js"));
+        await generator();
     }
 }
