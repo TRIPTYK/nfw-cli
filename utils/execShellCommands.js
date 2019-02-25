@@ -11,6 +11,7 @@ const migrate = new Spinner('Generating migration ...');
 const path = require('path');
 const modelSpecs = require('./modelSpecs');
 const inquirer = require('../lib/inquirer');
+
 module.exports = {
     /**
      * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
@@ -29,7 +30,7 @@ module.exports = {
             console.log(chalk.green('Git repository cloned successfully ....'));
         }
         const rename = await exec(dir+command2.rename + name);
-        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
+        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
         const rmGitProject = await exec(tempPath+command2.rmGit);
         if(rmGitProject.stderr.length){
             console.log(chalk.red('Error') + " : " + rmGitProject.stderr);
@@ -47,10 +48,10 @@ module.exports = {
      */
     execCommand: async (command, name, newPath) =>{
         kickstart.start();
-        const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
-        const { stdout, stderr } = await exec(dir+command.kickstart);  
+        const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
+        const { stdout, stderr } = await exec(dir+command.kickstart);
         console.log(chalk.green("Generated successfully, Compiling TypeScript "));
-        const tsc = await exec(dir+command.compileTypeScript);  
+        const tsc = await exec(dir+command.compileTypeScript);
         console.log(chalk.green("Compiled successfully"));
         kickstart.stop();
     },
@@ -61,7 +62,7 @@ module.exports = {
      * @param  {<string>} name
      */
     generateConfig:  async (command,newPath,name) =>{
-        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
+        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
         const config = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
@@ -78,8 +79,10 @@ module.exports = {
         var spinner = new Spinner("Checking for existing entities ....");
         spinner.start();
         const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
-        const isExisting = await modelWrite("check", modelName);
+        const databaseInfo = require(path.resolve(process.cwd()+"/cli/generate/databaseInfo"));
+        const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
+
         if(!isExisting){
             const data = await inquirer.askForChoice();
             switch(data.value){
@@ -95,8 +98,18 @@ module.exports = {
                     process.exit(0);
                     break;
             }
-        }else await modelWrite('db', modelName);
-        
+        }else{
+          let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
+          if (foreignKeys && foreignKeys.length) {
+              for (let i=0;i < foreignKeys.length;i++) {
+                let tmpKey = foreignKeys[i];
+                let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
+                foreignKeys[i].type = response;
+              }
+           }
+         await modelWrite('db', modelName , { columns , foreignKeys });
+       }
+
         const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
         await cli(modelName, crud);
         migrate.start();
