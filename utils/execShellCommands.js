@@ -50,13 +50,6 @@ module.exports = {
      */
     execCommand: async (command, name, newPath) =>{
         kickstart.start();
-<<<<<<< HEAD
-        const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
-        const { stdout, stderr } = await exec(dir+command.kickstart);  
-        console.log(chalk.green("Generated successfully, Compiling TypeScript "));
-        const tsc = await exec(dir+command.compileTypeScript);  
-        console.log(chalk.green("Compiled successfully"));
-=======
         const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
 
         await exec(dir+command.kickstart)
@@ -67,7 +60,6 @@ module.exports = {
           .catch(e => Log.error(`Failed to compile typescript : ${e.message}`))
           .then(() => console.log(chalk.green("Compiled successfully")));
 
->>>>>>> 75105ff21b5bf0f4a31d9ca14fe00fb9bfc17a78
         kickstart.stop();
     },
     /**
@@ -93,19 +85,22 @@ module.exports = {
     generateModel: async(modelName, crud) => {
         const utils = require(path.resolve(process.cwd()+"/cli/generate/utils"));
         const modelExists = await utils.modelFileExists(modelName);
+        let override = true;
         if(modelExists){
             const question = await inquirer.askForOverride(modelName);
+            override =question.override;
             if(!question.override){
                 console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
                 process.exit(0);
             }
         }
         var spinner = new Spinner("Checking for existing entities ....");
+        const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
         spinner.start();
         const databaseInfo = require(path.resolve(process.cwd()+"/cli/generate/databaseInfo"));
         const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
-        if(!isExisting){
+        if(!isExisting || (override && modelExists)){
             const data = await inquirer.askForChoice();
             switch(data.value){
                 case "create an entity":
@@ -128,16 +123,6 @@ module.exports = {
                     process.exit(0);
                     break;
             }
-<<<<<<< HEAD
-        }else await modelWrite('db', modelName);
-        
-        const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
-        await cli(modelName, crud);
-        module.exports.execMigration(modelName)
-        process.exit(0);
-    },
-    execMigration: async(modelName) => {
-=======
         }else{
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
           if (foreignKeys && foreignKeys.length) {
@@ -162,7 +147,6 @@ module.exports = {
             process.exit(1);
           });
 
->>>>>>> 75105ff21b5bf0f4a31d9ca14fe00fb9bfc17a78
         migrate.start();
 
         await exec(`tsc`)
@@ -182,6 +166,7 @@ module.exports = {
           .catch(e => Log.error(`Failed to execute migration : ${e.message}`));
 
         migrate.stop();
+        process.exit(0);
     },
     /**
      * @description Delete a generated model from the project
