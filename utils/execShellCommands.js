@@ -9,6 +9,7 @@ const status = new Spinner('Cloning files, please wait ...');
 const kickstart = new Spinner('Generating app ...');
 const migrate = new Spinner('Generating migration ...');
 const path = require('path');
+const Log = require('./log');
 const modelSpecs = require('./modelSpecs');
 const inquirer = require('../lib/inquirer');
 
@@ -49,10 +50,15 @@ module.exports = {
     execCommand: async (command, name, newPath) =>{
         kickstart.start();
         const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
-        const { stdout, stderr } = await exec(dir+command.kickstart);
-        console.log(chalk.green("Generated successfully, Compiling TypeScript "));
-        const tsc = await exec(dir+command.compileTypeScript);
-        console.log(chalk.green("Compiled successfully"));
+
+        await exec(dir+command.kickstart)
+          .catch(e => Log.error(`Failed to generate project : ${e.message}`))
+          .then(() => console.log(chalk.green("Generated successfully, Compiling TypeScript ")));
+
+        await exec(dir+command.compileTypeScript)
+          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`))
+          .then(() => console.log(chalk.green("Compiled successfully")));
+
         kickstart.stop();
     },
     /**
@@ -88,10 +94,18 @@ module.exports = {
             switch(data.value){
                 case "create an entity":
                     const entity = await modelSpecs.dbParams(modelName);
-                    await modelWrite("write", modelName, entity);
+                    await modelWrite("write", modelName, entity)
+                      .catch(e => {
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                      });
                     break;
                 case "create a basic model":
-                    await modelWrite("basic", modelName);
+                    await modelWrite("basic", modelName)
+                      .catch(e => {
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                      });
                     break;
                 case "nothing":
                     console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
@@ -107,20 +121,39 @@ module.exports = {
                 foreignKeys[i].type = response;
               }
            }
-         await modelWrite('db', modelName , { columns , foreignKeys });
+         await modelWrite('db', modelName , { columns , foreignKeys })
+           .catch(e => {
+             Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+             process.exit(1);
+           });
        }
 
         const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
-        await cli(modelName, crud);
+
+        await cli(modelName, crud)
+          .catch(e => {
+            Log.error(`Generation failed : ${e.message}\nExiting ...`);
+            process.exit(1);
+          });
+
         migrate.start();
-        var {stdout, stderr} = await exec(`tsc`);
-        console.log(chalk.green('Typescript compiled successfully ... '));
-        var {stdout, stderr} = await exec(`typeorm migration:generate -n ${modelName}`);
-        console.log(chalk.green('Migration generated successfully ...'));
-        var {stdout, stderr} = await exec(`tsc`);
-        console.log(chalk.green('Typescript compiled successfully ... '));
-        var {stdout, stderr} = await exec(`typeorm migration:run`);
-        console.log(chalk.green('Migration executed successfully ...'))
+
+        await exec(`tsc`)
+          .then(() => console.log(chalk.green("Compiled successfully")))
+          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+
+        await exec(`typeorm migration:generate -n ${modelName}`)
+          .then(() => console.log(chalk.green("Migration generated successfully")))
+          .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
+
+        await exec(`tsc`)
+          .then(() => console.log(chalk.green("Compiled successfully")))
+          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+
+        await exec(`typeorm migration:run`)
+          .then(() => console.log(chalk.green("Migration executed successfully")))
+          .catch(e => Log.error(`Failed to execute migration : ${e.message}`));
+
         migrate.stop();
         process.exit(0);
     },
