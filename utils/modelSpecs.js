@@ -62,11 +62,19 @@ exports.dbParams = async (entity) => {
                     TABLE_NAME : entity,
                     COLUMN_NAME : value.column,
                     REFERENCED_TABLE_NAME : referencedTable.trim(),
-                    REFERENCED_COLUMN_NAME : referencedColumn
+                    REFERENCED_COLUMN_NAME : referencedColumn,
                 };
-                console.log(relationTemp);
+                let {response } = await inquirer.askForeignKeyRelation(relationTemp);
+                relationTemp2 = {
+                    TABLE_NAME : entity,
+                    COLUMN_NAME : value.column,
+                    REFERENCED_TABLE_NAME : referencedTable.trim(),
+                    REFERENCED_COLUMN_NAME : referencedColumn,
+                    type: response
+                };
+                console.log(relationTemp2);
                 let {confirmation} = await inquirer.askForConfirmation();
-                if(confirmation) paramsArray['foreignKeys'].push(relationTemp);
+                if(confirmation) paramsArray['foreignKeys'].push(relationTemp2);
             }
             if(lastConfirm.confirmation){
                 column[column.length] = value.column;
