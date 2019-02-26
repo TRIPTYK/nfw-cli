@@ -85,7 +85,9 @@ yargs
     desc: "Start the api server",
     builder: () =>{},
     handler: () => {
-      
+      validateDirectory();
+      console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
+      commands.startServer();
     }
   })
   // provide a minimum demand and a minimum demand message

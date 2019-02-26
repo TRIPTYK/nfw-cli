@@ -3,6 +3,8 @@ const CLUI         = require('clui');
 const Spinner     = CLUI.Spinner;
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+let { spawn } = require('child_process');
+spawn = require ('cross-spawn');
 const fs = require('fs');
 const read = util.promisify(fs.readFile);
 const status = new Spinner('Cloning files, please wait ...');
@@ -86,8 +88,8 @@ module.exports = {
         }
         var spinner = new Spinner("Checking for existing entities ....");
         spinner.start();
-        const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
-        const isExisting = await modelWrite("check", modelName);
+        const databaseInfo = require(path.resolve(process.cwd()+"/cli/generate/databaseInfo"));
+        const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
         if(!isExisting){
             const data = await inquirer.askForChoice();
@@ -141,5 +143,14 @@ module.exports = {
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
             process.exit(0);
         }
+    },
+    startServer: async() => {
+        let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')}`);
+        executed.stdout.on('data', (chunk) => {
+            console.log(`${chunk}`)
+        });
+        executed.on('close', (code) => {
+            console.log(chalk.red(`Process exited with code ${code}`));
+        });
     }
 }
