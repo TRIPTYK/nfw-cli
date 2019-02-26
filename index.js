@@ -79,6 +79,15 @@ yargs
       console.log(chalk.bgGreen('Made by :')+ "\n Amaury Deflorenne \n Romain Verliefden \n Samuel Antoine \n Steve Lebleu");
     }
   })
+  .command({
+    command:"start",
+    aliases : [],
+    desc: "Start the api server",
+    builder: () =>{},
+    handler: () => {
+      
+    }
+  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('tpf')
