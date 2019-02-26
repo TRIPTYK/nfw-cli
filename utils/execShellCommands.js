@@ -147,26 +147,7 @@ module.exports = {
             process.exit(1);
           });
 
-        migrate.start();
-
-        await exec(`tsc`)
-          .then(() => console.log(chalk.green("Compiled successfully")))
-          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
-
-        await exec(`typeorm migration:generate -n ${modelName}`)
-          .then(() => console.log(chalk.green("Migration generated successfully")))
-          .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
-
-        await exec(`tsc`)
-          .then(() => console.log(chalk.green("Compiled successfully")))
-          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
-
-        await exec(`typeorm migration:run`)
-          .then(() => console.log(chalk.green("Migration executed successfully")))
-          .catch(e => Log.error(`Failed to execute migration : ${e.message}`));
-
-        migrate.stop();
-        process.exit(0);
+        module.exports.migrate();
     },
     /**
      * @description Delete a generated model from the project
@@ -195,5 +176,27 @@ module.exports = {
         executed.on('close', (code) => {
             console.log(chalk.red(`Process exited with code ${code}`));
         });
+    },
+    migrate: async()=>{
+        migrate.start();
+
+        await exec(`tsc`)
+          .then(() => console.log(chalk.green("Compiled successfully")))
+          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+
+        await exec(`typeorm migration:generate -n ${modelName}`)
+          .then(() => console.log(chalk.green("Migration generated successfully")))
+          .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
+
+        await exec(`tsc`)
+          .then(() => console.log(chalk.green("Compiled successfully")))
+          .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+
+        await exec(`typeorm migration:run`)
+          .then(() => console.log(chalk.green("Migration executed successfully")))
+          .catch(e => Log.error(`Failed to execute migration : ${e.message}`));
+
+        migrate.stop();
+        process.exit(0);
     }
 }
