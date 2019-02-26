@@ -90,6 +90,16 @@ yargs
       commands.startServer();
     }
   })
+  .command({
+    command:'migrate',
+    aliases: ["mig", "M"],
+    desc: "Generate, compile and run the migration",
+    builder: () => {},
+    handler: () => {
+      validateDirectory();
+      commands.migrate();
+    }
+  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('tpf')
