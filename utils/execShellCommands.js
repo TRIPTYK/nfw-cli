@@ -1,3 +1,6 @@
+/**
+ * @author Samuel Antoine
+ */
 const chalk = require('chalk');
 const CLUI         = require('clui');
 const Spinner     = CLUI.Spinner;
@@ -78,7 +81,7 @@ module.exports = {
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
-     * @description Generate a new model in the project
+     * @description Generate a new model. First check if the model exists in the files, if he exists ask if you wan to override it.   if it doesn't exists check if he exists in the database. if he exists in the database but not in the files it will generate it based on the database. If he exists in the file and we want to ovveride it, or he simply doesn't exists it will ask you a bunch of question to generate it as you wish
      * @param  {<string>} modelName
      * @param  {<string>} crud
      */
@@ -158,6 +161,8 @@ module.exports = {
         await del(modelName);
         module.exports.execMigration(modelName);
     },
+    /**
+     * @description Call the core function to generate a model from the database     */
     generateFromDB: async() => {
         var confirm = await inquirer.askForDBConfirmation();
         if(confirm.confirmation){
@@ -168,6 +173,9 @@ module.exports = {
             process.exit(0);
         }
     },
+    /**
+     * @description Starts the server in the shell and display every output
+     */
     startServer: async() => {
         let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')}`);
         executed.stdout.on('data', (chunk) => {
@@ -177,6 +185,9 @@ module.exports = {
             console.log(chalk.red(`Process exited with code ${code}`));
         });
     },
+    /**
+     * @description Generate and execute the typeorm migration
+     */
     migrate: async()=>{
         migrate.start();
 

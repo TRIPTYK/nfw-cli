@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/**
+ * @author Samuel Antoine
+ */
 const clear = require('clear');
 const project = require('./utils/New');
 const files = require('./lib/files');

@@ -1,3 +1,6 @@
+/**
+ * @author Samuel Antoine
+ */
 module.exports = {
     getGitCommands: {
         init : "git init",
