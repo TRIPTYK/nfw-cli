@@ -147,16 +147,16 @@ module.exports = {
             process.exit(1);
           });
 
-        module.exports.migrate();
+        module.exports.migrate(modelName);
     },
     /**
      * @description Delete a generated model from the project
      * @param  {<string>} modelName
      */
-    deleteModel:  async(modelName)=>{
+    deleteModel:  async(modelName,drop)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
-        await del(modelName);
-        module.exports.execMigration(modelName);
+        await del(modelName,drop);
+        module.exports.migrate(modelName);
     },
     generateFromDB: async() => {
         var confirm = await inquirer.askForDBConfirmation();
@@ -177,7 +177,7 @@ module.exports = {
             console.log(chalk.red(`Process exited with code ${code}`));
         });
     },
-    migrate: async()=>{
+    migrate: async(modelName)=>{
         migrate.start();
 
         await exec(`tsc`)
