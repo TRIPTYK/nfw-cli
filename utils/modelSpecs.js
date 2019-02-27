@@ -1,6 +1,8 @@
 const inquirer = require('../lib/inquirer');
 const colors = require('colors/safe');
-
+/**
+ * @author Romain Verliefden
+ */
 const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','float','double','decimal','char','binary','varbinary'];
 exports.dbParams = async (entity) => {
     var isDoneColumn = false;

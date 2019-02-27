@@ -1,3 +1,6 @@
+/**
+ * @author Samuel Antoine
+ */
 const inquirer = require('../lib/inquirer');
 const commands = require("./commands");
 const draw = require('./draw');

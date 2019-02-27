@@ -1,6 +1,7 @@
 /**
  * @module modelWrite
  * @description shortcut to log colorfull text messages
+ * @author Amaury Deflorenne
  */
 var colors = require('colors/safe');
 

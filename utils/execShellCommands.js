@@ -1,3 +1,6 @@
+/**
+ * @author Samuel Antoine
+ */
 const chalk = require('chalk');
 const CLUI         = require('clui');
 const Spinner     = CLUI.Spinner;
@@ -19,8 +22,8 @@ module.exports = {
      * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
      * @param  {Object.<string>} command
      * @param  {Object.<string>} command2
-     * @param  {<string>} name
-     * @param  {<string>} newPath
+     * @param  {string} name
+     * @param  {string} newPath
      */
     execGit: async (command,command2, name, newPath) =>{
         status.start();
@@ -45,8 +48,8 @@ module.exports = {
     /**
      * @description Execute commands from a associative array send as parameter, in this case, the function execute the kickstart script from the generated project
      * @param  {Object.<string>} command
-     * @param  {<string>} name
-     * @param  {<string>} newPath
+     * @param  {string} name
+     * @param  {string} newPath
      */
     execCommand: async (command, name, newPath) =>{
         kickstart.start();
@@ -65,8 +68,8 @@ module.exports = {
     /**
      * @description Generate a small config file to indicate that the folder is a generated project"
      * @param  {Object.<string>} command
-     * @param  {<string>} newPath
-     * @param  {<string>} name
+     * @param  {string} newPath
+     * @param  {string} name
      */
     generateConfig:  async (command,newPath,name) =>{
         const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
@@ -78,9 +81,9 @@ module.exports = {
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
-     * @description Generate a new model in the project
-     * @param  {<string>} modelName
-     * @param  {<string>} crud
+     * @description Generate a new model. First check if the model exists in the files, if he exists ask if you wan to override it.   if it doesn't exists check if he exists in the database. if he exists in the database but not in the files it will generate it based on the database. If he exists in the file and we want to ovveride it, or he simply doesn't exists it will ask you a bunch of question to generate it as you wish
+     * @param  {string} modelName
+     * @param  {string} crud
      */
     generateModel: async(modelName, crud) => {
         const utils = require(path.resolve(process.cwd()+"/cli/generate/utils"));
@@ -151,13 +154,15 @@ module.exports = {
     },
     /**
      * @description Delete a generated model from the project
-     * @param  {<string>} modelName
+     * @param  {string} modelName
      */
     deleteModel:  async(modelName,drop)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
         await del(modelName,drop);
         module.exports.migrate(modelName);
     },
+    /**
+     * @description Call the core function to generate a model from the database     */
     generateFromDB: async() => {
         var confirm = await inquirer.askForDBConfirmation();
         if(confirm.confirmation){
@@ -168,6 +173,9 @@ module.exports = {
             process.exit(0);
         }
     },
+    /**
+     * @description Starts the server in the shell and display every output
+     */
     startServer: async() => {
         let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')}`);
         executed.stdout.on('data', (chunk) => {
