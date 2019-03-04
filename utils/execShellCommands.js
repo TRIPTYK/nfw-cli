@@ -150,7 +150,7 @@ module.exports = {
             process.exit(1);
           });
 
-        module.exports.migrate();
+        module.exports.migrate(modelName);
     },
     /**
      * @description Delete a generated model from the project
@@ -176,8 +176,8 @@ module.exports = {
     /**
      * @description Starts the server in the shell and display every output
      */
-    startServer: async() => {
-        let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')}`);
+    startServer: async(environement) => {
+        let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')} --env ${environement}`);
         executed.stdout.on('data', (chunk) => {
             console.log(`${chunk}`)
         });
@@ -188,7 +188,7 @@ module.exports = {
     /**
      * @description Generate and execute the typeorm migration
      */
-    migrate: async()=>{
+    migrate: async(modelName)=>{
         migrate.start();
 
         await exec(`tsc`)

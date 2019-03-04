@@ -10,6 +10,8 @@ const chalk = require('chalk');
 const path = require('path');
 const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
+const inquirer = require('./lib/inquirer');
+ 
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
     console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
@@ -17,16 +19,23 @@ const validateDirectory = ()=>{
   }
 }
 yargs
+.strict()
   .command({
     command: 'new',
     aliases: ['n'],
     desc: 'Generate a new project',
-    builder: () => {},
-    handler: () => {
+    builder: (yargs) => {
+      yargs.option('env',{
+        desc: "Allow user to specify ENV variables",
+        type: "boolean"
+      })
+    },
+    handler: async(argv) => {
       clear();
-      project.New();
+      project.New(argv.env !== undefined ? true: false);
     }
   }).command({
+    strict: true,
     command: 'test',
     aliases: ['t'],
     desc: 'Execute unit tests',
@@ -86,11 +95,21 @@ yargs
     command:"start",
     aliases : [],
     desc: "Start the api server",
-    builder: () =>{},
-    handler: () => {
+    builder: (yargs) =>{
+      yargs.option('env',{
+        desc: "Specify the environement type",
+        type: "string"
+      })
+    },
+    handler: (argv) => {
       validateDirectory();
-      console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
-      commands.startServer();
+      let environement = argv.env !== undefined ? argv.env : "development";
+      if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
+        console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
+        commands.startServer(environement);
+      }else{
+        console.log(chalk.red(`${environement} is not a valid environement`))
+      }
     }
   })
   .command({
@@ -101,6 +120,16 @@ yargs
     handler: () => {
       validateDirectory();
       commands.migrate();
+    }
+  })
+  .command({
+    command: "testCmd",
+    aliases: [],
+    desc: "Test",
+    builder: () => {},
+    handler: async () => {
+    const test = await inquirer.askForEnvVariable();
+    console.log(test);
     }
   })
   // provide a minimum demand and a minimum demand message
