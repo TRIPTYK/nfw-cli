@@ -10,7 +10,7 @@ module.exports = {
     header : () => {
         console.log(
             chalk.blue(
-                figlet.textSync('Triptyk Portal',{horizontalLayout: 'full', kerning: "fitted"})
+                figlet.textSync('NFW',{horizontalLayout: 'full', kerning: "fitted"})
             )
         );
     }

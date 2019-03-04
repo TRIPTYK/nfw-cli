@@ -130,17 +130,7 @@ yargs
       commands.migrate();
     }
   })
-  .command({
-    command: "testCmd",
-    aliases: [],
-    desc: "Test",
-    builder: () => {},
-    handler: async () => {
-    const test = await inquirer.askForEnvVariable();
-    console.log(test);
-    }
-  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
-  .help().scriptName('tpf')
+  .help().scriptName('nfw')
   .argv;

@@ -10,7 +10,7 @@
     "triptyk"
   ],
   "bin": {
-    "tpf": "index.js"
+    "nfw": "index.js"
   },
   "author": "Samuel Antoine",
   "license": "ISC",
