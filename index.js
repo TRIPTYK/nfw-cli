@@ -75,11 +75,19 @@ yargs
   .command({
     command: 'delete <modelName>',
     aliases: ['del', 'D'],
+    drop: false,
     desc: 'Generate a new model',
-    builder: () => {},
+    builder: (yargs) => {
+      yargs.option({
+        DROP :{
+          default:false,
+          type: 'boolean'
+        }
+      })
+    },
     handler: (argv) => {
       validateDirectory();
-      commands.deleteModel(argv.modelName);
+      commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
   .command({

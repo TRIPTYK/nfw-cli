@@ -156,10 +156,10 @@ module.exports = {
      * @description Delete a generated model from the project
      * @param  {string} modelName
      */
-    deleteModel:  async(modelName)=>{
+    deleteModel:  async(modelName,drop)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
-        await del(modelName);
-        module.exports.execMigration(modelName);
+        await del(modelName,drop);
+        module.exports.migrate(modelName);
     },
     /**
      * @description Call the core function to generate a model from the database     */
@@ -185,9 +185,12 @@ module.exports = {
             console.log(chalk.red(`Process exited with code ${code}`));
         });
     },
+<<<<<<< HEAD
     /**
      * @description Generate and execute the typeorm migration
      */
+=======
+>>>>>>> c07e8d6f69c66c4685a091323bf15e440ce739e0
     migrate: async(modelName)=>{
         migrate.start();
 
