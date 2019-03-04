@@ -35,13 +35,15 @@ module.exports = {
         if(process.cwd() !== newPath && newPath !== undefined){
             console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other tpf commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, projectName.name)));
         }
-        const envFilePath = newPath === undefined ? path.resolve(process.cwd(), projectName.name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, projectName.name + `/${envVar.env.toLowerCase()}.env`);
-        let envFileContent =await fs.readFileSync(envFilePath).toString();
-        const variables = Object.entries(envVar);
-        for(const [k,v] of variables){
-            let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
-            envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");
+        if(env){
+            const envFilePath = newPath === undefined ? path.resolve(process.cwd(), projectName.name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, projectName.name + `/${envVar.env.toLowerCase()}.env`);
+            let envFileContent =await fs.readFileSync(envFilePath).toString();
+            const variables = Object.entries(envVar);
+            for(const [k,v] of variables){
+                let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
+                envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");
+            }
+            fs.writeFileSync(envFilePath, envFileContent)
         }
-        fs.writeFileSync(envFilePath, envFileContent)
     },
 }

@@ -4,16 +4,16 @@ This repository contains a CLI based app that generate a NodeJs API base on [3rd
 
 Commands :
 
-* nfw new
-* nfw test
-* nfw generate
-* nfw import
-* nfw delete
-* nfw info
-* nfw start
-* nfw migrate
+* [nfw new](#New)
+* [nfw test]()
+* [nfw generate]()
+* [nfw import]()
+* [nfw delete]()
+* [nfw info]()
+* [nfw start]()
+* [nfw migrate]()
 
-## Command : nfw new
+# New
 
 Command :
 
@@ -24,7 +24,7 @@ Command :
 
 Generate a new project. Ask if the path is right, if not it asks for a new one, then ask for a name.
 
-![](readme/new.gif);
+![](readme/new.gif)
 ### Option
 
 * --env
@@ -36,4 +36,16 @@ $ nfw new --env
 ```
 #### Description
 
-![](readme/new_env.gif);
+Generate a new project asking for environement variables such as :
+
+* Environement      ("Development"/"Production"/"Staging"/"Test")
+* Port              <Integer>(Ex : 8000)
+* Database Host     (Ex : localhost or your-domain.org)
+* Database Username (Ex : root or User1)
+* Database Passord  (Hidden by default)
+* Database port     (ex : 3306)
+* Path validation 
+    * New path 
+* Project Name      (Ex: my_new_project)
+
+![](readme/new_env.gif)
