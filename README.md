@@ -8,10 +8,10 @@ Commands :
 * [nfw test](#Test)
 * [nfw generate](#generate)
 * [nfw import](#import)
-* [nfw delete]()
-* [nfw info]()
-* [nfw start]()
-* [nfw migrate]()
+* [nfw delete](#delete)
+* [nfw info](#info)
+* [nfw start](#start)
+* [nfw migrate](#migrate)
 
 # New
 
@@ -133,4 +133,121 @@ Command :
 Generate model base on the tables existing in the database. **WARNING**: It will ovveride existing models with the same name !
 
 ![](readme/import.gif)
+
+# Delete
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw delete <modelName>
+ ```
+##### Aliases
+
+    $ nfw D <modelName>
+    $ nfw del <modelName>
+
+##### Parameters
+
+* **_modelName_** - Required ! Type: string
+
+#### Description
+
+Delete a generated model with all the related files. Drop the related table and execute a SQLDump.
+
+![](readme/del.gif)
+
+# Info
+
+Command :
+
+ ```bash
+ $ nfw info
+ ```
+#### Description
+
+Show informaion about who developed the software.
+
+![](readme/info.gif)
+
+# Start
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw start <modelName>
+ ```
+
+#### Description
+
+Start the API.
+
+![](readme/start.gif)
+
+### Options
+
+* --env
+
+Usage
+
+```bash
+$ nfw start --env=<Environement>
+```
+##### Parameter
+
+* **_Environement_** - Required ! Type: string *["Development","Production","Staging","Test"]*
+    
+#### Description
+
+Compile TypeScript and execute unit test with full output.
+
+![](readme/startEnv.gif)
+
+
+# Migrate
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw migrate
+ ```
+
+#### Description
+
+Compile TypeScript, generate a TypeORM migration, recomplie, then execute the migration script.
+
+![](readme/migrate.gif)
+
+
+# Commands options
+
+## Option:
+
+* --version
+
+### Description
+
+Show the current version
+
+## Option
+
+* --help or -h
+
+### Description
+
+Show help for every commands or a specified command
+
+Exemple *(general)*
+
+![](readme/help.gif)
+
+Exemple *(for a specific command)*
+
+![](readme/cmdHelp.gif)
+
 
