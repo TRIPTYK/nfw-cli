@@ -185,12 +185,9 @@ module.exports = {
             console.log(chalk.red(`Process exited with code ${code}`));
         });
     },
-<<<<<<< HEAD
     /**
      * @description Generate and execute the typeorm migration
      */
-=======
->>>>>>> c07e8d6f69c66c4685a091323bf15e440ce739e0
     migrate: async(modelName)=>{
         migrate.start();
 
