@@ -97,6 +97,7 @@ yargs
     builder: () => {},
     handler: () => {
       console.log(chalk.bgGreen('Made by :')+ "\n Amaury Deflorenne <https://github.com/AmauryD> \n Romain Verliefden <https://github.com/DramixDW> \n Samuel Antoine <https://github.com/Snorkell> \n Steve Lebleu <https://github.com/konfer-be>");
+      process.exit(0);
     }
   })
   .command({
@@ -111,13 +112,14 @@ yargs
     },
     handler: (argv) => {
       validateDirectory();
-      let environement = argv.env !== undefined ? argv.env : "development";
+      console.log(argv);
+      /*let environement = argv.env !== undefined ? argv.env : "development";
       if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
         console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
         commands.startServer(environement);
       }else{
         console.log(chalk.red(`${environement} is not a valid environement`))
-      }
+      }*/
     }
   })
   .command({

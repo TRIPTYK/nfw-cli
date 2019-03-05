@@ -17,6 +17,14 @@ const path = require('path');
 const Log = require('./log');
 const modelSpecs = require('./modelSpecs');
 const inquirer = require('../lib/inquirer');
+
+const utils = require("../generate/utils");
+const modelWrite = require("../generate/modelWrite");
+const databaseInfo = require("../generate/databaseInfo");
+const cli = require("../generate/index");
+const del = require("../generate/delete");
+const generator = require("../generate/generateFromDB");
+
 module.exports = {
     /**
      * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
@@ -34,7 +42,7 @@ module.exports = {
         }else{
             console.log(chalk.green('Git repository cloned successfully ....'));
         }
-        const rename = await exec(dir+command2.rename + name);
+        await exec(dir+command2.rename + name);
         let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
         const rmGitProject = await exec(tempPath+command2.rmGit);
         if(rmGitProject.stderr.length){
@@ -86,7 +94,6 @@ module.exports = {
      * @param  {string} crud
      */
     generateModel: async(modelName, crud) => {
-        const utils = require(path.resolve(process.cwd()+"/cli/generate/utils"));
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
         if(modelExists){
@@ -98,9 +105,7 @@ module.exports = {
             }
         }
         var spinner = new Spinner("Checking for existing entities ....");
-        const modelWrite = require(path.resolve(process.cwd()+"/cli/generate/modelWrite"));
         spinner.start();
-        const databaseInfo = require(path.resolve(process.cwd()+"/cli/generate/databaseInfo"));
         const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
         if(!isExisting || (override && modelExists)){
@@ -142,8 +147,6 @@ module.exports = {
            });
        }
 
-        const cli = require(path.resolve(process.cwd()+"/cli/generate/index"));
-
         await cli(modelName, crud)
           .catch(e => {
             Log.error(`Generation failed : ${e.message}\nExiting ...`);
@@ -157,7 +160,6 @@ module.exports = {
      * @param  {string} modelName
      */
     deleteModel:  async(modelName,drop)=>{
-        const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
         await del(modelName,drop);
         process.exit(0);
     },
@@ -166,7 +168,7 @@ module.exports = {
     generateFromDB: async() => {
         var confirm = await inquirer.askForDBConfirmation();
         if(confirm.confirmation){
-            const generator = require(path.resolve(process.cwd()+"/cli/generate/generateFromDB"));
+            
             await generator();
         }else{
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));

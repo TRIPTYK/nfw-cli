@@ -56,7 +56,6 @@ columnParams= async (entity) => {
             defaultValue=`'${defaultValue}'`;
         }
         if(constraintValue !== 'foreign key'){
-            console.log(type);
             console.log(tempParanthesis);
             let paramsTemp = {
                 Field : columnName.trim(),
@@ -65,7 +64,6 @@ columnParams= async (entity) => {
                 Null : uniqueValue === true ? 'YES' : 'NO',
                 Key : constraintValue
             };
-            //console.clear();
             console.log(paramsTemp);
             let lastConfirm = await inquirer.askForConfirmation();
             if(lastConfirm.confirmation){
