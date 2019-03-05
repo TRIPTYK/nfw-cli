@@ -1,93 +1,148 @@
 const inquirer = require('../lib/inquirer');
 const colors = require('colors/safe');
+let column = [];
+
+columnParams= async (entity) => {
+    let paramsArray = [];
+    paramsArray['columns'] = [];
+    paramsArray['foreignKeys'] = [];
+    let {columnName}= await inquirer.questionColumnName();
+    if(columnName === ':exit') return null;
+    if(column.includes(columnName)){
+        console.log(colors.red('/!\\ You already added this column !'));
+        return null;
+    }else{
+        let {constraintValue} = await inquirer.questionColumnKey();
+        if(constraintValue === ':exit') return null;
+        if (constraintValue !== 'foreign key'){
+             var {uniqueValue} = await inquirer.questionUnique();
+             if(uniqueValue == null) return null;
+             var {defaultValue} = await inquirer.questionDefault();
+             if(defaultValue === ':exit') return null;
+             var {type} = await inquirer.questionType();
+             if(type === ':exit') return null;
+        }
+        let length_enum = [];
+        if(needLength.includes(type)){
+            length_enum[0] = await inquirer.lengthQuestion();
+            if(length_enum[0].enum === ':exit') return null;
+        }else if(type === 'enum'){
+            let arrayDone= false;
+            while(!arrayDone){
+                let enumTemp = await inquirer.enumQuestion();
+                if(enumTemp.enum === ':exit') return null;
+                let confirm = await inquirer.askForConfirmation();
+                if(confirm.confirmation){
+                    length_enum[length_enum.length]=enumTemp;
+                }
+                let more = await inquirer.askForMore();
+                if(!more.continueValue){
+                    arrayDone = true ;
+                }
+            }
+        }else{
+            length_enum[0]=10111998
+        }
+        let tempParanthesis = '';
+        if(length_enum[0] !== 10111998){
+            tempParanthesis += '('
+            length_enum[length_enum.length-1].enum=length_enum[length_enum.length-1].enum.replace(',','');
+            length_enum.forEach(elem => {
+                tempParanthesis += elem.enum;
+            });
+            tempParanthesis += ')'
+        }
+        if(['text','varchar','enum'].includes(type) && defaultValue!=='null' && defaultValue!==':no'){
+            defaultValue=`'${defaultValue}'`;
+        }
+        if(constraintValue !== 'foreign key'){
+            console.log(type);
+            console.log(tempParanthesis);
+            let paramsTemp = {
+                Field : columnName.trim(),
+                Type : type.trim()+tempParanthesis.trim(),
+                Default : defaultValue.trim(),
+                Null : uniqueValue === true ? 'YES' : 'NO',
+                Key : constraintValue
+            };
+            //console.clear();
+            console.log(paramsTemp);
+            let lastConfirm = await inquirer.askForConfirmation();
+            if(lastConfirm.confirmation){
+                column[column.length] = columnName;
+                paramsArray['columns'].push(paramsTemp);
+            } 
+        }    
+        else{
+            let {referencedTable} = await inquirer.questionRelation();
+            if(referencedTable === ':exit') return null;
+            let { referencedColumn} = await inquirer.questionReferencedColumn();
+            if(referencedColumn=== ':exit') return null;
+            let relationTemp = {
+                TABLE_NAME : entity,
+                COLUMN_NAME : columnName,
+                REFERENCED_TABLE_NAME : referencedTable.trim(),
+                REFERENCED_COLUMN_NAME : referencedColumn,
+            };
+            let {response } = await inquirer.askForeignKeyRelation(relationTemp);
+            relationTemp2 = {
+                TABLE_NAME : entity,
+                COLUMN_NAME : columnName,
+                REFERENCED_TABLE_NAME : referencedTable.trim(),
+                REFERENCED_COLUMN_NAME : referencedColumn,
+                type: response
+            };
+            console.log(relationTemp2);
+            let {confirmation} = await inquirer.askForConfirmation();
+            let paramsTemp = {
+                Field : columnName.trim(),
+                Key : constraintValue
+            };
+            if(confirmation){
+                paramsArray['foreignKeys'].push(relationTemp2);
+                paramsArray['columns'].push(paramsTemp);
+            } 
+        }
+        
+    }
+    return paramsArray;
+}
+
 /**
  * @author Romain Verliefden
  */
 const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','float','double','decimal','char','binary','varbinary'];
 exports.dbParams = async (entity) => {
-    var isDoneColumn = false;
-    var paramsArray = [];
+    let isDoneColumn = false;
+    let paramsArray = [];
     paramsArray['columns'] = [];
     paramsArray['foreignKeys'] = [];
-    var column = [];
     console.log(colors.green(`Let's create a table for ${entity}`));
     console.log(colors.green('/!\\ id is added by default .'));
     paramsArray['createUpdate'] = await inquirer.askForCreateUpdate();
     while(!isDoneColumn){
-        let value = await inquirer.paramsQuestion();
-        if(column.includes(value.column)){
-            console.log(colors.red('/!\\ You already added this column !'));
-        }else{
-            let length_enum = [];
-            if(needLength.includes(value.type)){
-                length_enum[0] = await inquirer.lengthQuestion();
-            }else if(value.type === 'enum'){
-                let arrayDone= false;
-                while(!arrayDone){
-                    let enumTemp = await inquirer.enumQuestion();
-                    let confirm = await inquirer.askForConfirmation();
-                    if(confirm.confirmation){
-                        length_enum[length_enum.length]=enumTemp;
-                    }
-                    let more = await inquirer.askForMore();
-                    if(!more.continueValue){
-                        arrayDone = true ;
-                    }
+            try{
+                let data = await columnParams(entity);
+                if(data != null){
+                    paramsArray['columns'].push(data.columns[0]);
+                    if(data.foreignKeys[0] != undefined )paramsArray['foreignKeys'].push(data.foreignKeys[0]);
                 }
-            }else{
-                length_enum[0]='NOTHING TO ADD'
+            }catch(err){
+                console.log(err);
             }
-            let tempParanthesis = '';
-            if(length_enum[0] !== 'NOTHING TO ADD'){
-                tempParanthesis += '('
-                length_enum[length_enum.length-1].enum=length_enum[length_enum.length-1].enum.replace(',','');
-                length_enum.forEach(elem => {
-                    tempParanthesis += elem.enum;
-                });
-                tempParanthesis += ')'
-            }
-            if(['text','varchar','enum'].includes(value.type) && value.defaultValue!=='null'){
-                value.defaultValue=`'${value.defaultValue}'`;
-            }
-            let paramsTemp = {
-                Field : value.column.trim(),
-                Type : value.type.trim()+tempParanthesis.trim(),
-                Default : value.defaultValue.trim(),
-                Null : value.uniqueValue === true ? 'YES' : 'NO',
-                Key : value.constraintValue
-            };
-            console.clear();
-            console.log(paramsTemp);
-            let lastConfirm = await inquirer.askForConfirmation();
-            if(value.constraintValue === 'foreign key'){
-                let {referencedTable, referencedColumn} = await inquirer.questionRelation();
-                let relationTemp = {
-                    TABLE_NAME : entity,
-                    COLUMN_NAME : value.column,
-                    REFERENCED_TABLE_NAME : referencedTable.trim(),
-                    REFERENCED_COLUMN_NAME : referencedColumn,
-                };
-                let {response } = await inquirer.askForeignKeyRelation(relationTemp);
-                relationTemp2 = {
-                    TABLE_NAME : entity,
-                    COLUMN_NAME : value.column,
-                    REFERENCED_TABLE_NAME : referencedTable.trim(),
-                    REFERENCED_COLUMN_NAME : referencedColumn,
-                    type: response
-                };
-                console.log(relationTemp2);
-                let {confirmation} = await inquirer.askForConfirmation();
-                if(confirmation) paramsArray['foreignKeys'].push(relationTemp2);
-            }
-            if(lastConfirm.confirmation){
-                column[column.length] = value.column;
-                paramsArray['columns'].push(paramsTemp);
-            }
+            //console.clear();
             let cont = await inquirer.lastConfirmation();
             if(!cont.continueValue){
                 isDoneColumn = true;
-            }
-        }
+            }    
+
     }
     return paramsArray;
 }
+
+process.openStdin().on("keypress", function(chunk, key) {
+    if(key && key.name === "i" && key.ctrl) {
+      console.log("Column currently added");
+      column.forEach(col => console.log(col));
+    }
+  });

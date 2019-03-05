@@ -159,7 +159,7 @@ module.exports = {
     deleteModel:  async(modelName,drop)=>{
         const del = require(path.resolve(process.cwd()+"/cli/generate/delete"));
         await del(modelName,drop);
-        module.exports.migrate(modelName);
+        process.exit(0);
     },
     /**
      * @description Call the core function to generate a model from the database     */
