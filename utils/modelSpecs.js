@@ -65,7 +65,7 @@ columnParams= async (entity) => {
                 Null : uniqueValue === true ? 'YES' : 'NO',
                 Key : constraintValue
             };
-            //console.clear();
+            console.clear();
             console.log(paramsTemp);
             let lastConfirm = await inquirer.askForConfirmation();
             if(lastConfirm.confirmation){
@@ -130,7 +130,7 @@ exports.dbParams = async (entity) => {
             }catch(err){
                 console.log(err);
             }
-            //console.clear();
+            console.clear();
             let cont = await inquirer.lastConfirmation();
             if(!cont.continueValue){
                 isDoneColumn = true;
@@ -139,10 +139,3 @@ exports.dbParams = async (entity) => {
     }
     return paramsArray;
 }
-
-process.openStdin().on("keypress", function(chunk, key) {
-    if(key && key.name === "i" && key.ctrl) {
-      console.log("Column currently added");
-      column.forEach(col => console.log(col));
-    }
-  });
