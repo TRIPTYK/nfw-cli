@@ -77,7 +77,7 @@ module.exports = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
         }
-        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> cfg.tpf`);
+        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> nfw.tpf`);
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
