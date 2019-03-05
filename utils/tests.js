@@ -43,6 +43,7 @@ module.exports = {
 
           status.stop();
           console.log(`${chalk.green(output[0])} \n ${output[1] !== undefined ? chalk.bgRed(chalk.black(output[1]+" =>")) : ""} \n ${errors !== undefined ? chalk.red(errors) : ""}`);
+          process.exit(0);
         }
     }
 }
