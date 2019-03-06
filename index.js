@@ -11,6 +11,7 @@ const path = require('path');
 const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
 const inquirer = require('./lib/inquirer');
+const sql = require('./generate/database/sqlAdaptator');
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -45,7 +46,8 @@ yargs
         type: 'boolean'
       })
     },
-    handler: (argv) => {
+    handler: async (argv) => {
+      check = await sql.checkConnexion();
       validateDirectory();
       test.execUnitTests(argv.logs !== undefined ? true : false);
     }
@@ -57,7 +59,8 @@ yargs
     builder: (yargs) => {
       yargs.default('CRUD', 'CRUD');
     },
-    handler: (argv) => {
+    handler: async (argv) => {
+      await sql.checkConnexion();
       validateDirectory();
       commands.generateModel(argv.modelName,argv.CRUD);
     }
@@ -85,7 +88,8 @@ yargs
         }
       })
     },
-    handler: (argv) => {
+    handler: async (argv) => {
+      if(argv.DROP) await sql.checkConnexion();
       validateDirectory();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
@@ -127,7 +131,8 @@ yargs
     aliases: ["mig", "M"],
     desc: "Generate, compile and run the migration",
     builder: () => {},
-    handler: () => {
+    handler: async () => {
+      await sql.checkConnexion();
       validateDirectory();
       commands.migrate();
     }

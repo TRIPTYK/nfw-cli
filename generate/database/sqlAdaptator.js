@@ -10,6 +10,7 @@ const mysql = require('mysql');
 const env = require('./databaseEnv');
 const util = require('util');
 const mysqldump = require('mysqldump');
+const chalk = require('chalk');
 
 var db = mysql.createConnection({
     host: env.host,
@@ -142,8 +143,12 @@ exports.Select = async (fields,table) =>{
 
 
 exports.checkConnexion = async  () => {
-  db.connect(err =>{
-    console.log("Database is unreachable");
-    process.exit(0);
-  })
+  const connect = util.promisify(db.connect.bind(db));
+  await connect().catch(err => {
+    if(err){
+      console.log(chalk.red("Database is unreachable"));
+      process.exit(0);
+    } 
+  });   
+  return;
 }
