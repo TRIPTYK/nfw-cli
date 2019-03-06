@@ -15,10 +15,8 @@ columnParams= async (entity) => {
         let {constraintValue} = await inquirer.questionColumnKey();
         if(constraintValue === ':exit') return null;
         if (constraintValue !== 'foreign key'){
-             var {uniqueValue} = await inquirer.questionUnique();
-             if(uniqueValue == null) return null;
-             var {defaultValue} = await inquirer.questionDefault();
-             if(defaultValue === ':exit') return null;
+             if(constraintValue === 'no constraint' )var {uniqueValue} = await inquirer.questionUnique();
+             else var uniqueValue = false;
              var {type} = await inquirer.questionType();
              if(type === ':exit') return null;
         }
@@ -43,6 +41,10 @@ columnParams= async (entity) => {
         }else{
             length_enum[0]=10111998
         }
+        if(type.includes('blob') || type.includes('json') || type.includes('text') || constraintValue !== 'no constraint') var defaultValue = ':no'; 
+        else var {defaultValue} = await inquirer.questionDefault();
+        if(defaultValue === ':exit') return null;
+        console.log(defaultValue);
         let tempParanthesis = '';
         if(length_enum[0] !== 10111998){
             tempParanthesis += '('
@@ -52,18 +54,18 @@ columnParams= async (entity) => {
             });
             tempParanthesis += ')'
         }
-        if(['text','varchar','enum'].includes(type) && defaultValue!=='null' && defaultValue!==':no'){
+        if(['text','varchar','enum'].includes(type) && defaultValue !=='null' && defaultValue!==':no' ){
             defaultValue=`'${defaultValue}'`;
         }
         if(constraintValue !== 'foreign key'){
-            console.log(tempParanthesis);
             let paramsTemp = {
                 Field : columnName.trim(),
                 Type : type.trim()+tempParanthesis.trim(),
                 Default : defaultValue.trim(),
-                Null : uniqueValue === true ? 'YES' : 'NO',
+                Null : uniqueValue  ? 'YES' : 'NO',
                 Key : constraintValue
             };
+            console.clear();
             console.log(paramsTemp);
             let lastConfirm = await inquirer.askForConfirmation();
             if(lastConfirm.confirmation){
@@ -137,10 +139,3 @@ exports.dbParams = async (entity) => {
     }
     return paramsArray;
 }
-
-process.openStdin().on("keypress", function(chunk, key) {
-    if(key && key.name === "i" && key.ctrl) {
-      console.log("Column currently added");
-      column.forEach(col => console.log(col));
-    }
-  });

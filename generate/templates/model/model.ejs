@@ -24,8 +24,14 @@ export class <%- entityCapitalize %> {
   <%- include('/model/_foreignKey',{foreignKey}) -%>
 <%});-%>
 
-<% if (createUpdate && createUpdate.createAt) { %> @CreateDateColumn() <% } -%>
-<% if (createUpdate && createUpdate.updateAt) { %> @UpdateDateColumn() <% } -%>
+<% if (createUpdate && createUpdate.createAt) { %>
+  @CreateDateColumn()
+  create_at;
+<% } -%>
+<% if (createUpdate && createUpdate.updateAt) { %>
+  @UpdateDateColumn()
+  update_at;
+<% } -%>
 
   public whitelist() {
     return new <%- entityCapitalize %>Serializer().serializer.serialize(this);

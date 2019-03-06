@@ -17,13 +17,15 @@ const path = require('path');
 const Log = require('./log');
 const modelSpecs = require('./modelSpecs');
 const inquirer = require('../lib/inquirer');
-
 const utils = require("../generate/utils");
 const modelWrite = require("../generate/modelWrite");
 const databaseInfo = require("../generate/databaseInfo");
 const cli = require("../generate/index");
 const del = require("../generate/delete");
 const generator = require("../generate/generateFromDB");
+const errHandler = require("./ErrorHandler");
+const operatingSystem = process.platform;
+
 
 module.exports = {
     /**
@@ -202,14 +204,23 @@ module.exports = {
           .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
         await exec(`tsc`)
-          .then(() => console.log(chalk.green("Compiled successfully")))
+          .then(() => {
+            console.log(chalk.green("Compiled successfully"))
+            operatingSystem === 'win32' ? exec('rmdir /Q /S src\\migration\\').catch(err => errHandler.deleteMigrateErr(err)): exec('rm -rf ./src/migration').catch(err => errHandler.deleteMigrateErr(err)); 
+          })
           .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
         await exec(`typeorm migration:run`)
           .then(() => console.log(chalk.green("Migration executed successfully")))
-          .catch(e => Log.error(`Failed to execute migration : ${e.message}`));
-
+          .catch(async e => {
+            Log.error(`Failed to execute migration : ${e.message}`);
+            await errHandler.migrateRunFail();
+            
+          });
         migrate.stop();
         process.exit(0);
-    }
+    },
+
+  
 }
+

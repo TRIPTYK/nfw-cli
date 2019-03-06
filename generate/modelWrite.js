@@ -30,13 +30,14 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-  console.log(col);
-  if (col.Default === null){
-    if(col.Null === 'NO' || col.Key=== 'PRI') return '';
-    else return 'default : null'; 
+  
+  if (col.Default === null && col.Null === 'NO' ){
+    return 'default : null'; 
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
     return `default : ${col.Default}`;
-  }else if (col.Default === ':no'){
+  }else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')){
+    return '';
+  }else if(col.key ==='UNI' || col.Key=== 'PRI'){
     return '';
   }else{
     return `default :"${col.Default}"`;
@@ -53,8 +54,9 @@ const _getDefault = (col) =>{
  * @returns if column can be null or not
  */
 const _getNull = (data,key) => {
-    if(key === 'PRI') return '';
-    if(data === 'YES' && key != 'PRI') return 'nullable:true,';
+    console.log(key);
+    if(key === 'PRI' || key === 'UNI') return '';
+    if(data === 'YES') return 'nullable:true,';
     return 'nullable:false,';
 }
 
@@ -124,7 +126,7 @@ const writeModel = async (action,data=null) =>{
               imports.push(`import {${cap}} from './${low}.model';`);
           }else{
             col.Type = sqlTypeData(col.Type);
-            col.Null = _getNull(col.Null);
+            col.Null = _getNull(col.Null,col.Key);
             col.Key = _getKey(col.Key);
             col.Default = _getDefault(col);
 

@@ -122,3 +122,28 @@ exports.dumpTable = async (table,path) => {
       dumpToFile: path + '.sql',
   })
 };
+
+/**
+* @description Select Fields from a table
+* @param {Array.string} fields
+* @param {string} table 
+ */
+exports.Select = async (fields,table) =>{
+  let fieldValue='';
+  fields.forEach(field => {
+    fieldValue += field+",";
+  });
+  fieldValue = fieldValue.substr(0,fieldValue.length-1);
+  result = await query(`SELECT ${fieldValue} from  ${table}`);
+  return result;
+
+}
+
+
+
+exports.checkConnexion = async  () => {
+  db.connect(err =>{
+    console.log("Database is unreachable");
+    process.exit(0);
+  })
+}
