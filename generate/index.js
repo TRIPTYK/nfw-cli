@@ -97,7 +97,7 @@ const _getValidationFields = (columns) => {
 
     if (realType.match(/(char|text)+/i)) realType = 'string';
     if (realType.match(/(date|time)+/i)) realType = 'date';
-    if (realType.match(/(int)+/i)) realType = 'number';
+    if (realType.match(/(int|double|float)+/i)) realType = 'number';
 
     let elemVal = `Joi.${realType}()${elemLength === null ? '' : `.max(${elemLength})`}`;
     return `${elem.Field} : ${elemVal}`;
