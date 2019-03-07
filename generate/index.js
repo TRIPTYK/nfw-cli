@@ -109,12 +109,15 @@ const _getValidationFields = (columns) => {
  * @param {*} items
  */
 const _write = async items => {
-  let tableColumns;
+  let tableColumns , foreignKeys;
 
   try {
-    tableColumns = (await databaseInfo.getTableInfo("sql",lowercase)).columns;
+    let data = await databaseInfo.getTableInfo("sql",lowercase);
+    tableColumns = data.columns;
+    foreignKeys = data.foreignKeys;
   }catch(err) {
     tableColumns = [];
+    foreignKeys = [];
   };
 
   // remove id key from array
@@ -128,13 +131,16 @@ const _write = async items => {
     // handle model template separately
     if (item.template == 'model') return;
 
-    let file = await ReadFile(`${processPath}/cli/generate/templates/${item.template}.ejs`, 'utf-8');
+    let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
 
     let output = ejs.compile(file)({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       options : crudOptions,
       entityColumns : columnNames,
+      lowercaseEntity,
+      capitalizeEntity,
+      foreignKeys : foreignKeys,
       entityProperties : `{${testColumns.join(',\n')}}`,
       validation : validation.join(',\n')
     });
@@ -165,6 +171,8 @@ const build = async (modelName, crudArgs) => {
     Log.error('Nothing to generate. Please, get entity name parameter.');
     return;
   }
+
+  console.log(__dirname);
 
   if(!crudArgs.length){
     Log.rainbow('Warning : ','No CRUD options, set every option to true by default');

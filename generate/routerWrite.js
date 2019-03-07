@@ -25,7 +25,7 @@ module.exports = async (action) => {
   lowercase   = lowercaseEntity(action);
 
   let proxyPath = `${processPath}/src/api/routes/v1/index.ts`;
-  let routeUsePath = `${processPath}/cli/generate/templates/route/routerUse.ejs`;
+  let routeUsePath = `${__dirname}/templates/route/routerUse.ejs`;
 
   let p_lines = countLines(proxyPath);
   let p_proxy = ReadFile(proxyPath,'utf-8');
