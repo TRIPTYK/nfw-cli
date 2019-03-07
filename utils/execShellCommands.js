@@ -181,7 +181,7 @@ module.exports = {
      * @description Starts the server in the shell and display every output
      */
     startServer: async(environement) => {
-        let executed = spawn(`node ${path.resolve('dist', 'app.bootstrap.js')}`,["env",`production`]);
+        let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
         executed.stdout.on('data', (chunk) => {
             console.log(`${chunk}`)
         });
