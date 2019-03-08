@@ -66,7 +66,7 @@ const _unroute = async () => {
   let toRoute = new RegExp(`\n?((\\\/\\*[\\w\\\'\\s\\r\\n\\*]*\\*\\\/)|(\\\/\\\/[\\w\\s\\\']*))\\s*(\\w*.use.*${capitalize}Router(.|\\s){1};)\n?`,"gm");
 
   // replace match by nothing
-  proxy = removeImport(proxy,capitalize)
+  proxy = removeImport(proxy,`${capitalize}Router`)
     .replace(toRoute,"");
 
   await WriteFile(proxyPath, proxy)

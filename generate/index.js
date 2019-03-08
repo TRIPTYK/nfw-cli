@@ -130,12 +130,11 @@ const _write = async (data = null) => {
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       options : crudOptions,
-      entityColumns : columnNames,
       tableColumns,
       allColumns,
       lowercaseEntity,
       capitalizeEntity,
-      foreignKeys : foreignKeys,
+      foreignKeys,
       validation : validation.join(',\n')
     });
 

@@ -53,7 +53,7 @@ exports.prompt = (question) => {
  * @param {string} imprt import name
  */
 exports.isImportPresent = (string,imprt) => {
-  let match = string.match(new RegExp(`import.+{\\s*${imprt}\\s*}.*;`,'gm'));
+  let match = string.match(new RegExp(`import\\s+{.*${imprt}\\b.*}.*;`,'gm'));
   return match !== null;
 }
 
@@ -62,7 +62,7 @@ exports.isImportPresent = (string,imprt) => {
  * @param {string} string
  * @param {string} imprt import name
  */
-exports.removeImport = (string,imprt) => string.replace(new RegExp(`\n?import.+{\\s*${imprt}\\s*}.*;`,"g"),"");
+exports.removeImport = (string,imprt) => string.replace(new RegExp(`\n?import\\s+{.*${imprt}\\b.*}.*;`,"g"),"");
 
 /**
  * @description replace text to the first empty line of string
