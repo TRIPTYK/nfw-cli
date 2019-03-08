@@ -44,7 +44,6 @@ columnParams= async (entity) => {
         if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) var defaultValue = ':no'; 
         else var {defaultValue} = await inquirer.questionDefault();
         if(defaultValue === ':exit') return null;
-        console.log(defaultValue);
         let tempParanthesis = '';
         if(length_enum[0] !== 10111998){
             tempParanthesis += '('
@@ -94,13 +93,8 @@ columnParams= async (entity) => {
             };
             console.log(relationTemp2);
             let {confirmation} = await inquirer.askForConfirmation();
-            let paramsTemp = {
-                Field : columnName.trim(),
-                Key : constraintValue
-            };
             if(confirmation){
                 paramsArray['foreignKeys'].push(relationTemp2);
-                paramsArray['columns'].push(paramsTemp);
             }
         }
 
