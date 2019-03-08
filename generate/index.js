@@ -76,9 +76,14 @@ const _checkForCrud = (arg) => {
  */
 const _getTestFields = (columns) => {
   return columns.map(elem => {
-    let elemLength = elem.Type.length;
-    let realType = elem.Type.type;
-    elemLength = elemLength === null ? elemLength = null : elemLength[1];
+    let type = elem.Type;
+
+    if (typeof type === 'string') { //TODO : Fix undefined data lengths
+      type = sqlTypeData(type);
+    }
+
+    let elemLength = type.length;
+    let realType = type.type;
 
     let elemVal = `fixtures.random${realType}(${elemLength})`;
     return `${elem.Field} : ${elemVal}`;
