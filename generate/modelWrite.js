@@ -30,8 +30,7 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-  let def = col.Default.split('(');
-  col.Default = def[0];
+  let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
   if (col.Default === null && col.Null === 'NO' ){
     return 'default : null';
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
@@ -40,6 +39,8 @@ const _getDefault = (col) =>{
     return '';
   }else if(col.key ==='UNI' || col.Key=== 'PRI'){
     return '';
+  }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default.includes('(') || sqlFunction.includes(col.Default))){
+    return ` default : () => "${col.Default}"`;
   }else{
     return `default :"${col.Default}"`;
   }

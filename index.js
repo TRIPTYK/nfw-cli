@@ -47,8 +47,8 @@ yargs
       })
     },
     handler: async (argv) => {
-      check = await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
       test.execUnitTests(argv.logs !== undefined ? true : false);
     }
   })
@@ -60,8 +60,8 @@ yargs
       yargs.default('CRUD', 'CRUD');
     },
     handler: async (argv) => {
-      await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
       commands.generateModel(argv.modelName,argv.CRUD);
     }
   })
@@ -89,8 +89,8 @@ yargs
       })
     },
     handler: async (argv) => {
-      if(argv.DROP) await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
@@ -132,8 +132,8 @@ yargs
     desc: "Generate, compile and run the migration",
     builder: () => {},
     handler: async () => {
-      await sql.checkConnexion();
       validateDirectory();
+      await sql.checkConnexion();
       commands.migrate();
     }
   })
