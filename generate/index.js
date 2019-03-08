@@ -22,7 +22,7 @@ const Log = require('./log');
 /**
  * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
  */
-const { countLines , capitalizeEntity , prompt , lowercaseEntity , fileExists} = require('./utils');
+const { countLines , capitalizeEntity , prompt , sqlTypeData , lowercaseEntity , fileExists} = require('./utils');
 /**
  * Transform a async method to a promise
  * @returns {Promise} returns FS.exists async function as a promise
@@ -91,9 +91,18 @@ const _getTestFields = (columns) => {
  */
 const _getValidationFields = (columns) => {
   return columns.map(elem => {
-    let elemLength = new RegExp("\\w\*\\\(\(\[0\-9\]\*\)\\\)","").exec(elem.Type);
-    let realType = new RegExp("(\\w*)","").exec(elem.Type)[1];
-    elemLength = elemLength === null ? elemLength : elemLength[1];
+    let type = elem.Type;
+
+    console.log(type);
+
+    if (typeof type === 'string') { //TODO : Fix undefined data lengths
+      type = sqlTypeData(type);
+    }
+
+    console.log(type);
+
+    let elemLength = type.length;
+    let realType = type.type;
 
     if (realType.match(/(char|text)+/i)) realType = 'string';
     if (realType.match(/(date|time)+/i)) realType = 'date';
@@ -108,13 +117,16 @@ const _getValidationFields = (columns) => {
  * @description replace the vars in placeholder in file and creates them
  * @param {*} items
  */
-const _write = async items => {
-  let tableColumns;
+const _write = async (data = null) => {
+  let tableColumns , foreignKeys;
 
   try {
-    tableColumns = (await databaseInfo.getTableInfo("sql",lowercase)).columns;
+    let tmpData = await databaseInfo.getTableInfo("sql",lowercase);
+    tableColumns = tmpData.columns;
+    foreignKeys = tmpData.foreignKeys;
   }catch(err) {
-    tableColumns = [];
+    tableColumns = data ? data.columns : [];
+    foreignKeys = data ? data.foreignKeys : [];
   };
 
   // remove id key from array
@@ -124,17 +136,26 @@ const _write = async items => {
   const validation = _getValidationFields(tableColumns);
   const testColumns = _getTestFields(tableColumns);
 
+  const allColumns = tableColumns // TODO: do this in view
+    .map(elem => `'${elem.Field}'`)
+    .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
+
   let promises = items.map( async (item) => {
     // handle model template separately
     if (item.template == 'model') return;
 
-    let file = await ReadFile(`${processPath}/cli/generate/templates/${item.template}.ejs`, 'utf-8');
+    let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
 
     let output = ejs.compile(file)({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       options : crudOptions,
       entityColumns : columnNames,
+      tableColumns,
+      allColumns,
+      lowercaseEntity,
+      capitalizeEntity,
+      foreignKeys : foreignKeys,
       entityProperties : `{${testColumns.join(',\n')}}`,
       validation : validation.join(',\n')
     });
@@ -159,7 +180,7 @@ const _write = async items => {
  *
  * @param {Array.<JSON>} items
  */
-const build = async (modelName, crudArgs) => {
+const build = async (modelName, crudArgs , data = null) => {
   if(!modelName.length)
   {
     Log.error('Nothing to generate. Please, get entity name parameter.');
@@ -183,7 +204,7 @@ const build = async (modelName, crudArgs) => {
   lowercase = lowercaseEntity(modelName);
   capitalize = capitalizeEntity(modelName);
 
-  await _write(items);
+  await _write(data);
 
   Log.success('Generating task done');
 };

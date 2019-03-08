@@ -1,7 +1,23 @@
 import { BaseSerializer } from "./base.serializer";
+<% foreignKeys.forEach(foreignKey => { %>
+import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer"
+<% }); %>
 
 export class <%- entityCapitalize %>Serializer extends BaseSerializer {
 
-  constructor() { super('<%- entityLowercase %>s', [<%- entityColumns %>]) };
+  public static withelist : Array<String> = [<%- allColumns %>];
+
+  constructor() {
+    super('<%- entityLowercase %>s', {
+        id : 'id',
+        attributes : <%- entityCapitalize %>Serializer.withelist,
+        <% foreignKeys.forEach(foreignKey => { %>
+           <%- foreignKey.COLUMN_NAME %> : {
+             ref : 'id',
+             attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
+           }
+        <% }); %>
+    });
+  }
 
 }

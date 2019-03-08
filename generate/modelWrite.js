@@ -30,9 +30,9 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-  
+
   if (col.Default === null && col.Null === 'NO' ){
-    return 'default : null'; 
+    return 'default : null';
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
     return `default : ${col.Default}`;
   }else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')){
@@ -104,7 +104,7 @@ const writeModel = async (action,data=null) =>{
     let lowercase = lowercaseEntity(action);
     let capitalize  = capitalizeEntity(lowercase);
 
-    let p_file = await ReadFile(`${process.cwd()}/cli/generate/templates/model/model.ejs`, 'utf-8');
+    let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
 
     if(data == null) data = await databaseInfo.getTableInfo('sql',lowercase);
@@ -134,7 +134,7 @@ const writeModel = async (action,data=null) =>{
           }
         }));
 
-      let output = ejs.compile(p_file,{root : `${process.cwd()}/cli/generate/templates/`})({
+      let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
         entityLowercase : lowercase,
         entityCapitalize : capitalize,
         entities,
@@ -156,7 +156,7 @@ const basicModel = async (action) => {
   let lowercase = lowercaseEntity(action);
   let capitalize  = capitalizeEntity(lowercase);
   let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-  let modelTemp = await ReadFile(`${process.cwd()}/cli/generate/templates/model/model.ejs`);
+  let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
 
   let basicModel = ejs.compile(modelTemp.toString())({
     entityLowercase : lowercase,
