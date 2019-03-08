@@ -71,21 +71,6 @@ const _checkForCrud = (arg) => {
 };
 
 /**
- * @description generate an array of fake data to be send for given entity
- * @param {*} columns
- */
-const _getTestFields = (columns) => {
-  return columns.map(elem => {
-    let elemLength = elem.Type.length;
-    let realType = elem.Type.type;
-    elemLength = elemLength === null ? elemLength = null : elemLength[1];
-
-    let elemVal = `fixtures.random${realType}(${elemLength})`;
-    return `${elem.Field} : ${elemVal}`;
-  });
-};
-
-/**
  * @description generate an array of validation properties for entity
  * @param {*} items
  */
@@ -130,7 +115,6 @@ const _write = async (data = null) => {
 
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
   const validation = _getValidationFields(tableColumns);
-  const testColumns = _getTestFields(tableColumns);
 
   const allColumns = tableColumns // TODO: do this in view
     .map(elem => `'${elem.Field}'`)
@@ -152,7 +136,6 @@ const _write = async (data = null) => {
       lowercaseEntity,
       capitalizeEntity,
       foreignKeys : foreignKeys,
-      entityProperties : `{${testColumns.join(',\n')}}`,
       validation : validation.join(',\n')
     });
 

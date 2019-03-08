@@ -47,7 +47,11 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send( <%- entityProperties %> )
+      .send( {
+        <% tableColumns.forEach(column => { %>
+          fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+        <% }); %>
+      } )
       .end(function(err, res) {
         let status = res.status | res.statusCode;
         expect(status).to.equal(201);
@@ -79,7 +83,11 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send(<%- entityProperties %>)
+      .send({
+        <% tableColumns.forEach(column => { %>
+          fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+        <% }); %>
+      })
       .expect(200, done);
   });
 <% } %>
@@ -94,7 +102,11 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send(<%- entityProperties %>)
+      .send({
+        <% tableColumns.forEach(column => { %>
+          fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+        <% }); %>
+      })
       .expect(200, done);
   });
 <% } %>
