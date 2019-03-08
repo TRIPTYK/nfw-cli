@@ -13,7 +13,7 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
         attributes : <%- entityCapitalize %>Serializer.withelist,
         <% foreignKeys.forEach(foreignKey => { %>
            <%- foreignKey.COLUMN_NAME %> : {
-             ref : 'id',
+             ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
              attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
            }
         <% }); %>
