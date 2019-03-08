@@ -30,7 +30,8 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-
+  let def = col.Default.split('(');
+  col.Default = def[0];
   if (col.Default === null && col.Null === 'NO' ){
     return 'default : null';
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
