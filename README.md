@@ -178,7 +178,7 @@ Show informaion about who developed the software.
 Command :
 
  ```bash
- $ nfw start <modelName>
+ $ nfw start
  ```
 
 #### Description
