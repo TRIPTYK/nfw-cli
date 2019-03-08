@@ -41,7 +41,7 @@ columnParams= async (entity) => {
         }else{
             length_enum[0]=10111998
         }
-        if(type.includes('blob') || type.includes('json') || type.includes('text') || constraintValue !== 'no constraint') var defaultValue = ':no'; 
+        if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) var defaultValue = ':no'; 
         else var {defaultValue} = await inquirer.questionDefault();
         if(defaultValue === ':exit') return null;
         console.log(defaultValue);
@@ -71,8 +71,8 @@ columnParams= async (entity) => {
             if(lastConfirm.confirmation){
                 column[column.length] = columnName;
                 paramsArray['columns'].push(paramsTemp);
-            } 
-        }    
+            }
+        }
         else{
             let {referencedTable} = await inquirer.questionRelation();
             if(referencedTable === ':exit') return null;
@@ -101,9 +101,9 @@ columnParams= async (entity) => {
             if(confirmation){
                 paramsArray['foreignKeys'].push(relationTemp2);
                 paramsArray['columns'].push(paramsTemp);
-            } 
+            }
         }
-        
+
     }
     return paramsArray;
 }
@@ -134,7 +134,7 @@ exports.dbParams = async (entity) => {
             let cont = await inquirer.lastConfirmation();
             if(!cont.continueValue){
                 isDoneColumn = true;
-            }    
+            }
 
     }
     return paramsArray;

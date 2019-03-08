@@ -34,6 +34,6 @@ export class <%- entityCapitalize %> {
 <% } -%>
 
   public whitelist() {
-    return new <%- entityCapitalize %>Serializer().serializer.serialize(this);
+    return new <%- entityCapitalize %>Serializer().serialize(this);
   }
 }

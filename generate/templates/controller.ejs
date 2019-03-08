@@ -24,10 +24,16 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    *
    * @public
    */
-   public async get(req: Request, res : Response) {
-    const repository = getRepository(<%- entityCapitalize %>);
-    const <%- entityLowercase %> = await repository.findOneOrFail(req.params.<%- entityLowercase %>Id);
-    res.json( <%- entityLowercase %>.whitelist() );
+   public async get(req: Request, res : Response, next : Function) {
+    try {
+      const repository = getCustomRepository(<%- entityCapitalize %>Repository);
+      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query))
+        .where('id = :id', { id: req.params.id })
+        .getOne();
+      res.json( <%- entityLowercase %>.whitelist() );
+    }catch(e) {
+      next(e);
+    }
   }
 <% } %>
 
@@ -67,7 +73,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await repository.findOne(req.params.<%- entityLowercase %>Id);
+      const <%- entityLowercase %> = await repository.findOne(req.params.id);
       repository.merge(<%- entityLowercase %>, req.body);
       repository.save(<%- entityLowercase %>);
       res.json( <%- entityLowercase %>.whitelist() );
@@ -91,10 +97,11 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %>s = await repository.list(req.query);
-      res.json(<%- entityLowercase %>s);
+      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query)).getMany();
+      res.json( <%- entityLowercase %>.map(<%- entityLowercase %> => <%- entityLowercase %>.whitelist()) );
+    }catch(e) {
+      next(e);
     }
-    catch (e) { next(e); }
   }
 <% } %>
 
@@ -112,7 +119,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const <%- entityLowercase %>Repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.<%- entityLowercase %>Id);
+      const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.id);
       const repository = getRepository(<%- entityCapitalize %>);
       await repository.remove(<%- entityLowercase %>);
       res.sendStatus(HttpStatus.NO_CONTENT).end();
