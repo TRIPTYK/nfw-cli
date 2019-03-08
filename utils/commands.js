@@ -17,7 +17,7 @@ module.exports = {
     },
     getNPMCommandsUnix:{
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript -g && npm i typeorm -g && npm i && tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript -g && npm i typeorm -g && npm i && tsc",
         compileTypeScript: "tsc",
         test: "npm run testUnix"
     },

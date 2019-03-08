@@ -169,14 +169,14 @@ const basicModel = async (action) => {
   let capitalize  = capitalizeEntity(lowercase);
   let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
   let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
-
   let basicModel = ejs.compile(modelTemp.toString())({
     entityLowercase : lowercase,
     entityCapitalize : capitalize,
     entities : [],
     imports : [],
     foreignKeys : [],
-    createUpdate : null
+    createUpdate : {createAt : true,
+                      updateAt : true}
   });
 
   let p_write = WriteFile(pathModel, basicModel)
