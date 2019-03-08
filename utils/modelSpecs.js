@@ -118,7 +118,7 @@ exports.dbParams = async (entity) => {
             try{
                 let data = await columnParams(entity);
                 if(data != null){
-                    paramsArray['columns'].push(data.columns[0]);
+                    if(data.columns[0] != undefined )paramsArray['columns'].push(data.columns[0]);
                     if(data.foreignKeys[0] != undefined )paramsArray['foreignKeys'].push(data.foreignKeys[0]);
                 }
             }catch(err){
