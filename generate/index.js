@@ -93,13 +93,9 @@ const _getValidationFields = (columns) => {
   return columns.map(elem => {
     let type = elem.Type;
 
-    console.log(type);
-
     if (typeof type === 'string') { //TODO : Fix undefined data lengths
       type = sqlTypeData(type);
     }
-
-    console.log(type);
 
     let elemLength = type.length;
     let realType = type.type;

@@ -109,44 +109,55 @@ const writeModel = async (action,data=null) =>{
 
     if(data == null) data = await databaseInfo.getTableInfo('sql',lowercase);
 
+    console.log(data);
+
     let { columns , foreignKeys } = data;
     let entities = [] , f_keys = [] , imports = [];
 
-    await Promise.all(columns.map(async col =>{
+    /*
+     filter the foreign keys from columns , they are not needed anymore
+     Only when imported by database
+     TODO : have the same format when importing from database and generating from scratch ?
+    */
+    columns = columns.filter(column => {
+        return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
+    });
+
+
+    foreignKeys.forEach(foreignKey => {
+      let low = foreignKey.REFERENCED_TABLE_NAME;
+      let cap = capitalizeEntity(low);
+
+      f_keys.push(foreignKey);
+
+      if (low != foreignKey.TABLE_NAME)
+        imports.push(`import {${cap}} from './${low}.model';`);
+    });
+
+    columns.forEach(col => {
         if(col.Field === "id") return;
-        let foreignKey = foreignKeys.find(elem => elem.COLUMN_NAME == col.Field);
 
-        if (foreignKey) {
-            let low = foreignKey.REFERENCED_TABLE_NAME;
-            let cap = capitalizeEntity(low);
+        col.Type = sqlTypeData(col.Type);
+        col.Null = _getNull(col.Null,col.Key);
+        col.Key = _getKey(col.Key);
+        col.Default = _getDefault(col);
 
-            f_keys.push(foreignKey);
+        entities.push(col);
+    });
 
-            if (foreignKey.REFERENCED_TABLE_NAME != foreignKey.TABLE_NAME)
-              imports.push(`import {${cap}} from './${low}.model';`);
-          }else{
-            col.Type = sqlTypeData(col.Type);
-            col.Null = _getNull(col.Null,col.Key);
-            col.Key = _getKey(col.Key);
-            col.Default = _getDefault(col);
+    let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
+      entityLowercase : lowercase,
+      entityCapitalize : capitalize,
+      entities,
+      imports,
+      foreignKeys : f_keys,
+      createUpdate : data.createUpdate,
+      capitalizeEntity,
+      lowercaseEntity
+    });
 
-            entities.push(col);
-          }
-        }));
-
-      let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
-        entityLowercase : lowercase,
-        entityCapitalize : capitalize,
-        entities,
-        imports,
-        foreignKeys : f_keys,
-        createUpdate : data.createUpdate,
-        capitalizeEntity,
-        lowercaseEntity
-      });
-
-      await Promise.all([WriteFile(pathModel, output),_addToConfig(lowercase,capitalize)]);
-      Log.success("Model created in :" + pathModel);
+    await Promise.all([WriteFile(pathModel, output),_addToConfig(lowercase,capitalize)]);
+    Log.success("Model created in :" + pathModel);
 }
 
 /**
