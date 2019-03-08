@@ -34,7 +34,7 @@ router
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated <%- entityLowercase %>s can access the data
    * @apiError (Forbidden 403)     Forbidden     Only admins can access the data
    */
-  .get(authorize([ADMIN]), validate(Validation.list<%- entityCapitalize %>s), <%- entityLowercase %>Controller.list)
+  .get(/*authorize([ADMIN]),*/ validate(Validation.list<%- entityCapitalize %>s), <%- entityLowercase %>Controller.list)
 <% } %>
 
 <% if (options.create) { %>
@@ -55,7 +55,7 @@ router
    * @apiError (Unauthorized 401)  Unauthorized     Only authenticated <%- entityLowercase %>s can create the data
    * @apiError (Forbidden 403)     Forbidden        Only admins can create the data
    */
-  .post(authorize([ADMIN]), validate(Validation.create<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.create);
+  .post(/*authorize([ADMIN]),*/ validate(Validation.create<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.create);
 <% } %>
 
 router
@@ -77,7 +77,7 @@ router
    * @apiError (Forbidden 403)    Forbidden    Only <%- entityLowercase %> with same id or admins can access the data
    * @apiError (Not Found 404)    NotFound     <%- entityCapitalize %> does not exist
    */
-  .get(authorize([ADMIN, LOGGED_USER]), validate(Validation.get<%- entityCapitalize %>), <%- entityLowercase %>Controller.get)
+  .get(/*authorize([ADMIN, LOGGED_USER]),*/ validate(Validation.get<%- entityCapitalize %>), <%- entityLowercase %>Controller.get)
 <% } %>
 
 <% if (options.update) { %>
@@ -101,7 +101,7 @@ router
    * @apiError (Forbidden 403)    Forbidden    Only <%- entityLowercase %> with same id or admins can modify the data
    * @apiError (Not Found 404)    NotFound     <%- entityCapitalize %> does not exist
    */
-  .put(authorize([ADMIN, LOGGED_USER]), validate(Validation.replace<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.update)
+  .put(/*authorize([ADMIN, LOGGED_USER]),*/ validate(Validation.replace<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.update)
 <% } %>
 
 <% if (options.update) { %>
@@ -125,7 +125,7 @@ router
    * @apiError (Forbidden 403)    Forbidden    Only <%- entityLowercase %> with same id or admins can modify the data
    * @apiError (Not Found 404)    NotFound     <%- entityCapitalize %> does not exist
    */
-  .patch(authorize([ADMIN, LOGGED_USER]), validate(Validation.update<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.update)
+  .patch(/*authorize([ADMIN, LOGGED_USER]),*/ validate(Validation.update<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.update)
 <% } %>
 
 <% if (options.delete) { %>
@@ -145,7 +145,7 @@ router
    * @apiError (Forbidden 403)    Forbidden     Only <%- entityLowercase %> with same id or admins can delete the data
    * @apiError (Not Found 404)    NotFound      <%- entityCapitalize %> does not exist
    */
-  .delete(authorize([ADMIN, LOGGED_USER]), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.remove);
+  .delete(/*authorize([ADMIN, LOGGED_USER]),*/ SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.remove);
 <% } %>
 
 export { router };

@@ -27,7 +27,9 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    public async get(req: Request, res : Response, next : Function) {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.params.id)).getOne();
+      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query))
+        .where('id = :id', { id: req.params.id })
+        .getOne();
       res.json( <%- entityLowercase %>.whitelist() );
     }catch(e) {
       next(e);
@@ -71,7 +73,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await repository.findOne(req.params.<%- entityLowercase %>Id);
+      const <%- entityLowercase %> = await repository.findOne(req.params.id);
       repository.merge(<%- entityLowercase %>, req.body);
       repository.save(<%- entityLowercase %>);
       res.json( <%- entityLowercase %>.whitelist() );
@@ -95,7 +97,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.params.id)).getMany();
+      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query)).getMany();
       res.json( <%- entityLowercase %>.map(<%- entityLowercase %> => <%- entityLowercase %>.whitelist()) );
     }catch(e) {
       next(e);
@@ -117,7 +119,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const <%- entityLowercase %>Repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.<%- entityLowercase %>Id);
+      const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.id);
       const repository = getRepository(<%- entityCapitalize %>);
       await repository.remove(<%- entityLowercase %>);
       res.sendStatus(HttpStatus.NO_CONTENT).end();

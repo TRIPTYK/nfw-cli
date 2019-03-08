@@ -45,7 +45,7 @@ module.exports = {
             console.log(chalk.green('Git repository cloned successfully ....'));
         }
         await exec(dir+command2.rename + name);
-        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
+        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
         const rmGitProject = await exec(tempPath+command2.rmGit);
         if(rmGitProject.stderr.length){
             console.log(chalk.red('Error') + " : " + rmGitProject.stderr);
@@ -82,7 +82,7 @@ module.exports = {
      * @param  {string} name
      */
     generateConfig:  async (command,newPath,name) =>{
-        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && "; 
+        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
         const config = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
@@ -110,12 +110,15 @@ module.exports = {
         spinner.start();
         const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
+
+        let entityModelData = null;
+
         if(!isExisting || (override && modelExists)){
             const data = await inquirer.askForChoice();
             switch(data.value){
                 case "create an entity":
-                    const entity = await modelSpecs.dbParams(modelName);
-                    await modelWrite("write", modelName, entity)
+                    entityModelData = await modelSpecs.dbParams(modelName);
+                    await modelWrite("write", modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
@@ -135,6 +138,7 @@ module.exports = {
             }
         }else{
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
+
           if (foreignKeys && foreignKeys.length) {
               for (let i=0;i < foreignKeys.length;i++) {
                 let tmpKey = foreignKeys[i];
@@ -142,6 +146,9 @@ module.exports = {
                 foreignKeys[i].type = response;
               }
            }
+
+         entityModelData = { columns , foreignKeys };
+
          await modelWrite('db', modelName , { columns , foreignKeys })
            .catch(e => {
              Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
@@ -149,11 +156,12 @@ module.exports = {
            });
        }
 
-        await cli(modelName, crud)
-          .catch(e => {
-            Log.error(`Generation failed : ${e.message}\nExiting ...`);
-            process.exit(1);
-          });
+      await cli(modelName, crud, entityModelData )
+        .catch(e => {
+          console.log(e);
+          Log.error(`Generation failed : ${e}\nExiting ...`);
+          process.exit(1);
+        });
 
         module.exports.migrate(modelName);
     },
@@ -170,7 +178,7 @@ module.exports = {
     generateFromDB: async() => {
         var confirm = await inquirer.askForDBConfirmation();
         if(confirm.confirmation){
-            
+
             await generator();
         }else{
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
@@ -206,7 +214,7 @@ module.exports = {
         await exec(`tsc`)
           .then(() => {
             console.log(chalk.green("Compiled successfully"))
-            operatingSystem === 'win32' ? exec('rmdir /Q /S src\\migration\\').catch(err => errHandler.deleteMigrateErr(err)): exec('rm -rf ./src/migration').catch(err => errHandler.deleteMigrateErr(err)); 
+            operatingSystem === 'win32' ? exec('rmdir /Q /S src\\migration\\').catch(err => errHandler.deleteMigrateErr(err)): exec('rm -rf ./src/migration').catch(err => errHandler.deleteMigrateErr(err));
           })
           .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
@@ -215,12 +223,11 @@ module.exports = {
           .catch(async e => {
             Log.error(`Failed to execute migration : ${e.message}`);
             await errHandler.migrateRunFail();
-            
+
           });
         migrate.stop();
         process.exit(0);
     },
 
-  
-}
 
+}
