@@ -87,7 +87,7 @@ module.exports = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
         }
-        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> nfw.tpf`);
+        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> .nfw`);
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
@@ -99,7 +99,7 @@ module.exports = {
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
         if(modelExists){
-            const question = await inquirer.askForOverride(modelName);
+            const question = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?` );
             override =question.override;
             if(!question.override){
                 console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
@@ -176,7 +176,7 @@ module.exports = {
     /**
      * @description Call the core function to generate a model from the database     */
     generateFromDB: async() => {
-        var confirm = await inquirer.askForDBConfirmation();
+        var confirm = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will oveeride existing models with the same name ! Do you want to continue ?`);
         if(confirm.confirmation){
 
             await generator();

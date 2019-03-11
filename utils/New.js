@@ -15,28 +15,26 @@ module.exports = {
         @description Generate a new project
         @generator
      */
-    New: async (env) => {
+    New: async (name,env,pathOption) => {
         draw.header();
         let envVar = undefined;
         if(env){
             envVar = await inquirer.askForEnvVariable();
             envVar.URL = `http://localhost:${envVar.PORT}`;
         }
-        const answer = await inquirer.askPathValidation();
-        if(!answer.pathCorrect){
+        if(pathOption){
             newPath = await inquirer.askForNewPath();
         }
-        const projectName = await inquirer.askForProjectName();
         const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix; 
-        await shellCmd.execGit(commands.getGitCommands,rmCommand,projectName.name, newPath);
+        await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
         const kickstartCommand = operatingSystem === 'win32' ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
-        await shellCmd.execCommand(kickstartCommand,projectName.name, newPath);
-        await shellCmd.generateConfig(commands.getGitCommands, newPath, projectName.name);
+        await shellCmd.execCommand(kickstartCommand,name, newPath);
+        await shellCmd.generateConfig(commands.getGitCommands, newPath, name);
         if(process.cwd() !== newPath && newPath !== undefined){
-            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other tpf commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, projectName.name)));
+            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other tpf commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, name)));
         }
         if(env){
-            const envFilePath = newPath === undefined ? path.resolve(process.cwd(), projectName.name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, projectName.name + `/${envVar.env.toLowerCase()}.env`);
+            const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
             let envFileContent =await fs.readFileSync(envFilePath).toString();
             const variables = Object.entries(envVar);
             for(const [k,v] of variables){

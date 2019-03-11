@@ -1,0 +1,6 @@
+FROM mysql:5.7
+
+SHELL ["/bin/bash", "-c"]
+ENV MYSQL_ROOT_PASSWORD root
+ENV MYSQL_DATABASE 3rd_party_ts_boilerplate
+EXPOSE 3306

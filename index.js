@@ -29,11 +29,15 @@ yargs
       yargs.option('env',{
         desc: "Allow user to specify ENV variables",
         type: "boolean"
+      }),
+      yargs.option('path',{
+        desc: "Allow the user to choose a different path",
+        type: 'boolean'
       })
     },
     handler: async(argv) => {
       clear();
-      project.New(argv.env !== undefined ? true: false);
+      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false);
     }
   }).command({
     strict: true,

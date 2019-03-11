@@ -18,15 +18,20 @@ Commands :
 Command :
 
  ```bash
- $ nfw new
+ $ nfw new <appName> [Options]
  ```
 ##### Alias
 
     $ nfw n
 
+##### Parameters
+
+* **_Application name_** - Required ! Type: string
+* **_Option_** - Optionnal ! See details below
+
 #### Description
 
-Generate a new project. Ask if the path is right, if not it asks for a new one, then ask for a name.
+Generate a new project.
 
 ![](readme/new.gif)
 ### Option

@@ -29,11 +29,11 @@ columnParams= async (entity) => {
             while(!arrayDone){
                 let enumTemp = await inquirer.enumQuestion();
                 if(enumTemp.enum === ':exit') return null;
-                let confirm = await inquirer.askForConfirmation();
+                let confirm = await inquirer.askForConfirmation('Add this data ?');
                 if(confirm.confirmation){
                     length_enum[length_enum.length]=enumTemp;
                 }
-                let more = await inquirer.askForMore();
+                let more = await inquirer.askForConfirmation("Want to add more data to enum array ?");
                 if(!more.continueValue){
                     arrayDone = true ;
                 }
@@ -66,7 +66,7 @@ columnParams= async (entity) => {
             };
             console.clear();
             console.log(paramsTemp);
-            let lastConfirm = await inquirer.askForConfirmation();
+            let lastConfirm = await inquirer.askForConfirmation('Add this data ?');
             if(lastConfirm.confirmation){
                 column[column.length] = columnName;
                 paramsArray['columns'].push(paramsTemp);
@@ -92,7 +92,7 @@ columnParams= async (entity) => {
                 type: response
             };
             console.log(relationTemp2);
-            let {confirmation} = await inquirer.askForConfirmation();
+            let {confirmation} = await inquirer.askForConfirmation('Add this data ?');
             if(confirmation){
                 paramsArray['foreignKeys'].push(relationTemp2);
             }
@@ -125,7 +125,7 @@ exports.dbParams = async (entity) => {
                 console.log(err);
             }
             //console.clear();
-            let cont = await inquirer.lastConfirmation();
+            let cont = await inquirer.askForConfirmation("Want to add more column ?");
             if(!cont.continueValue){
                 isDoneColumn = true;
             }
