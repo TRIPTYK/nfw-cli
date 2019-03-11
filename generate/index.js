@@ -85,12 +85,9 @@ const _write = async (data = null) => {
     tableColumns = data ? data.columns : [];
     foreignKeys = data ? data.foreignKeys : [];
   };
-
-  let foundIndex = tableColumns.findIndex(el => el.Field == 'id');
-
-  if (foundIndex !== -1)
-    tableColumns.splice(foundIndex,1); // remove id key from array
-
+  let index = tableColumns.findIndex(el => el.Field == 'id')
+  // remove id key from array
+  if(index !== -1)tableColumns.splice(tableColumns,1);
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
 
   const allColumns = tableColumns // TODO: do this in view

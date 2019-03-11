@@ -1,6 +1,6 @@
 /**
  * @module modelWrite
- * @author Verliefden Romain
+ * @author Verliefden Romain , Deflorenne Amaury
  * @description this module write the model.ts based on columns of the database
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the futur table and the table is created in the database.
@@ -30,9 +30,11 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
+  console.log(col.Null);
   let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
-  if (col.Default === null && col.Null === 'NO' ){
-    return 'default : null';
+  if (col.Default === 'null'){
+    if(col.Null !== 'nullable:false,') return 'default : null'
+    else return ''
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
     return `default : ${col.Default}`;
   }else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')){
@@ -42,7 +44,7 @@ const _getDefault = (col) =>{
   }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default.includes('(') || sqlFunction.includes(col.Default))){
     return ` default : () => "${col.Default}"`;
   }else{
-    return `default :"${col.Default}"`;
+    return `default :\`${col.Default}\``;
   }
 }
 
@@ -98,8 +100,9 @@ const _getKey = data => {
  * @param {table to get data from/table to create} table
  * @param {techonlogy use for database} dbType
  *
- * @description get data from DB then write a model based on said data. If there's no data in database for cosen table then ask the user
- * if he want a basic model or get him to a prompt to create a new column or if nothing need to done.
+ * @description get data from DB then write a model based on said data. If there's no data in database for chosen table then ask the user
+ * if he want a basic model or get him to a prompt to create a new column or if nothing need to  be done.
+ * //TODO : apprendre a ecrire D: et reecrire
  *
  */
 const writeModel = async (action,data=null) =>{
