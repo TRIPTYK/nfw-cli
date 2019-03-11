@@ -95,6 +95,23 @@ const _getKey = data => {
 }
 
 /**
+ *
+ * @param {String} data
+ * @description mysql send data(lenght/enumList). Therefore , if i only need the lenght/enumList I need to split
+ * split then delete the ')'
+ * @returns data lenght/enum
+ */
+const _getLength = (info) => {
+  if(info.type == "enum") return `enum  : [${info.type}],`;
+  if(info.length != undefined) {
+      if(info.type.includes('int')) return `width : ${info.length},`;
+      if(info.type.includes('date') || info.type.includes('date')) return `precision : ${info.length},` 
+      return `length : ${info.length},`;
+  }
+  return "";
+}
+
+/**
  * @param {table to get data from/table to create} table
  * @param {techonlogy use for database} dbType
  *
@@ -118,7 +135,6 @@ const writeModel = async (action,data=null) =>{
     /*
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
-     TODO : have the same format when importing from database and generating from scratch ?
     */
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
@@ -126,14 +142,13 @@ const writeModel = async (action,data=null) =>{
 
     columns.forEach(col => {
         if(col.Field === "id") return;
-        
+        col.Type = sqlTypeData(col.Type);
         col.Null = _getNull(col.Null,col.Key);
         col.Key = _getKey(col.Key);
         col.Default = _getDefault(col);
-
+        col.Type.length = _getLength(col.Type);
         entities.push(col);
     });
-
     let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,

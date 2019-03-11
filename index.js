@@ -12,6 +12,7 @@ const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
 const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
+const reserved = require('reserved-words');
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -62,6 +63,10 @@ yargs
     handler: async (argv) => {
       validateDirectory();
       check = await sql.checkConnexion();
+      if (await reserved.check(argv.modelName,6)){
+        console.log("modelName is a reserved word");
+        process.exit(0);
+      }
       commands.generateModel(argv.modelName,argv.CRUD);
     }
   })
@@ -127,14 +132,18 @@ yargs
     }
   })
   .command({
-    command:'migrate',
+    command:'migrate  <migrateName>',
     aliases: ["mig", "M"],
     desc: "Generate, compile and run the migration",
     builder: () => {},
-    handler: async () => {
+    handler: async (argv) => {
       validateDirectory();
       await sql.checkConnexion();
-      commands.migrate();
+      if (await reserved.check(argv.modelName,6)){
+        console.log("modelName is a reserved word");
+        process.exit(0);
+      }
+      commands.migrate(argv.migrateName);
     }
   })
   // provide a minimum demand and a minimum demand message

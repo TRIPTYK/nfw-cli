@@ -24,6 +24,7 @@ const cli = require("../generate/index");
 const del = require("../generate/delete");
 const generator = require("../generate/generateFromDB");
 const errHandler = require("./ErrorHandler");
+const snake = require('to-snake-case')
 const operatingSystem = process.platform;
 
 
@@ -96,6 +97,7 @@ module.exports = {
      * @param  {string} crud
      */
     generateModel: async(modelName, crud) => {
+        modelName = snake(modelName);
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
         if(modelExists){

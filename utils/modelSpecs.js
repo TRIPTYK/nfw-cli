@@ -53,9 +53,6 @@ columnParams= async (entity) => {
             });
             tempParanthesis += ')'
         }
-        if(['text','varchar','enum'].includes(type) && defaultValue !=='null' && defaultValue!==':no' ){
-            defaultValue=`'${defaultValue}'`;
-        }
         if(constraintValue !== 'foreign key'){
             let paramsTemp = {
                 Field : columnName.trim(),
