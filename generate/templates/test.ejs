@@ -51,7 +51,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         data : {
           attributes : {
             <% tableColumns.forEach(column => { %>
-              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+              <% column.Field -%> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
             <% }); %>
           }
         }
