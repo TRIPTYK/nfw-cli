@@ -33,11 +33,15 @@ yargs
       yargs.option('path',{
         desc: "Allow the user to choose a different path",
         type: 'boolean'
+      }),
+      yargs.option('docker',{
+        desc: "Set a mysql container up",
+        type: 'boolean'
       })
     },
     handler: async(argv) => {
       clear();
-      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false);
+      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false );
     }
   }).command({
     strict: true,

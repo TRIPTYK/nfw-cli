@@ -228,6 +228,15 @@ module.exports = {
         migrate.stop();
         process.exit(0);
     },
-
-
+    createDockerImage: async(newPath, data, dockerImageName, port) => {
+      fs.writeFileSync(path.resolve(newPath, "dockerfile"),data); 
+      const dockerBuild = await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
+      try{
+        const dockerRun = await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`); 
+        console.log(`Container launched and named: ${dockerImageName}`);       
+      }catch(err){
+        console.log(err);
+        console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
+      }
+    }
 }

@@ -9,21 +9,46 @@ const chalk = require('chalk');
 const operatingSystem = process.platform;
 const path = require('path');
 const fs = require('fs');
+const cmd_e = require('command-exists').sync;
+const files = require('../lib/files');
 var newPath = undefined;
+let dockerFile = undefined;
+let Container_name = undefined;
+let dockerEnv = undefined;
 module.exports = {
     /**
         @description Generate a new project
         @generator
      */
-    New: async (name,env,pathOption) => {
+    New: async (name,env,pathOption, docker) => {
         draw.header();
+        if(pathOption){
+            newPath = await inquirer.askForNewPath();
+        }
+        if(files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, name))){
+            console.log(chalk.red('Error :') + `You already have a directory name \"3rd_party_ts_boilerplate\" or "${name}" !`);
+            process.exit(0);
+        }
+        if(docker){
+            if(!cmd_e('docker')){
+                console.log(chalk.red('Error: docker is not installed on your device !'));
+                process.exit(0);
+            }
+            else{
+                env = true;
+                dockerEnv = await inquirer.askForDockerVars();
+                Container_name = dockerEnv.Container_name;
+                dockerFile = "FROM mysql:5.7 \n"+
+                "SHELL [\"/bin/bash\", \"-c\"] \n"+
+                `ENV MYSQL_ROOT_PASSWORD ${dockerEnv.MYSQL_ROOT_PASSWORD} \n`+
+                `ENV MYSQL_DATABASE ${dockerEnv.MYSQL_DATABASE} \n`+
+                `EXPOSE ${dockerEnv.EXPOSE}`;
+            }
+        }
         let envVar = undefined;
         if(env){
             envVar = await inquirer.askForEnvVariable();
             envVar.URL = `http://localhost:${envVar.PORT}`;
-        }
-        if(pathOption){
-            newPath = await inquirer.askForNewPath();
         }
         const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix; 
         await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
@@ -42,6 +67,11 @@ module.exports = {
                 envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");
             }
             fs.writeFileSync(envFilePath, envFileContent)
+        }
+        if(docker){
+            const projectPath = newPath === undefined ? path.resolve(process.cwd(),name, "Docker") : path.resolve(newPath.path, name, "Docker");
+            files.creatDirectory(projectPath);
+            await shellCmd.createDockerImage(projectPath,dockerFile,Container_name, dockerEnv.EXPOSE)
         }
     },
 }
