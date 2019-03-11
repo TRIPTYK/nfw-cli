@@ -128,8 +128,7 @@ const writeModel = async (action,data=null) =>{
 
     columns.forEach(col => {
         if(col.Field === "id") return;
-
-        col.Type = sqlTypeData(col.Type);
+        
         col.Null = _getNull(col.Null,col.Key);
         col.Key = _getKey(col.Key);
         col.Default = _getDefault(col);

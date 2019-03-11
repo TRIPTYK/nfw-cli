@@ -115,11 +115,7 @@ exports.fileExists = (filePath) => {
 }
 
 exports.buildJoiFromColumn = (column) => {
-
   let sqlType = column.Type;
-
-  if (typeof sqlType === "string")
-    sqlType = exports.sqlTypeData(column.Type);
 
   let {length,type} = sqlType;
 
