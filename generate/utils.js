@@ -113,3 +113,38 @@ exports.fileExists = (filePath) => {
     return false
   }
 }
+
+exports.buildJoiFromColumn = (column) => {
+
+  let sqlType = column.Type;
+
+  if (typeof sqlType === "string")
+    sqlType = exports.sqlTypeData(column.Type);
+
+  let {length,type} = sqlType;
+
+  let joiObject = {
+    name : column.Field,
+    baseType : "any",
+    specificType : null,
+    length
+  };
+
+  if (type.match(/text|char/i))
+    joiObject.baseType = "string";
+
+  if (type.match(/time|date/i))
+    joiObject.baseType = "date";
+
+  if (type.match(/binary|image|blob/i))
+    joiObject.baseType = "binary";
+
+  if (type.match(/int|float|double|decimal/i)) {
+    joiObject.baseType = "number";
+    joiObject.length = Math.pow(2, joiObject.length); // 2^size for numbers in mysql
+
+    if (type === "int") joiObject.specificType = "integer";
+  }
+
+  return joiObject;
+}
