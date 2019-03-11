@@ -51,7 +51,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         data : {
           attributes : {
             <% tableColumns.forEach(column => { %>
-              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
             <% }); %>
           }
         }
@@ -91,7 +91,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         data : {
           attributes : {
             <% tableColumns.forEach(column => { %>
-              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
             <% }); %>
           }
         }
@@ -114,7 +114,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         data : {
           attributes : {
             <% tableColumns.forEach(column => { %>
-              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),
+              fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
             <% }); %>
           }
         }

@@ -23,7 +23,7 @@ export const create<%- entityCapitalize %> = {
     data : {
       attributes : {
         <% -%><% validation.forEach(col => { %>
-          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>,<% -%>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
         <% }) %>
       }
     }
@@ -38,7 +38,7 @@ export const replace<%- entityCapitalize %> =  {
     data : {
       attributes : {
         <% -%><% validation.forEach(col => { %>
-          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>,<% -%>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
         <% }) %>
       }
     }
@@ -56,7 +56,7 @@ export const update<%- entityCapitalize %> =  {
     data : {
       attributes : {
         <% -%><% validation.forEach(col => { %>
-          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>,<% -%>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType !== null) { _%>.<%- col.specificType %>() <% } -%><% if(col.length !== null) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
         <% }) %>
       }
     }
