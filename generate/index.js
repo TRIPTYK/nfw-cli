@@ -130,10 +130,8 @@ const _write = async (data = null) => {
     foreignKeys = data ? data.foreignKeys : [];
   };
   let index = tableColumns.findIndex(el => el.Field == 'id')
-  console.log(tableColumns); 
   // remove id key from array
   if(index !== -1)tableColumns.splice(tableColumns,1);
-  console.log(tableColumns);
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
   const validation = _getValidationFields(tableColumns);
   const testColumns = _getTestFields(tableColumns);
