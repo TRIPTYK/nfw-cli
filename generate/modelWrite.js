@@ -111,8 +111,6 @@ const writeModel = async (action,data=null) =>{
 
     if(data == null) data = await databaseInfo.getTableInfo('sql',lowercase);
 
-    console.log(data);
-
     let { columns , foreignKeys } = data;
     let entities = [] , f_keys = [] , imports = [];
 
@@ -123,17 +121,6 @@ const writeModel = async (action,data=null) =>{
     */
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
-    });
-
-
-    foreignKeys.forEach(foreignKey => {
-      let low = foreignKey.REFERENCED_TABLE_NAME;
-      let cap = capitalizeEntity(low);
-
-      f_keys.push(foreignKey);
-
-      if (low != foreignKey.TABLE_NAME)
-        imports.push(`import {${cap}} from './${low}.model';`);
     });
 
     columns.forEach(col => {
@@ -151,8 +138,7 @@ const writeModel = async (action,data=null) =>{
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       entities,
-      imports,
-      foreignKeys : f_keys,
+      foreignKeys,
       createUpdate : data.createUpdate,
       capitalizeEntity,
       lowercaseEntity
@@ -174,7 +160,6 @@ const basicModel = async (action) => {
     entityLowercase : lowercase,
     entityCapitalize : capitalize,
     entities : [],
-    imports : [],
     foreignKeys : [],
     createUpdate : {createAt : true,
                       updateAt : true}

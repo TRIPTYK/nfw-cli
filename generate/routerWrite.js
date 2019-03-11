@@ -37,7 +37,7 @@ module.exports = async (action) => {
     entityCapitalize : capitalize
   });
 
-  if(!isImportPresent(proxy,capitalize))
+  if(!isImportPresent(proxy,`${capitalize}Router`))
   {
     let output = writeToFirstEmptyLine(proxy,`import { router as ${capitalize}Router } from "./${lowercase}.route";\n`)
       .replace(/^\s*(?=.*export.*)/m,`\n\n${route}\n\n`); // inserts route BEFORE the export statement , eliminaing some false-positive

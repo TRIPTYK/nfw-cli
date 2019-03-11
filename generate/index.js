@@ -22,7 +22,7 @@ const Log = require('./log');
 /**
  * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
  */
-const { countLines , capitalizeEntity , prompt , sqlTypeData , lowercaseEntity , fileExists} = require('./utils');
+const { countLines , capitalizeEntity , prompt , sqlTypeData , lowercaseEntity , fileExists , buildJoiFromColumn} = require('./utils');
 /**
  * Transform a async method to a promise
  * @returns {Promise} returns FS.exists async function as a promise
@@ -71,56 +71,12 @@ const _checkForCrud = (arg) => {
 };
 
 /**
- * @description generate an array of fake data to be send for given entity
- * @param {*} columns
- */
-const _getTestFields = (columns) => {
-  return columns.map(elem => {
-    let type = elem.Type;
-
-    if (typeof type === 'string') { //TODO : Fix undefined data lengths
-      type = sqlTypeData(type);
-    }
-
-    let elemLength = type.length;
-    let realType = type.type;
-
-    let elemVal = `fixtures.random${realType}(${elemLength})`;
-    return `${elem.Field} : ${elemVal}`;
-  });
-};
-
-/**
- * @description generate an array of validation properties for entity
- * @param {*} items
- */
-const _getValidationFields = (columns) => {
-  return columns.map(elem => {
-    let type = elem.Type;
-
-    if (typeof type === 'string') { //TODO : Fix undefined data lengths
-      type = sqlTypeData(type);
-    }
-
-    let elemLength = type.length;
-    let realType = type.type;
-
-    if (realType.match(/(char|text)+/i)) realType = 'string';
-    if (realType.match(/(date|time)+/i)) realType = 'date';
-    if (realType.match(/(int|double|float)+/i)) realType = 'number';
-
-    let elemVal = `Joi.${realType}()${elemLength === null ? '' : `.max(${elemLength})`}`;
-    return `${elem.Field} : ${elemVal}`;
-  });
-};
-
-/**
  * @description replace the vars in placeholder in file and creates them
  * @param {*} items
  */
 const _write = async (data = null) => {
   let tableColumns , foreignKeys;
- 
+
   try {
     let tmpData = await databaseInfo.getTableInfo("sql",lowercase);
     tableColumns = tmpData.columns;
@@ -129,14 +85,13 @@ const _write = async (data = null) => {
     tableColumns = data ? data.columns : [];
     foreignKeys = data ? data.foreignKeys : [];
   };
-  let index = tableColumns.findIndex(el => el.Field == 'id')
-  console.log(tableColumns); 
-  // remove id key from array
-  if(index !== -1)tableColumns.splice(tableColumns,1);
-  console.log(tableColumns);
+
+  let foundIndex = tableColumns.findIndex(el => el.Field == 'id');
+
+  if (foundIndex !== -1)
+    tableColumns.splice(foundIndex,1); // remove id key from array
+
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
-  const validation = _getValidationFields(tableColumns);
-  const testColumns = _getTestFields(tableColumns);
 
   const allColumns = tableColumns // TODO: do this in view
     .map(elem => `'${elem.Field}'`)
@@ -152,14 +107,12 @@ const _write = async (data = null) => {
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       options : crudOptions,
-      entityColumns : columnNames,
       tableColumns,
       allColumns,
       lowercaseEntity,
       capitalizeEntity,
-      foreignKeys : foreignKeys,
-      entityProperties : `{${testColumns.join(',\n')}}`,
-      validation : validation.join(',\n')
+      foreignKeys,
+      validation : tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/) )
     });
 
     await WriteFile(`${processPath}/src/api/${item.dest}/${lowercase}.${item.template}.${item.ext}`, output)
