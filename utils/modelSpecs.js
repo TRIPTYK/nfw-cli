@@ -41,7 +41,11 @@ columnParams= async (entity) => {
         }else{
             length_enum[0]=10111998
         }
+<<<<<<< HEAD
         if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) var defaultValue = ':no'; 
+=======
+        if( constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text') ) var defaultValue = ':no'; 
+>>>>>>> dafde7fb35296cb6726ce1903020fc408cc5e08d
         else var {defaultValue} = await inquirer.questionDefault();
         if(defaultValue === ':exit') return null;
         let tempParanthesis = '';
