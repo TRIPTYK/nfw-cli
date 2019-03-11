@@ -66,7 +66,7 @@ const _unroute = async () => {
   let toRoute = new RegExp(`\n?((\\\/\\*[\\w\\\'\\s\\r\\n\\*]*\\*\\\/)|(\\\/\\\/[\\w\\s\\\']*))\\s*(\\w*.use.*${capitalize}Router(.|\\s){1};)\n?`,"gm");
 
   // replace match by nothing
-  proxy = removeImport(proxy,capitalize)
+  proxy = removeImport(proxy,`${capitalize}Router`)
     .replace(toRoute,"");
 
   await WriteFile(proxyPath, proxy)
@@ -82,7 +82,7 @@ const _unconfig = async () => {
 
   if (isImportPresent(fileContent,capitalize)) {
     let imprt = removeImport(fileContent,capitalize)
-      .replace(new RegExp(`(?=,?${capitalize}),${capitalize}|${capitalize},?`,"gm"),"");
+      .replace(new RegExp(`(?=,?${capitalize}\\b),${capitalize}\\b|${capitalize}\\b,?`,"gm"),"");
 
     await WriteFile(configFileName,imprt).catch(e => {
       Log.error(`Failed to write to : ${configFileName}`);

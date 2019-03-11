@@ -50,7 +50,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
   public async create (req: Request, res : Response, next: Function) {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
+      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body.data.attributes);
       const saved<%- entityCapitalize %> = await repository.save(<%- entityLowercase %>);
       res.status( HttpStatus.CREATED );
       res.json( saved<%- entityCapitalize %>.whitelist() );
@@ -74,7 +74,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
       const <%- entityLowercase %> = await repository.findOne(req.params.id);
-      repository.merge(<%- entityLowercase %>, req.body);
+      repository.merge(<%- entityLowercase %>, req.body.data.attributes);
       repository.save(<%- entityLowercase %>);
       res.json( <%- entityLowercase %>.whitelist() );
     }
