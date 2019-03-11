@@ -30,7 +30,6 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-  console.log(col.Null);
   let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
   if (col.Default === 'null'){
     if(col.Null !== 'nullable:false,') return 'default : null'
@@ -58,7 +57,6 @@ const _getDefault = (col) =>{
  * @returns if column can be null or not
  */
 const _getNull = (data,key) => {
-    console.log(key);
     if(key === 'PRI' || key === 'UNI') return '';
     if(data === 'YES') return 'nullable:true,';
     return 'nullable:false,';
