@@ -115,10 +115,7 @@ exports.fileExists = (filePath) => {
 }
 
 exports.buildJoiFromColumn = (column) => {
-  let sqlType = column.Type;
-
-  let {length,type} = sqlType;
-
+  let {length,type} = column.Type;
   let joiObject = {
     name : column.Field,
     baseType : "any",

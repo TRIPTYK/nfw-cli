@@ -119,7 +119,11 @@ module.exports = {
             const data = await inquirer.askForChoice();
             switch  (data.value){
                 case "create an entity":
-                    entityModelData = await modelSpecs.dbParams(modelName);
+                    let { columns , foreignKeys } = await modelSpecs.dbParams(modelName);
+                    for(let j =0;j<columns.length;j++){
+                      columns[j].Type= utils.sqlTypeData(columns[j].Type);
+                    }
+                    entityModelData = { columns , foreignKeys };
                     await modelWrite("write", modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
@@ -140,7 +144,9 @@ module.exports = {
             }
         }else{
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
-
+          for(let j =0;j<columns.length;j++){
+            columns[j].Type= utils.sqlTypeData(columns[j].Type);
+          }
           if (foreignKeys && foreignKeys.length) {
               for (let i=0;i < foreignKeys.length;i++) {
                 let tmpKey = foreignKeys[i];
