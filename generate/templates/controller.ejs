@@ -2,6 +2,7 @@ import * as HttpStatus from "http-status";
 
 import { Request, Response } from "express";
 import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
+import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
 import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityLowercase %>.repository";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
@@ -97,8 +98,8 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query)).getMany();
-      res.json( <%- entityLowercase %>.map(<%- entityLowercase %> => <%- entityLowercase %>.whitelist()) );
+      const <%- entityLowercase %>s = await (await repository.JSONAPIRequest(req.query)).getMany();
+      res.json( new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);
     }
