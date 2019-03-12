@@ -28,9 +28,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    public async get(req: Request, res : Response, next : Function) {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query))
-        .where('id = :id', { id: req.params.id })
-        .getOne();
+      const <%- entityLowercase %> = await repository.findOneOrFail(req.params.id,BaseController.JSONAPIRequest(req.query));
       res.json( <%- entityLowercase %>.whitelist() );
     }catch(e) {
       next(e);
@@ -98,7 +96,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %>s = await (await repository.JSONAPIRequest(req.query)).getMany();
+      const <%- entityLowercase %>s = await repository.find(BaseController.JSONAPIRequest(req.query));
       res.json( new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);
