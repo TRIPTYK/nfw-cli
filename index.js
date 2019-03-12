@@ -41,6 +41,10 @@ yargs
     },
     handler: async(argv) => {
       clear();
+      if(argv._[1] === undefined){
+        console.log(chalk.red('Please provide a name for your application'));
+        process.exit(0);
+      }
       project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false );
     }
   }).command({

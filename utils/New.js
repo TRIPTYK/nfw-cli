@@ -25,7 +25,7 @@ module.exports = {
         if(pathOption){
             newPath = await inquirer.askForNewPath();
         }
-        if(files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, name))){
+        if(files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))){
             console.log(chalk.red('Error :') + `You already have a directory name \"3rd_party_ts_boilerplate\" or "${name}" !`);
             process.exit(0);
         }
