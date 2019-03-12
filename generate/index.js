@@ -76,7 +76,6 @@ const _checkForCrud = (arg) => {
  */
 const _write = async (data = null) => {
   let tableColumns , foreignKeys;
-
   try {
     let tmpData = await databaseInfo.getTableInfo("sql",lowercase);
     tableColumns = tmpData.columns;
@@ -91,7 +90,7 @@ const _write = async (data = null) => {
   // remove id key from array
   if(index !== -1)tableColumns.splice(tableColumns,1);
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
-
+  
   const allColumns = tableColumns // TODO: do this in view
     .map(elem => `'${elem.Field}'`)
     .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
