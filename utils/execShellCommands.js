@@ -117,7 +117,7 @@ module.exports = {
 
         if(!isExisting || (override && modelExists)){
             const data = await inquirer.askForChoice();
-            switch(data.value){
+            switch  (data.value){
                 case "create an entity":
                     entityModelData = await modelSpecs.dbParams(modelName);
                     await modelWrite("write", modelName, entityModelData)
@@ -151,13 +151,12 @@ module.exports = {
 
          entityModelData = { columns , foreignKeys };
 
-         await modelWrite('db', modelName , { columns , foreignKeys })
+         await modelWrite('write', modelName , entityModelData)
            .catch(e => {
              Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
              process.exit(1);
            });
        }
-
       await cli(modelName, crud, entityModelData )
         .catch(e => {
           console.log(e);
@@ -230,6 +229,13 @@ module.exports = {
         migrate.stop();
         process.exit(0);
     },
+
+    generateFromFile : async(path) =>{
+      data = await read(path,'utf-8');
+      console.log(data);
+      newData = JSON.parse(data);
+      console.log(newData);
+    } 
 
 
 }

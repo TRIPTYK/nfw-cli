@@ -86,7 +86,6 @@ const _write = async (data = null) => {
     foreignKeys = data ? data.foreignKeys : [];
   };
 
-  tableColumns.forEach(col => col.Type = sqlTypeData(col.Type));
 
   let index = tableColumns.findIndex(el => el.Field == 'id')
   // remove id key from array

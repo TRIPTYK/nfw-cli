@@ -1,7 +1,7 @@
 @Column({
   type: <%- `'${entity.Type.type}'` %>,
     <% if (entity.Null !== '') { %><%- entity.Null  %><% } %>
-    <% if (entity.Type.length !== '') { %><%- entity.Type.length %><% } %>
+    <% if (entity.length !== '') { %><%- entity.length %><% } %>
     <% if (entity.Key !== '') { %><%- entity.Key %><% } %>
     <% if (entity.Default !== '') { %><%- entity.Default %><% } %>
   })

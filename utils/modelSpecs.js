@@ -121,7 +121,7 @@ exports.dbParams = async (entity) => {
             }catch(err){
                 console.log(err);
             }
-            //console.clear();
+            console.clear();
             let cont = await inquirer.lastConfirmation();
             if(!cont.continueValue){
                 isDoneColumn = true;

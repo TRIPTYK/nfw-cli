@@ -123,15 +123,11 @@ const _getLength = (info) => {
 const writeModel = async (action,data=null) =>{
     let lowercase = lowercaseEntity(action);
     let capitalize  = capitalizeEntity(lowercase);
-
     let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-
-    if(data == null) data = await databaseInfo.getTableInfo('sql',lowercase);
-
     let { columns , foreignKeys } = data;
+    
     let entities = [] , f_keys = [] , imports = [];
-
     /*
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
@@ -139,14 +135,14 @@ const writeModel = async (action,data=null) =>{
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
     });
-
     columns.forEach(col => {
         if(col.Field === "id") return;
         col.Type = sqlTypeData(col.Type);
+        
         col.Null = _getNull(col.Null,col.Key);
         col.Key = _getKey(col.Key);
         col.Default = _getDefault(col);
-        col.Type.length = _getLength(col.Type);
+        col.length = _getLength(col.Type);
         entities.push(col);
     });
     let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
@@ -190,9 +186,7 @@ const basicModel = async (action) => {
 module.exports = async (action,name,data=undefined) => {
   if(action == 'basic'){
     basicModel(name);
-  }else if (action=='write'&& data != undefined){
-    writeModel(name,data);
-  }else if(action='db'){
+  }else if (action=='write'){
     await writeModel(name,data);
   }else{
     console.log("Bad syntax");
