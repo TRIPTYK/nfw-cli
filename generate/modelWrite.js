@@ -97,12 +97,11 @@ const _getKey = data => {
 /**
  *
  * @param {String} data
- * @description mysql send data(lenght/enumList). Therefore , if i only need the lenght/enumList I need to split
- * split then delete the ')'
+ * @description  Format to typeorm format
  * @returns data lenght/enum
  */
 const _getLength = (info) => {
-  if(info.type == "enum") return `enum  : [${info.type}],`;
+  if(info.type == "enum") return `enum  : [${info.length}],`;
   if(info.length != undefined) {
       if(info.type.includes('int')) return `width : ${info.length},`;
       if(info.type.includes('date') || info.type.includes('date')) return `precision : ${info.length},` 
@@ -115,9 +114,7 @@ const _getLength = (info) => {
  * @param {table to get data from/table to create} table
  * @param {techonlogy use for database} dbType
  *
- * @description get data from DB then write a model based on said data. If there's no data in database for chosen table then ask the user
- * if he want a basic model or get him to a prompt to create a new column or if nothing need to  be done.
- * //TODO : apprendre a ecrire D: et reecrire
+ * @description write a typeorm model from an array of info about an entity
  *
  */
 const writeModel = async (action,data=null) =>{

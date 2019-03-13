@@ -2,7 +2,7 @@ const SqlAdaptator = require ('./database/sqlAdaptator');
 const modelWrite = require ('./modelWrite');
 const index = require ('./index')
 
-// basic peoject tables to ignore
+// basic project tables to ignore
 const noGenerate = ['user','document','refresh_token','migration_table'];
 
 /**
