@@ -8,16 +8,12 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
   public static withelist : Array<String> = [<%- allColumns %>];
 
   constructor() {
-    super('<%- entityLowercase %>s', {
-        id : 'id',
-        attributes : <%- entityCapitalize %>Serializer.withelist,
-        <% foreignKeys.forEach(foreignKey => { %>
-           <%- foreignKey.COLUMN_NAME %> : {
-             ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
-             attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
-           }
-        <% }); %>
+    super('<%- entityLowercase %>s', <%- entityCapitalize %>Serializer.withelist,{ <% foreignKeys.forEach(foreignKey => { %>
+       <%- foreignKey.COLUMN_NAME %> : {
+       ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
+       attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
+      }
+    <% }); %>
     });
   }
-
 }
