@@ -143,7 +143,6 @@ module.exports = {
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
           for(let j =0;j<columns.length;j++){
             columns[j].Type= utils.sqlTypeData(columns[j].Type);
-            console.log(columns[j]);
           }
           if (foreignKeys && foreignKeys.length) {
               for (let i=0;i < foreignKeys.length;i++) {
@@ -154,15 +153,12 @@ module.exports = {
            }
 
          entityModelData = { columns , foreignKeys };
-         console.log(entityModelData);
-         Object.assign(entityModelData,entityModelData);
          await modelWrite('write', modelName , entityModelData)
            .catch(e => {
              Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
              process.exit(1);
            });
        }
-       console.log(entityModelData);
       await cli(modelName, crud, entityModelData )
         .catch(e => {
           console.log(e);

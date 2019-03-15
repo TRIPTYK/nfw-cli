@@ -78,7 +78,7 @@ const _write = async (data) => {
   let tableColumns , foreignKeys;
   tableColumns = data ? data.columns : [];
   foreignKeys = data ? data.foreignKeys : [];
-
+  
 
   let index = tableColumns.findIndex(el => el.Field == 'id')
   // remove id key from array

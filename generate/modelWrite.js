@@ -31,7 +31,7 @@ var capitalize;
  */
 const _getDefault = (col) =>{
   let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
-  if (col.Default === 'null'){
+  if (col.Default === 'null' || col.Default === null ){
     if(col.Null !== 'nullable:false,') return 'default : null'
     else return ''
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
@@ -40,7 +40,7 @@ const _getDefault = (col) =>{
     return '';
   }else if(col.key ==='UNI' || col.Key=== 'PRI'){
     return '';
-  }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default.includes('(') || sqlFunction.includes(col.Default))){
+  }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && ( col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))){
     return ` default : () => "${col.Default}"`;
   }else{
     return `default :\`${col.Default}\``;
