@@ -102,8 +102,7 @@ module.exports = {
         let override = true;
         if(modelExists){
             const question = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?` );
-            override =question.override;
-            if(!question.override){
+            if(!question.confirmation){
                 console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
                 process.exit(0);
             }
@@ -182,7 +181,6 @@ module.exports = {
     generateFromDB: async() => {
         var confirm = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will oveeride existing models with the same name ! Do you want to continue ?`);
         if(confirm.confirmation){
-
             await generator();
         }else{
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
