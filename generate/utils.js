@@ -53,7 +53,7 @@ exports.prompt = (question) => {
  * @param {string} imprt import name
  */
 exports.isImportPresent = (string,imprt) => {
-  let match = string.match(new RegExp(`import.*${imprt}.*;`,'gm'));
+  let match = string.match(new RegExp(`import\\s+{.*${imprt}\\b.*}.*;`,'gm'));
   return match !== null;
 }
 
@@ -62,7 +62,7 @@ exports.isImportPresent = (string,imprt) => {
  * @param {string} string
  * @param {string} imprt import name
  */
-exports.removeImport = (string,imprt) => string.replace(new RegExp(`\n?import.*${imprt}.*;`,"g"),"");
+exports.removeImport = (string,imprt) => string.replace(new RegExp(`\n?import\\s+{.*${imprt}\\b.*}.*;`,"g"),"");
 
 /**
  * @description replace text to the first empty line of string
@@ -112,4 +112,32 @@ exports.fileExists = (filePath) => {
   }catch(err){
     return false
   }
+}
+
+exports.buildJoiFromColumn = (column) => {
+  let {length,type} = column.Type;
+  let joiObject = {
+    name : column.Field,
+    baseType : "any",
+    specificType : null,
+    length
+  };
+
+  if (type.match(/text|char/i))
+    joiObject.baseType = "string";
+
+  if (type.match(/time|date/i))
+    joiObject.baseType = "date";
+
+  if (type.match(/binary|image|blob/i))
+    joiObject.baseType = "binary";
+
+  if (type.match(/int|float|double|decimal/i)) {
+    joiObject.baseType = "number";
+    joiObject.length = Math.pow(2, joiObject.length); // 2^size for numbers in mysql
+
+    if (type === "int") joiObject.specificType = "integer";
+  }
+
+  return joiObject;
 }

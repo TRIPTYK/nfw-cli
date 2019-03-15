@@ -1,6 +1,6 @@
 /**
  * @module modelWrite
- * @author Verliefden Romain
+ * @author Verliefden Romain , Deflorenne Amaury
  * @description this module write the model.ts based on columns of the database
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the futur table and the table is created in the database.
@@ -30,17 +30,20 @@ var capitalize;
  * @returns default : value or nothing
  */
 const _getDefault = (col) =>{
-
-  if (col.Default === null && col.Null === 'NO' ){
-    return 'default : null';
+  let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
+  if (col.Default === 'null'){
+    if(col.Null !== 'nullable:false,') return 'default : null'
+    else return ''
   }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
     return `default : ${col.Default}`;
   }else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')){
     return '';
   }else if(col.key ==='UNI' || col.Key=== 'PRI'){
     return '';
+  }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default.includes('(') || sqlFunction.includes(col.Default))){
+    return ` default : () => "${col.Default}"`;
   }else{
-    return `default :"${col.Default}"`;
+    return `default :\`${col.Default}\``;
   }
 }
 
@@ -54,7 +57,6 @@ const _getDefault = (col) =>{
  * @returns if column can be null or not
  */
 const _getNull = (data,key) => {
-    console.log(key);
     if(key === 'PRI' || key === 'UNI') return '';
     if(data === 'YES') return 'nullable:true,';
     return 'nullable:false,';
@@ -93,64 +95,57 @@ const _getKey = data => {
 }
 
 /**
+ *
+ * @param {String} data
+ * @description  Format to typeorm format
+ * @returns data lenght/enum
+ */
+const _getLength = (info) => {
+  if(info.type == "enum") return `enum  : [${info.length}],`;
+  if(info.length != undefined) {
+      if(info.type.includes('int')) return `width : ${info.length},`;
+      if(info.type.includes('date') || info.type.includes('date')) return `precision : ${info.length},` 
+      return `length : ${info.length},`;
+  }
+  return "";
+}
+
+/**
  * @param {table to get data from/table to create} table
  * @param {techonlogy use for database} dbType
  *
- * @description get data from DB then write a model based on said data. If there's no data in database for cosen table then ask the user
- * if he want a basic model or get him to a prompt to create a new column or if nothing need to done.
+ * @description write a typeorm model from an array of info about an entity
  *
  */
 const writeModel = async (action,data=null) =>{
     let lowercase = lowercaseEntity(action);
     let capitalize  = capitalizeEntity(lowercase);
-
     let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-
-    if(data == null) data = await databaseInfo.getTableInfo('sql',lowercase);
-
-    console.log(data);
-
     let { columns , foreignKeys } = data;
+    
     let entities = [] , f_keys = [] , imports = [];
-
     /*
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
-     TODO : have the same format when importing from database and generating from scratch ?
     */
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
     });
-
-
-    foreignKeys.forEach(foreignKey => {
-      let low = foreignKey.REFERENCED_TABLE_NAME;
-      let cap = capitalizeEntity(low);
-
-      f_keys.push(foreignKey);
-
-      if (low != foreignKey.TABLE_NAME)
-        imports.push(`import {${cap}} from './${low}.model';`);
-    });
-
     columns.forEach(col => {
         if(col.Field === "id") return;
-
-        col.Type = sqlTypeData(col.Type);
+        
         col.Null = _getNull(col.Null,col.Key);
         col.Key = _getKey(col.Key);
         col.Default = _getDefault(col);
-
+        col.length = _getLength(col.Type);
         entities.push(col);
     });
-
     let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       entities,
-      imports,
-      foreignKeys : f_keys,
+      foreignKeys,
       createUpdate : data.createUpdate,
       capitalizeEntity,
       lowercaseEntity
@@ -168,14 +163,13 @@ const basicModel = async (action) => {
   let capitalize  = capitalizeEntity(lowercase);
   let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
   let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
-
   let basicModel = ejs.compile(modelTemp.toString())({
     entityLowercase : lowercase,
     entityCapitalize : capitalize,
     entities : [],
-    imports : [],
     foreignKeys : [],
-    createUpdate : null
+    createUpdate : {createAt : true,
+                      updateAt : true}
   });
 
   let p_write = WriteFile(pathModel, basicModel)
@@ -188,9 +182,7 @@ const basicModel = async (action) => {
 module.exports = async (action,name,data=undefined) => {
   if(action == 'basic'){
     basicModel(name);
-  }else if (action=='write'&& data != undefined){
-    writeModel(name,data);
-  }else if(action='db'){
+  }else if (action=='write'){
     await writeModel(name,data);
   }else{
     console.log("Bad syntax");

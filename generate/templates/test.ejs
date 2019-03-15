@@ -47,10 +47,20 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send( <%- entityProperties %> )
+      .send({
+        data : {
+          attributes : { <% tableColumns.forEach(column => { %>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+            <% }); %>
+          }
+        }
+      })
       .end(function(err, res) {
         let status = res.status | res.statusCode;
         expect(status).to.equal(201);
+        expect(res.body.data.attributes).to.include.all.keys(
+          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+        );
         id = res.body.data.id;
         done();
       })
@@ -65,7 +75,14 @@ describe("<%- entityCapitalize %> CRUD", function () {
     agent
       .get('/api/v1/<%- entityLowercase %>s/' + id)
       .set('Authorization', 'Bearer ' + token)
-      .expect(200, done);
+      .end(function (err,res) {
+        let status = res.status | res.statusCode;
+        expect(status).to.equal(200);
+        expect(res.body.data.attributes).to.include.all.keys(
+          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+        );
+        done();
+      })
   });
 <% } %>
 
@@ -79,8 +96,22 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send(<%- entityProperties %>)
-      .expect(200, done);
+      .send({
+        data : {
+          attributes : { <% tableColumns.forEach(column => { %>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+            <% }); %>
+          }
+        }
+      })
+      .end(function (err,res) {
+        let status = res.status | res.statusCode;
+        expect(status).to.equal(200);
+        expect(res.body.data.attributes).to.include.all.keys(
+          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+        );
+        done();
+      })
   });
 <% } %>
 
@@ -94,8 +125,22 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .set('Authorization', 'Bearer ' + token)
       .set('Accept', 'application/vnd.api+json')
       .set('Content-Type', 'application/vnd.api+json')
-      .send(<%- entityProperties %>)
-      .expect(200, done);
+      .send({
+        data : {
+          attributes : { <% tableColumns.forEach(column => { %>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+            <% }); %>
+          }
+        }
+      })
+      .end(function (err,res) {
+        let status = res.status | res.statusCode;
+        expect(status).to.equal(200);
+        expect(res.body.data.attributes).to.include.all.keys(
+          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+        );
+        done();
+      })
   });
 <% } %>
 

@@ -24,6 +24,7 @@ const cli = require("../generate/index");
 const del = require("../generate/delete");
 const generator = require("../generate/generateFromDB");
 const errHandler = require("./ErrorHandler");
+const snake = require('to-snake-case')
 const operatingSystem = process.platform;
 
 
@@ -96,6 +97,7 @@ module.exports = {
      * @param  {string} crud
      */
     generateModel: async(modelName, crud) => {
+        modelName = snake(modelName);
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
         if(modelExists){
@@ -115,9 +117,10 @@ module.exports = {
 
         if(!isExisting || (override && modelExists)){
             const data = await inquirer.askForChoice();
-            switch(data.value){
+            switch  (data.value){
                 case "create an entity":
-                    entityModelData = await modelSpecs.dbParams(modelName);
+                    let { columns , foreignKeys } = await modelSpecs.dbParams(modelName);
+                    entityModelData = { columns , foreignKeys };
                     await modelWrite("write", modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
@@ -138,7 +141,9 @@ module.exports = {
             }
         }else{
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
-
+          for(let j =0;j<columns.length;j++){
+            columns[j].Type= utils.sqlTypeData(columns[j].Type);
+          }
           if (foreignKeys && foreignKeys.length) {
               for (let i=0;i < foreignKeys.length;i++) {
                 let tmpKey = foreignKeys[i];
@@ -149,13 +154,12 @@ module.exports = {
 
          entityModelData = { columns , foreignKeys };
 
-         await modelWrite('db', modelName , { columns , foreignKeys })
+         await modelWrite('write', modelName , entityModelData)
            .catch(e => {
              Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
              process.exit(1);
            });
        }
-
       await cli(modelName, crud, entityModelData )
         .catch(e => {
           console.log(e);
@@ -228,15 +232,24 @@ module.exports = {
         migrate.stop();
         process.exit(0);
     },
+
     createDockerImage: async(newPath, data, dockerImageName, port) => {
-      fs.writeFileSync(path.resolve(newPath, "dockerfile"),data); 
+      fs.writeFileSync(path.resolve(newPath, "dockerfile"),data);
       const dockerBuild = await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
       try{
-        const dockerRun = await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`); 
-        console.log(`Container launched and named: ${dockerImageName}`);       
+        const dockerRun = await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`);
+        console.log(`Container launched and named: ${dockerImageName}`);
       }catch(err){
         console.log(err);
         console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
       }
+    },
+
+    generateFromFile : async(path) =>{
+      data = await read(path,'utf-8');
+      console.log(data);
+      newData = JSON.parse(data);
+      console.log(newData);
     }
+
 }

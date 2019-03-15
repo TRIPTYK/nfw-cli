@@ -1,4 +1,6 @@
 import { BaseSerializer } from "./base.serializer";
+import { api, env , port, url } from "../../config/environment.config";
+import { Request } from "express";
 <% foreignKeys.forEach(foreignKey => { %>
 import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer"
 <% }); %>
@@ -7,17 +9,44 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
 
   public static withelist : Array<String> = [<%- allColumns %>];
 
-  constructor() {
-    super('<%- entityLowercase %>s', {
-        id : 'id',
-        attributes : <%- entityCapitalize %>Serializer.withelist,
-        <% foreignKeys.forEach(foreignKey => { %>
-           <%- foreignKey.COLUMN_NAME %> : {
-             ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
-             attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
-           }
-        <% }); %>
+  constructor(request : Request = null,totalCount : number = 0) {
+    super('<%- entityLowercase %>s', <%- entityCapitalize %>Serializer.withelist,{ <% foreignKeys.forEach(foreignKey => { %>
+       <%- foreignKey.COLUMN_NAME %> : {
+       ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
+       attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
+      }
+    <% }); %>
+    },{},{
+      self : (dataSet) => {
+        if (request && request.query.page) {
+          return `${url}/api/${api}/${this.type}${request.url}`;
+        }
+      },
+      first : (dataSet) => {
+        if (request && request.query.page) {
+          return `${url}/api/${api}/${this.type}${this.replacePage(request.url,1)}`;
+        }
+      },
+      next : (dataSet) => {
+        if (request && request.query.page) {
+          let page = request.query.page.number;
+          return `${url}/api/${api}/${this.type}${this.replacePage(request.url,parseInt(page) + 1)}`;
+        }
+      },
+      prev : (dataSet) => {
+        if (request && request.query.page) {
+          let page = request.query.page.number;
+          return `${url}/api/${api}/${this.type}${this.replacePage(request.url,parseInt(page) - 1 < 1 ? page : page - 1)}`;
+        }
+      },
+      last : (dataSet) => {
+        if (request && request.query.page) {
+          let page = request.query.page.number;
+          let size = request.query.page.size;
+
+          return `${url}/api/${api}/${this.type}${this.replacePage(request.url,Math.ceil(totalCount / size))}`;
+        }
+      }
     });
   }
-
 }

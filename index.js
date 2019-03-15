@@ -12,6 +12,7 @@ const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
 const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
+const reserved = require('reserved-words');
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -59,8 +60,8 @@ yargs
       })
     },
     handler: async (argv) => {
-      check = await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
       test.execUnitTests(argv.logs !== undefined ? true : false);
     }
   })
@@ -72,8 +73,12 @@ yargs
       yargs.default('CRUD', 'CRUD');
     },
     handler: async (argv) => {
-      await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
+      if (await reserved.check(argv.modelName,6)){
+        console.log("modelName is a reserved word");
+        process.exit(0);
+      }
       commands.generateModel(argv.modelName,argv.CRUD);
     }
   })
@@ -101,8 +106,8 @@ yargs
       })
     },
     handler: async (argv) => {
-      if(argv.DROP) await sql.checkConnexion();
       validateDirectory();
+      check = await sql.checkConnexion();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
@@ -139,15 +144,27 @@ yargs
     }
   })
   .command({
-    command:'migrate',
+    command:'migrate  <migrateName>',
     aliases: ["mig", "M"],
     desc: "Generate, compile and run the migration",
     builder: () => {},
-    handler: async () => {
-      await sql.checkConnexion();
+    handler: async (argv) => {
       validateDirectory();
-      commands.migrate();
+      await sql.checkConnexion();
+      if (await reserved.check(argv.modelName,6)){
+        console.log("modelName is a reserved word");
+        process.exit(0);
+      }
+      commands.migrate(argv.migrateName);
     }
+  })
+  .command({
+    command:'genFile <path>',
+    desc : 'generate an entity from a file ',
+    builder: () => {},
+    handler:(argv) =>{
+      commands.generateFromFile(argv.path);
+    } 
   })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')

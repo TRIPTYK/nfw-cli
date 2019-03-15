@@ -2,6 +2,7 @@ import * as HttpStatus from "http-status";
 
 import { Request, Response } from "express";
 import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
+import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
 import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityLowercase %>.repository";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
@@ -27,9 +28,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    public async get(req: Request, res : Response, next : Function) {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query))
-        .where('id = :id', { id: req.params.id })
-        .getOne();
+      const <%- entityLowercase %> = await repository.jsonAPI_findOne(req,req.params.id);
       res.json( <%- entityLowercase %>.whitelist() );
     }catch(e) {
       next(e);
@@ -50,7 +49,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
   public async create (req: Request, res : Response, next: Function) {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
+      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body.data.attributes);
       const saved<%- entityCapitalize %> = await repository.save(<%- entityLowercase %>);
       res.status( HttpStatus.CREATED );
       res.json( saved<%- entityCapitalize %>.whitelist() );
@@ -74,7 +73,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
       const <%- entityLowercase %> = await repository.findOne(req.params.id);
-      repository.merge(<%- entityLowercase %>, req.body);
+      repository.merge(<%- entityLowercase %>, req.body.data.attributes);
       repository.save(<%- entityLowercase %>);
       res.json( <%- entityLowercase %>.whitelist() );
     }
@@ -97,8 +96,8 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await (await repository.JSONAPIRequest(req.query)).getMany();
-      res.json( <%- entityLowercase %>.map(<%- entityLowercase %> => <%- entityLowercase %>.whitelist()) );
+      const [<%- entityLowercase %>s,total] = await Promise.all([repository.jsonAPI_find(req),repository.count()]);
+      res.json( new <%- entityCapitalize %>Serializer(req,total).serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);
     }

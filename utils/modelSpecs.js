@@ -1,103 +1,88 @@
 const inquirer = require('../lib/inquirer');
 const colors = require('colors/safe');
-let column = [];
+let columnWritten = [];
 
-columnParams= async (entity) => {
-    let paramsArray = [];
-    paramsArray['columns'] = [];
-    paramsArray['foreignKeys'] = [];
-    let {columnName}= await inquirer.questionColumnName();
-    if(columnName === ':exit') return null;
-    if(column.includes(columnName)){
-        console.log(colors.red('/!\\ You already added this column !'));
-        return null;
-    }else{
-        let {constraintValue} = await inquirer.questionColumnKey();
-        if(constraintValue === ':exit') return null;
-        if (constraintValue !== 'foreign key'){
-             if(constraintValue === 'no constraint' )var {uniqueValue} = await inquirer.questionUnique();
-             else var uniqueValue = false;
-             var {type} = await inquirer.questionType();
-             if(type === ':exit') return null;
+
+columnParams = async (entity) => {
+    //if any answer of the question is :exit , cancel current column
+    let length='',def,uni,paramsTemp ,paramsArray = [],length_enum,arrayDone = false ;
+    let {columnName}  = await inquirer.questionColumnName(columnWritten);
+    if (columnName  === ':exit') return null;
+    let {constraintValue}  = await inquirer.questionColumnKey();
+    if (constraintValue === ':exit') return null;
+    //code than you must run trough except if column is a foreign key
+    if (constraintValue !== 'foreign key') {
+        //if there's no constraint, ask if value should be unique or not.because primary/unique key must be unique anyway
+        if (constraintValue === 'no constraint') {
+            let {uniqueValue}= await inquirer.questionUnique();
+            uni = uniqueValue;
         }
-        let length_enum = [];
-        if(needLength.includes(type)){
-            length_enum[0] = await inquirer.lengthQuestion();
-            if(length_enum[0].enum === ':exit') return null;
-        }else if(type === 'enum'){
-            let arrayDone= false;
-            while(!arrayDone){
+        else uni = true;
+        let {type} = await inquirer.questionType();
+        if (type === ':exit') return null;
+        //if type need a length/width or is enum and need an array . Ask the user
+        if (needLength.includes(type)) {
+            length_enum = await inquirer.lengthQuestion();
+            if (length_enum.enum === ':exit') return null;
+            else length = length_enum.enum
+        } else if (type === 'enum') {
+            //add value to array until user is done
+            while (!arrayDone) {
                 let enumTemp = await inquirer.enumQuestion();
-                if(enumTemp.enum === ':exit') return null;
-                let confirm = await inquirer.askForConfirmation('Add this data ?');
-                if(confirm.confirmation){
-                    length_enum[length_enum.length]=enumTemp;
-                }
-                let more = await inquirer.askForConfirmation("Want to add more data to enum array ?");
-                if(!more.continueValue){
-                    arrayDone = true ;
-                }
+                if (enumTemp.enum === ':exit') return null;
+                let confirm = await inquirer.askForConfirmation();
+                if (confirm.confirmation) length += enumTemp.enum;
+                let more = await inquirer.askForMore();
+                if (!more.continueValue) arrayDone = true;
             }
-        }else{
-            length_enum[0]=10111998
+            length = length.substr(0,length.length-1);
         }
-        if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) var defaultValue = ':no'; 
-        else var {defaultValue} = await inquirer.questionDefault();
-        if(defaultValue === ':exit') return null;
-        let tempParanthesis = '';
-        if(length_enum[0] !== 10111998){
-            tempParanthesis += '('
-            length_enum[length_enum.length-1].enum=length_enum[length_enum.length-1].enum.replace(',','');
-            length_enum.forEach(elem => {
-                tempParanthesis += elem.enum;
-            });
-            tempParanthesis += ')'
-        }
-        if(['text','varchar','enum'].includes(type) && defaultValue !=='null' && defaultValue!==':no' ){
-            defaultValue=`'${defaultValue}'`;
-        }
-        if(constraintValue !== 'foreign key'){
-            let paramsTemp = {
-                Field : columnName.trim(),
-                Type : type.trim()+tempParanthesis.trim(),
-                Default : defaultValue.trim(),
-                Null : uniqueValue  ? 'YES' : 'NO',
-                Key : constraintValue
-            };
-            console.clear();
-            console.log(paramsTemp);
-            let lastConfirm = await inquirer.askForConfirmation('Add this data ?');
-            if(lastConfirm.confirmation){
-                column[column.length] = columnName;
-                paramsArray['columns'].push(paramsTemp);
-            }
-        }
+        //certain type can't have a default + unique and primary don't have a default.
+        if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) def = ':no';
         else{
-            let {referencedTable} = await inquirer.questionRelation();
-            if(referencedTable === ':exit') return null;
-            let { referencedColumn} = await inquirer.questionReferencedColumn();
-            if(referencedColumn=== ':exit') return null;
-            let relationTemp = {
-                TABLE_NAME : entity,
-                COLUMN_NAME : columnName,
-                REFERENCED_TABLE_NAME : referencedTable.trim(),
-                REFERENCED_COLUMN_NAME : referencedColumn,
-            };
-            let {response } = await inquirer.askForeignKeyRelation(relationTemp);
-            relationTemp2 = {
-                TABLE_NAME : entity,
-                COLUMN_NAME : columnName,
-                REFERENCED_TABLE_NAME : referencedTable.trim(),
-                REFERENCED_COLUMN_NAME : referencedColumn,
-                type: response
-            };
-            console.log(relationTemp2);
-            let {confirmation} = await inquirer.askForConfirmation('Add this data ?');
-            if(confirmation){
-                paramsArray['foreignKeys'].push(relationTemp2);
-            }
+            let {defaultValue} = await inquirer.questionDefault();
+            def = defaultValue
         }
-
+        if (def === ':exit') return null;
+        console.clear();
+        //Same format as the one send by mysql with a describe query
+        paramsTemp={
+            Field : columnName,
+            Type : { type , length },
+            Null : uni ? 'YES' : 'NO',
+            Key : constraintValue,
+            Default : def
+        }
+        console.log(paramsTemp);
+        //ask for a confirmation then add the column and the name to an array with already added column
+        let lastConfirm = await inquirer.askForConfirmation();
+        if (lastConfirm.confirmation) {
+            paramsArray['columns'] = paramsTemp;
+            columnWritten[columnWritten.length]= paramsTemp.Field;
+        }
+    }
+    else {
+        // part of the code to handle colum with foreign keys
+        let { referencedTable } = await inquirer.questionRelation();
+        if (referencedTable === ':exit') return null;
+        let { referencedColumn } = await inquirer.questionReferencedColumn();
+        if (referencedColumn === ':exit') return null;
+        //Same format as the one send by mysql whith a describe query for the foreign keys
+        let relationTemp = {
+            TABLE_NAME: entity,
+            COLUMN_NAME : paramsTemp.Field,
+            REFERENCED_TABLE_NAME: referencedTable.trim(),
+            REFERENCED_COLUMN_NAME: referencedColumn,
+        };
+        let { response } = await inquirer.askForeignKeyRelation(relationTemp);
+        relationTemp.type = response
+        //ask for a confirmation then add the column and the name to an array with already added column
+        console.log(relationTemp);
+        let { confirmation } = await inquirer.askForConfirmation();
+        if (confirmation) {
+            paramsArray['foreignKeys']=relationTemp2;
+            columnWritten[columnWritten.length]= paramsTemp.Field;
+        }
     }
     return paramsArray;
 }
@@ -107,29 +92,21 @@ columnParams= async (entity) => {
  */
 const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','float','double','decimal','char','binary','varbinary'];
 exports.dbParams = async (entity) => {
-    let isDoneColumn = false;
-    let paramsArray = [];
+    let isDoneColumn = false ,paramsArray = [];
     paramsArray['columns'] = [];
     paramsArray['foreignKeys'] = [];
     console.log(colors.green(`Let's create a table for ${entity}`));
     console.log(colors.green('/!\\ id is added by default .'));
     paramsArray['createUpdate'] = await inquirer.askForCreateUpdate();
-    while(!isDoneColumn){
-            try{
-                let data = await columnParams(entity);
-                if(data != null){
-                    if(data.columns[0] != undefined )paramsArray['columns'].push(data.columns[0]);
-                    if(data.foreignKeys[0] != undefined )paramsArray['foreignKeys'].push(data.foreignKeys[0]);
-                }
-            }catch(err){
-                console.log(err);
-            }
-            //console.clear();
-            let cont = await inquirer.askForConfirmation("Want to add more column ?");
-            if(!cont.continueValue){
-                isDoneColumn = true;
-            }
-
+    while (!isDoneColumn) {
+        //ask the user the column to add to his entity until user is done
+        let data = await columnParams(entity).catch(e => console.log(e.message));
+        //add value to array that will be returned if value is not null
+        if (data.columns != undefined) paramsArray['columns'].push(data.columns);
+        if (data.foreignKeys != undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
+        console.clear();
+        let cont = await inquirer.lastConfirmation();
+        if (!cont.continueValue) isDoneColumn = true;
     }
     return paramsArray;
 }
