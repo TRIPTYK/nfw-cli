@@ -120,9 +120,6 @@ module.exports = {
             switch  (data.value){
                 case "create an entity":
                     let { columns , foreignKeys } = await modelSpecs.dbParams(modelName);
-                    for(let j =0;j<columns.length;j++){
-                      columns[j].Type= utils.sqlTypeData(columns[j].Type);
-                    }
                     entityModelData = { columns , foreignKeys };
                     await modelWrite("write", modelName, entityModelData)
                       .catch(e => {
