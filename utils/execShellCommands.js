@@ -88,7 +88,7 @@ module.exports = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
         }
-        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> nfw.tpf`);
+        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> .nfw`);
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
@@ -101,9 +101,8 @@ module.exports = {
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
         if(modelExists){
-            const question = await inquirer.askForOverride(modelName);
-            override =question.override;
-            if(!question.override){
+            const question = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?` );
+            if(!question.confirmation){
                 console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
                 process.exit(0);
             }
@@ -179,9 +178,8 @@ module.exports = {
     /**
      * @description Call the core function to generate a model from the database     */
     generateFromDB: async() => {
-        var confirm = await inquirer.askForDBConfirmation();
+        var confirm = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will oveeride existing models with the same name ! Do you want to continue ?`);
         if(confirm.confirmation){
-
             await generator();
         }else{
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
@@ -232,12 +230,23 @@ module.exports = {
         process.exit(0);
     },
 
+    createDockerImage: async(newPath, data, dockerImageName, port) => {
+      fs.writeFileSync(path.resolve(newPath, "dockerfile"),data);
+      const dockerBuild = await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
+      try{
+        const dockerRun = await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`);
+        console.log(`Container launched and named: ${dockerImageName}`);
+      }catch(err){
+        console.log(err);
+        console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
+      }
+    },
+
     generateFromFile : async(path) =>{
       data = await read(path,'utf-8');
       console.log(data);
       newData = JSON.parse(data);
       console.log(newData);
-    } 
-
+    }
 
 }

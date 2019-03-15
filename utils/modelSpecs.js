@@ -24,7 +24,7 @@ columnParams = async (entity) => {
         if (needLength.includes(type)) {
             length_enum = await inquirer.lengthQuestion();
             if (length_enum.enum === ':exit') return null;
-            else length = length_enum.enum       
+            else length = length_enum.enum
         } else if (type === 'enum') {
             //add value to array until user is done
             while (!arrayDone) {
@@ -36,13 +36,13 @@ columnParams = async (entity) => {
                 if (!more.continueValue) arrayDone = true;
             }
             length = length.substr(0,length.length-1);
-        } 
+        }
         //certain type can't have a default + unique and primary don't have a default.
         if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) def = ':no';
         else{
             let {defaultValue} = await inquirer.questionDefault();
             def = defaultValue
-        } 
+        }
         if (def === ':exit') return null;
         console.clear();
         //Same format as the one send by mysql with a describe query
@@ -82,7 +82,7 @@ columnParams = async (entity) => {
         if (confirmation) {
             paramsArray['foreignKeys']=relationTemp2;
             columnWritten[columnWritten.length]= paramsTemp.Field;
-        }    
+        }
     }
     return paramsArray;
 }

@@ -30,11 +30,23 @@ yargs
       yargs.option('env',{
         desc: "Allow user to specify ENV variables",
         type: "boolean"
+      }),
+      yargs.option('path',{
+        desc: "Allow the user to choose a different path",
+        type: 'boolean'
+      }),
+      yargs.option('docker',{
+        desc: "Set a mysql container up",
+        type: 'boolean'
       })
     },
     handler: async(argv) => {
       clear();
-      project.New(argv.env !== undefined ? true: false);
+      if(argv._[1] === undefined){
+        console.log(chalk.red('Please provide a name for your application'));
+        process.exit(0);
+      }
+      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false );
     }
   }).command({
     strict: true,
