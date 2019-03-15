@@ -116,6 +116,7 @@ exports.fileExists = (filePath) => {
 
 exports.buildJoiFromColumn = (column) => {
   let {length,type} = column.Type;
+  console.log(column);
   let joiObject = {
     name : column.Field,
     baseType : "any",

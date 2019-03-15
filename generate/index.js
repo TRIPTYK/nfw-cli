@@ -74,16 +74,10 @@ const _checkForCrud = (arg) => {
  * @description replace the vars in placeholder in file and creates them
  * @param {*} items
  */
-const _write = async (data = null) => {
+const _write = async (data) => {
   let tableColumns , foreignKeys;
-  try {
-    let tmpData = await databaseInfo.getTableInfo("sql",lowercase);
-    tableColumns = tmpData.columns;
-    foreignKeys = tmpData.foreignKeys;
-  }catch(err) {
-    tableColumns = data ? data.columns : [];
-    foreignKeys = data ? data.foreignKeys : [];
-  };
+  tableColumns = data ? data.columns : [];
+  foreignKeys = data ? data.foreignKeys : [];
 
 
   let index = tableColumns.findIndex(el => el.Field == 'id')
