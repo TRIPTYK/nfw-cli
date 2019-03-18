@@ -61,7 +61,7 @@ yargs
     },
     handler: async (argv) => {
       validateDirectory();
-      check = await sql.checkConnexion();
+      await sql.checkConnexion();
       test.execUnitTests(argv.logs !== undefined ? true : false);
     }
   })
@@ -74,7 +74,7 @@ yargs
     },
     handler: async (argv) => {
       validateDirectory();
-      check = await sql.checkConnexion();
+      await sql.checkConnexion();
       if (await reserved.check(argv.modelName,6)){
         console.log("modelName is a reserved word");
         process.exit(0);
@@ -108,7 +108,7 @@ yargs
     },
     handler: async (argv) => {
       validateDirectory();
-      check = await sql.checkConnexion();
+      await sql.checkConnexion();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })

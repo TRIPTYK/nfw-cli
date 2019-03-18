@@ -178,7 +178,7 @@ module.exports = {
     /**
      * @description Call the core function to generate a model from the database     */
     generateFromDB: async() => {
-        var confirm = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will oveeride existing models with the same name ! Do you want to continue ?`);
+        var confirm = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will override existing models with the same name ! Do you want to continue ?`);
         if(confirm.confirmation){
             await generator();
         }else{
