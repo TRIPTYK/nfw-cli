@@ -56,7 +56,7 @@ module.exports = {
         await shellCmd.execCommand(kickstartCommand,name, newPath);
         await shellCmd.generateConfig(commands.getGitCommands, newPath, name);
         if(process.cwd() !== newPath && newPath !== undefined){
-            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other tpf commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, name)));
+            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, name)));
         }
         if(env){
             const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
