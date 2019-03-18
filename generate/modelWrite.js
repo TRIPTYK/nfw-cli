@@ -102,9 +102,9 @@ const _getKey = data => {
  */
 const _getLength = (info) => {
   if(info.type == "enum") return `enum  : [${info.length}],`;
-  if(info.length != undefined) {
+  if(info.length != undefined && info.length !== '') {
       if(info.type.includes('int')) return `width : ${info.length},`;
-      if(info.type.includes('date') || info.type.includes('date')) return `precision : ${info.length},` 
+      if((info.type.includes('date') || info.type.includes('time') )) return `precision : ${info.length},` 
       return `length : ${info.length},`;
   }
   return "";
@@ -144,7 +144,6 @@ const writeModel = async (action,data=null) =>{
         col.length = _getLength(col.Type);
         entities.push(col);
     });
-    console.log(entities);
     let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,

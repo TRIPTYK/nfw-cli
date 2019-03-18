@@ -87,8 +87,9 @@ yargs
     aliases: ["imp"],
     desc: "Generate all the files from existing tables in the databse",
     builder: () => {},
-    handler: () => {
+    handler: async () => {
       validateDirectory();
+      check = await sql.checkConnexion();
       commands.generateFromDB();
     }
   })

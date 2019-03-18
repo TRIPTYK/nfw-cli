@@ -18,7 +18,6 @@ module.exports = async () =>{
     let [tables,tablesIn] = await Promise.all([p_tables,p_tablesIn]);
 
     for(let j = 0;j<tables.length;j++){
-        if (utils.isBridgindTable) return;
         if (noGenerate.includes(tables[j][tablesIn])) return;
         let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", tables[j][tablesIn]);
         console.log(columns);
