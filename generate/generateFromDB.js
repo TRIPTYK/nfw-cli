@@ -18,27 +18,28 @@ module.exports = async () =>{
     let [tables,tablesIn] = await Promise.all([p_tables,p_tablesIn]);
 
     for(let j = 0;j<tables.length;j++){
-        if(!noGenerate.includes(tables[j][tablesIn])) {
-            let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", tables[j][tablesIn]);
-            console.log(columns);
-            for (let j = 0; j < columns.length; j++) {
-                columns[j].Type = utils.sqlTypeData(columns[j].Type);
-            }
-            if (foreignKeys && foreignKeys.length) {
-                for (let i = 0; i < foreignKeys.length; i++) {
-                    let tmpKey = foreignKeys[i];
-                    let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
-                    foreignKeys[i].type = response;
-                }
-            }
-            entityModelData = { columns, foreignKeys };
-            await modelWrite('write', tables[j][tablesIn], entityModelData)
-                .catch(e => {
-                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                    process.exit(1);
-                });
-            await index(tables[j][tablesIn], 'crud');
+        if (utils.isBridgindTable) return;
+        if (noGenerate.includes(tables[j][tablesIn])) return;
+        let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", tables[j][tablesIn]);
+        console.log(columns);
+        for (let j = 0; j < columns.length; j++) {
+            columns[j].Type = utils.sqlTypeData(columns[j].Type);
         }
+        if (foreignKeys && foreignKeys.length) {
+            for (let i = 0; i < foreignKeys.length; i++) {
+                let tmpKey = foreignKeys[i];
+                let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
+                foreignKeys[i].type = response;
+            }
+        }
+        entityModelData = { columns, foreignKeys };
+        await modelWrite('write', tables[j][tablesIn], entityModelData)
+            .catch(e => {
+                Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                process.exit(1);
+            });
+        await index(tables[j][tablesIn], 'crud');
+
    };
    process.exit(0);
 };

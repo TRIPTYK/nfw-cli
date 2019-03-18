@@ -16,7 +16,7 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
     params
     .setAttributes(<%- entityCapitalize %>Serializer.withelist)
     <% foreignKeys.forEach(foreignKey => { %>
-    .addRelation(<%- foreignKey.COLUMN_NAME %>, {
+    .addRelation('<%- foreignKey.COLUMN_NAME %>', {
        ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
        attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
       }

@@ -116,7 +116,6 @@ exports.fileExists = (filePath) => {
 
 exports.buildJoiFromColumn = (column) => {
   let {length,type} = column.Type;
-  console.log(column);
   let joiObject = {
     name : column.Field,
     baseType : "any",
@@ -141,4 +140,12 @@ exports.buildJoiFromColumn = (column) => {
   }
 
   return joiObject;
+}
+
+exports.isBridgindTable = (columns) => {
+  columns = columns.filter(column => {
+    return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
+  });
+  if(columns = []) return true;
+  else return false; 
 }

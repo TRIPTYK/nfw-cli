@@ -70,7 +70,7 @@ columnParams = async (entity) => {
         //Same format as the one send by mysql whith a describe query for the foreign keys
         let relationTemp = {
             TABLE_NAME: entity,
-            COLUMN_NAME : paramsTemp.Field,
+            COLUMN_NAME : columnName,
             REFERENCED_TABLE_NAME: referencedTable.trim(),
             REFERENCED_COLUMN_NAME: referencedColumn,
         };
@@ -80,8 +80,8 @@ columnParams = async (entity) => {
         console.log(relationTemp);
         let { confirmation } = await inquirer.askForConfirmation();
         if (confirmation) {
-            paramsArray['foreignKeys']=relationTemp2;
-            columnWritten[columnWritten.length]= paramsTemp.Field;
+            paramsArray['foreignKeys']=relationTemp;
+            columnWritten[columnWritten.length]= columnName;
         }
     }
     return paramsArray;
@@ -102,11 +102,12 @@ exports.dbParams = async (entity) => {
         //ask the user the column to add to his entity until user is done
         let data = await columnParams(entity).catch(e => console.log(e.message));
         //add value to array that will be returned if value is not null
-        if (data.columns != undefined) paramsArray['columns'].push(data.columns);
-        if (data.foreignKeys != undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
+        console.log(data);
+        if (data!= null  && data.columns != undefined) paramsArray['columns'].push(data.columns);
+        if (data!= null  && data.foreignKeys != undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
         console.clear();
-        let cont = await inquirer.lastConfirmation();
-        if (!cont.continueValue) isDoneColumn = true;
+        let {confirmation} = await inquirer.askForConfirmation("Want to add more column ? ");
+        if (!confirmation) isDoneColumn = true;
     }
     return paramsArray;
 }

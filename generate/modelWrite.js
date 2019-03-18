@@ -129,9 +129,12 @@ const writeModel = async (action,data=null) =>{
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
     */
+
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
     });
+
+
     columns.forEach(col => {
         if(col.Field === "id") return;
         
@@ -141,6 +144,7 @@ const writeModel = async (action,data=null) =>{
         col.length = _getLength(col.Type);
         entities.push(col);
     });
+    console.log(entities);
     let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
@@ -151,7 +155,7 @@ const writeModel = async (action,data=null) =>{
       lowercaseEntity
     });
 
-    await Promise.all([WriteFile(pathModel, output),_addToConfig(lowercase,capitalize)]);
+    await Promise.all([WriteFile(pathModel, output),_addToConfig(lowercase,capitalize)]).catch(e => Log.error(e.message));
     Log.success("Model created in :" + pathModel);
 }
 
