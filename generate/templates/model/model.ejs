@@ -32,8 +32,4 @@ export class <%- entityCapitalize %> {
   @UpdateDateColumn()
   update_at;
 <% } -%>
-
-  public whitelist() {
-    return new <%- entityCapitalize %>Serializer().serialize(this);
-  }
 }

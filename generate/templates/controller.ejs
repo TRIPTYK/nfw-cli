@@ -29,7 +29,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
       const <%- entityLowercase %> = await repository.jsonAPI_findOne(req,req.params.id);
-      res.json( <%- entityLowercase %>.whitelist() );
+      res.json( new <%- entityCapitalize %>Serializer(req,totalUsers).serialize(<%- entityLowercase %>) );
     }catch(e) {
       next(e);
     }
