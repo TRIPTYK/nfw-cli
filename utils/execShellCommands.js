@@ -247,6 +247,14 @@ module.exports = {
       console.log(data);
       newData = JSON.parse(data);
       console.log(newData);
+    },
+    compileTypeScript : async() =>{
+      await exec(`tsc`)
+          .then(() => console.log(chalk.green("Compiled successfully")))
+          .catch(e => {
+            Log.error(`Failed to compile typescript : ${e.message}`);
+            process.exit(0);
+          });
     }
 
 }

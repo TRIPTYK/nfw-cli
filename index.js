@@ -132,11 +132,12 @@ yargs
         type: "string"
       })
     },
-    handler: (argv) => {
+    handler: async(argv) => {
       validateDirectory();
       let environement = argv.env !== undefined ? argv.env : "development";
       if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
         console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
+        await commands.compileTypeScript();
         commands.startServer(environement);
       }else{
         console.log(chalk.red(`${environement} is not a valid environement`))
