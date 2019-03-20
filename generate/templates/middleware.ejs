@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import * as Boom from "boom";
 
 import { Request, Response } from "express";
@@ -13,3 +14,18 @@ export class <%- entityCapitalize %>Middleware extends BaseMiddleware {
   constructor() { super( new <%- entityCapitalize %>Serializer() ); }
 
 }
+=======
+import * as Boom from "boom";
+
+import { Request, Response } from "express";
+import { getRepository } from "typeorm";
+import { <%- entityCapitalize %>Serializer } from "./../serializers/<%- entityLowercase %>.serializer";
+import { BaseMiddleware } from "./base.middleware";
+
+/**
+ * <%- entityCapitalize %> middleware
+ */
+export class <%- entityCapitalize %>Middleware extends BaseMiddleware {
+  constructor() { super( new <%- entityCapitalize %>Serializer() ); }
+}
+>>>>>>> 496ad938e624a3c8f951cd2a58cfb3e2c0f880ac

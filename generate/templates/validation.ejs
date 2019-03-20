@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import * as Joi from "joi";
 
 // GET /v1/<%- entityLowercase %>
@@ -63,3 +64,70 @@ export const update<%- entityCapitalize %> =  {
   }
 };
 <% } %>
+=======
+import * as Joi from "joi";
+
+// GET /v1/<%- entityLowercase %>
+<% if (options.read) { %>
+export const list<%- entityCapitalize %>s = {
+  query: {}
+};
+<% } %>
+
+<% if (options.read) { %>
+// GET /v1/<%- entityLowercase %>s/<%- entityLowercase %>Id
+export const get<%- entityCapitalize %> = {
+  params: {
+    id: Joi.string().regex(/^[0-9]{0,4}$/).required(),
+  }
+};
+<% } %>
+
+<% if (options.create) { %>
+// POST /v1/<%- entityLowercase %>s
+export const create<%- entityCapitalize %> = {
+  body: {
+    data : {
+      attributes : { <% validation.forEach(col => { %>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType) { _%>.<%- col.specificType %>() <% } -%><% if(col.length) { _%>.max(<%- col.length %>)<% } -%><%- col.baseColumn.Null !== 'NO' ? 'required()' : '' -%>,<% -%>
+        <% }) %>
+      }
+    }
+  }
+};
+<% } %>
+
+// PUT /v1/<%- entityLowercase %>s/:Id
+<% if (options.update) { %>
+export const replace<%- entityCapitalize %> =  {
+  body: {
+    data : {
+      attributes : { <% validation.forEach(col => { %>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType) { _%>.<%- col.specificType %>() <% } -%><% if(col.length) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
+        <% }) %>
+      }
+    }
+  },
+  params: {
+    id: Joi.string().regex(/^[0-9]{0,4}$/).required(),
+  }
+};
+<% } %>
+
+<% if (options.update) { %>
+// PATCH /v1/<%- entityLowercase %>s/:Id
+export const update<%- entityCapitalize %> =  {
+  body: {
+    data : {
+      attributes : { <% validation.forEach(col => { %>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType) { _%>.<%- col.specificType %>() <% } -%><% if(col.length) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
+        <% }) %>
+      }
+    }
+  },
+  params: {
+    id: Joi.string().regex(/^[0-9]{0,4}$/).required(),
+  }
+};
+<% } %>
+>>>>>>> 496ad938e624a3c8f951cd2a58cfb3e2c0f880ac
