@@ -26,7 +26,7 @@ const generator = require("../generate/generateFromDB");
 const errHandler = require("./ErrorHandler");
 const snake = require('to-snake-case')
 const operatingSystem = process.platform;
-
+const sqlAdaptor = require('../generate/database/sqlAdaptator');
 
 module.exports = {
     /**
@@ -255,6 +255,12 @@ module.exports = {
             Log.error(`Failed to compile typescript : ${e.message}`);
             process.exit(0);
           });
+    },
+    createSuperUser: async(username) => {
+      let credentials = await sqlAdaptor.insertAdmin(username);
+      fs.writeFileSync('credentials.json', `{\n\"login\": \"${credentials.login}\" ,\n \"password\": \"${credentials.password}\"\n}`);
+      console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :'))+ "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password");
+      process.exit(0);
     }
 
 }

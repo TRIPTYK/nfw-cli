@@ -168,6 +168,16 @@ yargs
       commands.generateFromFile(argv.path);
     } 
   })
+  .command({
+    command:'createSU <username>',
+    aliases: ['csu'],
+    builder: () => {},
+    handler: async(argv) => {
+      validateDirectory();
+      await sql.checkConnexion();
+      commands.createSuperUser(argv.username);
+    }
+  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('nfw')
