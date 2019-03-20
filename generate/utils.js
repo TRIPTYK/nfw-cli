@@ -120,7 +120,8 @@ exports.buildJoiFromColumn = (column) => {
     name : column.Field,
     baseType : "any",
     specificType : null,
-    length
+    length,
+    baseColumn : column,
   };
 
   if (type.match(/text|char/i))
@@ -147,5 +148,5 @@ exports.isBridgindTable = (columns) => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
   if(columns = []) return true;
-  else return false; 
+  else return false;
 }
