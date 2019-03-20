@@ -2,6 +2,7 @@ import { BaseSerializer } from "./base.serializer";
 import { api, env , port, url } from "../../config/environment.config";
 import { SerializerParams } from "./serializerParams";
 import { Request } from "express";
+import { getRepository } from "typeorm";
 <% foreignKeys.forEach(foreignKey => { %>
 import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer"
 <% }); %>
@@ -19,6 +20,9 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
     .addRelation('<%- foreignKey.COLUMN_NAME %>', {
        ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
        attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
+       valueForRelationship : async (relationship) => {
+          return await getRepository(<%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>).findOne(relationship.<%- foreignKey.COLUMN_NAME %>);
+       }
       }
     ) <% }); %>
     .setDataLinks({
