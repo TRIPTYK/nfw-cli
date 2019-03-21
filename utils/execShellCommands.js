@@ -253,6 +253,11 @@ module.exports = {
       .catch(err => Log.error(err.message));
       module.exports.migrate(`${model1}-${model2}`);       
       
+    },
+
+    editModel : async (action,model,column=null) => { 
+      if(action='remove') await  modelWrite.removeColumn(model,column);
+      process.exit(0);
     }
 
 }

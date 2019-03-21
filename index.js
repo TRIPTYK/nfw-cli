@@ -181,6 +181,32 @@ yargs
       commands.createMtm(argv.model1,argv.model2);
     }
   })
+  .command({
+    command:'editModel <model> [column]',
+    aliases: ["em", "edit"],
+    desc: 'Create many to many relation between two table',
+    builder : (yargs) => {
+      yargs.option({
+        add :{
+          default:false,
+          type: 'boolean'
+        },
+        remove :{
+          default:false,
+          type: 'boolean'
+        }
+      })
+    },
+    handler : (argv) =>{
+      if(!utils.modelFileExists(argv.model)){
+        Log.error("Model should exist in order to edit him ;)");
+        process.exit(0);
+      } 
+      if (argv.add && !argv.remove)console.log(":)");
+      if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
+      else Log.info("both flag can't be activated at the same time");
+    }
+  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('nfw')

@@ -192,6 +192,17 @@ exports.addMtm = async (model1,model2,isFirst) =>{
   await WriteFile(pathModel,newModel);
   
 }
+
+exports.removeColumn = async (model,column) =>{ 
+  let regex =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
+  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
+  let modelFile = await ReadFile(pathModel);
+  if(modelFile.toString().match(regex)){
+    let newModel=modelFile.toString().replace(regex,'');
+    await WriteFile(pathModel,newModel);
+  }
+  else Log.error("Column doesn't exist");
+}
 exports.main = async (action,name,data=undefined) => {
   if(action == 'basic'){
     basicModel(name);
