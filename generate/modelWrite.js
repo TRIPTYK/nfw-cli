@@ -18,9 +18,8 @@ const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
 const {  capitalizeEntity , fileExists, removeEmptyLines , writeToFirstEmptyLine , isImportPresent , lowercaseEntity , sqlTypeData } = require('./utils');
+const pluralize = require('pluralize');
 
-var lowercase;
-var capitalize;
 
 
 /**
@@ -182,7 +181,18 @@ const basicModel = async (action) => {
   await Promise.all([_addToConfig(lowercase,capitalize),p_write])
 }
 
-module.exports = async (action,name,data=undefined) => {
+exports.addMtm = async (model1,model2,isFirst) =>{
+  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
+  let modelFile = await ReadFile(pathModel);
+  let toPut = `  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
+  if(isFirst) toPut += '  @JoinTable()\n';
+  toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n `;
+  let newModel =   writeToFirstEmptyLine( modelFile.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
+  .replace(/(?=^}$)(?![\r\n])/gm,toPut);
+  await WriteFile(pathModel,newModel);
+  
+}
+exports.main = async (action,name,data=undefined) => {
   if(action == 'basic'){
     basicModel(name);
   }else if (action=='write'){
@@ -190,4 +200,5 @@ module.exports = async (action,name,data=undefined) => {
   }else{
     console.log("Bad syntax");
   }
+  
 }

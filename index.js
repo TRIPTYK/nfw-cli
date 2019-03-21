@@ -12,7 +12,9 @@ const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
 const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
+const utils = require ('./generate/utils');
 const reserved = require('reserved-words');
+const Log = require('./generate/log')
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -166,6 +168,18 @@ yargs
     handler:(argv) =>{
       commands.generateFromFile(argv.path);
     } 
+  })
+  .command({
+    command:'mtm <model1> <model2>',
+    desc: 'Create many to many relation between two table',
+    builder : () => {},
+    handler : (argv) =>{
+      if(!utils.modelFileExists(argv.model1) || !utils.modelFileExists(argv.model2) ){
+        Log.error("Both model should exist in order to create a many to many relationship");
+        process.exit(0);
+      } 
+      commands.createMtm(argv.model1,argv.model2);
+    }
   })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')

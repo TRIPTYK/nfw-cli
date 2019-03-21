@@ -97,6 +97,7 @@ module.exports = {
      * @param  {string} crud
      */
     generateModel: async(modelName, crud) => {
+        let doMigration = true;
         modelName = snake(modelName);
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
@@ -120,14 +121,14 @@ module.exports = {
                 case "create an entity":
                     let { columns , foreignKeys } = await modelSpecs.dbParams(modelName);
                     entityModelData = { columns , foreignKeys };
-                    await modelWrite("write", modelName, entityModelData)
+                    await modelWrite.main("write", modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                       });
                     break;
                 case "create a basic model":
-                    await modelWrite("basic", modelName)
+                    await modelWrite.main("basic", modelName)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
@@ -139,6 +140,7 @@ module.exports = {
                     break;
             }
         }else{
+          doMigration = false;
           let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
           for(let j =0;j<columns.length;j++){
             columns[j].Type= utils.sqlTypeData(columns[j].Type);
@@ -152,7 +154,7 @@ module.exports = {
            }
 
          entityModelData = { columns , foreignKeys };
-         await modelWrite('write', modelName , entityModelData)
+         await modelWrite.main('write', modelName , entityModelData)
            .catch(e => {
              Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
              process.exit(1);
@@ -165,7 +167,8 @@ module.exports = {
           process.exit(1);
         });
 
-        module.exports.migrate(modelName);
+      if(doMigration) module.exports.migrate(modelName);
+      else process.exit(0);
     },
     /**
      * @description Delete a generated model from the project
@@ -242,11 +245,14 @@ module.exports = {
       }
     },
 
-    generateFromFile : async(path) =>{
-      data = await read(path,'utf-8');
-      console.log(data);
-      newData = JSON.parse(data);
-      console.log(newData);
+    createMtm : async(model1,model2) =>{
+      await modelWrite.addMtm(model1,model2,true)
+      .catch(err => Log.error(err.message));
+      await modelWrite.addMtm(model2,model1,false)
+      .then(() => Log.success(`Many to many reliatonship between ${model1} and  ${model2} added in models`))
+      .catch(err => Log.error(err.message));
+      module.exports.migrate(`${model1}-${model2}`);       
+      
     }
 
 }
