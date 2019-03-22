@@ -202,8 +202,8 @@ yargs
         Log.error("Model should exist in order to edit him ;)");
         process.exit(0);
       } 
-      if (argv.add && !argv.remove)console.log(":)");
-      if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
+      if (argv.add && !argv.remove)commands.editModel('add',argv.model);
+      else if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
       else Log.info("both flag can't be activated at the same time");
     }
   })

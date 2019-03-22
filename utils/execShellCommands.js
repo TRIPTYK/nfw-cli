@@ -256,7 +256,11 @@ module.exports = {
     },
 
     editModel : async (action,model,column=null) => { 
-      if(action='remove') await  modelWrite.removeColumn(model,column);
+      if(action=='remove') await  modelWrite.removeColumn(model,column);
+      if(action=='add'){
+        data = await modelSpecs.newColumn();
+        await modelWrite.addColumn(model,data)
+      }
       process.exit(0);
     }
 

@@ -111,3 +111,6 @@ exports.dbParams = async (entity) => {
     }
     return paramsArray;
 }
+
+
+exports.newColumn = columnParams;
