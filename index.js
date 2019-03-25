@@ -110,7 +110,7 @@ yargs
     },
     handler: async (argv) => {
       validateDirectory();
-      await sql.checkConnexion();
+      if(argv.DROP)await sql.checkConnexion();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
@@ -199,7 +199,7 @@ yargs
     },
     handler : (argv) =>{
       if(!utils.modelFileExists(argv.model)){
-        Log.error("Model should exist in order to edit him ;)");
+        Log.error("Model should exist in order to edit him :)");
         process.exit(0);
       } 
       if (argv.add && !argv.remove)commands.editModel('add',argv.model);

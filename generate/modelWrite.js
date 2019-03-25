@@ -182,54 +182,67 @@ const basicModel = async (action) => {
 }
 
 exports.addMtm = async (model1,model2,isFirst) =>{
+  let regex = new RegExp(`@ManyToMany[\\s\\S]*?${capitalizeEntity(model2)}\\[\\];`);
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
   let modelFile = await ReadFile(pathModel);
+  if(modelFile.toString().match(regex)) throw new Error('many to many relationship already added');
   let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
   if(isFirst) toPut += '  @JoinTable()\n';
-  toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n }`;
-  let newModel =   writeToFirstEmptyLine( modelFile.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
-  .replace(/(.*\s}$)(?![\n\r])/gm,toPut);
+  toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
+  var pos = modelFile.lastIndexOf('}');
+  let newModel= `${modelFile.toString().substring(0,pos)}\n${toPut}\n}`;
+  newModel =   writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
   await WriteFile(pathModel,newModel);
-  
+}
+
+exports.addOto = async (model1,model2,isFirst) =>{
+  let regex = new RegExp(`@One[\\s\\S]*?${capitalizeEntity(model2)}\\[\\];`);
+  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
+  let modelFile = await ReadFile(pathModel);
+  if(modelFile.toString().match(regex)) throw new Error('many to many relationship already added');
+  let toPut = `\n  @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
+  if(isFirst) toPut += '  @JoinColumns()\n';
+  toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};\n\n }`;
+  var pos = modelFile.lastIndexOf('}');
+  let newModel= `${modelFile.toString().substring(0,pos)}\n${toPut}\n}`;
+  newModel =   writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
+  //await WriteFile(pathModel,newModel);
+  console.log(newModel);
 }
 
 exports.removeColumn = async (model,column) =>{ 
-  let regex =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
+  let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
+  let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
+  let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let modelFile = await ReadFile(pathModel);
-  if(modelFile.toString().match(regex)){
-    let newModel=modelFile.toString().replace(regex,'');
-    await WriteFile(pathModel,newModel);
-    Log.success("column successfully removed");
-  }
-  else Log.error("Column doesn't exist");
+  let newModel;
+  if(modelFile.toString().match(regexColumn)) newModel=modelFile.toString().replace(regexColumn,'');
+  else if(modelFile.toString().match(regexMany))newModel=modelFile.toString().replace(regexMany,'');
+  else if(modelFile.toString().match(regexOne)) newModel=modelFile.toString().replace(regexOne,'');
+  else throw new Error('Column doesn\'t exist');
+  await WriteFile(pathModel,newModel);
 }
 
 exports.addColumn = async (model,data ) =>{
+  let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
   let columnTemp = await ReadFile(`${__dirname}/templates/model/_column.ejs`);
-  let foreingTemp = await ReadFile(`${__dirname}/templates/model/_foreignKey.ejs`);
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let modelFile = await ReadFile(pathModel);
-  if (data == null) Log.error('Column cancelled');
-  else if (data.columns != null) {
-    let entity = data.columns;
-    entity.Null = _getNull(entity.Null, entity.Key);
-    entity.Key = _getKey(entity.Key);
-    entity.Default = _getDefault(entity);
-    entity.length = _getLength(entity.Type);
-    let newCol = ejs.compile(columnTemp.toString())({entity})
-    console.log(modelFile.toString().match(/(.*\s}$)(?!\n)/gm));
-    let newModel = modelFile.toString().replace(/(.*\s}$)(?![\n])/gm,newCol);
-    console.log(newModel);
-  } else{
-    let foreignKey = data.foreignKeys;
-    let newCol = ejs.compile(foreingTemp.toString())({foreignKey,capitalizeEntity});
-    let newModel = modelFile.toString().replace(/(.*\s}$)(?![\n\r])/gm,newCol);
-    console.log(newModel);
-    console.log(newCol);    
-  }
-
+  if (data == null)throw  new Error('Column cancelled');
+  if(data.Field.match(regexColumn)) throw new Error('Column already added'); 
+  let entity = data.columns;
+  entity.Null = _getNull(entity.Null, entity.Key);
+  entity.Key = _getKey(entity.Key);
+  entity.Default = _getDefault(entity);
+  entity.length = _getLength(entity.Type);
+  let newCol = '  ' + ejs.compile(columnTemp.toString())({ entity })
+  var pos = modelFile.lastIndexOf('}');
+  let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`
+  await WriteFile(pathModel,newModel);
 }
+
+
 exports.main = async (action,name,data=undefined) => {
   if(action == 'basic'){
     basicModel(name);
