@@ -170,21 +170,29 @@ yargs
     } 
   })
   .command({
-    command:'mtm <model1> <model2>',
-    desc: 'Create many to many relation between two table',
-    builder : () => {},
+    command:'addRelationship <model1> <model2>',
+    aliases:['ar','addR'],
+    desc: 'Create  relation between two table',
+    builder : (yargs) => {
+      yargs.option({
+        relation :{
+          type: 'string'
+        }
+      })
+    },
     handler : (argv) =>{
       if(!utils.modelFileExists(argv.model1) || !utils.modelFileExists(argv.model2) ){
         Log.error("Both model should exist in order to create a many to many relationship");
         process.exit(0);
       } 
-      commands.createMtm(argv.model1,argv.model2);
+     if(argv.relation ==='mtm') commands.createMtm(argv.model1,argv.model2);
+     if(argv.relation ==='oto') commands.createOto(argv.model1,argv.model2);
     }
   })
   .command({
     command:'editModel <model> [column]',
     aliases: ["em", "edit"],
-    desc: 'Create many to many relation between two table',
+    desc: 'add or remove column in a model',
     builder : (yargs) => {
       yargs.option({
         add :{

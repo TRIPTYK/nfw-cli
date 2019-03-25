@@ -146,6 +146,6 @@ exports.isBridgindTable = (columns) => {
   columns = columns.filter(column => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
-  if(columns = []) return true;
+  if(columns.length==0) return true;
   else return false; 
 }

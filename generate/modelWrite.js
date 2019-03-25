@@ -200,11 +200,11 @@ exports.addOto = async (model1,model2,isFirst) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
   let modelFile = await ReadFile(pathModel);
   if(modelFile.toString().match(regex)) throw new Error('many to many relationship already added');
-  let toPut = `\n  @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
+  let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
   if(isFirst) toPut += '  @JoinColumns()\n';
-  toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};\n\n }`;
+  toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`;
   var pos = modelFile.lastIndexOf('}');
-  let newModel= `${modelFile.toString().substring(0,pos)}\n${toPut}\n}`;
+  let newModel= `${modelFile.toString().substring(0,pos)}${toPut}\n\n}`;
   newModel =   writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
   //await WriteFile(pathModel,newModel);
   console.log(newModel);
