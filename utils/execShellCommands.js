@@ -244,43 +244,25 @@ module.exports = {
         console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
       }
     },
-
-    createMtm : async(model1,model2) =>{
+    
+    createRelation : async(model1,model2,relation) =>{
       let migrate = true;
-      await modelWrite.addMtm(model1,model2,true)
+      await modelWrite.addRelation(model1,model2,true,relation)
       .catch(err => {
         Log.error(err.message)
         migrate = false;
       });
-      if(migrate)await modelWrite.addMtm(model2,model1,false)
-      .then(() => Log.success(`Many to many reliatonship between ${model1} and  ${model2} added in models`))
+      if(migrate)await modelWrite.addRelation(model2,model1,false,relation)
+      .then(() => Log.success(`reliatonship between ${model1} and  ${model2} added in models`))
       .catch(err => {
         Log.error(err.message)
         migrate = false;
       });
       if(migrate)module.exports.migrate(`${model1}-${model2}`);       
-      
-    },
-
-    createOto : async(model1,model2) =>{
-      let migrate = true;
-      await modelWrite.addOto(model1,model2,true)
-      .catch(err => {
-        Log.error(err.message)
-        migrate = false;
-      });
-      if(migrate)await modelWrite.addOto(model2,model1,false)
-      .then(() => Log.success(`One to one reliatonship between ${model1} and  ${model2} added in models`))
-      .catch(err => {
-        Log.error(err.message)
-        migrate = false;
-      });
-      if(migrate)module.exports.migrate(`${model1}-${model2}`);       
-      
-    },
+    } ,
 
     editModel : async (action,model,column=null) => { 
-      if(action=='remove') await modelWrite.removeColumn(model,column).then(Log.success('Column successfully removed')).catch(err => Log.error(err.message));
+      if(action=='remove') await modelWrite.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
       if(action=='add'){
         data = await modelSpecs.newColumn();
         await modelWrite.addColumn(model,data).catch(err => Log.error(err.message));

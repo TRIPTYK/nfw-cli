@@ -17,7 +17,7 @@ const databaseInfo = require('./databaseInfo');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
-const {  capitalizeEntity , fileExists, removeEmptyLines , writeToFirstEmptyLine , isImportPresent , lowercaseEntity , sqlTypeData } = require('./utils');
+const {  capitalizeEntity ,columnExist ,fileExists, removeEmptyLines , writeToFirstEmptyLine , isImportPresent , lowercaseEntity , sqlTypeData } = require('./utils');
 const pluralize = require('pluralize');
 
 
@@ -181,39 +181,45 @@ const basicModel = async (action) => {
   await Promise.all([_addToConfig(lowercase,capitalize),p_write])
 }
 
-exports.addMtm = async (model1,model2,isFirst) =>{
-  let regex = new RegExp(`@ManyToMany[\\s\\S]*?${capitalizeEntity(model2)}\\[\\];`);
-  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
-  if(modelFile.toString().match(regex)) throw new Error('many to many relationship already added');
+
+const _Mtm = (model1,model2,isFirst) =>{
   let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
   if(isFirst) toPut += '  @JoinTable()\n';
-  toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
-  var pos = modelFile.lastIndexOf('}');
-  let newModel= `${modelFile.toString().substring(0,pos)}\n${toPut}\n}`;
-  newModel =   writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
+  return toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
+}
+
+const _Oto = (model1,model2,isFirst) =>{
+  let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
+  if(isFirst) toPut += '  @JoinColumn()\n';
+  return toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`;
+}
+
+const _Otm = (model1,model2,isFirst) =>{
+  let toPut
+  if(isFirst)  toPut=`@OneToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[]`
+  else  toPut=`@ManyToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)}`
+  return toPut
+}
+
+exports.addRelation = async (model1,model2,isFirst,relation) =>{
+  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
+  let modelFile = await ReadFile(pathModel);
+  let toPut;
+  if(relation=='mtm') toPut = _Mtm(model1,model2,isFirst); 
+  if(relation=='oto') toPut = _Oto(model1,model2,isFirst); 
+  if(relation=='otm') toPut = _Otm(model1,model2,isFirst); 
+  if(relation=='mto') toPut = _Otm(model2,model1,isFirst); 
+  let pos = modelFile.lastIndexOf('}');
+  let newModel= `${modelFile.toString().substring(0,pos)}${toPut}\n\n}`;
+  if(isImportPresent(modelFile.toString(),capitalizeEntity(model2))) newModel = writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model"\n`)
   await WriteFile(pathModel,newModel);
 }
 
-exports.addOto = async (model1,model2,isFirst) =>{
-  let regex = new RegExp(`@One[\\s\\S]*?${capitalizeEntity(model2)}\\[\\];`);
-  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
-  if(modelFile.toString().match(regex)) throw new Error('many to many relationship already added');
-  let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
-  if(isFirst) toPut += '  @JoinColumns()\n';
-  toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`;
-  var pos = modelFile.lastIndexOf('}');
-  let newModel= `${modelFile.toString().substring(0,pos)}${toPut}\n\n}`;
-  newModel =   writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model\n"`)
-  //await WriteFile(pathModel,newModel);
-  console.log(newModel);
-}
 
 exports.removeColumn = async (model,column) =>{ 
   let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
-  let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
-  let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
+  let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
+  let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let modelFile = await ReadFile(pathModel);
   let newModel;
@@ -225,12 +231,10 @@ exports.removeColumn = async (model,column) =>{
 }
 
 exports.addColumn = async (model,data ) =>{
-  let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
-  let columnTemp = await ReadFile(`${__dirname}/templates/model/_column.ejs`);
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
+  let [columnTemp, modelFile] = await  Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`),ReadFile(pathModel)]);
   if (data == null)throw  new Error('Column cancelled');
-  if(data.Field.match(regexColumn)) throw new Error('Column already added'); 
+  if(columnExist(modelFile,data.columns.Field)) throw new Error('Column already added'); 
   let entity = data.columns;
   entity.Null = _getNull(entity.Null, entity.Key);
   entity.Key = _getKey(entity.Key);
