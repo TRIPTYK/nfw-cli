@@ -19,14 +19,14 @@ router
    * @api {get} v1/<%- entityLowercase %>s List <%- entityCapitalize %>s
    * @apiDescription Get a list of <%- entityLowercase %>s
    * @apiVersion 1.0.0
-   * @apiName List<%- entityCapitalize %>s
+   * @apiName List <%- pluralize.plural(entityCapitalize) %>
    * @apiGroup <%- entityCapitalize %>
    * @apiPermission admin
    *
    * @apiHeader {String} Athorization  <%- entityCapitalize %>'s access token
    *
    * @apiParam  {Number{1-}}         [page=1]     List page
-   * @apiParam  {Number{1-100}}      [perPage=1]  <%- entityCapitalize %>s per page
+   * @apiParam  {Number{1-100}}      [perPage=1]  <%- pluralize.plural(entityCapitalize) %> per page
    * @apiParam  {String=<%- entityLowercase %>,admin}  [role]       <%- entityCapitalize %>'s role
    *
    * @apiSuccess {Object[]} <%- entityLowercase %>s List of <%- entityLowercase %>s.
