@@ -30,20 +30,15 @@ const pluralize = require('pluralize');
  */
 const _getDefault = (col) =>{
   let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
-  if (col.Default === 'null' || col.Default === null ){
+  if (col.Default === 'null' || col.Default === null && !(col.key ==='UNI' || col.Key=== 'PRI') ){
     if(col.Null !== 'nullable:false,') return 'default : null'
     else return ''
-  }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double'){
-    return `default : ${col.Default}`;
-  }else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')){
-    return '';
-  }else if(col.key ==='UNI' || col.Key=== 'PRI'){
-    return '';
-  }else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && ( col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))){
-    return ` default : () => "${col.Default}"`;
-  }else{
-    return `default :\`${col.Default}\``;
-  }
+  }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double') return `default : ${col.Default}`
+  else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text'))  return '';
+  else if(col.key ==='UNI' || col.Key=== 'PRI')  return '';
+  else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && ( col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))) return ` default : () => "${col.Default}"`;
+  else return `default :\`${col.Default}\``;
+
 }
 
 
@@ -80,6 +75,28 @@ const _addToConfig = async (lowercase,capitalize) => {
       });
     }
 };
+
+const _addToSerializer = async(entity,column,) =>{
+  let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
+  let fileContent = await ReadFile(serializer, 'utf-8');
+  let regexsetRel = new RegExp(`(.*setAttributes.*[^)])()`);
+  let regexWhitelist = new RegExp('(.+withelist.+=.+)()(])');
+  let toPut = `   .addRelation('${column}', {     \n     ref : 'id', \n     attributes : ${capitalizeEntity( pluralize.singular(column))}Serializer.withelist, \n     }\n    )`
+  let newSer = fileContent.replace(regexsetRel,`$1\n ${toPut}`);
+  newSer = newSer.replace(regexWhitelist,`$1,'${column}'$3`);
+  if (!isImportPresent(fileContent,`${capitalizeEntity(pluralize.singular(column))}Serializer`) )newSer = writeToFirstEmptyLine(newSer,`import { ${capitalizeEntity(pluralize.singular(column))}Serializer } from "../serializers/${pluralize.singular(column)}.serializer";\n`)
+  await WriteFile(serializer,newSer).then(Log.success(`${column} serializer updated`));
+}
+
+
+const _addToController = async(entity,column,) =>{
+  let serializer = `${process.cwd()}/src/api/controllers/${entity}.controller.ts`;
+  let fileContent = await ReadFile(serializer, 'utf-8');
+  let regex = new RegExp(`(jsonAPI.*)(\\[)`,'gm');
+  let toPut = `'${column}',`;
+  let newSer = fileContent.replace(regex,`$1$2${toPut}`);
+  await WriteFile(serializer,newSer).then(Log.success(`${column} controller updated`));
+}
 
 /**
  *
@@ -185,34 +202,34 @@ const basicModel = async (action) => {
 const _Mtm = (model1,model2,isFirst) =>{
   let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
   if(isFirst) toPut += '  @JoinTable()\n';
-  return toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
+  return [toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`,pluralize.plural(model2)];
 }
 
 const _Oto = (model1,model2,isFirst) =>{
   let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
   if(isFirst) toPut += '  @JoinColumn()\n';
-  return toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`;
+  return [toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`,lowercaseEntity(model2)];
 }
 
 const _Otm = (model1,model2,isFirst) =>{
   let toPut
   if(isFirst)  toPut=`@OneToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[]`
   else  toPut=`@ManyToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)}`
-  return toPut
+  return [toPut, isFirst? pluralize.plural(model2): lowercaseEntity(model2)]
 }
 
 exports.addRelation = async (model1,model2,isFirst,relation) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
+  let modelFile = await ReadFile(pathModel,'utf-8');
   let toPut;
   if(relation=='mtm') toPut = _Mtm(model1,model2,isFirst); 
   if(relation=='oto') toPut = _Oto(model1,model2,isFirst); 
   if(relation=='otm') toPut = _Otm(model1,model2,isFirst); 
   if(relation=='mto') toPut = _Otm(model2,model1,isFirst); 
   let pos = modelFile.lastIndexOf('}');
-  let newModel= `${modelFile.toString().substring(0,pos)}${toPut}\n\n}`;
-  if(isImportPresent(modelFile.toString(),capitalizeEntity(model2))) newModel = writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model"\n`)
-  await WriteFile(pathModel,newModel);
+  let newModel= `${modelFile.toString().substring(0,pos)}${toPut[0]}\n\n}`;
+  if(!isImportPresent(modelFile,capitalizeEntity(model2))) newModel = writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model";\n`)
+  Promise.all([WriteFile(pathModel,newModel),_addToSerializer(model1,toPut[1]),_addToController(model1,toPut[1])]);
 }
 
 
