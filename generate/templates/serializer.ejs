@@ -44,6 +44,6 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
       })
     }
 
-    super('<%- entityLowercase %>s',params);
+    super('<%- pluralize.plural(entityLowercase) %>',params);
   }
 }
