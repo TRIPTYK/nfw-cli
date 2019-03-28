@@ -1,5 +1,5 @@
 {
-  "name": "NodeFrameWork",
+  "name": "nodeframework",
   "version": "1.0.1",
   "description": "Portal to create mvc app from github",
   "main": "index.js",
