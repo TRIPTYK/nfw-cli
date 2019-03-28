@@ -161,14 +161,6 @@ yargs
     }
   })
   .command({
-    command:'genFile <path>',
-    desc : 'generate an entity from a file ',
-    builder: () => {},
-    handler:(argv) =>{
-      commands.generateFromFile(argv.path);
-    } 
-  })
-  .command({
     command:'createSU <username>',
     aliases: ['csu'],
     builder: () => {},

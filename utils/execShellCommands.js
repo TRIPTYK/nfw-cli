@@ -241,13 +241,6 @@ module.exports = {
         console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
       }
     },
-
-    generateFromFile : async(path) =>{
-      data = await read(path,'utf-8');
-      console.log(data);
-      newData = JSON.parse(data);
-      console.log(newData);
-    },
     compileTypeScript : async() =>{
       await exec(`tsc`)
           .then(() => console.log(chalk.green("Compiled successfully")))
