@@ -18,7 +18,7 @@ Commands :
 Command :
 
  ```bash
- $ nfw new <appName> [Options]
+ $ nfw new <appName> --[Options]
  ```
 ##### Alias
 
@@ -33,7 +33,7 @@ Command :
 
 Generate a new project.
 
-![](readme/new.gif)
+![](readme/nfwNew.gif)
 ### Option
 
 * --env
@@ -50,14 +50,58 @@ Generate a new project asking for environement variables such as :
 * Environement      ("Development"/"Production"/"Staging"/"Test")
 * Port              (Ex : 8000)
 * Database Host     (Ex : localhost or your-domain.org)
+* Database name     (Ex : 3rd+party+ts+boilerplate)
 * Database Username (Ex : root or User1)
 * Database Passord  (Hidden by default)
 * Database port     (ex : 3306)
+
+![](readme/nfwNewEnv.gif)
+
+### Option
+
+* --path
+
+Usage
+
+```bash
+$ nfw new --path
+```
+#### Description
+
+Generate a new project asking for a path :
+
+
+![](readme/nfwNewPath.gif)
+
+### Option
+
+* --Docker
+
+Usage
+
+```bash
+$ nfw new --Docker
+```
+#### Description
+
+Generate a new project asking for dockerfile and environement variables such as :
+
+* Container Port        (Ex : 3306)
+* Container/image name  (Ex : 8000)
+* Docker mysql name     (Ex : 3rd_party_ts_boilerplate)
+* Root Password         (Ex : root)
+* Environement          ("Development"/"Production"/"Staging"/"Test")
+* Port                  (Ex : 8000)
+* Database Host         (Ex : localhost or your-domain.org)
+* Database name         (Ex : 3rd_party_ts_boilerplate)
+* Database Username     (Ex : root or User1)
+* Database Passord      (Hidden by default)
+* Database port         (ex : 3306)
 * Path validation 
     * New path 
 * Project Name      (Ex: my_new_project)
 
-![](readme/new_env.gif)
+![](readme/nfwNewDocker.gif)
 
 # Test 
 
@@ -77,8 +121,8 @@ Command :
 
 Compile TypeScript and execute unit tests
 
-![](readme/testok.gif)
-![](readme/testnope.gif)
+![](readme/nfwTestFail.gif)
+![](readme/nfwTestPass.gif)
 ### Option
 
 * --logs
@@ -92,7 +136,8 @@ $ nfw test --logs
 
 Compile TypeScript and execute unit test with full output.
 
-![](readme/testlogs.gif)
+![](readme/nfwTestPassLogs.gif)
+![](readme/nfwTestFailLogs.gif)
 
 # Generate
 
@@ -118,7 +163,7 @@ Command :
 Generate a model, a controller, a serializer, ... Ready to use with the API.
 Then generate a MySQL migration and execute it.
 
-![](readme/gen.gif)
+![](readme/nfwGenerate.gif)
 
 # Import
 
@@ -146,7 +191,7 @@ Generate model base on the tables existing in the database. **WARNING**: It will
 Command :
 
  ```bash
- $ nfw delete <modelName>
+ $ nfw delete <modelName> --[Option]
  ```
 ##### Aliases
 
@@ -156,12 +201,29 @@ Command :
 ##### Parameters
 
 * **_modelName_** - Required ! Type: string
+* **_Option_** - Optionnal ! See details below
 
 #### Description
 
 Delete a generated model with all the related files. Drop the related table and execute a SQLDump.
 
-![](readme/del.gif)
+![](readme/nfwDelete.gif)
+
+### Option
+
+* --DROP
+
+Usage
+
+```bash
+$ nfw new --DROP
+```
+#### Description
+
+Delete the model and all the related files then drop the related table in the database :
+
+
+![](readme/nfwDeleteDrop.gif)
 
 # Info
 
@@ -174,7 +236,7 @@ Command :
 
 Show informaion about who developed the software.
 
-![](readme/info.gif)
+![](readme/nfwInfo.gif)
 
 # Start
 
@@ -188,9 +250,9 @@ Command :
 
 #### Description
 
-Start the API.
+Compile TypeScript then start the API.
 
-![](readme/start.gif)
+![](readme/nfwStart.gif)
 
 ### Options
 
@@ -209,7 +271,7 @@ $ nfw start --env=<Environement>
 
 Compile TypeScript and execute unit test with full output.
 
-![](readme/startEnv.gif)
+![](readme/nfwStartEnv.gif)
 
 
 # Migrate
@@ -226,7 +288,7 @@ Command :
 
 Compile TypeScript, generate a TypeORM migration, recomplie, then execute the migration script.
 
-![](readme/migrate.gif)
+![](readme/nfwMigrate.gif)
 
 
 # Commands options
@@ -249,10 +311,10 @@ Show help for every commands or a specified command
 
 Exemple *(general)*
 
-![](readme/help.gif)
+![](readme/nfwHelp.gif)
 
 Exemple *(for a specific command)*
 
-![](readme/cmdHelp.gif)
+![](readme/nfwCommandHelp.gif)
 
 
