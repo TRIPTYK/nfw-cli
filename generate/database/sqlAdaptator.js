@@ -11,6 +11,7 @@ const env = require('./databaseEnv');
 const util = require('util');
 const mysqldump = require('mysqldump');
 const chalk = require('chalk');
+const bcrypt = require('bcrypt');
 
 var db = mysql.createConnection({
     host: env.host,
@@ -31,6 +32,19 @@ exports.getForeignKeys = async (tableName) => {
     return result;
 };
 
+exports.insertAdmin = async (username) => {
+  let password = "";
+  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i = 0; i < 24; i++)
+    password += possible.charAt(Math.floor(Math.random() * possible.length));
+  const hash = await bcrypt.hash(password, 10);
+  let hashed = hash;
+  await query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${username}@localhost.com','${username}','${username}','{}','admin', '${hashed}')`);
+  return {
+    login: `${username}@localhost.com`,
+    password
+  };
+};
 
 /**
  * @description : deletes a table

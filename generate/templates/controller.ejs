@@ -1,5 +1,6 @@
 import * as HttpStatus from "http-status";
 
+import * as Boom from "boom";
 import { Request, Response } from "express";
 import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
 import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
@@ -28,13 +29,18 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    public async get(req: Request, res : Response, next : Function) {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const [<%- entityLowercase %>,totalCount] = await Promise.all([repository.jsonAPI_findOne(req,req.params.id),repository.count()]);
-      res.json( new <%- entityCapitalize %>Serializer(req,totalCount).serialize(<%- entityLowercase %>) );
+      const <%- entityLowercase %> = await repository.jsonAPI_findOne(req,req.params.id,[<%- foreignKeys.map(e => pluralize.plural(e.REFERENCED_TABLE_NAME)) %>]);
+
+      if (!<%- entityLowercase %>) throw Boom.notFound();
+
+      res.json( new <%- entityCapitalize %>Serializer(req).serialize(<%- entityLowercase %>) );
     }catch(e) {
       next(e);
     }
   }
 <% } %>
+
+
 
 <% if (options.create) { %>
   /**
@@ -49,7 +55,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
   public async create (req: Request, res : Response, next: Function) {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body.data.attributes);
+      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
       const saved = await repository.save(<%- entityLowercase %>);
       res.status( HttpStatus.CREATED );
       res.json( new <%- entityCapitalize %>Serializer().serialize(saved) );
@@ -73,7 +79,8 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const repository = getRepository(<%- entityCapitalize %>);
       const <%- entityLowercase %> = await repository.findOne(req.params.id);
-      repository.merge(<%- entityLowercase %>, req.body.data.attributes);
+      if (!<%- entityLowercase %>) throw Boom.notFound();
+      repository.merge(<%- entityLowercase %>, req.body);
       repository.save(<%- entityLowercase %>);
       res.json(new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>) );
     }
@@ -96,7 +103,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const [<%- entityLowercase %>s,total] = await Promise.all([repository.jsonAPI_find(req),repository.count()]);
+      const [<%- entityLowercase %>s,total] = await repository.JSONAPIRequest(req.query,[<%- foreignKeys.map(e => pluralize.plural(e.REFERENCED_TABLE_NAME)) %>]).getManyAndCount();
       res.json( new <%- entityCapitalize %>Serializer(req,total).serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);
@@ -119,6 +126,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const <%- entityLowercase %>Repository = getRepository(<%- entityCapitalize %>);
       const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.id);
+      if (!<%- entityLowercase %>) throw Boom.notFound();
       const repository = getRepository(<%- entityCapitalize %>);
       await repository.remove(<%- entityLowercase %>);
       res.sendStatus(HttpStatus.NO_CONTENT).end();

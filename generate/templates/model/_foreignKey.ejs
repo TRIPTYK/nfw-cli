@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 @<%- foreignKey.type %>(type => <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>,<%- foreignKey.REFERENCED_TABLE_NAME %> => <%- foreignKey.REFERENCED_TABLE_NAME %>.<%- foreignKey.type == 'ManyToMany' ? `${entityLowercase}s` : foreignKey.REFERENCED_COLUMN_NAME -%>)
   <%- foreignKey.type == 'ManyToMany' ?  '@JoinTable()' : `@JoinColumn({ name: '${foreignKey.COLUMN_NAME}' , referencedColumnName: '${foreignKey.REFERENCED_COLUMN_NAME}' })` -%>
   <%- foreignKey.COLUMN_NAME %> : <%- foreignKey.type == 'OneToMany' || foreignKey.type == 'ManyToMany' ? `${capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME)}[]` : capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) -%>;
+=======
+@<%- foreignKey.type %>(type => <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>,<%- foreignKey.REFERENCED_TABLE_NAME %> => <%- foreignKey.REFERENCED_TABLE_NAME %>.<%- foreignKey.REFERENCED_COLUMN_NAME %>)
+  @JoinColumn({ name: '<%- foreignKey.COLUMN_NAME %>' , referencedColumnName: '<%- foreignKey.REFERENCED_COLUMN_NAME %>' })
+  <%- foreignKey.COLUMN_NAME %> : <%- foreignKey.type == 'OneToMany' || foreignKey.type == 'ManyToMany' ? `${capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME)}[]` : capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>;
+>>>>>>> a0cb216a1e5be02df405a4b856c9b70191d6d3fa

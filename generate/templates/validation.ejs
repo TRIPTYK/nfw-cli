@@ -22,7 +22,7 @@ export const create<%- entityCapitalize %> = {
   body: {
     data : {
       attributes : { <% validation.forEach(col => { %>
-          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType) { _%>.<%- col.specificType %>() <% } -%><% if(col.length) { _%>.max(<%- col.length %>)<% } -%>.required(),<% -%>
+          <%- col.name %> : Joi.<%- col.baseType -%>()<% if(col.specificType) { _%>.<%- col.specificType %>() <% } -%><% if(col.length) { _%>.max(<%- col.length %>)<% } -%>.<%- (col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL') ? 'required()' : 'optional()' -%>,<% -%>
         <% }) %>
       }
     }

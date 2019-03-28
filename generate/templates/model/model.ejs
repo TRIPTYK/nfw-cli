@@ -26,10 +26,12 @@ export class <%- entityCapitalize %> {
 
 <% if (createUpdate && createUpdate.createAt) { %>
   @CreateDateColumn()
-  create_at;
+  createdAt;
 <% } -%>
 <% if (createUpdate && createUpdate.updateAt) { %>
-  @UpdateDateColumn()
-  update_at;
+  @UpdateDateColumn({
+    nullable : true
+  })
+  updatedAt;
 <% } -%>
 }

@@ -1,5 +1,5 @@
 {
-  "name": "triptyk_portal",
+  "name": "NodeFrameWork",
   "version": "1.0.1",
   "description": "Portal to create mvc app from github",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "triptyk"
+    "NodeFrameWork"
   ],
   "bin": {
     "nfw": "index.js"
@@ -15,6 +15,7 @@
   "author": "Samuel Antoine",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.5",
     "chalk": "^2.4.2",
     "change-case": "^3.1.0",
     "clear": "^0.1.0",

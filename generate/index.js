@@ -4,6 +4,7 @@
  */
 const FS = require('fs');
 const ejs = require('ejs');
+const pluralize = require('pluralize');
 /**
  * Requirement of the library Utils
  * @description Needed to promisify async methods
@@ -78,13 +79,13 @@ const _write = async (data) => {
   let tableColumns , foreignKeys;
   tableColumns = data ? data.columns : [];
   foreignKeys = data ? data.foreignKeys : [];
-  
+
 
   let index = tableColumns.findIndex(el => el.Field == 'id')
   // remove id key from array
   if(index !== -1)tableColumns.splice(tableColumns,1);
   const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
-  
+
   const allColumns = tableColumns // TODO: do this in view
     .map(elem => `'${elem.Field}'`)
     .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
@@ -104,6 +105,7 @@ const _write = async (data) => {
       lowercaseEntity,
       capitalizeEntity,
       foreignKeys,
+      pluralize,
       validation : tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/) )
     });
 

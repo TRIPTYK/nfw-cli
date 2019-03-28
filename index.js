@@ -12,7 +12,6 @@ const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
 const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
-const utils = require ('./generate/utils');
 const reserved = require('reserved-words');
 const Log = require('./generate/log')
  
@@ -134,11 +133,12 @@ yargs
         type: "string"
       })
     },
-    handler: (argv) => {
+    handler: async(argv) => {
       validateDirectory();
       let environement = argv.env !== undefined ? argv.env : "development";
       if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
         console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
+        await commands.compileTypeScript();
         commands.startServer(environement);
       }else{
         console.log(chalk.red(`${environement} is not a valid environement`))
@@ -162,49 +162,13 @@ yargs
     }
   })
   .command({
-    command:'genFile <path>',
-    desc : 'generate an entity from a file ',
+    command:'createSU <username>',
+    aliases: ['csu'],
     builder: () => {},
-    handler:(argv) =>{
-      commands.generateFromFile(argv.path);
-    } 
-  })
-  .command({
-    command:'mtm <model1> <model2>',
-    desc: 'Create many to many relation between two table',
-    builder : () => {},
-    handler : (argv) =>{
-      if(!utils.modelFileExists(argv.model1) || !utils.modelFileExists(argv.model2) ){
-        Log.error("Both model should exist in order to create a many to many relationship");
-        process.exit(0);
-      } 
-      commands.createMtm(argv.model1,argv.model2);
-    }
-  })
-  .command({
-    command:'editModel <model> [column]',
-    aliases: ["em", "edit"],
-    desc: 'Create many to many relation between two table',
-    builder : (yargs) => {
-      yargs.option({
-        add :{
-          default:false,
-          type: 'boolean'
-        },
-        remove :{
-          default:false,
-          type: 'boolean'
-        }
-      })
-    },
-    handler : (argv) =>{
-      if(!utils.modelFileExists(argv.model)){
-        Log.error("Model should exist in order to edit him ;)");
-        process.exit(0);
-      } 
-      if (argv.add && !argv.remove)console.log(":)");
-      if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
-      else Log.info("both flag can't be activated at the same time");
+    handler: async(argv) => {
+      validateDirectory();
+      await sql.checkConnexion();
+      commands.createSuperUser(argv.username);
     }
   })
   // provide a minimum demand and a minimum demand message
