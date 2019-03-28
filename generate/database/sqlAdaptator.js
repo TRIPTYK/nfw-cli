@@ -17,7 +17,8 @@ var db = mysql.createConnection({
     host: env.host,
     user: env.user,
     password: env.pwd,
-    database: env.database
+    database: env.database,
+    port : env.port
 });
 
 const query = util.promisify(db.query.bind(db));

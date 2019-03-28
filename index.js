@@ -109,7 +109,7 @@ yargs
     },
     handler: async (argv) => {
       validateDirectory();
-      await sql.checkConnexion();
+      if(argv.DROP)await sql.checkConnexion();
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
@@ -169,6 +169,45 @@ yargs
       validateDirectory();
       await sql.checkConnexion();
       commands.createSuperUser(argv.username);
+    }
+  })
+  .command({
+    command:'addRelationship <relation> <model1> <model2>',
+    aliases:['ar','addR'],
+    desc: 'Create  relation between two table',
+    builder : () => {},
+    handler : (argv) =>{
+      if(!utils.modelFileExists(argv.model1) || !utils.modelFileExists(argv.model2) ){
+        Log.error("Both model should exist in order to create a many to many relationship :)");
+        process.exit(0);
+      } 
+     commands.createRelation(argv.model1,argv.model2,argv.relation);
+    }
+  })
+  .command({
+    command:'editModel <model> [column]',
+    aliases: ["em", "edit"],
+    desc: 'add or remove column in a model',
+    builder : (yargs) => {
+      yargs.option({
+        add :{
+          default:false,
+          type: 'boolean'
+        },
+        remove :{
+          default:false,
+          type: 'boolean'
+        }
+      })
+    },
+    handler : (argv) =>{
+      if(!utils.modelFileExists(argv.model)){
+        Log.error("Model should exist in order to edit him :)");
+        process.exit(0);
+      } 
+      if (argv.add && !argv.remove)commands.editModel('add',argv.model);
+      else if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
+      else Log.info("both flag can't be activated at the same time");
     }
   })
   // provide a minimum demand and a minimum demand message

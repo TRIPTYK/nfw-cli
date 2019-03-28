@@ -147,6 +147,19 @@ exports.isBridgindTable = (columns) => {
   columns = columns.filter(column => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
-  if(columns = []) return true;
-  else return false;
+  if(columns.length==0) return true;
+  else return false; 
+}
+
+exports.columnExist = async (model,column) =>{
+  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
+  let modelFile = await ReadFile(pathModel);
+  let exist = false;
+  let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
+  let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
+  let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
+  if(modelFile.toString().match(regexColumn)) exist = true;
+  else if(modelFile.toString().match(regexMany))exist = true;
+  else if(modelFile.toString().match(regexOne)) exist = true;
+  return exist
 }
