@@ -143,7 +143,8 @@ exports.buildJoiFromColumn = (column) => {
   return joiObject;
 }
 
-exports.isBridgindTable = (columns) => {
+exports.isBridgindTable = (entityData) => {
+  let {columns,foreignKeys} = entityData;
   columns = columns.filter(column => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
