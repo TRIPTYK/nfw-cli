@@ -1,5 +1,5 @@
 const relations : string[] = [
-  <%- foreignKeys.map(e => e.REFERENCED_COLUMN_NAME) %>
+  <%- `'${foreignKeys.map(e => e.COLUMN_NAME)}'` %>
 ];
 
 export { relations };
