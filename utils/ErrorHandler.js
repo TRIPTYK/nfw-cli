@@ -1,3 +1,8 @@
+/**
+ * @module ErrorHandler
+ * @exports migrateRunFail
+ * @exports deleteMigrateErr
+ */
 const operatingSystem = process.platform;
 const fs = require('fs');
 const  sql = require('../generate/database/sqlAdaptator');

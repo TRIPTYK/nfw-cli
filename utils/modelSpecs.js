@@ -1,8 +1,18 @@
+/**
+ * @author Romain Verliefden
+ * @module modelSpecs
+ * @exports dbParams
+ * @exports columnParams
+ */
 const inquirer = require('../lib/inquirer');
 const colors = require('colors/safe');
 let columnWritten = [];
 
-
+/**
+ * @description Ask every questions about the column
+ * @param {string} entity Model name
+ * @returns {Array}
+ */
 columnParams = async (entity) => {
     //if any answer of the question is :exit , cancel current column
     let length='',def,uni,paramsTemp ,paramsArray = [],length_enum,arrayDone = false ;
@@ -87,10 +97,14 @@ columnParams = async (entity) => {
     return paramsArray;
 }
 
-/**
- * @author Romain Verliefden
- */
+
 const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','float','double','decimal','char','binary','varbinary'];
+
+/**
+ * @description Ask for new column 
+ * @param {string} entity Model name
+ * @returns {Array}
+ */
 exports.dbParams = async (entity) => {
     let isDoneColumn = false ,paramsArray = [];
     paramsArray['columns'] = [];

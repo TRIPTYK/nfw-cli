@@ -2,6 +2,8 @@ const figlet = require('figlet');
 const chalk = require('chalk');
 /**
  * @author Samuel Antoine
+ * @module draw
+ * @exports header
  */
 module.exports = {
     /**

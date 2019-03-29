@@ -1,3 +1,11 @@
+/**
+ * @module delete
+ * @exports _deleteCompiledJS
+ * @exports _deleteTypescriptFiles
+ * @exports _unroute
+ * @exports _unconfig
+ * @exports _unroute
+ */
 const { items } = require('./resources');
 const { countLines , capitalizeEntity , removeImport , isImportPresent , lowercaseEntity , fileExists} = require('./utils');
 const FS = require('fs');
@@ -92,7 +100,9 @@ const _unconfig = async () => {
 
 /**
  * @description module export main entry , it deletes generated files
- * @param {*} items
+ * @param {string} action
+ * @param {boolean} drop
+ * @constructor
  */
 module.exports = async (action,drop) => {
   //constructor behavior

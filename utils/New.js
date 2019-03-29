@@ -1,5 +1,7 @@
 /**
  * @author Samuel Antoine
+ * @module New
+ * @exports New
  */
 const draw = require('./draw');
 const inquirer = require('../lib/inquirer');
@@ -18,7 +20,10 @@ let dockerEnv = undefined;
 module.exports = {
     /**
         @description Generate a new project
-        @generator
+        @param {string} name Project name
+        @param {boolean} env Ask for env variables
+        @param {boolean} pathOption Ask for path
+        @param {boolean} docker Ask for docker env variables
      */
     New: async (name,env,pathOption, docker) => {
         draw.header();

@@ -1,6 +1,11 @@
 /**
  * @module modelWrite
  * @description shortcut to log colorfull text messages
+ * @exports error
+ * @exports warning
+ * @exports success
+ * @exports rainbow
+ * @exports info
  */
 const colors = require('colors/safe');
 
