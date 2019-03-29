@@ -58,7 +58,7 @@ module.exports = {
         }
         const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix; 
         await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
-        const kickstartCommand = operatingSystem === 'win32' ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
+        const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows: yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
         await shellCmd.execCommand(kickstartCommand,name, newPath);
         await shellCmd.generateConfig(commands.getGitCommands, newPath, name);
         if(process.cwd() !== newPath && newPath !== undefined){
