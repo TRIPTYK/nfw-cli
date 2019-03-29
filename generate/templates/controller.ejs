@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
 import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
 import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityLowercase %>.repository";
+import { relations as <%- entityLowercase %>Relations } from "../enums/relations/document.relations";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
 const promisify = require('util')
@@ -29,7 +30,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    public async get(req: Request, res : Response, next : Function) {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await repository.jsonAPI_findOne(req,req.params.id,[<%- foreignKeys.map(e => pluralize.plural(e.REFERENCED_TABLE_NAME)) %>]);
+      const <%- entityLowercase %> = await repository.jsonApiFindOne(req,req.params.id,<%- entityLowercase %>Relations);
 
       if (!<%- entityLowercase %>) throw Boom.notFound();
 
@@ -103,7 +104,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const [<%- entityLowercase %>s,total] = await repository.JSONAPIRequest(req.query,[<%- foreignKeys.map(e => pluralize.plural(e.REFERENCED_TABLE_NAME)) %>]).getManyAndCount();
+      const [<%- entityLowercase %>s,total] = await repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
       res.json( new <%- entityCapitalize %>Serializer(req,total).serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);

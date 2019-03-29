@@ -1,0 +1,5 @@
+const relations : string[] = [
+  <%- foreignKeys.map(e => e.REFERENCED_COLUMN_NAME) %>
+];
+
+export { relations };
