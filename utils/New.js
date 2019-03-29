@@ -66,8 +66,17 @@ module.exports = {
         }
         if(env){
             const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
+            const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
             let envFileContent =await fs.readFileSync(envFilePath).toString();
+            const ormConfigRaw = fs.readFileSync(ormConfigPath)
+            const ormConfig = JSON.parse(ormConfigRaw);
             const variables = Object.entries(envVar);
+            ormConfig.host = variables[2][0]
+            ormConfig.port = variables[6][0]
+            ormConfig.username = variables[4][0]
+            ormConfig.password = variables[5][0]
+            ormConfig.database = variables[3][0]
+            fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig));
             for(const [k,v] of variables){
                 let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
                 envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");
