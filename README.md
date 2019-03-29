@@ -103,6 +103,18 @@ Generate a new project asking for dockerfile and environement variables such as 
 * Project Name      (Ex: my_new_project)
 
 ![](readme/nfwNewDocker.gif)
+### Option
+
+* --yarn
+
+Usage
+
+```bash
+$ nfw new --yarn
+```
+#### Description
+
+Use Yarn instead of npm
 
 # Test 
 
