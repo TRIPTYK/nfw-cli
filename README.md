@@ -12,6 +12,7 @@ Commands :
 * [nfw info](#info)
 * [nfw start](#start)
 * [nfw migrate](#migrate)
+* [nfw createSU](#createSu)
 
 # New
 
@@ -290,6 +291,21 @@ Compile TypeScript, generate a TypeORM migration, recomplie, then execute the mi
 
 ![](readme/nfwMigrate.gif)
 
+# CreateSu
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw migrate
+ ```
+
+#### Description
+
+Compile TypeScript, generate a TypeORM migration, recomplie, then execute the migration script.
+
+![](readme/nfwMigrate.gif)
 
 # Commands options
 

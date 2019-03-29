@@ -1,5 +1,7 @@
 /**
  * @author Samuel Antoine , Amaury Delforenne
+ * @module test
+ * @exports execUnitTests
  */
 const path = require('path');
 const util = require('util');
@@ -13,6 +15,7 @@ const status = new Spinner('Executing unit tests, please wait ...');
 module.exports = {
     /**
      * @description Execute unit tests
+     * @param {boolean} logs May show full logs output at the end of the unit tests
      */
     execUnitTests: async(logs) =>{
         status.start();
@@ -23,7 +26,7 @@ module.exports = {
 
         /**
          * @description Returns how many unit test passed, failed, and which one failed
-         * @returns {Array.<string>}
+         * @returns {Array.string}
          */
         if(logs){
           let regex = /(?<green>√.*|.*passing.*|(?<=\s)\-.*)|(?<red>(?<=\s)[0-9]+\).*|.*failing.*|(?<=\s)\+.*)/gm;

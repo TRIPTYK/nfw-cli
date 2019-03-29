@@ -14,6 +14,7 @@ const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
 const reserved = require('reserved-words');
 const Log = require('./generate/log')
+const utils = require('./generate/utils');
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -164,6 +165,7 @@ yargs
   .command({
     command:'createSU <username>',
     aliases: ['csu'],
+    desc: "Create a Super User and save the credentials in a file",
     builder: () => {},
     handler: async(argv) => {
       validateDirectory();

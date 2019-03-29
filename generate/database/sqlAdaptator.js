@@ -5,6 +5,14 @@
  * @exports getColumns
  * @exports getTables
  * @exports getTablesInName
+ * @exports dropTable
+ * @exports tableExists
+ * @exports insertAdmin
+ * @exports getForeignKeys
+ * @exports dumpAll
+ * @exports dumpTable
+ * @exports Select
+ * @exports checkConnexion
  */
 const mysql = require('mysql');
 const env = require('./databaseEnv');
@@ -27,12 +35,17 @@ const query = util.promisify(db.query.bind(db));
 /**
  * @description : get table foreign keys
  * @param {string} tableName
+ * @returns {Array} query results
  */
 exports.getForeignKeys = async (tableName) => {
     let result = await query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${env.database}' AND TABLE_NAME='${tableName}';`);
     return result;
 };
 
+/**
+ * @description Generate a random password hash it, create a super user, write in in the database, then write the credential in a file
+ * @param {string} username
+ */
 exports.insertAdmin = async (username) => {
   let password = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -50,6 +63,7 @@ exports.insertAdmin = async (username) => {
 /**
  * @description : deletes a table
  * @param {string} tableName
+ * @returns {Array} query results
  */
 exports.dropTable = async (tableName) => {
   let result = await query(`DROP TABLE ${tableName};`);
@@ -58,8 +72,8 @@ exports.dropTable = async (tableName) => {
 
 /**
  * @param {name of the table} tableName
- * @description get all data related to culmns of a table
- * @returns data of all the column from chosen table
+ * @description get all data related to columns of a table
+ * @returns {Array} query results 
  */
 exports.getColumns = async (tableName) => {
     let result = await query(`SHOW COLUMNS FROM ${tableName} ;`);
@@ -70,6 +84,7 @@ exports.getColumns = async (tableName) => {
 /**
  * @description checks if table exists
  * @param {string} tableName
+ * @returns {boolean} true/false
  */
 exports.tableExists = async (tableName) => {
   let result = await query(  `
@@ -83,6 +98,7 @@ exports.tableExists = async (tableName) => {
 
 /**
  * @returns get all name of table in a database
+ * @returns {Array} query results 
  */
 exports.getTables = async () =>{
     result = await query(`SHOW TABLES`);
@@ -93,7 +109,7 @@ exports.getTables = async () =>{
  * @description as name of table are given in a associative array where the field wich contains the table is Tables_In_dbName . i need this so that
  * i can get the correct field
  *
- * @returns Tabls_in_dbName
+ * @returns {string} Tabls_in_dbName
  */
 exports.getTablesInName = async () =>{
     let tableName = "Tables_in_"+env.database.replace('-','_');
@@ -143,7 +159,8 @@ exports.dumpTable = async (table,path) => {
 * @description Select Fields from a table
 * @param {Array.string} fields
 * @param {string} table 
- */
+* @returns {Array} query results 
+*/
 exports.Select = async (fields,table) =>{
   let fieldValue='';
   fields.forEach(field => {
@@ -156,7 +173,9 @@ exports.Select = async (fields,table) =>{
 }
 
 
-
+/**
+ * @description CHeck if the datapase if reachable, if not process exit with error message
+ */
 exports.checkConnexion = async  () => {
   const connect = util.promisify(db.connect.bind(db));
   await connect().catch(err => {

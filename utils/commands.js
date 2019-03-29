@@ -1,5 +1,6 @@
 /**
  * @author Samuel Antoine
+ * @module commands
  */
 module.exports = {
     getGitCommands: {

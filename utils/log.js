@@ -2,6 +2,11 @@
  * @module modelWrite
  * @description shortcut to log colorfull text messages
  * @author Amaury Deflorenne
+ * @exports error
+ * @exports warning
+ * @exports success
+ * @exports rainbow
+ * @exports info
  */
 var colors = require('colors/safe');
 

@@ -1,3 +1,7 @@
+/**
+ * [WIP]
+ */
+
 const databaseEnv = require('./databaseEnv');
 const dotenv = require('dotenv');
 const { promisify } = require('es6-promisify');

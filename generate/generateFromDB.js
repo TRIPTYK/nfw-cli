@@ -10,6 +10,8 @@ const noGenerate = ['user','document','refresh_token','migration_table'];
 /**
  * @author Verliefden Romain
  * @description get all table from DB then call writeModel method for each table in the database
+ * @constructor
+ * @module generateFromDB
  */
 module.exports = async () =>{
     let p_tables = SqlAdaptator.getTables();
