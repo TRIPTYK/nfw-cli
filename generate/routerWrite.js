@@ -19,6 +19,7 @@ var capitalize;
  * @access private
  * @async
  * @description Read all template and replace {{****}} with variables then write them in their specified path
+ * @constructor
  */
 module.exports = async (action) => {
   capitalize  = capitalizeEntity(action);

@@ -14,6 +14,7 @@ const inquirer = require('./lib/inquirer');
 const sql = require('./generate/database/sqlAdaptator');
 const reserved = require('reserved-words');
 const Log = require('./generate/log')
+const utils = require('./generate/utils');
  
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
@@ -39,6 +40,10 @@ yargs
       yargs.option('docker',{
         desc: "Set a mysql container up",
         type: 'boolean'
+      }),
+      yargs.option('yarn',{
+        desc: "Set yarn as package manager",
+        type: 'boolean'
       })
     },
     handler: async(argv) => {
@@ -47,7 +52,7 @@ yargs
         console.log(chalk.red('Please provide a name for your application'));
         process.exit(0);
       }
-      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false );
+      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false, argv.yarn != undefined ? true: false  );
     }
   }).command({
     strict: true,
@@ -164,6 +169,7 @@ yargs
   .command({
     command:'createSU <username>',
     aliases: ['csu'],
+    desc: "Create a Super User and save the credentials in a file",
     builder: () => {},
     handler: async(argv) => {
       validateDirectory();

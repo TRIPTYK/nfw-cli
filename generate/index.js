@@ -1,4 +1,8 @@
 /**
+ * @module index
+ * @exports build
+ */
+/**
  * Requirement of the library FS
  * @description Handle read/write stream I/O
  */
@@ -54,7 +58,7 @@ var lowercase;
 /**
  * @description : Check in a string if the letter C R U D are present and set the boolean of each Crud varable present in crudOption
  * @param  {string} arg - The thirs argument of 'npm run generate stringName {CRUD}'
- * @returns {Array.<boolean>} Return an array of boolean depending on the input string
+ * @returns {Array.boolean} Return an array of boolean depending on the input string
  */
 const _checkForCrud = (arg) => {
   let crudString = arg.toLowerCase();

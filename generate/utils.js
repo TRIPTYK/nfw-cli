@@ -1,4 +1,22 @@
 /**
+ * @module utils
+ * @exports countLines
+ * @exports prompt
+ * @exports isImportPresent
+ * @exports removeImport
+ * @exports writeToFirstEmptyLine
+ * @exports removeEmptyLines
+ * @exports modelFileExists
+ * @exports capitalizeEntity
+ * @exports lowercaseEntity
+ * @exports sqlTypeData
+ * @exports fileExists
+ * @exports buildJoiFromColumn
+ * @exports isBridgindTable
+ * @exports columnExist
+ */
+
+/**
  * Requires
  */
 const FS = require('fs');
@@ -51,6 +69,7 @@ exports.prompt = (question) => {
  * @description check if import is present in string
  * @param {string} string
  * @param {string} imprt import name
+ * @returns {boolean} true/false
  */
 exports.isImportPresent = (string,imprt) => {
   let match = string.match(new RegExp(`import\\s+{.*${imprt}\\b.*}.*;`,'gm'));
@@ -105,6 +124,7 @@ exports.sqlTypeData = (type) => /(?<type>\w+)(?:\((?<length>\d+)\))?/.exec(type)
 /**
  * @description check if file exists
  * @param {string} filePath
+ * @returns {boolean}
  */
 exports.fileExists = (filePath) => {
   try {
@@ -113,7 +133,11 @@ exports.fileExists = (filePath) => {
     return false
   }
 }
-
+/**
+ * @description Create a validation to a generated model
+ * @param {column} column Column name
+ * @returns {object}
+ */
 exports.buildJoiFromColumn = (column) => {
   let {length,type} = column.Type;
   let joiObject = {
@@ -143,15 +167,25 @@ exports.buildJoiFromColumn = (column) => {
   return joiObject;
 }
 
-exports.isBridgindTable = (entityData) => {
-  let {columns,foreignKeys} = entityData;
+
+/**
+ * @description Check if a table is a bridging table in a many to many relationship
+ * @param {string} column Column name
+ * @returns {boolean}
+ */
+exports.isBridgindTable = (columns) => {
   columns = columns.filter(column => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
   if(columns.length==0) return true;
   else return false; 
 }
-
+ /**
+  * @description Check if a column exist in a database table
+  * @param {string} model Model name
+  * @param {string} column Column name
+  * @returns {boolean}
+  */
 exports.columnExist = async (model,column) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let modelFile = await ReadFile(pathModel);

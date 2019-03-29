@@ -32,8 +32,8 @@ const sqlAdaptor = require('../generate/database/sqlAdaptator')
 module.exports = {
     /**
      * @description Execute git commands such as "git init", "git clone <url>", "rmdir .git" inside the folder project
-     * @param  {Object.<string>} command
-     * @param  {Object.<string>} command2
+     * @param  {Object.string} command
+     * @param  {Object.string} command2
      * @param  {string} name
      * @param  {string} newPath
      */
@@ -59,7 +59,7 @@ module.exports = {
     },
     /**
      * @description Execute commands from a associative array send as parameter, in this case, the function execute the kickstart script from the generated project
-     * @param  {Object.<string>} command
+     * @param  {Object.string} command
      * @param  {string} name
      * @param  {string} newPath
      */
@@ -79,7 +79,7 @@ module.exports = {
     },
     /**
      * @description Generate a small config file to indicate that the folder is a generated project"
-     * @param  {Object.<string>} command
+     * @param  {Object.string} command
      * @param  {string} newPath
      * @param  {string} name
      */
@@ -173,7 +173,8 @@ module.exports = {
     },
     /**
      * @description Delete a generated model from the project
-     * @param  {string} modelName
+     * @param  {string} modelName Model name
+     * @param  {boolean} drop True or false
      */
     deleteModel:  async(modelName,drop)=>{
         await del(modelName,drop);
@@ -192,6 +193,7 @@ module.exports = {
     },
     /**
      * @description Starts the server in the shell and display every output
+     * @param {string} environement Environement 
      */
     startServer: async(environement) => {
         let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
@@ -204,6 +206,7 @@ module.exports = {
     },
     /**
      * @description Generate and execute the typeorm migration
+     * @param {string} modelName Model name
      */
     migrate: async(modelName)=>{
         migrate.start();
@@ -234,6 +237,13 @@ module.exports = {
         process.exit(0);
     },
 
+    /**
+     * @description Create a dockerfile
+     * @param {string} newPath Path
+     * @param {string} data Data about the dockerfile
+     * @param {string} dockerImageName Docker image name
+     * @param {string} port Docker port
+     */
     createDockerImage: async(newPath, data, dockerImageName, port) => {
       fs.writeFileSync(path.resolve(newPath, "dockerfile"),data);
       const dockerBuild = await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
@@ -245,7 +255,11 @@ module.exports = {
         console.log(`Can't start the container run the command below to see the details \n docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName.toLowerCase()}`)
       }
     },
-    
+     /**
+      * @description Create a relationship between two models
+      * @param {string} model1 First model name
+      * @param {string} model2 Second model name
+      */
     createRelation : async(model1,model2,relation) =>{
       let migrate = true;
       await modelWrite.addRelation(model1,model2,true,relation)
@@ -261,7 +275,12 @@ module.exports = {
       });
       if(migrate)module.exports.migrate(`${model1}-${model2}`);       
     } ,
-
+    /**
+     * @description Edit tha model structure
+     * @param {string} action Action (add, ...)
+     * @param {string} model Model name
+     * @param {string} column column name
+     */
     editModel : async (action,model,column=null) => { 
       if(action=='remove') await modelWrite.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
       if(action=='add'){
@@ -270,6 +289,9 @@ module.exports = {
       }
       process.exit(0);
     },
+    /**
+     * @description Copile TypeScript into javascript
+     */
     compileTypeScript : async() =>{
       await exec(`tsc`)
           .then(() => console.log(chalk.green("Compiled successfully")))
@@ -278,6 +300,10 @@ module.exports = {
             process.exit(0);
           });
     },
+    /**
+     * @description Create a Super User
+     * @param {string} username Super user username
+     */
     createSuperUser: async(username) => {
       let credentials = await sqlAdaptor.insertAdmin(username);
       fs.writeFileSync('credentials.json', `{\n\"login\": \"${credentials.login}\" ,\n \"password\": \"${credentials.password}\"\n}`);

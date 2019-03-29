@@ -1,10 +1,11 @@
 {
-  "name": "NodeFrameWork",
+  "name": "nodeframework",
   "version": "1.0.1",
   "description": "Portal to create mvc app from github",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "doc" : "jsdoc -c -r conf.json"
   },
   "keywords": [
     "NodeFrameWork"

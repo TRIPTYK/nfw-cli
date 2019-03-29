@@ -1,5 +1,7 @@
 /**
  * @author Samuel Antoine
+ * @module New
+ * @exports New
  */
 const draw = require('./draw');
 const inquirer = require('../lib/inquirer');
@@ -17,10 +19,14 @@ let Container_name = undefined;
 let dockerEnv = undefined;
 module.exports = {
     /**
-        @description Generate a new project
-        @generator
+     *  @description Generate a new project
+     *   @param {string} name Project name
+     *   @param {boolean} env Ask for env variables
+     *   @param {boolean} pathOption Ask for path
+     *   @param {boolean} docker Ask for docker env variables
+     *   @param {boolean} yarn Install dependencies with yarn
      */
-    New: async (name,env,pathOption, docker) => {
+    New: async (name,env,pathOption, docker, yarn) => {
         draw.header();
         if(pathOption){
             newPath = await inquirer.askForNewPath();

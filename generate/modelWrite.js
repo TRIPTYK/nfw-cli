@@ -5,6 +5,10 @@
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the futur table and the table is created in the database.
  * @exports writeModel
+ * @exports addRelation
+ * @exports removeColumn
+ * @exports addColumn
+ * @exports main
  */
 const ejs = require('ejs');
 const sqlAdaptator = require('./database/sqlAdaptator');
@@ -25,7 +29,7 @@ const pluralize = require('pluralize');
  *
  * @param {Array} col
  * @description set default value for the column and check that default is not null when value can't be null
- * @returns default : value or nothing
+ * @returns {string} default
  */
 const _getDefault = (col) =>{
   let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
@@ -47,7 +51,7 @@ const _getDefault = (col) =>{
  * @param {String} key
  * @description  check if column can be null or not and check if key is primay. if key is primary , there's no need to check if column can be null
  * because primary imply that value can't be null
- * @returns if column can be null or not
+ * @returns {string} empty : property
  */
 const _getNull = (data,key) => {
     if(key === 'PRI' || key === 'UNI') return '';
@@ -58,8 +62,7 @@ const _getNull = (data,key) => {
 /**
 *  @param {String} lowercase
 *  @param {String} capitalize
- * @description
- * @returns {null}
+ * @description add and import generated class names to the typeorm config file
  **/
 const _addToConfig = async (lowercase,capitalize) => {
     let configFileName = `${process.cwd()}/src/config/typeorm.config.ts`;
@@ -74,8 +77,12 @@ const _addToConfig = async (lowercase,capitalize) => {
       });
     }
 };
-
-const _addToSerializer = async(entity,column,) =>{
+/**
+ * @description write the serializer to the generated model
+ * @param {string} entity 
+ * @param {string} column 
+ */
+const _addToSerializer = async(entity,column) =>{
   let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
   let fileContent = await ReadFile(serializer, 'utf-8');
   let regexsetRel = new RegExp(`(.*setAttributes.*[^)])()`);
@@ -87,7 +94,11 @@ const _addToSerializer = async(entity,column,) =>{
   await WriteFile(serializer,newSer).then(Log.success(`${column} serializer updated`));
 }
 
-
+/**
+ * @description write the controller to the generated model
+ * @param {string} entity 
+ * @param {string} column 
+ */
 const _addToController = async(entity,column,) =>{
   let serializer = `${process.cwd()}/src/api/controllers/${entity}.controller.ts`;
   let fileContent = await ReadFile(serializer, 'utf-8');
@@ -99,9 +110,9 @@ const _addToController = async(entity,column,) =>{
 
 /**
  *
- * @param {column key data} data
+ * @param {string} data
  * @description  mysql send key value as PRI , UNI. but a column written for a typeorm model primary or unique as parameter
- * @returns primary or unique
+ * @returns {string} primary or unique
  */
 const _getKey = data => {
     if (data === 'PRI') return ' primary : true,';
@@ -113,7 +124,7 @@ const _getKey = data => {
  *
  * @param {String} data
  * @description  Format to typeorm format
- * @returns data lenght/enum
+ * @returns {string} data lenght/enum
  */
 const _getLength = (info) => {
   if(info.type == "enum") return `enum  : [${info.length}],`;
@@ -126,8 +137,8 @@ const _getLength = (info) => {
 }
 
 /**
- * @param {table to get data from/table to create} table
- * @param {techonlogy use for database} dbType
+ * @param {string} action Model name
+ * @param {Array} data Data describing the model
  *
  * @description write a typeorm model from an array of info about an entity
  *
@@ -175,6 +186,7 @@ const writeModel = async (action,data=null) =>{
 
 /**
  *  @description creates a basic model , with no entites , imports or foreign keys
+ *  @param {string} action
  */
 const basicModel = async (action) => {
   let lowercase = lowercaseEntity(action);
@@ -197,26 +209,47 @@ const basicModel = async (action) => {
   await Promise.all([_addToConfig(lowercase,capitalize),p_write])
 }
 
-
+/**
+ * @description Write many to many relationships into the model
+ * @param {string} model1 First model
+ * @param {string} model2 Second model
+ * @param {boolean} isFirst First in the relationship
+ */
 const _Mtm = (model1,model2,isFirst) =>{
   let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
   if(isFirst) toPut += '  @JoinTable()\n';
   return [toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`,pluralize.plural(model2)];
 }
-
+/**
+ * @description Write one to one relationships into the model
+ * @param {string} model1 First model
+ * @param {string} model2 Second model
+ * @param {boolean} isFirst First in the relationship
+ */
 const _Oto = (model1,model2,isFirst) =>{
   let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
   if(isFirst) toPut += '  @JoinColumn()\n';
   return [toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`,lowercaseEntity(model2)];
 }
-
+/**
+ * @description Write one to many relationships into the model
+ * @param {string} model1 First model
+ * @param {string} model2 Second model
+ * @param {boolean} isFirst First in the relationship
+ */
 const _Otm = (model1,model2,isFirst) =>{
   let toPut
   if(isFirst)  toPut=`@OneToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[]`
   else  toPut=`@ManyToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)}`
   return [toPut, isFirst? pluralize.plural(model2): lowercaseEntity(model2)]
 }
-
+/**
+ * @description Define which relation need to be written in the model
+ * @param {string} model1 First model
+ * @param {string} model2 Second model
+ * @param {boolean} isFirst First in the relationship
+ * @param {string} isFirst Relation type
+ */
 exports.addRelation = async (model1,model2,isFirst,relation) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
   let modelFile = await ReadFile(pathModel,'utf-8');
@@ -231,7 +264,11 @@ exports.addRelation = async (model1,model2,isFirst,relation) =>{
   Promise.all([WriteFile(pathModel,newModel),_addToSerializer(model1,toPut[1]),_addToController(model1,toPut[1])]);
 }
 
-
+/**
+ * @description  Remove a column in a model
+ * @param {string} model Model name
+ * @param {string} column Column name
+ */
 exports.removeColumn = async (model,column) =>{ 
   let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
   let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
@@ -246,6 +283,11 @@ exports.removeColumn = async (model,column) =>{
   await WriteFile(pathModel,newModel);
 }
 
+/**
+ * @description  Add a column in a model
+ * @param {string} model Model name
+ * @param {string} column Column name
+ */
 exports.addColumn = async (model,data ) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let [columnTemp, modelFile] = await  Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`),ReadFile(pathModel)]);

@@ -5,6 +5,7 @@ import { Request } from "express";
 import { getRepository } from "typeorm";
 <% foreignKeys.forEach(foreignKey => { %>
 import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer"
+import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %> } from "../models/<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.model"
 <% }); %>
 
 export class <%- entityCapitalize %>Serializer extends BaseSerializer {
@@ -20,11 +21,19 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
     .addRelation('<%- foreignKey.COLUMN_NAME %>', {
        ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
        attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
+       <% if (pluralize.isPlural(foreignKey.COLUMN_NAME)) { %>
        valueForRelationship : async (relationship) => {
           return await getRepository(<%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>).findOne(relationship.<%- foreignKey.COLUMN_NAME %>);
-       }
+       } <% } -%>
       }
     ) <% }); %>
+    <% foreignKeys.filter(foreignKey => pluralize.isSingular(foreignKey.COLUMN_NAME)).forEach(foreignKey => { %>
+    .addRelation('<%- pluralize.plural(foreignKey.COLUMN_NAME) %>', { //serializer type name is always plural for deserializer
+      valueForRelationship : async (relationship) => {
+         return await getRepository(<%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>).findOne(relationship.<%- foreignKey.COLUMN_NAME %>);
+      }
+    })
+    <% }); %>
     .setDataLinks({
       self : (dataSet,data) => `${url}/api/${api}/${this.type}/${data.id}`
     });

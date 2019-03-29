@@ -1,11 +1,16 @@
+/**
+ * @module databaseInfo
+ * @exports getTableInfo 
+ * @exports tableExistsInDB 
+ */
 const sqlAdaptator = require('./database/sqlAdaptator');
 const Log = require('./log');
 
 /**
- * @param {Technology use for database} dbType
- * @param {name of the table in database} tableName
+ * @param {string} dbType
+ * @param {string} tableName
  * @description call getColumns function in correct adapator to get data of columns
- * @returns data of a table
+ * @returns {object} data of a table
  */
 exports.getTableInfo = async (dbType,tableName) => {
     if(dbType === "sql"){
@@ -23,9 +28,9 @@ exports.getTableInfo = async (dbType,tableName) => {
 
 
 /**
- * @param {name of the table in database} tableName
+ * @param {string} tableName
  * @description Check if table exists in database
- * @returns table exists
+ * @returns {boolean} table exists
  */
 exports.tableExistsInDB = async (tableName) => {
      return (
