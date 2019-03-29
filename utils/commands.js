@@ -27,5 +27,17 @@ module.exports = {
         kickstart : "init_scripts\\windows.bat",
         compileTypeScript: "tsc",
         test: "npm run testWin"
+    },
+    getYarnCommandsUnix:{
+        currentDirectory: "cd ",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --save && yarn global add typescript && yarn global i typeorm && yarn install && tsc",
+        compileTypeScript: "tsc",
+        test: "yarn run testUnix"
+    },
+    getYarnCommandsWindows:{
+        currentDirectory: "cd ",
+        kickstart : "init_scripts\\windows.bat",
+        compileTypeScript: "tsc",
+        test: "yarn run testWin"
     }
 }
