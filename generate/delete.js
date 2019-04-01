@@ -110,8 +110,6 @@ module.exports = async (action,drop) => {
   capitalize = capitalizeEntity(snake(action));
   lowercase = lowercaseEntity(snake(action));
 
-  console.log(capitalize);
-
   let promises = [  // launch all tasks in async
     _deleteTypescriptFiles(),
     _deleteCompiledJS(),
