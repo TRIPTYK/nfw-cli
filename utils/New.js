@@ -58,7 +58,7 @@ module.exports = {
         }
         const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix; 
         await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
-        const kickstartCommand = operatingSystem === 'win32' ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
+        const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows: yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
         await shellCmd.execCommand(kickstartCommand,name, newPath);
         await shellCmd.generateConfig(commands.getGitCommands, newPath, name);
         if(process.cwd() !== newPath && newPath !== undefined){
@@ -66,8 +66,17 @@ module.exports = {
         }
         if(env){
             const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
+            const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
             let envFileContent =await fs.readFileSync(envFilePath).toString();
+            const ormConfigRaw = fs.readFileSync(ormConfigPath)
+            const ormConfig = JSON.parse(ormConfigRaw);
             const variables = Object.entries(envVar);
+            ormConfig.host = variables[2][1]
+            ormConfig.port = variables[6][1]
+            ormConfig.username = variables[4][1]
+            ormConfig.password = variables[5][1]
+            ormConfig.database = variables[3][1]
+            fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig));
             for(const [k,v] of variables){
                 let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
                 envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");

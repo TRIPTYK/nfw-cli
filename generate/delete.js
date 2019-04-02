@@ -15,6 +15,7 @@ const ReadFile = Util.promisify(FS.readFile);
 const Unlink = Util.promisify(FS.unlink);
 const WriteFile = Util.promisify(FS.writeFile);
 const SqlAdaptator = require('./database/sqlAdaptator');
+const snake = require('to-snake-case');
 var colors = require('colors/safe');
 const mysqldump = require('mysqldump');
 
@@ -106,8 +107,8 @@ const _unconfig = async () => {
  */
 module.exports = async (action,drop) => {
   //constructor behavior
-  capitalize = capitalizeEntity(action);
-  lowercase = lowercaseEntity(action);
+  capitalize = capitalizeEntity(snake(action));
+  lowercase = lowercaseEntity(snake(action));
 
   let promises = [  // launch all tasks in async
     _deleteTypescriptFiles(),
