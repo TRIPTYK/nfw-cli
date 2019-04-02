@@ -120,8 +120,8 @@ module.exports = {
             const data = await inquirer.askForChoice();
             switch  (data.value){
                 case "create an entity":
-                    let { columns , foreignKeys } = await modelSpecs.dbParams(modelName);
-                    entityModelData = { columns , foreignKeys };
+                    let { columns , foreignKeys , createUpdate } = await modelSpecs.dbParams(modelName);
+                    entityModelData = { columns , foreignKeys , createUpdate };
                     await modelWrite.main("write", modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
@@ -193,7 +193,7 @@ module.exports = {
     },
     /**
      * @description Starts the server in the shell and display every output
-     * @param {string} environement Environement 
+     * @param {string} environement Environement
      */
     startServer: async(environement) => {
         let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
@@ -273,7 +273,7 @@ module.exports = {
         Log.error(err.message)
         migrate = false;
       });
-      if(migrate)module.exports.migrate(`${model1}-${model2}`);       
+      if(migrate)module.exports.migrate(`${model1}-${model2}`);
     } ,
     /**
      * @description Edit tha model structure
@@ -281,7 +281,7 @@ module.exports = {
      * @param {string} model Model name
      * @param {string} column column name
      */
-    editModel : async (action,model,column=null) => { 
+    editModel : async (action,model,column=null) => {
       if(action=='remove') await modelWrite.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
       if(action=='add'){
         data = await modelSpecs.newColumn();

@@ -159,7 +159,7 @@ exports.buildJoiFromColumn = (column) => {
 
   if (type.match(/int|float|double|decimal/i)) {
     joiObject.baseType = "number";
-    joiObject.length = Math.pow(2, joiObject.length); // 2^size for numbers in mysql
+    joiObject.length = null;
 
     if (type === "int") joiObject.specificType = "integer";
   }
@@ -176,7 +176,7 @@ exports.isBridgindTable = (columns) => {
     return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
   });
   if(columns.length==0) return true;
-  else return false; 
+  else return false;
 }
  /**
   * @description Check if a column exist in a database table
