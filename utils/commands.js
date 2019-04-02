@@ -5,7 +5,7 @@
 module.exports = {
     getGitCommands: {
         init : "git init",
-        clone: "git clone https://github.com/AmauryD/3rd-party-ts-boilerplate.git --branch develop",
+        clone: "git clone https://github.com/AmauryD/3rd-party-ts-boilerplate.git",
         currentDirectory: "cd "
     },
     rmGitUnix:{

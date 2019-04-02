@@ -1,9 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column,JoinTable ,ManyToOne , OneToOne , JoinColumn , OneToMany , ManyToMany , CreateDateColumn , UpdateDateColumn } from "typeorm";
 import { DateUtils } from "typeorm/util/DateUtils";
 import { <%- entityCapitalize %>Serializer } from "./../serializers/<%- entityLowercase %>.serializer";
-<% foreignKeys.forEach(foreignKey => {%>
-import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %> } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.model";
-<%});-%>
 
 @Entity()
 export class <%- entityCapitalize %> {
@@ -20,9 +17,6 @@ export class <%- entityCapitalize %> {
   <%- include('/model/_column',{entity}) -%>
 <%});-%>
 
-<% foreignKeys.forEach(foreignKey => {%>
-  <%- include('/model/_foreignKey',{foreignKey}) -%>
-<%});-%>
 
 <% if (createUpdate && createUpdate.createAt) { %>
   @CreateDateColumn()

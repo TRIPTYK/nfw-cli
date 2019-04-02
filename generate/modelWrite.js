@@ -100,11 +100,11 @@ const _addToSerializer = async(entity,column) =>{
  * @param {string} column 
  */
 const _addToController = async(entity,column,) =>{
-  let serializer = `${process.cwd()}/src/api/controllers/${entity}.controller.ts`;
+  let serializer = `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
   let fileContent = await ReadFile(serializer, 'utf-8');
-  let regex = new RegExp(`(jsonAPI.*)(\\[)`,'gm');
-  let toPut = `'${column}',`;
-  let newSer = fileContent.replace(regex,`$1$2${toPut}`);
+  let regex = new RegExp(`(];)`,'gm');
+  let toPut = `,'${column}'`;
+  let newSer = fileContent.replace(regex,`${toPut}\n$1`);
   await WriteFile(serializer,newSer).then(Log.success(`${column} controller updated`));
 }
 
@@ -174,7 +174,6 @@ const writeModel = async (action,data=null) =>{
       entityLowercase : lowercase,
       entityCapitalize : capitalize,
       entities,
-      foreignKeys,
       createUpdate : data.createUpdate,
       capitalizeEntity,
       lowercaseEntity
@@ -261,7 +260,21 @@ exports.addRelation = async (model1,model2,isFirst,relation) =>{
   let pos = modelFile.lastIndexOf('}');
   let newModel= `${modelFile.toString().substring(0,pos)}${toPut[0]}\n\n}`;
   if(!isImportPresent(modelFile,capitalizeEntity(model2))) newModel = writeToFirstEmptyLine( newModel.toString(),`import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model";\n`)
-  Promise.all([WriteFile(pathModel,newModel),_addToSerializer(model1,toPut[1]),_addToController(model1,toPut[1])]);
+  await Promise.all([WriteFile(pathModel,newModel),_addToSerializer(model1,toPut[1]),_addToController(model1,toPut[1])]);
+}
+
+const _removefromSandC =async  (entity,column) =>{
+  let regexAddRel = new RegExp(`.addRelation\\('${column}[\\s\\S]*?\\)`);
+  let regexArray = new RegExp(`,'${column}'|'${column}',`,'m');
+  let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
+  let serializerContent = await ReadFile(serializer, 'utf-8');
+  console.log(regexAddRel);
+  let relation= `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
+  let relationContent = await ReadFile(relation, 'utf-8');
+  console.log(regexArray);
+  newSer= serializerContent.replace(regexAddRel,'').replace(regexArray,'');
+  newRel = relationContent.replace(regexArray,'');
+  await Promise.all([WriteFile(serializer,newSer),WriteFile(relation,newRel)]);
 }
 
 /**
@@ -280,7 +293,7 @@ exports.removeColumn = async (model,column) =>{
   else if(modelFile.toString().match(regexMany))newModel=modelFile.toString().replace(regexMany,'');
   else if(modelFile.toString().match(regexOne)) newModel=modelFile.toString().replace(regexOne,'');
   else throw new Error('Column doesn\'t exist');
-  await WriteFile(pathModel,newModel);
+  await Promise.all([WriteFile(pathModel,newModel),_removefromSandC(model,column)])
 }
 
 /**
