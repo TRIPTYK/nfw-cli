@@ -22,6 +22,7 @@
 const FS = require('fs');
 const readline = require('readline');
 const Util = require('util');
+const ReadFile = Util.promisify(FS.readFile);
 
 /**
  * @description : count the lines of a file
@@ -188,14 +189,14 @@ exports.isBridgindTable = (entity) => {
   * @returns {boolean}
   */
 exports.columnExist = async (model,column) =>{
-  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
+  let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
+  let modelFile = await ReadFile(pathModel,'utf-8');
   let exist = false;
   let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
   let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
   let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
-  if(modelFile.toString().match(regexColumn)) exist = true;
-  else if(modelFile.toString().match(regexMany))exist = true;
-  else if(modelFile.toString().match(regexOne)) exist = true;
+  if(modelFile.match(regexColumn) ) exist = true;
+  else if(modelFile.match(regexMany))exist = true;
+  else if(modelFile.match(regexOne)) exist = true;
   return exist
 }

@@ -15,7 +15,6 @@ const sql = require('./generate/database/sqlAdaptator');
 const reserved = require('reserved-words');
 const Log = require('./generate/log')
 const utils = require('./generate/utils');
- 
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
     console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
@@ -181,39 +180,36 @@ yargs
     command:'addRelationship <relation> <model1> <model2>',
     aliases:['ar','addR'],
     desc: 'Create  relation between two table',
-    builder : () => {},
+    builder : (yargs) => {
+      yargs.option('name',{
+        desc: "Specify the name of foreign key (for Oto) or the name of the bridging table (for Mtm)",
+        type: "string",
+        default: null
+      })
+      .option('refCol',{
+        desc: "Specify referenced column for a oto relation",
+        type: "string",
+        default: null
+      })
+    },
     handler : (argv) =>{
-      if(!utils.modelFileExists(argv.model1) || !utils.modelFileExists(argv.model2) ){
-        Log.error("Both model should exist in order to create a many to many relationship :)");
-        process.exit(0);
-      } 
-     commands.createRelation(argv.model1,argv.model2,argv.relation);
+     commands.createRelation(argv.model1,argv.model2,argv.relation,argv.name,argv.refCol);
     }
   })
   .command({
-    command:'editModel <model> [column]',
+    command:'editModel <model> <action> [column]',
     aliases: ["em", "edit"],
     desc: 'add or remove column in a model',
-    builder : (yargs) => {
-      yargs.option({
-        add :{
-          default:false,
-          type: 'boolean'
-        },
-        remove :{
-          default:false,
-          type: 'boolean'
-        }
-      })
-    },
+    builder : (yargs) => {},
     handler : (argv) =>{
       if(!utils.modelFileExists(argv.model)){
         Log.error("Model should exist in order to edit him :)");
         process.exit(0);
       } 
-      if (argv.add && !argv.remove)commands.editModel('add',argv.model);
-      else if (argv.remove && !argv.add && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
-      else Log.info("both flag can't be activated at the same time");
+      if (argv.action ==='add')commands.editModel('add',argv.model);
+      else if (argv.action === 'remove' && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
+      else if (argv.action === 'remove' && argv.column == undefined ) Log.info("action must be add or remove");
+      else Log.info("action must be add or remove");
     }
   })
   // provide a minimum demand and a minimum demand message

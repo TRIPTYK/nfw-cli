@@ -26,7 +26,8 @@ const generator = require("../generate/generateFromDB");
 const errHandler = require("./ErrorHandler");
 const snake = require('to-snake-case')
 const operatingSystem = process.platform;
-const sqlAdaptor = require('../generate/database/sqlAdaptator')
+const sqlAdaptor = require('../generate/database/sqlAdaptator');
+const cr = require('./createRelation');
 
 
 module.exports = {
@@ -260,19 +261,14 @@ module.exports = {
       * @param {string} model1 First model name
       * @param {string} model2 Second model name
       */
-    createRelation : async(model1,model2,relation) =>{
-      let migrate = true;
-      await modelWrite.addRelation(model1,model2,true,relation)
-      .catch(err => {
-        Log.error(err.message)
-        migrate = false;
-      });
-      if(migrate)await modelWrite.addRelation(model2,model1,false,relation)
-      .then(() => Log.success(`reliatonship between ${model1} and  ${model2} added in models`))
-      .catch(err => {
-        Log.error(err.message)
-        migrate = false;
-      });
+    createRelation : async(model1,model2,relation,name,refCol) =>{
+      let migrate = true 
+      cr.createRelation(model1,model2,relation,name,refCol)
+      .then(() => Log.success("Relation successfully added !"))
+      .catch((err) => {
+        migrate = false
+        Log.error(err.message)}
+        );
       if(migrate)module.exports.migrate(`${model1}-${model2}`);
     } ,
     /**
