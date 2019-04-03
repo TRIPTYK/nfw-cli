@@ -89,7 +89,7 @@ module.exports = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
         }
-        const genCfg = await exec(dir+ `echo ${JSON.stringify(config)} >> .nfw`);
+       await exec(dir+ `echo ${JSON.stringify(config)} >> .nfw`);
         console.log(chalk.green("Config file generated successfully"));
     },
     /**
@@ -197,11 +197,15 @@ module.exports = {
      */
     startServer: async(environement) => {
         let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
+        let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
         executed.stdout.on('data', (chunk) => {
-            console.log(`${chunk}`)
+            console.log(`API: ${chunk}`)
         });
         executed.on('close', (code) => {
           console.log(chalk.red(`Process exited with code ${code}`));
+        });
+        monitoring.stdout.on('data', (chunk) => {
+          console.log(`Monitoring: ${chunk}`)
         });
     },
     /**
