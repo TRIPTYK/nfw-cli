@@ -21,13 +21,7 @@ const _BridgingTableHander = async (Bridgings) => {
 const _RelationHandler = async (foreignConstraint) => {
     for (let j = 0; j < foreignConstraint.length; j++) {
         let { response } = await inquirer.askForeignKeyRelation(foreignConstraint[j]);
-        console.log(response);
-        let relation = '', i = 0;
-        while (i < response.length) {
-            if (response[i] == response[i].toUpperCase()) relation += response[i].toLowerCase();
-            i++
-        }
-        await command.createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, relation,foreignConstraint[j].COLUMN_NAME,foreignConstraint[j].REFERENCED_COLUMN_NAME)
+        await command.createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response,foreignConstraint[j].COLUMN_NAME,foreignConstraint[j].REFERENCED_COLUMN_NAME)
             .then(() => Log.success("Relation successfully added !"))
             .catch((err) => Log.error(err.message));
     }
@@ -55,7 +49,7 @@ module.exports = async () =>{
         }
         for (let j = 0; j < columns.length; j++)  columns[j].Type = utils.sqlTypeData(columns[j].Type);
         for (let j = 0; j < foreignKeys.length; j++)  foreignConstraint.push(foreignKeys[j]);
-        await modelWrite.main('write', tables[j][tablesIn], entityModelData)
+        await modelWrite.writeModel(tables[j][tablesIn], entityModelData)
             .catch(e => {
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                 process.exit(1);

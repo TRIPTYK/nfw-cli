@@ -345,4 +345,95 @@ Exemple *(for a specific command)*
 
 ![](readme/nfwCommandHelp.gif)
 
+#addRelation 
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw addR <relation> <model1> <model2>
+ ```
+
+##### Alias
+
+    $ nfw addR
+    $ nfw ar
+
+#### Description
+
+Create a reliationship between two model
+relation avaible:
+-oto (OneToOne) model1 will be the one with the foreignkey in the database
+-mto (ManyToOne) many model1 to one model 2
+-otm (OnetoMany) one model1 to many model2
+-mtm (ManyToMany) 
+### Option
+
+* --name
+* --refCol
+
+Usage
+
+```bash
+$ nfw addR oto model1 model2  
+```
+#### Description
+--name let you choose the name of the foreignKey for a OneToOne relationship or the name of the bridgind table for a many to many relationship
+--refCol let you choose the column referenced in the foreign key for a one to one reliationship. it only works with unique or primary column
+
+
+#removeRelation 
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw rmRL <model1> <model2>
+ ```
+
+##### Alias
+
+    $ nfw rmRL
+    $ nfw rr
+
+#### Description
+
+    remove a relationship between two models
+
+Usage
+
+```bash
+$ nfw rmRL  
+```
+
+#editModel
+
+**You have to be in the project directory to execute this command !**
+
+Command :
+
+ ```bash
+ $ nfw em <modelName> <action> [columnName]
+ ```
+
+##### Alias
+
+    $ nfw em
+    $ nfw edit
+
+#### Description
+    let you either add or remove a column in an existing model 
+
+Usage
+
+```bash
+$ nfw edit model1 add 
+```
+
+```bash
+$ nfw edit model1 remove column1 
+```
+
 

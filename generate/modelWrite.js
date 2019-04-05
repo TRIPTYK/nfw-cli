@@ -114,7 +114,7 @@ const _getLength = (info) => {
  * @description write a typeorm model from an array of info about an entity
  *
  */
-const writeModel = async (action,data=null) =>{
+exports.writeModel = async (action,data=null) =>{
     let lowercase = lowercaseEntity(action);
     let capitalize  = capitalizeEntity(lowercase);
     let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
@@ -126,7 +126,6 @@ const writeModel = async (action,data=null) =>{
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
     */
-
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
     });
@@ -158,7 +157,7 @@ const writeModel = async (action,data=null) =>{
  *  @description creates a basic model , with no entites , imports or foreign keys
  *  @param {string} action
  */
-const basicModel = async (action) => {
+exports.basicModel = async (action) => {
   let lowercase = lowercaseEntity(action);
   let capitalize  = capitalizeEntity(lowercase);
   let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
@@ -179,40 +178,6 @@ const basicModel = async (action) => {
   await Promise.all([_addToConfig(lowercase,capitalize),p_write])
 }
 
-
-
-const _removefromSandC =async  (entity,column) =>{
-  let regexAddRel = new RegExp(`.addRelation\\('${column}[\\s\\S]*?\\)`);
-  let regexArray = new RegExp(`,'${column}'|'${column}',`,'m');
-  let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
-  let serializerContent = await ReadFile(serializer, 'utf-8');
-  console.log(regexAddRel);
-  let relation= `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
-  let relationContent = await ReadFile(relation, 'utf-8');
-  console.log(regexArray);
-  newSer= serializerContent.replace(regexAddRel,'').replace(regexArray,'');
-  newRel = relationContent.replace(regexArray,'');
-  await Promise.all([WriteFile(serializer,newSer),WriteFile(relation,newRel)]);
-}
-
-/**
- * @description  Remove a column in a model
- * @param {string} model Model name
- * @param {string} column Column name
- */
-exports.removeColumn = async (model,column) =>{ 
-  let regexColumn =  new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`,'m');
-  let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
-  let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
-  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-  let modelFile = await ReadFile(pathModel);
-  let newModel;
-  if(modelFile.toString().match(regexColumn)) newModel=modelFile.toString().replace(regexColumn,'');
-  else if(modelFile.toString().match(regexMany))newModel=modelFile.toString().replace(regexMany,'');
-  else if(modelFile.toString().match(regexOne)) newModel=modelFile.toString().replace(regexOne,'');
-  else throw new Error('Column doesn\'t exist');
-  await Promise.all([WriteFile(pathModel,newModel),_removefromSandC(model,column)])
-}
 
 /**
  * @description  Add a column in a model
@@ -235,14 +200,3 @@ exports.addColumn = async (model,data ) =>{
   await WriteFile(pathModel,newModel);
 }
 
-
-exports.main = async (action,name,data=undefined) => {
-  if(action == 'basic'){
-    basicModel(name);
-  }else if (action=='write'){
-    await writeModel(name,data);
-  }else{
-    console.log("Bad syntax");
-  }
-  
-}

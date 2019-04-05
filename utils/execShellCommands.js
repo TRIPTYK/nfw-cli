@@ -9,7 +9,6 @@ const exec = util.promisify(require('child_process').exec);
 let { spawn } = require('child_process');
 spawn = require ('cross-spawn');
 const fs = require('fs');
-const read = util.promisify(fs.readFile);
 const status = new Spinner('Cloning files, please wait ...');
 const kickstart = new Spinner('Generating app ...');
 const migrate = new Spinner('Generating migration ...');
@@ -28,6 +27,8 @@ const snake = require('to-snake-case')
 const operatingSystem = process.platform;
 const sqlAdaptor = require('../generate/database/sqlAdaptator');
 const cr = require('./createRelation');
+const rmMod = require('./removeFromModel');
+const pluralize = require('pluralize');
 
 
 module.exports = {
@@ -117,51 +118,53 @@ module.exports = {
 
         let entityModelData = null;
 
-        if(!isExisting || (override && modelExists)){
-            const data = await inquirer.askForChoice();
+        if(override){
+            const data = await inquirer.askForChoice(isExisting);
             switch  (data.value){
                 case "create an entity":
-                    let { columns , foreignKeys , createUpdate } = await modelSpecs.dbParams(modelName);
-                    entityModelData = { columns , foreignKeys , createUpdate };
-                    await modelWrite.main("write", modelName, entityModelData)
+                    entityModelData = await modelSpecs.dbParams(modelName);
+                    await modelWrite.writeModel(modelName, entityModelData)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                       });
+                    module.exports.migrate(modelName);  
                     break;
                 case "create a basic model":
-                    await modelWrite.main("basic", modelName)
+                    await modelWrite.basicModel(modelName)
                       .catch(e => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                       });
+                    module.exports.migrate(modelName);  
                     break;
                 case "nothing":
                     console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
                     process.exit(0);
                     break;
+                case 'create from db':
+                    let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", modelName);
+                    for (let j = 0; j < columns.length; j++) {
+                      columns[j].Type = utils.sqlTypeData(columns[j].Type);
+                    }
+                    entityModelData = { columns, foreignKeys };
+                    await modelWrite.writeModel(modelName, entityModelData)
+                      .catch(e => {
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                      });
+                    if (foreignKeys && foreignKeys.length) {
+                      for (let i = 0; i < foreignKeys.length; i++) {
+                        let tmpKey = foreignKeys[i];
+                        let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
+                        await cr.createRelation(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME)
+                          .then(() => Log.success("Relation successfully added !"))
+                          .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
+                      }
+                    }
+                    break;  
             }
-        }else{
-          doMigration = false;
-          let { columns , foreignKeys } = await databaseInfo.getTableInfo("sql",modelName);
-          for(let j =0;j<columns.length;j++){
-            columns[j].Type= utils.sqlTypeData(columns[j].Type);
-          }
-          if (foreignKeys && foreignKeys.length) {
-              for (let i=0;i < foreignKeys.length;i++) {
-                let tmpKey = foreignKeys[i];
-                let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
-                foreignKeys[i].type = response;
-              }
-           }
-
-         entityModelData = { columns , foreignKeys };
-         await modelWrite.main('write', modelName , entityModelData)
-           .catch(e => {
-             Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-             process.exit(1);
-           });
-       }
+        }
       await cli(modelName, crud, entityModelData )
         .catch(e => {
           console.log(e);
@@ -169,8 +172,6 @@ module.exports = {
           process.exit(1);
         });
 
-      if(doMigration) module.exports.migrate(modelName);
-      else process.exit(0);
     },
     /**
      * @description Delete a generated model from the project
@@ -191,6 +192,7 @@ module.exports = {
             console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
             process.exit(0);
         }
+        process.exit(0);
     },
     /**
      * @description Starts the server in the shell and display every output
@@ -261,7 +263,7 @@ module.exports = {
       * @param {string} model1 First model name
       * @param {string} model2 Second model name
       */
-    createRelation : async(model1,model2,relation,name,refCol) =>{
+    createRelation : (model1,model2,relation,name,refCol) =>{
       let migrate = true 
       cr.createRelation(model1,model2,relation,name,refCol)
       .then(() => Log.success("Relation successfully added !"))
@@ -271,6 +273,25 @@ module.exports = {
         );
       if(migrate)module.exports.migrate(`${model1}-${model2}`);
     } ,
+    rmRelation : async (model1,model2) =>{
+      model1 = utils.lowercaseEntity(model1);
+      model2 = utils.lowercaseEntity(model2);
+      let mod1plural= null;
+      let mod2plural= null;
+      if (await utils.columnExist(model1,model2) ) mod2plural = false;
+      if (await  utils.columnExist(model2,model1)) mod1plural = false;
+      if(await utils.columnExist(model1,pluralize.plural(model2)) ) mod2plural =true;
+      if(await  utils.columnExist(model2,pluralize.plural(model1)) ) mod1plural = true;
+      if(mod2plural) model2 = pluralize.plural(model2);
+      if(mod1plural) model1 = pluralize.plural(model1);
+      if(mod1plural === null || mod2plural === null){
+        Log.error('relation doesn\'t exist or exist only in one of the model\n If it exist only in one model, use editModel remove' );
+        process.exit(0);
+      }
+      await Promise.all([rmMod.removeColumn(model1,model2),rmMod.removeColumn(model2,model1),rmMod._removefromSandC(model1,model2),rmMod._removefromSandC(model2,model1)])
+      Log.success('Relation removed');
+      process.exit(0);
+    },
     /**
      * @description Edit tha model structure
      * @param {string} action Action (add, ...)
@@ -278,7 +299,7 @@ module.exports = {
      * @param {string} column column name
      */
     editModel : async (action,model,column=null) => {
-      if(action=='remove') await modelWrite.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
+      if(action=='remove') await rmMod.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
       if(action=='add'){
         data = await modelSpecs.newColumn();
         await modelWrite.addColumn(model,data).catch(err => Log.error(err.message));

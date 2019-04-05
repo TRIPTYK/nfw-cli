@@ -197,6 +197,15 @@ yargs
     }
   })
   .command({
+    command:'removeRelatoin <model1> <model2>',
+    aliases:['rr','rmRl'],
+    desc: 'Create  relation between two table',
+    builder : () => {},
+    handler : (argv) =>{
+     commands.rmRelation(argv.model1,argv.model2);
+    }
+  })
+  .command({
     command:'editModel <model> <action> [column]',
     aliases: ["em", "edit"],
     desc: 'add or remove column in a model',
@@ -208,7 +217,7 @@ yargs
       } 
       if (argv.action ==='add')commands.editModel('add',argv.model);
       else if (argv.action === 'remove' && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
-      else if (argv.action === 'remove' && argv.column == undefined ) Log.info("action must be add or remove");
+      else if (argv.action === 'remove' && argv.column == undefined ) Log.info("you must specify the column to remove");
       else Log.info("action must be add or remove");
     }
   })
