@@ -5,11 +5,7 @@
 module.exports = {
     getGitCommands: {
         init : "git init",
-<<<<<<< HEAD
         clone: "git clone https://github.com/AmauryD/3rd-party-ts-boilerplate.git",
-=======
-        clone: "git clone https://github.com/TRIPTYK/3rd-party-ts-boilerplate.git --branch master",
->>>>>>> 0710b9f82ca05901dcd239b5a1615a7454c2b7d0
         currentDirectory: "cd "
     },
     rmGitUnix:{

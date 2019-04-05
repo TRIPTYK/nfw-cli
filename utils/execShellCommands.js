@@ -303,10 +303,10 @@ module.exports = {
      * @param {string} column column name
      */
     editModel : async (action,model,column=null) => {
-      if(action=='remove') await rmMod.removeColumn(model,column).then(Log.success('Column successfully removed')).then(() => Log.success('Column successfully added')).catch(err => Log.error(err.message));
+      if(action=='remove') await rmMod.removeColumn(model,column).then(Log.success('Column successfully removed')).catch(err => Log.error(err.message));
       if(action=='add'){
         data = await modelSpecs.newColumn();
-        await modelWrite.addColumn(model,data).catch(err => Log.error(err.message));
+        await modelWrite.addColumn(model,data).then(() => Log.success('Column successfully added')).catch(err => Log.error(err));
       }
       process.exit(0);
     },

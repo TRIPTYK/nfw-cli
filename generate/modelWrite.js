@@ -188,7 +188,7 @@ exports.addColumn = async (model,data ) =>{
   let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
   let [columnTemp, modelFile] = await  Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`),ReadFile(pathModel)]);
   if (data == null)throw  new Error('Column cancelled');
-  if(columnExist(modelFile,data.columns.Field)) throw new Error('Column already added'); 
+  if(await columnExist(model,data.columns.Field)) throw new Error('Column already added'); 
   let entity = data.columns;
   entity.Null = _getNull(entity.Null, entity.Key);
   entity.Key = _getKey(entity.Key);
