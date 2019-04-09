@@ -54,7 +54,7 @@ module.exports = async () =>{
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                 process.exit(1);
             });
-        await index(tables[j][tablesIn], 'crud');
+        await index(tables[j][tablesIn], 'crud',entityModelData);
     };
     await _BridgingTableHander(Bridgings);
     await _RelationHandler(foreignConstraint);

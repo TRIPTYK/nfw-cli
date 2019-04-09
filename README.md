@@ -13,6 +13,9 @@ Commands :
 * [nfw start](#start)
 * [nfw migrate](#migrate)
 * [nfw createSU](#createSu)
+* [nfw addRelation](#addRelation)
+* [nfw removerelation](#removeRelation)
+* [nfw editModel](#editModel)
 
 # New
 
@@ -345,7 +348,7 @@ Exemple *(for a specific command)*
 
 ![](readme/nfwCommandHelp.gif)
 
-#addRelation 
+# addRelation 
 
 **You have to be in the project directory to execute this command !**
 
@@ -354,6 +357,17 @@ Command :
  ```bash
  $ nfw addR <relation> <model1> <model2>
  ```
+##### Parameters
+
+* **_relation_** - Required ! Type: string
+    * -oto (OneToOne) model1 will be the one with the foreignkey in the database
+    * -mto (ManyToOne) many model1 to one model 2
+    * -otm (OnetoMany) one model1 to many model2
+    * -mtm (ManyToMany) 
+* **_model1_** - Required !
+    * name of one your existing model
+* **_model2_** - Required !
+    * name of one your existing model 
 
 ##### Alias
 
@@ -362,12 +376,8 @@ Command :
 
 #### Description
 
-Create a reliationship between two model
-relation avaible:
--oto (OneToOne) model1 will be the one with the foreignkey in the database
--mto (ManyToOne) many model1 to one model 2
--otm (OnetoMany) one model1 to many model2
--mtm (ManyToMany) 
+Create a reliationship between two model and write relation in the serializer and the controller
+
 ### Option
 
 * --name
@@ -379,28 +389,35 @@ Usage
 $ nfw addR oto model1 model2  
 ```
 #### Description
---name let you choose the name of the foreignKey for a OneToOne relationship or the name of the bridgind table for a many to many relationship
---refCol let you choose the column referenced in the foreign key for a one to one reliationship. it only works with unique or primary column
+* --name let you choose the name of the foreignKey for a OneToOne relationship or the name of the bridgind table for a many to many relationship
+* --refCol let you choose the column referenced in the foreign key for a one to one reliationship. it only works with unique or primary column
 
 
-#removeRelation 
+# removeRelation 
 
 **You have to be in the project directory to execute this command !**
 
 Command :
 
  ```bash
- $ nfw rmRL <model1> <model2>
+ $ nfw rmRl <model1> <model2>
  ```
 
 ##### Alias
 
-    $ nfw rmRL
+    $ nfw rmRl
     $ nfw rr
 
 #### Description
 
     remove a relationship between two models
+
+##### Parameters
+ 
+* **_model1_** - Required !
+    * name of one your existing model
+* **_model2_** - Required !
+    * name of one your existing model 
 
 Usage
 
@@ -408,7 +425,7 @@ Usage
 $ nfw rmRL  
 ```
 
-#editModel
+# editModel
 
 **You have to be in the project directory to execute this command !**
 
@@ -424,8 +441,17 @@ Command :
     $ nfw edit
 
 #### Description
+
     let you either add or remove a column in an existing model 
 
+##### Parameters
+ 
+* **_modelName_** - Required !
+    * name of one your existing model
+* **_action_** - Required !
+    * either add or remove. 
+* **_action_** - Required only if action is remove
+    * name of the column you want to remove
 Usage
 
 ```bash
