@@ -179,6 +179,18 @@ exports.basicModel = async (action) => {
 }
 
 
+const writeSerializer = async(model,column) =>{
+  let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
+  let regexWhitelist =  new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
+  let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`,'m');
+  let newSer = await ReadFile(serializerPath,'utf-8');
+  let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+  if(regexArray[3].includes("'")) newValue = `,'${column}'`
+  else newValue = `'${column}'`
+  if(!newSer.match(regexArrayCheck))newSer = newSer.replace(regexWhitelist,`$1$2$3${newValue}`);
+  await WriteFile(serializerPath,newSer).then(Log.success(`${model} serializer updated`));
+}
+
 /**
  * @description  Add a column in a model
  * @param {string} model Model name
@@ -197,6 +209,8 @@ exports.addColumn = async (model,data ) =>{
   let newCol = '  ' + ejs.compile(columnTemp.toString())({ entity })
   var pos = modelFile.lastIndexOf('}');
   let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`
-  await WriteFile(pathModel,newModel);
+  await Promise.all([WriteFile(pathModel,newModel),writeSerializer(model,data.columns.Field)]);
 }
+
+ 
 
