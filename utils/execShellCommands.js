@@ -198,17 +198,19 @@ module.exports = {
      * @description Starts the server in the shell and display every output
      * @param {string} environement Environement
      */
-    startServer: async(environement) => {
+    startServer: async(environement, enableMonitoring) => {
+        if(enableMonitoring){
+          let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
+          monitoring.stdout.on('data', (chunk) => {
+            console.log(`Monitoring: ${chunk}`)
+          });
+        }
         let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
-        let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
         executed.stdout.on('data', (chunk) => {
             console.log(`API: ${chunk}`)
         });
         executed.on('close', (code) => {
           console.log(chalk.red(`Process exited with code ${code}`));
-        });
-        monitoring.stdout.on('data', (chunk) => {
-          console.log(`Monitoring: ${chunk}`)
         });
     },
     /**
