@@ -135,15 +135,20 @@ yargs
       yargs.option('env',{
         desc: "Specify the environement type",
         type: "string"
+      }),
+      yargs.option('monitoring',{
+        desc: "Launch monitoring websockets server",
+        type: "boolean"
       })
     },
     handler: async(argv) => {
       validateDirectory();
       let environement = argv.env !== undefined ? argv.env : "development";
+      let monitoring = argv.monitoring !== undefined ? argv.monitoring : false;
       if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
         console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
         await commands.compileTypeScript();
-        commands.startServer(environement);
+        commands.startServer(environement, monitoring);
       }else{
         console.log(chalk.red(`${environement} is not a valid environement`))
         process.exit(0);
