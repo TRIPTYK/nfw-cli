@@ -8,7 +8,7 @@ import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityL
 import { relations as <%- entityLowercase %>Relations } from "../enums/relations/document.relations";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
-const promisify = require('util')
+import { SerializerParams } from "../serializers/serializerParams";
 
 /**
  *
@@ -34,7 +34,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
 
       if (!<%- entityLowercase %>) throw Boom.notFound();
 
-      res.json( new <%- entityCapitalize %>Serializer(req).serialize(<%- entityLowercase %>) );
+      res.json( new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>) );
     }catch(e) {
       next(e);
     }
@@ -105,7 +105,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
     try {
       const repository = getCustomRepository(<%- entityCapitalize %>Repository);
       const [<%- entityLowercase %>s,total] = await repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
-      res.json( new <%- entityCapitalize %>Serializer(req,total).serialize(<%- entityLowercase %>s)  );
+      res.json( new <%- entityCapitalize %>Serializer( new SerializerParams().enablePagination(req,total) ).serialize(<%- entityLowercase %>s)  );
     }catch(e) {
       next(e);
     }

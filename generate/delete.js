@@ -107,8 +107,8 @@ const _unconfig = async () => {
  */
 module.exports = async (action,drop) => {
   //constructor behavior
-  capitalize = capitalizeEntity(snake(action));
-  lowercase = lowercaseEntity(snake(action));
+  capitalize = capitalizeEntity(action);
+  lowercase = lowercaseEntity(action);
 
   let promises = [  // launch all tasks in async
     _deleteTypescriptFiles(),

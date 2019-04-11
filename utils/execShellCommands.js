@@ -179,6 +179,7 @@ module.exports = {
      * @param  {boolean} drop True or false
      */
     deleteModel:  async(modelName,drop)=>{
+        modelName = snake(modelName);
         await del(modelName,drop);
         process.exit(0);
     },
