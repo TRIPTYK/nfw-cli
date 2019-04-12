@@ -232,6 +232,16 @@ yargs
       else Log.info("action must be add or remove");
     }
   })
+  .command({
+    command: "editENV",
+    aliases: ["ee","editE"],
+    desc:'Ask a series of questions to edit the environement files',
+    builder: () => {},
+    handler: async () => {
+      await commands.editENVFiles();
+    }
+
+  })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')
   .help().scriptName('nfw')

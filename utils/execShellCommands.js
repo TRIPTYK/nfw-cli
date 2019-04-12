@@ -29,7 +29,7 @@ const sqlAdaptor = require('../generate/database/sqlAdaptator');
 const cr = require('./createRelation');
 const rmMod = require('./removeFromModel');
 const pluralize = require('pluralize');
-
+const dotenv = require('dotenv');
 
 module.exports = {
     /**
@@ -207,6 +207,41 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
+        let envFile = dotenv.parse(fs.readFileSync(`${environement}.ENV`));
+        let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
+        let mergeNeeded = false;
+        if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
+
+        }else if((envFile.TYPEORM_NAME != ormconfigFile.name)){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_HOST != ormconfigFile.host) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_DB != ormconfigFile.database) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_USER != ormconfigFile.username) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_PWD != ormconfigFile.password) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((parseInt(envFile.TYPEORM_PORT) != ormconfigFile.port) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+
+        if(mergeNeeded){
+            ormconfigFile.name = envFile.TYPEORM_NAME;
+            ormconfigFile.host = envFile.TYPEORM_HOST;
+            ormconfigFile.database = envFile.TYPEORM_DB;
+            ormconfigFile.username = envFile.TYPEORM_USER;
+            ormconfigFile.password = (envFile.TYPEORM_PWD);
+            ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
+            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, '\t'));
+            console.log(chalk.green('Successfully updated the ormconfig.json file'))
+      }
+
         try {
           await sqlAdaptor.tryConnect();
         }catch(e) {
@@ -355,6 +390,40 @@ module.exports = {
       fs.writeFileSync('credentials.json', `{\n\"login\": \"${credentials.login}\" ,\n \"password\": \"${credentials.password}\"\n}`);
       console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :'))+ "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password");
       process.exit(0);
+    },
+
+    editENVFiles: async() => {
+      let files = fs.readdirSync('./');
+      let envFiles = []
+      files.forEach(element => {
+        if(element.includes('.env')){
+          envFiles.push(element.split('.')[0]);
+        }
+      });
+      let {env} = await inquirer.ChoseEnvFile(envFiles);
+      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.ENV`));
+      let response = await inquirer.EditEnvFile(chosenOne);
+      response.NODE_ENV = env;
+      response.API_VERSION = "v1";
+      response.PORT = parseInt(response.PORT)
+      response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES)
+      response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS)
+      response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD)
+      response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL)
+      if(response.HTTPS_IS_ACTIVE === false){
+        response.HTTPS_IS_ACTIVE = 0;
+      }else{
+        response.HTTPS_IS_ACTIVE = 1;
+      }
+      if(response.JIMP_IS_ACTIVE === false){
+        response.JIMP_IS_ACTIVE = 0;
+      }else{
+        response.JIMP_IS_ACTIVE = 1;
+      }
+      let envString = JSON.stringify(response, null, '\n');
+      let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
+      let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
+      fs.writeFileSync(`${env}.env`, output);
     }
 
 }
