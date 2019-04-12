@@ -4,8 +4,8 @@ import { SerializerParams } from "./serializerParams";
 import { Request } from "express";
 import { getRepository } from "typeorm";
 <% foreignKeys.forEach(foreignKey => { %>
-import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer"
-import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %> } from "../models/<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.model"
+import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer } from "./<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.serializer";
+import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %> } from "../models/<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>.model";
 <% }); %>
 
 export class <%- entityCapitalize %>Serializer extends BaseSerializer {
