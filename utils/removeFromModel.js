@@ -23,6 +23,25 @@ exports._removefromSandC =async  (entity,column) =>{
     newRel = relationContent.replace(regexArray,'');
     await Promise.all([WriteFile(serializer,newSer),WriteFile(relation,newRel)]);
   }
+
+  const removeFromTest = async (model,column) =>{
+    let testPath = `${process.cwd()}/test/${model}.test.js`;
+    let regexRandom = new RegExp(`[^']${column}.*?,`,'gm'); 
+    let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`,'gm');
+    let testFile = await ReadFile(testPath,'utf-8');
+    testFile = testFile.replace(regexRandom,'').replace(regexArray,'');
+    await WriteFile(testPath,testFile);
+  }
+
+
+  const removeFromValidation = async (model,column) =>{
+    let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
+    let regexRandom = new RegExp(`${column}.*?,`,'gm'); 
+    let valFile = await ReadFile(valPath,'utf-8');
+    valFile = valFile.replace(regexRandom,'')
+    await WriteFile(valPath,valFile);
+  }
+  
   
   /**
    * @description  Remove a column in a model
@@ -40,6 +59,6 @@ exports._removefromSandC =async  (entity,column) =>{
     else if(modelFile.toString().match(regexMany))newModel=modelFile.toString().replace(regexMany,'');
     else if(modelFile.toString().match(regexOne)) newModel=modelFile.toString().replace(regexOne,'');
     else throw new Error('Column doesn\'t exist');
-    await WriteFile(pathModel,newModel)
+    await Promise.all([WriteFile(pathModel,newModel),removeFromTest(model,column),removeFromValidation(model,column)])
   }
   

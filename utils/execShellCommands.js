@@ -137,6 +137,13 @@ module.exports = {
                         process.exit(1);
                       });
                     module.exports.migrate(modelName);
+                    entityModelData = [];
+                    entityModelData['columns'] = []
+                    entityModelData['foreignKeys'] = []
+                    entityModelData['createUpdate'] = {
+                      createAt : true,
+                      updateAt : true
+                    }
                     break;
                 case "nothing":
                     console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));

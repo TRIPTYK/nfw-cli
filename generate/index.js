@@ -83,7 +83,6 @@ const _write = async (data) => {
   let tableColumns , foreignKeys;
   tableColumns = data ? data.columns : [];
   foreignKeys = data ? data.foreignKeys : [];
-  console.log(data);
 
   let index = tableColumns.findIndex(el => el.Field == 'id')
   // remove id key from array
@@ -93,7 +92,9 @@ const _write = async (data) => {
   const allColumns = tableColumns // TODO: do this in view
     .map(elem => `'${elem.Field}'`)
     .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
-
+  
+  if(data.createUpdate.createAt) allColumns.push(`'createdAt'`);  
+  if(data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);  
   let promises = items.map( async (item) => {
     // handle model template separately
     if (item.template == 'model') return;
