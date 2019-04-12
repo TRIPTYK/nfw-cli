@@ -128,7 +128,7 @@ module.exports = {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                       });
-                    module.exports.migrate(modelName);  
+                    module.exports.migrate(modelName);
                     break;
                 case "create a basic model":
                     await modelWrite.basicModel(modelName)
@@ -136,7 +136,7 @@ module.exports = {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                       });
-                    module.exports.migrate(modelName);  
+                    module.exports.migrate(modelName);
                     break;
                 case "nothing":
                     console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
@@ -162,7 +162,7 @@ module.exports = {
                           .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                       }
                     }
-                    break;  
+                    break;
             }
         }
       await cli(modelName, crud, entityModelData )
@@ -200,6 +200,21 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
+        try {
+          await sqlAdaptor.tryConnect();
+        }catch(e) {
+          if (e.code == 'ER_BAD_DB_ERROR')
+          {
+              let { canCreate } = await inquirer.askForDatabaseCreation();
+              if (canCreate) {
+                await sqlAdaptor.createDatabase();
+              }
+          }else{
+            Log.error("Unhandled database connection error : exiting ...");
+            process.exit();
+          }
+        }
+
         if(enableMonitoring){
           let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
           monitoring.stdout.on('data', (chunk) => {
@@ -271,7 +286,7 @@ module.exports = {
       * @param {string} model2 Second model name
       */
     createRelation : (model1,model2,relation,name,refCol) =>{
-      let migrate = true 
+      let migrate = true
       cr.createRelation(model1,model2,relation,name,refCol)
       .then(() => Log.success("Relation successfully added !"))
       .catch((err) => {

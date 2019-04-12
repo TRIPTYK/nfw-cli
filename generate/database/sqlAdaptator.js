@@ -30,7 +30,7 @@ var db = mysql.createConnection({
 });
 
 const query = util.promisify(db.query.bind(db));
-
+const connect = util.promisify(db.connect.bind(db));
 
 /**
  * @description : get table foreign keys
@@ -73,7 +73,7 @@ exports.dropTable = async (tableName) => {
 /**
  * @param {string} tableName
  * @description get all data related to columns of a table
- * @returns {Array} query results 
+ * @returns {Array} query results
  */
 exports.getColumns = async (tableName) => {
     let result = await query(`SHOW COLUMNS FROM ${tableName} ;`);
@@ -98,7 +98,7 @@ exports.tableExists = async (tableName) => {
 
 /**
  * @returns get all name of table in a database
- * @returns {Array} query results 
+ * @returns {Array} query results
  */
 exports.getTables = async () =>{
     result = await query(`SHOW TABLES`);
@@ -109,11 +109,10 @@ exports.getTables = async () =>{
  * @description as name of table are given in a associative array where the field wich contains the table is Tables_In_dbName . i need this so that
  * i can get the correct field
  *
- * @returns {string} Tabls_in_dbName
+ * @returns {string} Tables_in_dbName
  */
-exports.getTablesInName = async () =>{
-    let tableName = "Tables_in_"+env.database.replace('-','_');
-    return tableName;
+exports.getTablesInName = () => {
+    return "Tables_in_" + env.database.replace('-','_');
 }
 
 
@@ -158,8 +157,8 @@ exports.dumpTable = async (table,path) => {
 /**
 * @description Select Fields from a table
 * @param {Array.string} fields
-* @param {string} table 
-* @returns {Array} query results 
+* @param {string} table
+* @returns {Array} query results
 */
 exports.Select = async (fields,table) =>{
   let fieldValue='';
@@ -182,7 +181,30 @@ exports.checkConnexion = async  () => {
     if(err){
       console.log(chalk.red("Database is unreachable"));
       process.exit(0);
-    } 
-  });   
+    }
+  });
   return;
+}
+
+/**
+ * @description tries to connect to database , can throw an error
+ */
+exports.tryConnect = async  () => {
+  return await connect();
+}
+
+
+/**
+ * creates the env database
+ * Need to create a tmpConnection otherwise it will throw an error because the database does not exists
+ */
+exports.createDatabase = async () => {
+  let tmpConnection = mysql.createConnection({
+      host: env.host,
+      user: env.user,
+      password: env.pwd,
+      port : env.port
+  });
+  const tmpQuery = util.promisify(tmpConnection.query.bind(tmpConnection));
+  return await tmpQuery(`CREATE DATABASE IF NOT EXISTS ${env.database}`);
 }
