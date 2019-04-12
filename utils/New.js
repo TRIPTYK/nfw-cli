@@ -76,7 +76,7 @@ module.exports = {
             ormConfig.username = variables[4][1]
             ormConfig.password = variables[5][1]
             ormConfig.database = variables[3][1]
-            fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig));
+            fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig, null, '\t'));
             for(const [k,v] of variables){
                 let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
                 envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");

@@ -29,7 +29,7 @@ const sqlAdaptor = require('../generate/database/sqlAdaptator');
 const cr = require('./createRelation');
 const rmMod = require('./removeFromModel');
 const pluralize = require('pluralize');
-
+const dotenv = require('dotenv');
 
 module.exports = {
     /**
@@ -200,6 +200,42 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
+        let envFile = dotenv.parse(fs.readFileSync(`${environement}.ENV`));
+        let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
+        let mergeNeeded = false;
+        if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
+
+        }else if((envFile.TYPEORM_NAME != ormconfigFile.name)){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_HOST != ormconfigFile.host) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_DB != ormconfigFile.database) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_USER != ormconfigFile.username) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((envFile.TYPEORM_PWD != ormconfigFile.password) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+        if((parseInt(envFile.TYPEORM_PORT) != ormconfigFile.port) && !mergeNeeded){
+          mergeNeeded = true;
+        }
+
+        if(mergeNeeded){
+            ormconfigFile.name = envFile.TYPEORM_NAME;
+            ormconfigFile.host = envFile.TYPEORM_HOST;
+            ormconfigFile.database = envFile.TYPEORM_DB;
+            ormconfigFile.username = envFile.TYPEORM_USER;
+            ormconfigFile.password = (envFile.TYPEORM_PWD);
+            ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
+            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, '\t'));
+            console.log(chalk.green('Successfully updated the ormconfig.json file'))
+      }
+        process.exit(0);
+
         try {
           await sqlAdaptor.tryConnect();
         }catch(e) {
