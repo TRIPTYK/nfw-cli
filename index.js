@@ -197,16 +197,20 @@ yargs
         default: null
       })
     },
-    handler : (argv) =>{
+    handler : async (argv) =>{
+     validateDirectory();
+     await sql.checkConnexion();
      commands.createRelation(argv.model1,argv.model2,argv.relation,argv.name,argv.refCol);
     }
   })
   .command({
-    command:'removeRelatoin <model1> <model2>',
+    command:'removeRelation <model1> <model2>',
     aliases:['rr','rmRl'],
     desc: 'Create  relation between two table',
     builder : () => {},
-    handler : (argv) =>{
+    handler : async (argv) =>{
+     validateDirectory();
+     await sql.checkConnexion();
      commands.rmRelation(argv.model1,argv.model2);
     }
   })
@@ -215,7 +219,9 @@ yargs
     aliases: ["em", "edit"],
     desc: 'add or remove column in a model',
     builder : (yargs) => {},
-    handler : (argv) =>{
+    handler : async (argv) =>{
+      validateDirectory();
+      await sql.checkConnexion();
       if(!utils.modelFileExists(argv.model)){
         Log.error("Model should exist in order to edit him :)");
         process.exit(0);
