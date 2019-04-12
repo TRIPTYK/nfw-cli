@@ -11,7 +11,7 @@ const {singular,isSingular,plural}= require('pluralize');
    * @param {string} model Model name
    * @param {string} column relation name
    */
-exports.removefromRelationTable =async  (entity,column) =>{  
+ const removefromRelationTable =async  (entity,column) =>{  
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`,'m');
     let relation= `${process.cwd()}/src/api/enums/relations/${singular(entity)}.relations.ts`;
     let relationContent = await ReadFile(relation, 'utf-8');
@@ -19,14 +19,14 @@ exports.removefromRelationTable =async  (entity,column) =>{
     await WriteFile(relation,newRel);
   }
 
-exports.removeFromSerializer = async (entity,column) =>{
+ const removeFromSerializer = async (entity,column) =>{
     let serializer = `${process.cwd()}/src/api/serializers/${singular(entity)}.serializer.ts`;
-    let serializerContent = await ReadFile(serializer, 'utf-8');
+    let newSer = await ReadFile(serializer, 'utf-8');
     let regexAddRel = new RegExp(`${column} :[\\s\\S]*?},`);
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`,'m');
-    let newSer= serializerContent.replace(regexAddRel,'');
+    if(isSingular(column) && newSer.match(regexAddRel)) newSer = newSer.replace(new RegExp(`${plural(column)} :[\\s\\S]*?},`),'');
+    newSer= newSer.replace(regexAddRel,'');
     newSer = newSer.replace(regexArray,'');
-    if(isSingular(column)) newSer = newSer.replace(new RegExp(`${plural(column)} :[\\s\\S]*?},`),'');
     await WriteFile(serializer,newSer)
   }
 
@@ -60,11 +60,18 @@ exports.removeFromSerializer = async (entity,column) =>{
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
     let pathModel = `${process.cwd()}/src/api/models/${singular(model)}.model.ts`;
     let modelFile = await ReadFile(pathModel);
+    let isRelation = false
     let newModel;
     if(modelFile.toString().match(regexColumn)) newModel=modelFile.toString().replace(regexColumn,'');
-    else if(modelFile.toString().match(regexMany))newModel=modelFile.toString().replace(regexMany,'');
-    else if(modelFile.toString().match(regexOne)) newModel=modelFile.toString().replace(regexOne,'');
-    else throw new Error('Column doesn\'t exist');
-    await Promise.all([WriteFile(pathModel,newModel)/*,removeFromTest(model,column),removeFromValidation(model,column)*/])
+    else if(modelFile.toString().match(regexMany)){
+      newModel=modelFile.toString().replace(regexMany,'');
+      isRelation =true;
+    }else if(modelFile.toString().match(regexOne)){ 
+      newModel=modelFile.toString().replace(regexOne,'');
+      isRelation =true;  
+    }else throw new Error('Column doesn\'t exist');
+    let toExec= [WriteFile(pathModel,newModel),removeFromSerializer(model,column),removefromRelationTable(model,column)];
+    if(!isRelation) toExec.push(removeFromTest(model,column),removeFromValidation(model,column));
+    await Promise.all(toExec);
   }
   

@@ -23,6 +23,7 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
             return `${url}/api/${api}/${this.type}/${data.id}`
         }
       },
+      
       <% foreignKeys.forEach(foreignKey => { %>
         <%- foreignKey.COLUMN_NAME %> : {
            ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',

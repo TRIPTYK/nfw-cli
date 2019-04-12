@@ -317,7 +317,7 @@ module.exports = {
         Log.error('relation doesn\'t exist or exist only in one of the model\n If it exist only in one model, use editModel remove' );
         process.exit(0);
       }
-      await Promise.all([rmMod.removeColumn(model1,model2),rmMod.removeColumn(model2,model1),rmMod.removefromRelationTable(model1,model2),rmMod.removefromRelationTable(model2,model1),rmMod.removeFromSerializer(model1,model2,rmMod.removeFromSerializer(model2,model1))])
+      await Promise.all([rmMod.removeColumn(model1,model2),rmMod.removeColumn(model2,model1)])
       Log.success('Relation removed');
       process.exit(0);
     },
