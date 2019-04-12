@@ -241,7 +241,6 @@ module.exports = {
             fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, '\t'));
             console.log(chalk.green('Successfully updated the ormconfig.json file'))
       }
-        process.exit(0);
 
         try {
           await sqlAdaptor.tryConnect();
@@ -391,6 +390,40 @@ module.exports = {
       fs.writeFileSync('credentials.json', `{\n\"login\": \"${credentials.login}\" ,\n \"password\": \"${credentials.password}\"\n}`);
       console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :'))+ "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password");
       process.exit(0);
+    },
+
+    editENVFiles: async() => {
+      let files = fs.readdirSync('./');
+      let envFiles = []
+      files.forEach(element => {
+        if(element.includes('.env')){
+          envFiles.push(element.split('.')[0]);
+        }
+      });
+      let {env} = await inquirer.ChoseEnvFile(envFiles);
+      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.ENV`));
+      let response = await inquirer.EditEnvFile(chosenOne);
+      response.NODE_ENV = env;
+      response.API_VERSION = "v1";
+      response.PORT = parseInt(response.PORT)
+      response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES)
+      response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS)
+      response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD)
+      response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL)
+      if(response.HTTPS_IS_ACTIVE === false){
+        response.HTTPS_IS_ACTIVE = 0;
+      }else{
+        response.HTTPS_IS_ACTIVE = 1;
+      }
+      if(response.JIMP_IS_ACTIVE === false){
+        response.JIMP_IS_ACTIVE = 0;
+      }else{
+        response.JIMP_IS_ACTIVE = 1;
+      }
+      let envString = JSON.stringify(response, null, '\n');
+      let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
+      let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
+      fs.writeFileSync(`${env}.env`, output);
     }
 
 }
