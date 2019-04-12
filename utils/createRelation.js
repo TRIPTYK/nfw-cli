@@ -22,9 +22,9 @@ const _addToSerializer = async(entity,column) =>{
   let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
   let fileContent = await ReadFile(serializer, 'utf-8');
   let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`,'m');
-  let regexsetRel = new RegExp(`const data[\\s\\S]*(},)`);
+  let regexsetRel = new RegExp(`const data[\\s\\S]*?},`);
   let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
-  let regexAddRel = new RegExp(`.addRelation\\('${column}[\\s\\S]*?\\)`);
+  let regexAddRel = new RegExp(`${column} :[\\s\\S]*?},`);
   let newValue; 
   let newSer=fileContent.toString();
   let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
@@ -33,9 +33,8 @@ const _addToSerializer = async(entity,column) =>{
   else toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity( pluralize.singular(column))}Serializer.withelist,\n    },\n    ${pluralize.plural(column)} : {\n    valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity(pluralize.singular(column))}).findOne(relationship.id);\n     }\n    },`
   if(regexArray[3].includes("'")) newValue = `,'${column}'`
   else newValue = `'${column}'`
-  console.log(newSer.match(regexsetRel));
   if(!newSer.match(regexArrayCheck))newSer = newSer.replace(regexWhitelist,`$1$2$3${newValue}`);
-  newSer = newSer.replace(regexsetRel,`$&\n ${toPut}`);
+  if(!newSer.match(regexAddRel))newSer = newSer.replace(regexsetRel,`$&\n ${toPut}`);
   if (!isImportPresent(fileContent,`${capitalizeEntity(pluralize.singular(column))}Serializer`) )newSer = writeToFirstEmptyLine(newSer,`import { ${capitalizeEntity(pluralize.singular(column))}Serializer } from "./${pluralize.singular(column)}.serializer";\n`)
   if (!isImportPresent(newSer,`${capitalizeEntity(pluralize.singular(column))}`) )newSer = writeToFirstEmptyLine(newSer,`import { ${capitalizeEntity(pluralize.singular(column))} } from "../models/${pluralize.singular(column)}.model";\n`)
   await WriteFile(serializer,newSer).then(Log.success(`${entity} serializer updated`));
