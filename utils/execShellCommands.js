@@ -207,7 +207,7 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
-        let envFile = dotenv.parse(fs.readFileSync(`${environement}.ENV`));
+        let envFile = dotenv.parse(fs.readFileSync(`${environement}.env`));
         let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
         let mergeNeeded = false;
         if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
