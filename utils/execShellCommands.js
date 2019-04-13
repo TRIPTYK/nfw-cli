@@ -401,7 +401,7 @@ module.exports = {
         }
       });
       let {env} = await inquirer.ChoseEnvFile(envFiles);
-      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.ENV`));
+      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
       let response = await inquirer.EditEnvFile(chosenOne);
       response.NODE_ENV = env;
       response.API_VERSION = "v1";
