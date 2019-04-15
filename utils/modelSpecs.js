@@ -72,7 +72,7 @@ exports.newColumn = async (entity) => {
 }
 
 
-const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','float','double','decimal','char','binary','varbinary'];
+const needLength =  ['int','varchar','tinyint','smallint','mediumint','bigint','char','binary','varbinary'];
 
 /**
  * @description Ask for createAt,updateAt column then for a new column until user is done 
