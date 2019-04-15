@@ -98,7 +98,7 @@ const _getKey = data => {
  * @returns {string} data lenght/enum
  */
 const _getLength = (info) => {
-  if(info.type == "enum") return `enum  : [${info.length}],`;
+  if(info.type == "enum") return `enum  : ${info.length},`;
   if(info.length != undefined && info.length !== '') {
       if(info.type.includes('int')) return `width : ${info.length},`;
       if((info.type.includes('date') || info.type.includes('time') )) return `precision : ${info.length},` 
