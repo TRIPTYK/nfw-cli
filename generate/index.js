@@ -93,8 +93,8 @@ const _write = async (data) => {
     .map(elem => `'${elem.Field}'`)
     .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
   
-  if(data.createUpdate.createAt) allColumns.push(`'createdAt'`);  
-  if(data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);  
+  if(data.createUpdate != null && data.createUpdate.createAt) allColumns.push(`'createdAt'`);  
+  if(data.createUpdate != null && data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);  
   let promises = items.map( async (item) => {
     // handle model template separately
     if (item.template == 'model') return;

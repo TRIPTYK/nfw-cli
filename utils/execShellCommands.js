@@ -2,17 +2,20 @@
  * @author Samuel Antoine
  */
 const chalk = require('chalk');
-const CLUI         = require('clui');
-const Spinner     = CLUI.Spinner;
+const { Spinner } = require('clui');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-let { spawn } = require('child_process');
-spawn = require ('cross-spawn');
+const spawn = require ('cross-spawn');
 const fs = require('fs');
-const status = new Spinner('Cloning files, please wait ...');
-const kickstart = new Spinner('Generating app ...');
-const migrate = new Spinner('Generating migration ...');
 const path = require('path');
+const snake = require('to-snake-case')
+const pluralize = require('pluralize');
+const dotenv = require('dotenv');
+
+const generator = require("../generate/generateFromDB");
+const errHandler = require("./errorHandler");
+const sqlAdaptor = require('../generate/database/sqlAdaptator');
+const cr = require('./createRelation');
 const Log = require('./log');
 const modelSpecs = require('./modelSpecs');
 const inquirer = require('../lib/inquirer');
@@ -21,15 +24,10 @@ const modelWrite = require("../generate/modelWrite");
 const databaseInfo = require("../generate/databaseInfo");
 const cli = require("../generate/index");
 const del = require("../generate/delete");
-const generator = require("../generate/generateFromDB");
-const errHandler = require("./ErrorHandler");
-const snake = require('to-snake-case')
-const operatingSystem = process.platform;
-const sqlAdaptor = require('../generate/database/sqlAdaptator');
-const cr = require('./createRelation');
 const rmMod = require('./removeFromModel');
-const pluralize = require('pluralize');
-const dotenv = require('dotenv');
+
+const WriteFile = util.promisify(fs.writeFile);
+const operatingSystem = process.platform;
 
 module.exports = {
     /**
@@ -40,24 +38,30 @@ module.exports = {
      * @param  {string} newPath
      */
     execGit: async (command,command2, name, newPath) =>{
-        status.start();
         const dir = newPath === undefined ?"": command.currentDirectory + newPath.path + " && ";
+
+        Log.success('Cloning repository  ...');
         const clone = await exec(dir+command.clone);
-        if(clone.stdout.length){
-            console.log(chalk.red('Error') + " : " + clone.stdout);
+
+        if(clone.stderr.length){
+            Log.success('Git repository cloned successfully ....');
         }else{
-            console.log(chalk.green('Git repository cloned successfully ....'));
+            Log.error(clone.stdout);
         }
+
+        // rename git folder command
         await exec(dir+command2.rename + name);
-        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
+
+        let tempPath = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name) + " && ";
         const rmGitProject = await exec(tempPath+command2.rmGit);
+
         if(rmGitProject.stderr.length){
-            console.log(chalk.red('Error') + " : " + rmGitProject.stderr);
+            Log.error(rmGitProject.stderr);
         }else{
-            console.log(chalk.green('.git folder successfully deleted ...'));
+            Log.success('.git folder successfully deleted ...');
         }
-        console.log(chalk.green("Project successfully set up ...."));
-        status.stop();
+
+        Log.success("Project successfully set up ....");
     },
     /**
      * @description Execute commands from a associative array send as parameter, in this case, the function execute the kickstart script from the generated project
@@ -66,6 +70,7 @@ module.exports = {
      * @param  {string} newPath
      */
     execCommand: async (command, name, newPath) =>{
+        const kickstart = new Spinner('Generating app ...');
         kickstart.start();
         const dir = newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
 
@@ -93,13 +98,19 @@ module.exports = {
      * @param  {string} name
      */
     generateConfig:  async (command,newPath,name) =>{
-        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
+        const dir = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name) + " && ";
         const config = {
             name: name,
-            path: newPath === undefined ? path.resolve(process.cwd(), name) :path.resolve(newPath.path, name)
-        }
-       await exec(dir+ `echo ${JSON.stringify(config)} >> .nfw`);
-        console.log(chalk.green("Config file generated successfully"));
+            path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name)
+        };
+
+        await WriteFile(`${config.path}/.nfw`,JSON.stringify(config, null, 4))
+          .then(() => {
+            Log.success("Config file generated successfully");
+          })
+          .catch(e => {
+            Log.error(e.message);
+          });
     },
     /**
      * @description Generate a new model. First check if the model exists in the files, if he exists ask if you wan to override it.   if it doesn't exists check if he exists in the database. if he exists in the database but not in the files it will generate it based on the database. If he exists in the file and we want to ovveride it, or he simply doesn't exists it will ask you a bunch of question to generate it as you wish
@@ -111,14 +122,16 @@ module.exports = {
         modelName = snake(modelName);
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
+
         if(modelExists){
             const question = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?` );
             if(!question.confirmation){
-                console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
+                Log.error('/!\\ Process Aborted /!\\');
                 process.exit(0);
             }
         }
-        var spinner = new Spinner("Checking for existing entities ....");
+
+        const spinner = new Spinner("Checking for existing entities ....");
         spinner.start();
         const isExisting = await databaseInfo.tableExistsInDB(modelName);
         spinner.stop();
@@ -214,7 +227,7 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
-        let envFile = dotenv.parse(fs.readFileSync(`${environement}.ENV`));
+        let envFile = dotenv.parse(fs.readFileSync(`${environement}.env`));
         let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
         let mergeNeeded = false;
         if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
@@ -283,6 +296,7 @@ module.exports = {
      * @param {string} modelName Model name
      */
     migrate: async(modelName)=>{
+        const migrate = new Spinner('Generating migration ...');
         migrate.start();
 
         await exec(`tsc`)
@@ -295,7 +309,7 @@ module.exports = {
 
         await exec(`tsc`)
           .then(() => {
-            console.log(chalk.green("Compiled successfully"))
+            Log.success("Compiled successfully");
             operatingSystem === 'win32' ? exec('rmdir /Q /S src\\migration\\').catch(err => errHandler.deleteMigrateErr(err)): exec('rm -rf ./src/migration').catch(err => errHandler.deleteMigrateErr(err));
           })
           .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
@@ -359,7 +373,7 @@ module.exports = {
         Log.error('relation doesn\'t exist or exist only in one of the model\n If it exist only in one model, use editModel remove' );
         process.exit(0);
       }
-      await Promise.all([rmMod.removeColumn(model1,model2),rmMod.removeColumn(model2,model1),rmMod._removefromSandC(model1,model2),rmMod._removefromSandC(model2,model1)])
+      await Promise.all([rmMod.removeColumn(model1,model2),rmMod.removeColumn(model2,model1)])
       Log.success('Relation removed');
       process.exit(0);
     },
@@ -394,7 +408,7 @@ module.exports = {
      */
     createSuperUser: async(username) => {
       let credentials = await sqlAdaptor.insertAdmin(username);
-      fs.writeFileSync('credentials.json', `{\n\"login\": \"${credentials.login}\" ,\n \"password\": \"${credentials.password}\"\n}`);
+      fs.writeFileSync('credentials.json',JSON.stringify({ login: credentials.login , password: credentials.password},null,2));
       console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :'))+ "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password");
       process.exit(0);
     },
@@ -408,7 +422,7 @@ module.exports = {
         }
       });
       let {env} = await inquirer.ChoseEnvFile(envFiles);
-      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.ENV`));
+      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
       let response = await inquirer.EditEnvFile(chosenOne);
       response.NODE_ENV = env;
       response.API_VERSION = "v1";
@@ -432,5 +446,4 @@ module.exports = {
       let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
       fs.writeFileSync(`${env}.env`, output);
     }
-
 }
