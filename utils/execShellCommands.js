@@ -40,23 +40,29 @@ module.exports = {
      * @param  {string} newPath
      */
     execGit: async (command,command2, name, newPath) =>{
-        status.start();
         const dir = newPath === undefined ?"": command.currentDirectory + newPath.path + " && ";
+
+        Log.success('Cloning repository  ...');
         const clone = await exec(dir+command.clone);
+
         if(clone.stdout.length){
-            console.log(chalk.red('Error') + " : " + clone.stdout);
+            Log.error(clone.stdout);
         }else{
-            console.log(chalk.green('Git repository cloned successfully ....'));
+            Log.success('Git repository cloned successfully ....');
         }
+
+        status.start();
         await exec(dir+command2.rename + name);
-        let tempPath= newPath === undefined ?command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name)+ " && ";
+        let tempPath = newPath === undefined ? command.currentDirectory + name + "  && " :command.currentDirectory + path.resolve(newPath.path, name) + " && ";
         const rmGitProject = await exec(tempPath+command2.rmGit);
         if(rmGitProject.stderr.length){
-            console.log(chalk.red('Error') + " : " + rmGitProject.stderr);
+            Log.error(rmGitProject.stderr);
         }else{
-            console.log(chalk.green('.git folder successfully deleted ...'));
+            Log.success('.git folder successfully deleted ...');
         }
-        console.log(chalk.green("Project successfully set up ...."));
+
+        Log.success("Project successfully set up ....");
+
         status.stop();
     },
     /**
@@ -207,7 +213,7 @@ module.exports = {
      * @param {string} environement Environement
      */
     startServer: async(environement, enableMonitoring) => {
-        let envFile = dotenv.parse(fs.readFileSync(`${environement}.ENV`));
+        let envFile = dotenv.parse(fs.readFileSync(`${environement}.env`));
         let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
         let mergeNeeded = false;
         if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
@@ -401,7 +407,7 @@ module.exports = {
         }
       });
       let {env} = await inquirer.ChoseEnvFile(envFiles);
-      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.ENV`));
+      let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
       let response = await inquirer.EditEnvFile(chosenOne);
       response.NODE_ENV = env;
       response.API_VERSION = "v1";
