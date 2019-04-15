@@ -84,6 +84,13 @@ module.exports = {
 
         kickstart.stop();
     },
+    spawnCommand: async (command, name, newPath) => {
+      const dir = newPath === undefined ?path.resolve(process.cwd(),name):path.resolve(newPath.path, name);
+      let executed = spawn(path.resolve(dir,'init_scripts', 'windowsyarn.bat'),[`${dir}`]);
+        executed.stdout.on('data', (chunk) => {
+            console.log(`${chunk}`)
+        });
+    },
     /**
      * @description Generate a small config file to indicate that the folder is a generated project"
      * @param  {Object.string} command

@@ -48,7 +48,7 @@ exports.newColumn = async (entity) => {
     //certain type can't have a default + unique and primary don't have a default.
     if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) def = ':no';
     else {
-        let { defaultValue } = await inquirer.questionDefault();
+        let { defaultValue } = await inquirer.questionDefault(type,length,uni);
         def = defaultValue
     }
     if (def === ':exit') return null;
