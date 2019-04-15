@@ -251,7 +251,7 @@ module.exports = {
             ormconfigFile.username = envFile.TYPEORM_USER;
             ormconfigFile.password = (envFile.TYPEORM_PWD);
             ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
-            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, '\t'));
+            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, 1));
             console.log(chalk.green('Successfully updated the ormconfig.json file'))
       }
 
@@ -270,16 +270,19 @@ module.exports = {
           }
         }
 
-        if(enableMonitoring){
+        if (enableMonitoring) {
           let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
           monitoring.stdout.on('data', (chunk) => {
             console.log(`Monitoring: ${chunk}`)
           });
         }
-        let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
+
+        let executed = spawn(`ts-node-dev --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environement}`);
+
         executed.stdout.on('data', (chunk) => {
-            console.log(`API: ${chunk}`)
+            console.log(chunk.toString())
         });
+
         executed.on('close', (code) => {
           console.log(chalk.red(`Process exited with code ${code}`));
         });
