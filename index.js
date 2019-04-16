@@ -117,44 +117,8 @@ yargs
       commands.deleteModel(argv.modelName,argv.DROP);
     }
   })
-  .command({
-    command: 'info',
-    aliases: ['i'],
-    desc: 'Show the information about the developers',
-    builder: () => {},
-    handler: () => {
-      console.log(chalk.bgGreen('Made by :')+ "\n Amaury Deflorenne <https://github.com/AmauryD> \n Romain Verliefden <https://github.com/DramixDW> \n Samuel Antoine <https://github.com/Snorkell> \n Steve Lebleu <https://github.com/konfer-be>");
-      process.exit(0);
-    }
-  })
-  .command({
-    command:"start",
-    aliases : [],
-    desc: "Start the api server",
-    builder: (yargs) =>{
-      yargs.option('env',{
-        desc: "Specify the environement type",
-        type: "string"
-      }),
-      yargs.option('monitoring',{
-        desc: "Launch monitoring websockets server",
-        type: "boolean"
-      })
-    },
-    handler: async(argv) => {
-      validateDirectory();
-      let environement = argv.env !== undefined ? argv.env : "development";
-      let monitoring = argv.monitoring !== undefined ? argv.monitoring : false;
-      if(environement.toLowerCase() === ('development') || environement.toLowerCase() === ('staging') || environement.toLowerCase() === ('test') ||environement.toLowerCase() === ('production')){
-        console.log(chalk.bgYellow(chalk.black('To quit the process press CTRL+C and validate')));
-        await commands.compileTypeScript();
-        commands.startServer(environement, monitoring);
-      }else{
-        console.log(chalk.red(`${environement} is not a valid environement`))
-        process.exit(0);
-      }
-    }
-  })
+  .command(require('./commands/infoCommand'))
+  .command(require('./commands/startCommand'))
   .command({
     command:'migrate  <migrateName>',
     aliases: ["mig", "M"],
@@ -170,17 +134,7 @@ yargs
       commands.migrate(argv.migrateName);
     }
   })
-  .command({
-    command:'createSU <username>',
-    aliases: ['csu'],
-    desc: "Create a Super User and save the credentials in a file",
-    builder: () => {},
-    handler: async(argv) => {
-      validateDirectory();
-      await sql.checkConnexion();
-      commands.createSuperUser(argv.username);
-    }
-  })
+  .command(require('./commands/createSuperUserCommand'))
   .command({
     command:'addRelationship <relation> <model1> <model2>',
     aliases:['ar','addR'],
@@ -225,7 +179,7 @@ yargs
       if(!utils.modelFileExists(argv.model)){
         Log.error("Model should exist in order to edit him :)");
         process.exit(0);
-      } 
+      }
       if (argv.action ==='add')commands.editModel('add',argv.model);
       else if (argv.action === 'remove' && argv.column != undefined )commands.editModel('remove',argv.model,argv.column);
       else if (argv.action === 'remove' && argv.column == undefined ) Log.info("you must specify the column to remove");
