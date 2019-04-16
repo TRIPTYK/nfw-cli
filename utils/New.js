@@ -3,11 +3,11 @@
  * @module New
  * @exports New
  */
-const draw = require('./draw');
 const inquirer = require('../lib/inquirer');
 const commands = require("./commands");
 const shellCmd = require('./execShellCommands');
 const chalk = require('chalk');
+const figlet = require('figlet');
 const operatingSystem = process.platform;
 const path = require('path');
 const fs = require('fs');
@@ -27,7 +27,12 @@ module.exports = {
      *   @param {boolean} yarn Install dependencies with yarn
      */
     New: async (name,defaultEnv,pathOption, docker, yarn) => {
-        draw.header();
+        console.log(
+            chalk.blue(
+                figlet.textSync('NFW',{horizontalLayout: 'full', kerning: "fitted"})
+            )
+        );
+
         if(pathOption){
             newPath = await inquirer.askForNewPath();
         }
@@ -56,7 +61,7 @@ module.exports = {
             envVar = await inquirer.askForEnvVariable();
             envVar.URL = `http://localhost:${envVar.PORT}`;
         }
-        const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix; 
+        const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix;
         await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
         const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows: yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
         await shellCmd.execCommand(kickstartCommand,name, newPath);
