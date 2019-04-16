@@ -21,7 +21,7 @@ module.exports = {
                 if (value.length && directoryExists) {
                     return true;
                 } else {
-                    let newDir = files.creatDirectory(value);
+                    let newDir = files.createDirectory(value);
                     if (newDir === false) {
                         return "Can't create this directory"
                     } else return true;

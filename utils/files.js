@@ -3,12 +3,14 @@
  * @module files
  * @exports getCurrentDirectoryBase
  * @exports directoryExists
- * @exports creatDirectory
+ * @exports createDirectory
  * @exports fileExists
  * @exports isProjectDirectory
  */
 const fs = require('fs');
 const path = require('path');
+const rimraf = require('rimraf');
+
 module.exports = {
 
     /**
@@ -34,7 +36,7 @@ module.exports = {
      * @param {string} filePath path
      * @returns {boolean}
      */
-    creatDirectory: (filePath) => {
+    createDirectory: (filePath) => {
         try {
             fs.mkdirSync(filePath);
         } catch (err) {

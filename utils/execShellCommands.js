@@ -4,9 +4,12 @@
 const chalk = require('chalk');
 const {Spinner} = require('clui');
 const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const spawn = require('cross-spawn');
 const fs = require('fs');
+const rimraf = require("rimraf");
+const exec = util.promisify(require('child_process').exec);
+const rmdir = util.promisify(rimraf);
+const renameDir = util.promisify(fs.rename);
+const spawn = require('cross-spawn');
 const path = require('path');
 const snake = require('to-snake-case');
 const pluralize = require('pluralize');
@@ -37,10 +40,8 @@ module.exports = {
      * @param  {string} newPath
      */
     execGit: async (command, command2, name, newPath) => {
-        const dir = newPath === undefined ? "" : command.currentDirectory + newPath.path + " && ";
-
         Log.success('Cloning repository  ...');
-        const clone = await exec(dir + command.clone);
+        const clone = await exec("git clone https://github.com/TRIPTYK/3rd-party-ts-boilerplate.git");
 
         if (clone.stderr.length) {
             Log.success('Git repository cloned successfully ....');
@@ -48,17 +49,16 @@ module.exports = {
             Log.error(clone.stdout);
         }
 
+        const newDirPath = `${process.cwd()}/${name}`;
+        
         // rename git folder command
-        await exec(dir + command2.rename + name);
+        await renameDir(`${process.cwd()}/3rd-party-ts-boilerplate`, newDirPath)
+            .then(() => Log.success('Renamed directory successfully'))
+            .catch(() => Log.error('Failed to rename directory'));
 
-        let tempPath = newPath === undefined ? command.currentDirectory + name + "  && " : command.currentDirectory + path.resolve(newPath.path, name) + " && ";
-        const rmGitProject = await exec(tempPath + command2.rmGit);
-
-        if (rmGitProject.stderr.length) {
-            Log.error(rmGitProject.stderr);
-        } else {
-            Log.success('.git folder successfully deleted ...');
-        }
+        await rmdir(`${newDirPath}/.git`)
+            .then(() => Log.success('.git folder successfully deleted ...'))
+            .catch(() => Log.error('Failed to remove .git directory'));
 
         Log.success("Project successfully set up ....");
     },
@@ -83,13 +83,6 @@ module.exports = {
 
         kickstart.stop();
     },
-    spawnCommand: async (command, name, newPath) => {
-        const dir = newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name);
-        let executed = spawn(path.resolve(dir, 'init_scripts', 'windowsyarn.bat'), [`${dir}`]);
-        executed.stdout.on('data', (chunk) => {
-            console.log(`${chunk}`)
-        });
-    },
     /**
      * @description Generate a small config file to indicate that the folder is a generated project"
      * @param  {Object.string} command
@@ -103,12 +96,8 @@ module.exports = {
         };
 
         await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
-            .then(() => {
-                Log.success("Config file generated successfully");
-            })
-            .catch(e => {
-                Log.error(e.message);
-            });
+            .then(() => Log.success("Config file generated successfully"))
+            .catch(e => Log.error(e.message));
     },
     /**
      * @description Generate a new model. First check if the model exists in the files, if he exists ask if you wan to override it.   if it doesn't exists check if he exists in the database. if he exists in the database but not in the files it will generate it based on the database. If he exists in the file and we want to ovveride it, or he simply doesn't exists it will ask you a bunch of question to generate it as you wish

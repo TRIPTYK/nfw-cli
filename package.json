@@ -32,6 +32,7 @@
     "mysqldump": "^2.2.1",
     "pluralize": "^7.0.0",
     "reserved-words": "^0.1.2",
+    "rimraf": "^2.6.3",
     "to-snake-case": "^1.0.0",
     "yargs": "^13.2.1"
   }

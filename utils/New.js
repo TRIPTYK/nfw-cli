@@ -89,7 +89,7 @@ module.exports = {
         }
         if (docker) {
             const projectPath = newPath === undefined ? path.resolve(process.cwd(), name, "Docker") : path.resolve(newPath.path, name, "Docker");
-            files.creatDirectory(projectPath);
+            files.createDirectory(projectPath);
             await shellCmd.createDockerImage(projectPath, dockerFile, Container_name, dockerEnv.EXPOSE)
         }
     },
