@@ -15,6 +15,7 @@ const sql = require('./generate/database/sqlAdaptator');
 const reserved = require('reserved-words');
 const Log = require('./generate/log')
 const utils = require('./generate/utils');
+const fs = require('fs');
 const validateDirectory = ()=>{
   if(!files.isProjectDirectory()){
     console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
@@ -28,8 +29,8 @@ yargs
     aliases: ['n'],
     desc: 'Generate a new project',
     builder: (yargs) => {
-      yargs.option('env',{
-        desc: "Allow user to specify ENV variables",
+      yargs.option('default',{
+        desc: "Generate a project with default env variables",
         type: "boolean"
       }),
       yargs.option('path',{
@@ -51,7 +52,7 @@ yargs
         console.log(chalk.red('Please provide a name for your application'));
         process.exit(0);
       }
-      project.New(argv._[1],argv.env !== undefined ? true: false, argv.path != undefined ? true: false,argv.docker != undefined ? true: false, argv.yarn != undefined ? true: false  );
+      project.New(argv._[1],argv.default !== undefined ? false: true, argv.path != undefined ? true: false,argv.docker != undefined ? true: false, argv.yarn != undefined ? true: false  );
     }
   }).command({
     strict: true,
@@ -195,6 +196,15 @@ yargs
       await commands.editENVFiles();
     }
 
+  })
+  .command({
+    command: "addENV <name>",
+    aliases: ["ae", "addE"],
+    desc: 'Generate a new environement based on asked question',
+    builder: ()=>{},
+    handler: async(argv)=> {
+      await commands.newEnvFile(argv.name);
+    }
   })
   // provide a minimum demand and a minimum demand message
   .demandCommand(1, 'You need at least one command before moving on')

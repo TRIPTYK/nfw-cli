@@ -30,7 +30,7 @@ module.exports = {
     },
     getYarnCommandsUnix:{
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --save && yarn global add typescript && yarn global add typeorm && yarn install && tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt && yarn global add typescript && yarn global add typeorm && yarn install && tsc",
         compileTypeScript: "tsc",
         test: "yarn run testUnix"
     },

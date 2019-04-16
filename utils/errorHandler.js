@@ -7,6 +7,7 @@ const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const chalk = require('chalk');
+const Log = require('../generate/log');
 
 const sql = require('../generate/database/sqlAdaptator');
 
@@ -23,7 +24,6 @@ exports.migrateRunFail = async () =>{
       let migName = regex.exec(mig.name);
        return `${mig.timestamp}-${migName[0]}.js`;
     });
-
     files.forEach(file =>{
         if (!migrationFiles.includes(file) && file !== 'dump')
           fs.unlinkSync(`./dist/migration/${file}`);
