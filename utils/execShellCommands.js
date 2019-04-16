@@ -84,6 +84,13 @@ module.exports = {
 
         kickstart.stop();
     },
+    spawnCommand: async (command, name, newPath) => {
+      const dir = newPath === undefined ?path.resolve(process.cwd(),name):path.resolve(newPath.path, name);
+      let executed = spawn(path.resolve(dir,'init_scripts', 'windowsyarn.bat'),[`${dir}`]);
+        executed.stdout.on('data', (chunk) => {
+            console.log(`${chunk}`)
+        });
+    },
     /**
      * @description Generate a small config file to indicate that the folder is a generated project"
      * @param  {Object.string} command
@@ -251,7 +258,7 @@ module.exports = {
             ormconfigFile.username = envFile.TYPEORM_USER;
             ormconfigFile.password = (envFile.TYPEORM_PWD);
             ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
-            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, '\t'));
+            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, 1));
             console.log(chalk.green('Successfully updated the ormconfig.json file'))
       }
 
@@ -270,16 +277,19 @@ module.exports = {
           }
         }
 
-        if(enableMonitoring){
+        if (enableMonitoring) {
           let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
           monitoring.stdout.on('data', (chunk) => {
             console.log(`Monitoring: ${chunk}`)
           });
         }
-        let executed = spawn(`node`,[`${path.resolve('dist', 'app.bootstrap.js')}`,"--env",environement]);
+
+        let executed = spawn(`ts-node-dev --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environement}`);
+
         executed.stdout.on('data', (chunk) => {
-            console.log(`API: ${chunk}`)
+            console.log(chunk.toString())
         });
+
         executed.on('close', (code) => {
           console.log(chalk.red(`Process exited with code ${code}`));
         });
@@ -416,27 +426,35 @@ module.exports = {
       });
       let {env} = await inquirer.ChoseEnvFile(envFiles);
       let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
-      let response = await inquirer.EditEnvFile(chosenOne);
-      response.NODE_ENV = env;
-      response.API_VERSION = "v1";
-      response.PORT = parseInt(response.PORT)
-      response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES)
-      response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS)
-      response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD)
-      response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL)
-      if(response.HTTPS_IS_ACTIVE === false){
-        response.HTTPS_IS_ACTIVE = 0;
-      }else{
-        response.HTTPS_IS_ACTIVE = 1;
-      }
-      if(response.JIMP_IS_ACTIVE === false){
-        response.JIMP_IS_ACTIVE = 0;
-      }else{
-        response.JIMP_IS_ACTIVE = 1;
-      }
-      let envString = JSON.stringify(response, null, '\n');
-      let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
-      let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
-      fs.writeFileSync(`${env}.env`, output);
+      editEnvironementFile(env, chosenOne)
+    },
+    newEnvFile: async(name)=> {
+      console.log(chalk.blue('The default choices are based on the default environement setting -> developement.env'))
+      let chosenOne = dotenv.parse(fs.readFileSync(`development.env`));
+      editEnvironementFile(name, chosenOne);
     }
 }
+async function editEnvironementFile(env, chosenOne){
+  let response = await inquirer.EditEnvFile(chosenOne);
+  response.NODE_ENV = env;
+  response.API_VERSION = "v1";
+  response.PORT = parseInt(response.PORT)
+  response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES)
+  response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS)
+  response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD)
+  response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL)
+  if(response.HTTPS_IS_ACTIVE === false){
+    response.HTTPS_IS_ACTIVE = 0;
+  }else{
+    response.HTTPS_IS_ACTIVE = 1;
+  }
+  if(response.JIMP_IS_ACTIVE === false){
+    response.JIMP_IS_ACTIVE = 0;
+  }else{
+    response.JIMP_IS_ACTIVE = 1;
+  }
+  let envString = JSON.stringify(response, null, '\n');
+  let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
+  let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
+  fs.writeFileSync(`${env}.env`, output);
+} 

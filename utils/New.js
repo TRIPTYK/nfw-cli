@@ -26,7 +26,7 @@ module.exports = {
      *   @param {boolean} docker Ask for docker env variables
      *   @param {boolean} yarn Install dependencies with yarn
      */
-    New: async (name,env,pathOption, docker, yarn) => {
+    New: async (name,defaultEnv,pathOption, docker, yarn) => {
         draw.header();
         if(pathOption){
             newPath = await inquirer.askForNewPath();
@@ -41,7 +41,7 @@ module.exports = {
                 process.exit(0);
             }
             else{
-                env = true;
+                defaultEnv = true;
                 dockerEnv = await inquirer.askForDockerVars();
                 Container_name = dockerEnv.Container_name;
                 dockerFile = "FROM mysql:5.7 \n"+
@@ -52,7 +52,7 @@ module.exports = {
             }
         }
         let envVar = undefined;
-        if(env){
+        if(defaultEnv){
             envVar = await inquirer.askForEnvVariable();
             envVar.URL = `http://localhost:${envVar.PORT}`;
         }
@@ -64,7 +64,7 @@ module.exports = {
         if(process.cwd() !== newPath && newPath !== undefined){
             console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, name)));
         }
-        if(env){
+        if(defaultEnv){
             const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
             const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
             let envFileContent =await fs.readFileSync(envFilePath).toString();

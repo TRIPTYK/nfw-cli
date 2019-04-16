@@ -42,7 +42,7 @@ const {singular,isSingular,plural}= require('pluralize');
 
   const removeFromValidation = async (model,column) =>{
     let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
-    let regexRandom = new RegExp(`${column}.*?,`,'gm'); 
+    let regexRandom = new RegExp(`${column} :.*?,`,'gm'); 
     let valFile = await ReadFile(valPath,'utf-8');
     valFile = valFile.replace(regexRandom,'')
     await WriteFile(valPath,valFile);
