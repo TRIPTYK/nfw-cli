@@ -3,10 +3,8 @@
  */
 const inquirer = require('inquirer');
 const files = require('./files');
-const chalk = require('chalk');
 const utils = require("../generate/utils");
-const fs = require('fs');
-const dotenv = require('dotenv');
+
 /**
  * @module inquirer
  * @returns {functions}
@@ -172,7 +170,7 @@ module.exports = {
                     if (data === ':no') return true;
                     if (data === ':exit') return true;
                     if (numberType.includes(type)) {
-                        if (isNaN(data) || data == '') return "Type is numeric.Therefore, default should be a number :)";
+                        if (isNaN(data) || data === '') return "Type is numeric.Therefore, default should be a number :)";
                         else return true
                     } else if (type === 'year') {
                         if (!isNaN(data)) {
@@ -219,7 +217,7 @@ module.exports = {
                     path = require('path');
                     // MARK : path to cli/generate/utils
                     data = data.trim();
-                    if (data == null || data === '' || data == undefined) {
+                    if (data == null || data === '' || data === undefined) {
                         return "you must enter a value";
                     } else if (await utils.modelFileExists(data) || data === ':exit') {
                         return true;
@@ -238,7 +236,7 @@ module.exports = {
                 name: 'referencedColumn',
                 message: 'Which column is the referenced column ?',
                 validate: data => {
-                    if (data == null || data === '' || data == undefined) return "you must enter a value";
+                    if (data == null || data === '' || data === undefined) return "you must enter a value";
                     else return true;
                 }
             }
@@ -435,9 +433,7 @@ module.exports = {
                 name: "HTTPS_IS_ACTIVE",
                 message: "Activate HTTPS ?",
                 default: () => {
-                    if (envData.HTTPS_IS_ACTIVE === "1") {
-                        return true
-                    } else return false;
+                    return envData.HTTPS_IS_ACTIVE === "1";
                 },
             },
             {
@@ -526,9 +522,7 @@ module.exports = {
                 name: "JIMP_IS_ACTIVE",
                 message: "Activate jimp ?",
                 default: () => {
-                    if (envData.JIMP_IS_ACTIVE === "1") {
-                        return true
-                    } else return false;
+                    return envData.JIMP_IS_ACTIVE === "1";
                 },
             },
             {

@@ -3,7 +3,7 @@ const databaseInfo = require('./databaseInfo');
 const modelWrite = require('./modelWrite');
 const index = require('./index');
 const utils = require('./utils');
-const Log = require('./log');
+const Log = require('../utils/log');
 const inquirer = require('../utils/inquirer');
 const command = require('../utils/createRelation');
 // basic project tables to ignore

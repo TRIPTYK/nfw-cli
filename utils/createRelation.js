@@ -1,11 +1,10 @@
-const Log = require('../generate/log');
+const Log = require('../utils/log');
 const Util = require('util');
 const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const {modelFileExists, columnExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('../generate/utils');
 const pluralize = require('pluralize');
-
 
 // documents : {
 //   ref:'id',
@@ -17,6 +16,7 @@ const pluralize = require('pluralize');
 /**
  * @description add reliationship in the serializer of an entity
  * @param {string} entity
+ * @param column
  */
 const _addToSerializer = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
@@ -37,7 +37,7 @@ const _addToSerializer = async (entity, column) => {
     if (!newSer.match(regexAddRel)) newSer = newSer.replace(regexsetRel, `$&\n ${toPut}`);
     if (!isImportPresent(fileContent, `${capitalizeEntity(pluralize.singular(column))}Serializer`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity(pluralize.singular(column))}Serializer } from "./${pluralize.singular(column)}.serializer";\n`);
     if (!isImportPresent(newSer, `${capitalizeEntity(pluralize.singular(column))}`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity(pluralize.singular(column))} } from "../models/${pluralize.singular(column)}.model";\n`);
-    await WriteFile(serializer, newSer).then(Log.success(`${entity} serializer updated`));
+    await WriteFile(serializer, newSer).then(() => Log.success(`${entity} serializer updated`));
 };
 
 /**
@@ -87,7 +87,7 @@ const _RefCol = (name, refCol) => {
  * @param {string} model2 model related to the model you want to write in
  * @param {boolean} isFirst First in the relationship
  * @param {string} name name of the bridging table
- * @return string to write in a model for many to many reliationship
+ * @return *[] to write in a model for many to many reliationship
  */
 const _Mtm = (model1, model2, isFirst, name) => {
     let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
@@ -115,7 +115,7 @@ const _Oto = (model1, model2, isFirst, name, refCol) => {
  * @param {string} model1 model you want to write in
  * @param {string} model2 model related to the model you want to write in
  * @param {boolean} isFirst First in the relationship
- * @return string to write in a model for one to many reliationship
+ * @return []* string to write in a model for one to many reliationship
  */
 const _Otm = (model1, model2, isFirst) => {
     let toPut;
@@ -137,10 +137,10 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
     let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
     let modelFile = await ReadFile(pathModel, 'utf-8');
     let toPut;
-    if (relation == 'mtm') toPut = _Mtm(model1, model2, isFirst, name);
-    if (relation == 'oto') toPut = _Oto(model1, model2, isFirst, name, refCol);
-    if (relation == 'otm') toPut = _Otm(model1, model2, isFirst);
-    if (relation == 'mto') toPut = _Otm(model2, model1, isFirst);
+    if (relation === 'mtm') toPut = _Mtm(model1, model2, isFirst, name);
+    if (relation === 'oto') toPut = _Oto(model1, model2, isFirst, name, refCol);
+    if (relation === 'otm') toPut = _Otm(model1, model2, isFirst);
+    if (relation === 'mto') toPut = _Otm(model2, model1, isFirst);
     let pos = modelFile.lastIndexOf('}');
     let newModel = `${modelFile.toString().substring(0, pos)}${toPut[0]}\n\n}`;
     if (!isImportPresent(modelFile, capitalizeEntity(model2))) newModel = writeToFirstEmptyLine(newModel.toString(), `import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model";\n`);

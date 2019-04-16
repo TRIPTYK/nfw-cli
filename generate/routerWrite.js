@@ -2,10 +2,10 @@
  * import modules
  */
 const FS = require('fs');
-const Log = require('./log');
+const Log = require('../utils/log');
 const Util = require('util');
 const ejs = require('ejs');
-const {countLines, capitalizeEntity, lowercaseEntity, isImportPresent, writeToFirstEmptyLine} = require('./utils');
+const {capitalizeEntity, lowercaseEntity, isImportPresent, writeToFirstEmptyLine} = require('./utils');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 
@@ -28,10 +28,9 @@ module.exports = async (action) => {
     let proxyPath = `${processPath}/src/api/routes/v1/index.ts`;
     let routeUsePath = `${__dirname}/templates/route/routerUse.ejs`;
 
-    let p_lines = countLines(proxyPath);
     let p_proxy = ReadFile(proxyPath, 'utf-8');
     let p_route = ReadFile(routeUsePath, 'utf-8');
-    let [lines, proxy, route] = await Promise.all([p_lines, p_proxy, p_route]); //wait for countlines and read to finish
+    let [proxy, route] = await Promise.all([p_proxy, p_route]); //wait for countlines and read to finish
 
     route = ejs.compile(route)({
         entityLowercase: lowercase,

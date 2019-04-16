@@ -10,7 +10,7 @@ const dotenv = require('dotenv');
  * project imports
  */
 const commandUtils = require('./commandUtils');
-const Log = require('../generate/log');
+const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
 
 exports.command = 'start';
@@ -41,22 +41,22 @@ exports.handler = async (argv) => {
     let mergeNeeded = false;
     if (envFile.TYPEORM_TYPE !== ormconfigFile.type) {
 
-    } else if ((envFile.TYPEORM_NAME != ormconfigFile.name)) {
+    } else if ((envFile.TYPEORM_NAME !== ormconfigFile.name)) {
         mergeNeeded = true;
     }
-    if ((envFile.TYPEORM_HOST != ormconfigFile.host) && !mergeNeeded) {
+    if ((envFile.TYPEORM_HOST !== ormconfigFile.host) && !mergeNeeded) {
         mergeNeeded = true;
     }
-    if ((envFile.TYPEORM_DB != ormconfigFile.database) && !mergeNeeded) {
+    if ((envFile.TYPEORM_DB !== ormconfigFile.database) && !mergeNeeded) {
         mergeNeeded = true;
     }
-    if ((envFile.TYPEORM_USER != ormconfigFile.username) && !mergeNeeded) {
+    if ((envFile.TYPEORM_USER !== ormconfigFile.username) && !mergeNeeded) {
         mergeNeeded = true;
     }
-    if ((envFile.TYPEORM_PWD != ormconfigFile.password) && !mergeNeeded) {
+    if ((envFile.TYPEORM_PWD !== ormconfigFile.password) && !mergeNeeded) {
         mergeNeeded = true;
     }
-    if ((parseInt(envFile.TYPEORM_PORT) != ormconfigFile.port) && !mergeNeeded) {
+    if ((parseInt(envFile.TYPEORM_PORT) !== ormconfigFile.port) && !mergeNeeded) {
         mergeNeeded = true;
     }
 

@@ -15,4 +15,4 @@ const database = process.env.TYPEORM_DB;
 const user = process.env.TYPEORM_USER;
 const pwd = process.env.TYPEORM_PWD;
 
-module.exports = {type, name, port, host, database, user, pwd};
+module.exports = {env, type, name, port, host, database, user, pwd};

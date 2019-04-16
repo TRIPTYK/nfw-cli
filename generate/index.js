@@ -23,11 +23,11 @@ const {items} = require('./resources');
  * Requirement of the logs library
  *@description Define function to simplify console logging
  */
-const Log = require('./log');
+const Log = require('../utils/log');
 /**
  * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
  */
-const {countLines, capitalizeEntity, prompt, sqlTypeData, lowercaseEntity, fileExists, buildJoiFromColumn} = require('./utils');
+const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn} = require('./utils');
 /**
  * Transform a async method to a promise
  * @returns {Promise} returns FS.exists async function as a promise
@@ -37,10 +37,7 @@ const WriteFile = Util.promisify(FS.writeFile);
 /**
  * Requirement of the library readline
  */
-const readline = require('readline');
 const routerWrite = require('./routerWrite');
-const modelWrite = require('./modelWrite');
-const databaseInfo = require('./databaseInfo');
 
 const crudOptions = {
     create: false,
@@ -76,17 +73,16 @@ const _checkForCrud = (arg) => {
 
 /**
  * @description replace the vars in placeholder in file and creates them
- * @param {*} items
+ * @param data
  */
 const _write = async (data) => {
     let tableColumns, foreignKeys;
     tableColumns = data ? data.columns : [];
     foreignKeys = data ? data.foreignKeys : [];
 
-    let index = tableColumns.findIndex(el => el.Field == 'id');
+    let index = tableColumns.findIndex(el => el.Field === 'id');
     // remove id key from array
     if (index !== -1) tableColumns.splice(tableColumns, 1);
-    const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
 
     const allColumns = tableColumns // TODO: do this in view
         .map(elem => `'${elem.Field}'`)
@@ -96,7 +92,7 @@ const _write = async (data) => {
     if (data.createUpdate != null && data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);
     let promises = items.map(async (item) => {
         // handle model template separately
-        if (item.template == 'model') return;
+        if (item.template === 'model') return;
 
         let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
 
@@ -117,7 +113,7 @@ const _write = async (data) => {
             .then(() => {
                 Log.success(`${capitalizeEntity(item.template)} generated.`)
             })
-            .catch(e => {
+            .catch(() => {
                 Log.error(`Error while ${item.template} file generating \n`);
                 Log.warning(`Check the api/${item.dest}/${lowercase}.${item.template}.${item.ext} to update`);
             });
@@ -131,7 +127,9 @@ const _write = async (data) => {
  * Main function
  * Check entity existence, and write file or not according to the context
  *
- * @param {Array.<JSON>} items
+ * @param modelName
+ * @param crudArgs
+ * @param data
  */
 const build = async (modelName, crudArgs, data = null) => {
     if (!modelName.length) {

@@ -11,7 +11,7 @@
  * @exports getForeignKeys
  * @exports dumpAll
  * @exports dumpTable
- * @exports Select
+ * @exports select
  * @exports checkConnexion
  */
 const mysql = require('mysql');
@@ -38,8 +38,7 @@ const connect = util.promisify(db.connect.bind(db));
  * @returns {Array} query results
  */
 exports.getForeignKeys = async (tableName) => {
-    let result = await query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${env.database}' AND TABLE_NAME='${tableName}';`);
-    return result;
+    return await query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${env.database}' AND TABLE_NAME='${tableName}';`);
 };
 
 /**
@@ -49,10 +48,9 @@ exports.getForeignKeys = async (tableName) => {
 exports.insertAdmin = async (username) => {
     let password = "";
     let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < 24; i++)
+    for (let i = 0; i < 24; i++)
         password += possible.charAt(Math.floor(Math.random() * possible.length));
-    const hash = await bcrypt.hash(password, 10);
-    let hashed = hash;
+    let hashed = await bcrypt.hash(password, 10);
     await query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${username}@localhost.com','${username}','${username}','{}','admin', '${hashed}')`);
     return {
         login: `${username}@localhost.com`,
@@ -66,8 +64,7 @@ exports.insertAdmin = async (username) => {
  * @returns {Array} query results
  */
 exports.dropTable = async (tableName) => {
-    let result = await query(`DROP TABLE ${tableName};`);
-    return result;
+    return await query(`DROP TABLE ${tableName};`);
 };
 
 /**
@@ -76,8 +73,7 @@ exports.dropTable = async (tableName) => {
  * @returns {Array} query results
  */
 exports.getColumns = async (tableName) => {
-    let result = await query(`SHOW COLUMNS FROM ${tableName} ;`);
-    return result;
+    return await query(`SHOW COLUMNS FROM ${tableName} ;`);
 };
 
 
@@ -92,7 +88,7 @@ exports.tableExists = async (tableName) => {
     FROM information_schema.tables
     WHERE table_schema = '${env.database}'
     AND table_name = '${tableName}';
-  `).catch(e => [{count: false}]);
+  `).catch(() => [{count: false}]);
     return result[0].count > 0;
 };
 
@@ -155,20 +151,18 @@ exports.dumpTable = async (table, path) => {
 };
 
 /**
- * @description Select Fields from a table
- * @param {Array.string} fields
+ * @description select Fields from a table
+ * @param {string[]} fields
  * @param {string} table
  * @returns {Array} query results
  */
-exports.Select = async (fields, table) => {
+exports.select = async (fields, table) => {
     let fieldValue = '';
     fields.forEach(field => {
         fieldValue += field + ",";
     });
     fieldValue = fieldValue.substr(0, fieldValue.length - 1);
-    result = await query(`SELECT ${fieldValue} from  ${table}`);
-    return result;
-
+    return await query(`SELECT ${fieldValue} from  ${table}`);
 };
 
 

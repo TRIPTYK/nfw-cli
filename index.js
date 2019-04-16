@@ -7,15 +7,13 @@ const project = require('./utils/New');
 const files = require('./utils/files');
 const yargs = require('yargs');
 const chalk = require('chalk');
-const path = require('path');
 const commands = require('./utils/execShellCommands');
 const test = require('./utils/tests');
-const inquirer = require('./utils/inquirer');
 const sql = require('./database/sqlAdaptator');
 const reserved = require('reserved-words');
-const Log = require('./generate/log');
+const Log = require('./utils/log');
 const utils = require('./generate/utils');
-const fs = require('fs');
+
 const validateDirectory = () => {
     if (!files.isProjectDirectory()) {
         console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
@@ -32,19 +30,19 @@ yargs
             yargs.option('default', {
                 desc: "Generate a project with default env variables",
                 type: "boolean"
-            }),
-                yargs.option('path', {
-                    desc: "Allow the user to choose a different path",
-                    type: 'boolean'
-                }),
-                yargs.option('docker', {
-                    desc: "Set a mysql container up",
-                    type: 'boolean'
-                }),
-                yargs.option('yarn', {
-                    desc: "Set yarn as package manager",
-                    type: 'boolean'
-                })
+            });
+            yargs.option('path', {
+                desc: "Allow the user to choose a different path",
+                type: 'boolean'
+            });
+            yargs.option('docker', {
+                desc: "Set a mysql container up",
+                type: 'boolean'
+            });
+            yargs.option('yarn', {
+                desc: "Set yarn as package manager",
+                type: 'boolean'
+            });
         },
         handler: async (argv) => {
             clear();
@@ -52,7 +50,7 @@ yargs
                 console.log(chalk.red('Please provide a name for your application'));
                 process.exit(0);
             }
-            project.New(argv._[1], argv.default !== undefined ? false : true, argv.path != undefined ? true : false, argv.docker != undefined ? true : false, argv.yarn != undefined ? true : false);
+            project.New(argv._[1], argv.default === undefined, argv.path !== undefined, argv.docker !== undefined, argv.yarn !== undefined);
         }
     }).command({
     strict: true,
@@ -68,7 +66,7 @@ yargs
     handler: async (argv) => {
         validateDirectory();
         await sql.checkConnexion();
-        test.execUnitTests(argv.logs !== undefined ? true : false);
+        test.execUnitTests(argv.logs !== undefined);
     }
 })
     .command({
@@ -176,7 +174,7 @@ yargs
         command: 'editModel <model> <action> [column]',
         aliases: ["em", "edit"],
         desc: 'add or remove column in a model',
-        builder: (yargs) => {
+        builder: () => {
         },
         handler: async (argv) => {
             validateDirectory();
@@ -186,8 +184,8 @@ yargs
                 process.exit(0);
             }
             if (argv.action === 'add') commands.editModel('add', argv.model);
-            else if (argv.action === 'remove' && argv.column != undefined) commands.editModel('remove', argv.model, argv.column);
-            else if (argv.action === 'remove' && argv.column == undefined) Log.info("you must specify the column to remove");
+            else if (argv.action === 'remove' && argv.column !== undefined) commands.editModel('remove', argv.model, argv.column);
+            else if (argv.action === 'remove' && argv.column === undefined) Log.info("you must specify the column to remove");
             else Log.info("action must be add or remove");
         }
     })

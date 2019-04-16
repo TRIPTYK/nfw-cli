@@ -4,19 +4,14 @@
  * @exports deleteMigrateErr
  */
 const fs = require('fs');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const chalk = require('chalk');
-const Log = require('../generate/log');
+const Log = require('../utils/log');
 
 const sql = require('../database/sqlAdaptator');
-
-const operatingSystem = process.platform;
 
 exports.migrateRunFail = async () => {
     let files = fs.readdirSync('./dist/migration/');
     let regex = /[^0-9]+/;
-    let migration = await sql.Select(['timestamp', 'name'], 'migration_table');
+    let migration = await sql.select(['timestamp', 'name'], 'migration_table');
 
     Log.error("Please check your model then run nfw migrate");
 

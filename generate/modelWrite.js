@@ -11,16 +11,13 @@
  * @exports main
  */
 const ejs = require('ejs');
-//const mongoAdaptator = require('./database/mongoAdaptator');
-const inquirer = require('inquirer');
 const Util = require('util');
-const Log = require('./log');
+const Log = require('../utils/log');
 const FS = require('fs');
-const databaseInfo = require('./databaseInfo');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
-const {capitalizeEntity, columnExist, fileExists, removeEmptyLines, writeToFirstEmptyLine, isImportPresent, lowercaseEntity, sqlTypeData} = require('./utils');
+const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./utils');
 
 
 /**
@@ -70,7 +67,7 @@ const _addToConfig = async (lowercase, capitalize) => {
         let imprt = writeToFirstEmptyLine(fileContent, `import { ${capitalize} } from "../api/models/${lowercase}.model";\n`)
             .replace(/(.*entities.*)(?=])(.*)/, `$1,${capitalize}$2`);
 
-        await WriteFile(configFileName, imprt).catch(e => {
+        await WriteFile(configFileName, imprt).catch(() => {
             Log.error(`Failed to write to : ${configFileName}`);
         });
     }
@@ -91,13 +88,13 @@ const _getKey = data => {
 
 /**
  *
- * @param {String} data
  * @description  Format to typeorm format
  * @returns {string} data lenght/enum
+ * @param info
  */
 const _getLength = (info) => {
-    if (info.type == "enum") return `enum  : ${info.length},`;
-    if (info.length != undefined && info.length !== '') {
+    if (info.type === "enum") return `enum  : ${info.length},`;
+    if (info.length !== undefined && info.length !== '') {
         if (info.type.includes('int')) return `width : ${info.length},`;
         if ((info.type.includes('date') || info.type.includes('time'))) return `precision : ${info.length},`;
         return `length : ${info.length},`;
@@ -119,13 +116,13 @@ exports.writeModel = async (action, data = null) => {
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
     let {columns, foreignKeys} = data;
 
-    let entities = [], f_keys = [], imports = [];
+    let entities = [];
     /*
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
     */
     columns = columns.filter(column => {
-        return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
+        return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
     });
 
 
@@ -173,7 +170,7 @@ exports.basicModel = async (action) => {
 
     let p_write = WriteFile(pathModel, basicModel)
         .then(() => Log.success("Model created in :" + pathModel))
-        .catch(e => Log.error("Failed generating model"));
+        .catch(() => Log.error("Failed generating model"));
 
     await Promise.all([_addToConfig(lowercase, capitalize), p_write])
 };
@@ -188,13 +185,15 @@ const writeSerializer = async (model, column) => {
     if (regexArray[3].includes("'")) newValue = `,'${column}'`;
     else newValue = `'${column}'`;
     if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
-    await WriteFile(serializerPath, newSer).then(Log.success(`${model} serializer updated`));
+    await WriteFile(serializerPath, newSer).then(
+        () => Log.success(`${model} serializer updated`)
+    );
 };
 
 /**
  * @description  Add a column in a model
  * @param {string} model Model name
- * @param {string} column Column name
+ * @param data
  */
 exports.addColumn = async (model, data) => {
     let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;

@@ -14,7 +14,6 @@ const dotenv = require('dotenv');
 
 const generator = require("../generate/generateFromDB");
 const errHandler = require("./errorHandler");
-const sqlAdaptor = require('../database/sqlAdaptator');
 const cr = require('./createRelation');
 const Log = require('./log');
 const modelSpecs = require('./modelSpecs');
@@ -98,7 +97,6 @@ module.exports = {
      * @param  {string} name
      */
     generateConfig: async (command, newPath, name) => {
-        const dir = newPath === undefined ? command.currentDirectory + name + "  && " : command.currentDirectory + path.resolve(newPath.path, name) + " && ";
         const config = {
             name: name,
             path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name)
@@ -118,7 +116,6 @@ module.exports = {
      * @param  {string} crud
      */
     generateModel: async (modelName, crud) => {
-        let doMigration = true;
         modelName = snake(modelName);
         const modelExists = await utils.modelFileExists(modelName);
         let override = true;
@@ -265,9 +262,9 @@ module.exports = {
      */
     createDockerImage: async (newPath, data, dockerImageName, port) => {
         fs.writeFileSync(path.resolve(newPath, "dockerfile"), data);
-        const dockerBuild = await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
+        await exec(`docker build ${newPath} -t ${dockerImageName.toLowerCase()}`);
         try {
-            const dockerRun = await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`);
+            await exec(`docker run -p ${port}:${port} -d --name=${dockerImageName} ${dockerImageName}`);
             console.log(`Container launched and named: ${dockerImageName}`);
         } catch (err) {
             console.log(err);
@@ -278,6 +275,9 @@ module.exports = {
      * @description Create a relationship between two models
      * @param {string} model1 First model name
      * @param {string} model2 Second model name
+     * @param relation
+     * @param name
+     * @param refCol
      */
     createRelation: (model1, model2, relation, name, refCol) => {
         let migrate = true;
@@ -316,8 +316,8 @@ module.exports = {
      * @param {string} column column name
      */
     editModel: async (action, model, column = null) => {
-        if (action == 'remove') await rmMod.removeColumn(model, column).then(Log.success('Column successfully removed')).catch(err => Log.error(err.message));
-        if (action == 'add') {
+        if (action === 'remove') await rmMod.removeColumn(model, column).then(() => Log.success('Column successfully removed')).catch(err => Log.error(err.message));
+        if (action === 'add') {
             data = await modelSpecs.newColumn();
             await modelWrite.addColumn(model, data).then(() => Log.success('Column successfully added')).catch(err => Log.error(err));
         }
@@ -373,7 +373,7 @@ async function editEnvironementFile(env, chosenOne) {
         response.JIMP_IS_ACTIVE = 1;
     }
     let envString = JSON.stringify(response, null, '\n');
-    let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
+    let reg = /"(.*)":\s*(".*"|\d+)/gm;
     let output = envString.replace(reg, `$1 = $2`).replace('{', "").replace('}', '').replace(/(,)(?!.*,)/gm, "");
     fs.writeFileSync(`${env}.env`, output);
 }

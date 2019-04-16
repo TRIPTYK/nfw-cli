@@ -7,17 +7,14 @@
  * @exports _unroute
  */
 const {items} = require('./resources');
-const {countLines, capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./utils');
+const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./utils');
 const FS = require('fs');
-const Log = require('./log');
+const Log = require('../utils/log');
 const Util = require('util');
 const ReadFile = Util.promisify(FS.readFile);
 const Unlink = Util.promisify(FS.unlink);
 const WriteFile = Util.promisify(FS.writeFile);
 const SqlAdaptator = require('../database/sqlAdaptator');
-const snake = require('to-snake-case');
-var colors = require('colors/safe');
-const mysqldump = require('mysqldump');
 
 // simulate class properties
 var capitalize;
@@ -31,7 +28,7 @@ const processPath = process.cwd();
  */
 const _deleteCompiledJS = async () => {
     await Promise.all(items.map(async (item) => {
-        if (item.template == 'test') return; // no compiled tests
+        if (item.template === 'test') return; // no compiled tests
 
         let relativeFilePath = `/dist/api/${item.dest}/${lowercase}.${item.template}.js`;
         let filePath = processPath + relativeFilePath;
@@ -39,7 +36,7 @@ const _deleteCompiledJS = async () => {
         if (fileExists(filePath)) {
             await Unlink(filePath)
                 .then(() => Log.success(`Compiled ${item.template[0].toUpperCase()}${item.template.substr(1)} deleted.`))
-                .catch(e => Log.error(`Error while deleting compiled ${item.template}`));
+                .catch(() => Log.error(`Error while deleting compiled ${item.template}`));
         } else {
             Log.warning(`Cannot delete compiled ${relativeFilePath} : file does not exists`);
         }
@@ -57,7 +54,7 @@ const _deleteTypescriptFiles = async () => {
         if (fileExists(filePath)) {
             await Unlink(filePath)
                 .then(() => Log.success(`${item.template[0].toUpperCase()}${item.template.substr(1)} deleted.`))
-                .catch(e => Log.error(`Error while deleting ${item.template} \n`));
+                .catch(() => Log.error(`Error while deleting ${item.template} \n`));
         } else {
             Log.warning(`Cannot delete ${relativeFilePath} : file does not exists`);
         }
@@ -72,14 +69,14 @@ const _unroute = async () => {
     let proxy = await ReadFile(proxyPath, 'utf-8');
 
     // this regex will match a use statement and the associated JSDoc comment
-    let toRoute = new RegExp(`\n?((\\\/\\*[\\w\\\'\\s\\r\\n\\*]*\\*\\\/)|(\\\/\\\/[\\w\\s\\\']*))\\s*(\\w*.use.*${capitalize}Router(.|\\s){1};)\n?`, "gm");
+    let toRoute = new RegExp(`\n?((\\\/\\*[\\w'\\s\\r\\n*]*\\*\\\/)|(\\\/\\\/[\\w\\s']*))\\s*(\\w*.use.*${capitalize}Router(.|\\s){1};)\n?`, "gm");
 
     // replace match by nothing
     proxy = removeImport(proxy, `${capitalize}Router`)
         .replace(toRoute, "");
 
     await WriteFile(proxyPath, proxy)
-        .catch(e => Log.error(`Failed to write to ${proxyPath}`));
+        .catch(() => Log.error(`Failed to write to ${proxyPath}`));
 };
 
 /**
@@ -93,7 +90,7 @@ const _unconfig = async () => {
         let imprt = removeImport(fileContent, capitalize)
             .replace(new RegExp(`(?=,?${capitalize}\\b),${capitalize}\\b|${capitalize}\\b,?`, "gm"), "");
 
-        await WriteFile(configFileName, imprt).catch(e => {
+        await WriteFile(configFileName, imprt).catch(() => {
             Log.error(`Failed to write to : ${configFileName}`);
         });
     }
@@ -124,10 +121,10 @@ module.exports = async (action, drop) => {
     if (await SqlAdaptator.tableExists(action) && drop) {
         await SqlAdaptator.dumpTable(action, dumpPath)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
-            .catch(e => Log.error("Failed to create table dump"));
+            .catch(() => Log.error("Failed to create table dump"));
         await SqlAdaptator.dropTable(action)
             .then(() => Log.success("Table dropped"))
-            .catch(e => Log.error("Failed to delete table"));
+            .catch(() => Log.error("Failed to delete table"));
     }
     Log.success('Delete task done');
 };

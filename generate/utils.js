@@ -36,9 +36,9 @@ exports.countLines = (path) => {
                 .on('data', function (chunk) {
                     let i;
                     for (i = 0; i < chunk.length; ++i)
-                        if (chunk[i] == 10) count++; // 10 -> line ending in ASCII table
+                        if (chunk[i] === 10) count++; // 10 -> line ending in ASCII table
                 })
-                .on('end', function (data) {
+                .on('end', function () {
                     resolve(count); // return promise
                 });
         } catch (e) {
@@ -57,7 +57,7 @@ exports.prompt = (question) => {
         output: process.stdout
     });
 
-    return new Promise((res, rej) => {
+    return new Promise((res) => {
         rl.question(question, (answer) => {
             res(answer);
             rl.close();
@@ -99,7 +99,7 @@ exports.removeEmptyLines = (string) => string.replace(/\n?^\s*$/gm, "");
 
 /**
  * @description check if model file exists in projet
- * @param {string} string
+ * @param entity
  */
 exports.modelFileExists = (entity) => exports.fileExists(`${process.cwd()}/src/api/models/${exports.lowercaseEntity(entity)}.model.ts`);
 
@@ -170,16 +170,15 @@ exports.buildJoiFromColumn = (column) => {
 
 /**
  * @description Check if a table is a bridging table in a many to many relationship
- * @param {string} column Column name
  * @returns {boolean}
+ * @param entity
  */
 exports.isBridgindTable = (entity) => {
     let {columns, foreignKeys} = entity;
     columns = columns.filter(column => {
-        return foreignKeys.find(elem => elem.COLUMN_NAME == column.Field) === undefined;
+        return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
     });
-    if (columns.length == 0) return true;
-    else return false;
+    return columns.length === 0;
 };
 /**
  * @description Check if a column exist in a database table

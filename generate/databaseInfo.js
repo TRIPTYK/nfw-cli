@@ -4,7 +4,7 @@
  * @exports tableExistsInDB
  */
 const sqlAdaptator = require('../database/sqlAdaptator');
-const Log = require('./log');
+const Log = require('../utils/log');
 
 /**
  * @param {string} dbType
@@ -35,7 +35,7 @@ exports.getTableInfo = async (dbType, tableName) => {
 exports.tableExistsInDB = async (tableName) => {
     return (
         await sqlAdaptator.tableExists(tableName)
-            .catch(e => {
+            .catch(() => {
                 Log.error("Failed to connect to database");
                 return false;
             })

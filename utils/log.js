@@ -8,7 +8,7 @@
  * @exports rainbow
  * @exports info
  */
-var colors = require('colors/safe');
+const colors = require('colors/safe');
 
 exports.error = text => {
     console.log(`${colors.red('x')} ${text}`);
