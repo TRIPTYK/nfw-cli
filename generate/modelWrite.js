@@ -20,8 +20,7 @@ const databaseInfo = require('./databaseInfo');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
-const {  capitalizeEntity ,columnExist ,fileExists, removeEmptyLines , writeToFirstEmptyLine , isImportPresent , lowercaseEntity , sqlTypeData } = require('./utils');
-
+const {capitalizeEntity, columnExist, fileExists, removeEmptyLines, writeToFirstEmptyLine, isImportPresent, lowercaseEntity, sqlTypeData} = require('./utils');
 
 
 /**
@@ -30,18 +29,18 @@ const {  capitalizeEntity ,columnExist ,fileExists, removeEmptyLines , writeToFi
  * @description set default value for the column and check that default is not null when value can't be null
  * @returns {string} default
  */
-const _getDefault = (col) =>{
-  let sqlFunction = ['CURRENT_TIMESTAMP','GETDATE','GETUTCDATE','SYSDATETIME'];
-  if (col.Default === 'null' || col.Default === ':no' || col.Default === null && !(col.key ==='UNI' || col.Key=== 'PRI' )  ){
-    if(col.Null !== 'nullable:false,') return 'default : null'
-    else return ''
-  }else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type ==='double' || col.Type.type ==='decimal') return `default : ${col.Default}`
-  else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text'))  return '';
-  else if(col.key ==='UNI' || col.Key=== 'PRI')  return '';
-  else if((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && ( col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))) return ` default : () => "${col.Default}"`;
-  else return `default :\`${col.Default}\``;
+const _getDefault = (col) => {
+    let sqlFunction = ['CURRENT_TIMESTAMP', 'GETDATE', 'GETUTCDATE', 'SYSDATETIME'];
+    if (col.Default === 'null' || col.Default === ':no' || col.Default === null && !(col.key === 'UNI' || col.Key === 'PRI')) {
+        if (col.Null !== 'nullable:false,') return 'default : null';
+        else return ''
+    } else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type === 'double' || col.Type.type === 'decimal') return `default : ${col.Default}`;
+    else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')) return '';
+    else if (col.key === 'UNI' || col.Key === 'PRI') return '';
+    else if ((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))) return ` default : () => "${col.Default}"`;
+    else return `default :\`${col.Default}\``;
 
-}
+};
 
 
 /**
@@ -52,31 +51,30 @@ const _getDefault = (col) =>{
  * because primary imply that value can't be null
  * @returns {string} empty : property
  */
-const _getNull = (data,key) => {
-    if(key === 'PRI' || key === 'UNI') return '';
-    if(data === 'YES') return 'nullable:true,';
+const _getNull = (data, key) => {
+    if (key === 'PRI' || key === 'UNI') return '';
+    if (data === 'YES') return 'nullable:true,';
     return 'nullable:false,';
-}
+};
 
 /**
-*  @param {String} lowercase
-*  @param {String} capitalize
+ *  @param {String} lowercase
+ *  @param {String} capitalize
  * @description add and import generated class names to the typeorm config file
  **/
-const _addToConfig = async (lowercase,capitalize) => {
+const _addToConfig = async (lowercase, capitalize) => {
     let configFileName = `${process.cwd()}/src/config/typeorm.config.ts`;
     let fileContent = await ReadFile(configFileName, 'utf-8');
 
-    if (!isImportPresent(fileContent,capitalize)) {
-      let imprt = writeToFirstEmptyLine(fileContent,`import { ${capitalize} } from "../api/models/${lowercase}.model";\n`)
-        .replace(/(.*entities.*)(?=])(.*)/,`$1,${capitalize}$2`);
+    if (!isImportPresent(fileContent, capitalize)) {
+        let imprt = writeToFirstEmptyLine(fileContent, `import { ${capitalize} } from "../api/models/${lowercase}.model";\n`)
+            .replace(/(.*entities.*)(?=])(.*)/, `$1,${capitalize}$2`);
 
-      await WriteFile(configFileName,imprt).catch(e => {
-        Log.error(`Failed to write to : ${configFileName}`);
-      });
+        await WriteFile(configFileName, imprt).catch(e => {
+            Log.error(`Failed to write to : ${configFileName}`);
+        });
     }
 };
-
 
 
 /**
@@ -89,7 +87,7 @@ const _getKey = data => {
     if (data === 'PRI') return ' primary : true,';
     if (data === 'UNI') return ' unique : true,';
     return '';
-}
+};
 
 /**
  *
@@ -98,14 +96,14 @@ const _getKey = data => {
  * @returns {string} data lenght/enum
  */
 const _getLength = (info) => {
-  if(info.type == "enum") return `enum  : ${info.length},`;
-  if(info.length != undefined && info.length !== '') {
-      if(info.type.includes('int')) return `width : ${info.length},`;
-      if((info.type.includes('date') || info.type.includes('time') )) return `precision : ${info.length},` 
-      return `length : ${info.length},`;
-  }
-  return "";
-}
+    if (info.type == "enum") return `enum  : ${info.length},`;
+    if (info.length != undefined && info.length !== '') {
+        if (info.type.includes('int')) return `width : ${info.length},`;
+        if ((info.type.includes('date') || info.type.includes('time'))) return `precision : ${info.length},`;
+        return `length : ${info.length},`;
+    }
+    return "";
+};
 
 /**
  * @param {string} action Model name
@@ -114,14 +112,14 @@ const _getLength = (info) => {
  * @description write a typeorm model from an array of info about an entity
  *
  */
-exports.writeModel = async (action,data=null) =>{
+exports.writeModel = async (action, data = null) => {
     let lowercase = lowercaseEntity(action);
-    let capitalize  = capitalizeEntity(lowercase);
+    let capitalize = capitalizeEntity(lowercase);
     let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-    let { columns , foreignKeys } = data;
-    
-    let entities = [] , f_keys = [] , imports = [];
+    let {columns, foreignKeys} = data;
+
+    let entities = [], f_keys = [], imports = [];
     /*
      filter the foreign keys from columns , they are not needed anymore
      Only when imported by database
@@ -132,85 +130,87 @@ exports.writeModel = async (action,data=null) =>{
 
 
     columns.forEach(col => {
-        if(col.Field === "id") return;
-        
-        col.Null = _getNull(col.Null,col.Key);
+        if (col.Field === "id") return;
+
+        col.Null = _getNull(col.Null, col.Key);
         col.Key = _getKey(col.Key);
         col.Default = _getDefault(col);
         col.length = _getLength(col.Type);
         entities.push(col);
     });
-    let output = ejs.compile(p_file,{root : `${__dirname}/templates/`})({
-      entityLowercase : lowercase,
-      entityCapitalize : capitalize,
-      entities,
-      createUpdate : data.createUpdate,
-      capitalizeEntity,
-      lowercaseEntity
+    let output = ejs.compile(p_file, {root: `${__dirname}/templates/`})({
+        entityLowercase: lowercase,
+        entityCapitalize: capitalize,
+        entities,
+        createUpdate: data.createUpdate,
+        capitalizeEntity,
+        lowercaseEntity
     });
 
-    await Promise.all([WriteFile(pathModel, output),_addToConfig(lowercase,capitalize)]).catch(e => Log.error(e.message));
+    await Promise.all([WriteFile(pathModel, output), _addToConfig(lowercase, capitalize)]).catch(e => Log.error(e.message));
     Log.success("Model created in :" + pathModel);
-}
+};
 
 /**
  *  @description creates a basic model , with no entites , imports or foreign keys
  *  @param {string} action
  */
 exports.basicModel = async (action) => {
-  let lowercase = lowercaseEntity(action);
-  let capitalize  = capitalizeEntity(lowercase);
-  let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-  let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
-  let basicModel = ejs.compile(modelTemp.toString())({
-    entityLowercase : lowercase,
-    entityCapitalize : capitalize,
-    entities : [],
-    foreignKeys : [],
-    createUpdate : {createAt : true,
-                      updateAt : true}
-  });
+    let lowercase = lowercaseEntity(action);
+    let capitalize = capitalizeEntity(lowercase);
+    let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
+    let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
+    let basicModel = ejs.compile(modelTemp.toString())({
+        entityLowercase: lowercase,
+        entityCapitalize: capitalize,
+        entities: [],
+        foreignKeys: [],
+        createUpdate: {
+            createAt: true,
+            updateAt: true
+        }
+    });
 
-  let p_write = WriteFile(pathModel, basicModel)
-    .then(() => Log.success("Model created in :" + pathModel))
-    .catch(e => Log.error("Failed generating model"));
+    let p_write = WriteFile(pathModel, basicModel)
+        .then(() => Log.success("Model created in :" + pathModel))
+        .catch(e => Log.error("Failed generating model"));
 
-  await Promise.all([_addToConfig(lowercase,capitalize),p_write])
-}
+    await Promise.all([_addToConfig(lowercase, capitalize), p_write])
+};
 
 
-const writeSerializer = async(model,column) =>{
-  let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
-  let regexWhitelist =  new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
-  let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`,'m');
-  let newSer = await ReadFile(serializerPath,'utf-8');
-  let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
-  if(regexArray[3].includes("'")) newValue = `,'${column}'`
-  else newValue = `'${column}'`
-  if(!newSer.match(regexArrayCheck))newSer = newSer.replace(regexWhitelist,`$1$2$3${newValue}`);
-  await WriteFile(serializerPath,newSer).then(Log.success(`${model} serializer updated`));
-}
+const writeSerializer = async (model, column) => {
+    let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
+    let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
+    let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`, 'm');
+    let newSer = await ReadFile(serializerPath, 'utf-8');
+    let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+    if (regexArray[3].includes("'")) newValue = `,'${column}'`;
+    else newValue = `'${column}'`;
+    if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
+    await WriteFile(serializerPath, newSer).then(Log.success(`${model} serializer updated`));
+};
 
 /**
  * @description  Add a column in a model
  * @param {string} model Model name
  * @param {string} column Column name
  */
-exports.addColumn = async (model,data ) =>{
-  let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-  let [columnTemp, modelFile] = await  Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`),ReadFile(pathModel)]);
-  if (data == null)throw  new Error('Column cancelled');
-  if(await columnExist(model,data.columns.Field)) throw new Error('Column already added'); 
-  let entity = data.columns;
-  entity.Null = _getNull(entity.Null, entity.Key);
-  entity.Key = _getKey(entity.Key);
-  entity.Default = _getDefault(entity);
-  entity.length = _getLength(entity.Type);
-  let newCol = '  ' + ejs.compile(columnTemp.toString())({ entity })
-  var pos = modelFile.lastIndexOf('}');
-  let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`
-  await Promise.all([WriteFile(pathModel,newModel),writeSerializer(model,data.columns.Field)]);
-}
+exports.addColumn = async (model, data) => {
+    let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
+    let [columnTemp, modelFile] = await Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`), ReadFile(pathModel)]);
+    if (data == null) throw  new Error('Column cancelled');
+    if (await columnExist(model, data.columns.Field)) throw new Error('Column already added');
+    let entity = data.columns;
+    entity.Null = _getNull(entity.Null, entity.Key);
+    entity.Key = _getKey(entity.Key);
+    entity.Default = _getDefault(entity);
+    entity.length = _getLength(entity.Type);
+    let newCol = '  ' + ejs.compile(columnTemp.toString())({entity});
+    var pos = modelFile.lastIndexOf('}');
+    let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`;
+    await Promise.all([WriteFile(pathModel, newModel), writeSerializer(model, data.columns.Field)]);
+};
 
  
 

@@ -18,7 +18,7 @@ const Util = require('util');
  * Get the informations about the templates generation
  * @returns {Array.<JSON>} Return an array of json object
  */
-const { items } = require('./resources');
+const {items} = require('./resources');
 /**
  * Requirement of the logs library
  *@description Define function to simplify console logging
@@ -27,7 +27,7 @@ const Log = require('./log');
 /**
  * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
  */
-const { countLines , capitalizeEntity , prompt , sqlTypeData , lowercaseEntity , fileExists , buildJoiFromColumn} = require('./utils');
+const {countLines, capitalizeEntity, prompt, sqlTypeData, lowercaseEntity, fileExists, buildJoiFromColumn} = require('./utils');
 /**
  * Transform a async method to a promise
  * @returns {Promise} returns FS.exists async function as a promise
@@ -43,10 +43,10 @@ const modelWrite = require('./modelWrite');
 const databaseInfo = require('./databaseInfo');
 
 const crudOptions = {
-  create: false,
-  read: false,
-  update: false,
-  delete: false
+    create: false,
+    read: false,
+    update: false,
+    delete: false
 };
 
 const processPath = process.cwd();
@@ -61,18 +61,17 @@ var lowercase;
  * @returns {Array.boolean} Return an array of boolean depending on the input string
  */
 const _checkForCrud = (arg) => {
-  let crudString = arg.toLowerCase();
+    let crudString = arg.toLowerCase();
 
-  if((/^[crud]{1,4}$/).test(crudString)){
-      if(crudString.includes('c')) crudOptions.create = true;
-      if(crudString.includes('r')) crudOptions.read = true;
-      if(crudString.includes('u')) crudOptions.update = true;
-      if(crudString.includes('d')) crudOptions.delete = true;
-  }
-  else{
-    return false;
-  }
-  return crudOptions;
+    if ((/^[crud]{1,4}$/).test(crudString)) {
+        if (crudString.includes('c')) crudOptions.create = true;
+        if (crudString.includes('r')) crudOptions.read = true;
+        if (crudString.includes('u')) crudOptions.update = true;
+        if (crudString.includes('d')) crudOptions.delete = true;
+    } else {
+        return false;
+    }
+    return crudOptions;
 };
 
 /**
@@ -80,48 +79,48 @@ const _checkForCrud = (arg) => {
  * @param {*} items
  */
 const _write = async (data) => {
-  let tableColumns , foreignKeys;
-  tableColumns = data ? data.columns : [];
-  foreignKeys = data ? data.foreignKeys : [];
+    let tableColumns, foreignKeys;
+    tableColumns = data ? data.columns : [];
+    foreignKeys = data ? data.foreignKeys : [];
 
-  let index = tableColumns.findIndex(el => el.Field == 'id')
-  // remove id key from array
-  if(index !== -1)tableColumns.splice(tableColumns,1);
-  const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
+    let index = tableColumns.findIndex(el => el.Field == 'id');
+    // remove id key from array
+    if (index !== -1) tableColumns.splice(tableColumns, 1);
+    const columnNames = tableColumns.map(elem => `'${elem.Field}'`);
 
-  const allColumns = tableColumns // TODO: do this in view
-    .map(elem => `'${elem.Field}'`)
-    .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
-  
-  if(data.createUpdate != null && data.createUpdate.createAt) allColumns.push(`'createdAt'`);  
-  if(data.createUpdate != null && data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);  
-  let promises = items.map( async (item) => {
-    // handle model template separately
-    if (item.template == 'model') return;
+    const allColumns = tableColumns // TODO: do this in view
+        .map(elem => `'${elem.Field}'`)
+        .concat(foreignKeys.map(e => `'${e.COLUMN_NAME}'`));
 
-    let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
+    if (data.createUpdate != null && data.createUpdate.createAt) allColumns.push(`'createdAt'`);
+    if (data.createUpdate != null && data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);
+    let promises = items.map(async (item) => {
+        // handle model template separately
+        if (item.template == 'model') return;
 
-    let output = ejs.compile(file)({
-      entityLowercase : lowercase,
-      entityCapitalize : capitalize,
-      options : crudOptions,
-      tableColumns,
-      allColumns,
-      lowercaseEntity,
-      capitalizeEntity,
-      foreignKeys,
-      pluralize,
-      validation : tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/) )
-    });
+        let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
 
-    await WriteFile(`${processPath}/src/api/${item.dest}/${lowercase}.${item.template}.${item.ext}`, output)
-      .then(() => {
-        Log.success(`${capitalizeEntity(item.template)} generated.`)
-      })
-      .catch(e => {
-        Log.error(`Error while ${item.template} file generating \n`);
-        Log.warning(`Check the api/${item.dest}/${lowercase}.${item.template}.${item.ext} to update`);
-      });
+        let output = ejs.compile(file)({
+            entityLowercase: lowercase,
+            entityCapitalize: capitalize,
+            options: crudOptions,
+            tableColumns,
+            allColumns,
+            lowercaseEntity,
+            capitalizeEntity,
+            foreignKeys,
+            pluralize,
+            validation: tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/))
+        });
+
+        await WriteFile(`${processPath}/src/api/${item.dest}/${lowercase}.${item.template}.${item.ext}`, output)
+            .then(() => {
+                Log.success(`${capitalizeEntity(item.template)} generated.`)
+            })
+            .catch(e => {
+                Log.error(`Error while ${item.template} file generating \n`);
+                Log.warning(`Check the api/${item.dest}/${lowercase}.${item.template}.${item.ext} to update`);
+            });
     });
 
     promises.push(routerWrite(lowercase)); // add the router write promise to the queue
@@ -134,33 +133,32 @@ const _write = async (data) => {
  *
  * @param {Array.<JSON>} items
  */
-const build = async (modelName, crudArgs , data = null) => {
-  if(!modelName.length)
-  {
-    Log.error('Nothing to generate. Please, get entity name parameter.');
-    return;
-  }
-
-  if(!crudArgs.length){
-    Log.rainbow('Warning : ','No CRUD options, set every option to true by default');
-    crudOptions.create = true;
-    crudOptions.update = true;
-    crudOptions.read = true;
-    crudOptions.delete = true;
-  }else{
-    if(!_checkForCrud(crudArgs)){
-      Log.error('Error : Wrong CRUD arguments');
-      return;
+const build = async (modelName, crudArgs, data = null) => {
+    if (!modelName.length) {
+        Log.error('Nothing to generate. Please, get entity name parameter.');
+        return;
     }
-  }
 
-  // assign false class properties
-  lowercase = lowercaseEntity(modelName);
-  capitalize = capitalizeEntity(modelName);
+    if (!crudArgs.length) {
+        Log.rainbow('Warning : ', 'No CRUD options, set every option to true by default');
+        crudOptions.create = true;
+        crudOptions.update = true;
+        crudOptions.read = true;
+        crudOptions.delete = true;
+    } else {
+        if (!_checkForCrud(crudArgs)) {
+            Log.error('Error : Wrong CRUD arguments');
+            return;
+        }
+    }
 
-  await _write(data);
+    // assign false class properties
+    lowercase = lowercaseEntity(modelName);
+    capitalize = capitalizeEntity(modelName);
 
-  Log.success('Generating task done');
+    await _write(data);
+
+    Log.success('Generating task done');
 };
 
 

@@ -3,7 +3,7 @@
  * @module New
  * @exports New
  */
-const inquirer = require('../lib/inquirer');
+const inquirer = require('./inquirer');
 const commands = require("./commands");
 const shellCmd = require('./execShellCommands');
 const chalk = require('chalk');
@@ -12,7 +12,7 @@ const operatingSystem = process.platform;
 const path = require('path');
 const fs = require('fs');
 const cmd_e = require('command-exists').sync;
-const files = require('../lib/files');
+const files = require('./files');
 var newPath = undefined;
 let dockerFile = undefined;
 let Container_name = undefined;
@@ -26,72 +26,71 @@ module.exports = {
      *   @param {boolean} docker Ask for docker env variables
      *   @param {boolean} yarn Install dependencies with yarn
      */
-    New: async (name,defaultEnv,pathOption, docker, yarn) => {
+    New: async (name, defaultEnv, pathOption, docker, yarn) => {
         console.log(
             chalk.blue(
-                figlet.textSync('NFW',{horizontalLayout: 'full', kerning: "fitted"})
+                figlet.textSync('NFW', {horizontalLayout: 'full', kerning: "fitted"})
             )
         );
 
-        if(pathOption){
+        if (pathOption) {
             newPath = await inquirer.askForNewPath();
         }
-        if(files.directoryExists(path.resolve(newPath === undefined ? process.cwd(): newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))){
+        if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
             console.log(chalk.red('Error :') + `You already have a directory name \"3rd_party_ts_boilerplate\" or "${name}" !`);
             process.exit(0);
         }
-        if(docker){
-            if(!cmd_e('docker')){
+        if (docker) {
+            if (!cmd_e('docker')) {
                 console.log(chalk.red('Error: docker is not installed on your device !'));
                 process.exit(0);
-            }
-            else{
+            } else {
                 defaultEnv = true;
                 dockerEnv = await inquirer.askForDockerVars();
                 Container_name = dockerEnv.Container_name;
-                dockerFile = "FROM mysql:5.7 \n"+
-                "SHELL [\"/bin/bash\", \"-c\"] \n"+
-                `ENV MYSQL_ROOT_PASSWORD ${dockerEnv.MYSQL_ROOT_PASSWORD} \n`+
-                `ENV MYSQL_DATABASE ${dockerEnv.MYSQL_DATABASE} \n`+
-                `EXPOSE ${dockerEnv.EXPOSE}`;
+                dockerFile = "FROM mysql:5.7 \n" +
+                    "SHELL [\"/bin/bash\", \"-c\"] \n" +
+                    `ENV MYSQL_ROOT_PASSWORD ${dockerEnv.MYSQL_ROOT_PASSWORD} \n` +
+                    `ENV MYSQL_DATABASE ${dockerEnv.MYSQL_DATABASE} \n` +
+                    `EXPOSE ${dockerEnv.EXPOSE}`;
             }
         }
         let envVar = undefined;
-        if(defaultEnv){
+        if (defaultEnv) {
             envVar = await inquirer.askForEnvVariable();
             envVar.URL = `http://localhost:${envVar.PORT}`;
         }
         const rmCommand = operatingSystem === 'win32' ? commands.rmGitWin : commands.rmGitUnix;
-        await shellCmd.execGit(commands.getGitCommands,rmCommand,name, newPath);
-        const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows: yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
-        await shellCmd.execCommand(kickstartCommand,name, newPath);
+        await shellCmd.execGit(commands.getGitCommands, rmCommand, name, newPath);
+        const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
+        await shellCmd.execCommand(kickstartCommand, name, newPath);
         await shellCmd.generateConfig(commands.getGitCommands, newPath, name);
-        if(process.cwd() !== newPath && newPath !== undefined){
-            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ")+ chalk.blue(path.resolve(newPath.path, name)));
+        if (process.cwd() !== newPath && newPath !== undefined) {
+            console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ") + chalk.blue(path.resolve(newPath.path, name)));
         }
-        if(defaultEnv){
+        if (defaultEnv) {
             const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
             const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
-            let envFileContent =await fs.readFileSync(envFilePath).toString();
-            const ormConfigRaw = fs.readFileSync(ormConfigPath)
+            let envFileContent = await fs.readFileSync(envFilePath).toString();
+            const ormConfigRaw = fs.readFileSync(ormConfigPath);
             const ormConfig = JSON.parse(ormConfigRaw);
             const variables = Object.entries(envVar);
-            ormConfig.host = variables[2][1]
-            ormConfig.port = variables[6][1]
-            ormConfig.username = variables[4][1]
-            ormConfig.password = variables[5][1]
-            ormConfig.database = variables[3][1]
+            ormConfig.host = variables[2][1];
+            ormConfig.port = variables[6][1];
+            ormConfig.username = variables[4][1];
+            ormConfig.password = variables[5][1];
+            ormConfig.database = variables[3][1];
             fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig, null, '\t'));
-            for(const [k,v] of variables){
+            for (const [k, v] of variables) {
                 let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
-                envFileContent = envFileContent.replace(reg,"$1= " + "'" +v + "'");
+                envFileContent = envFileContent.replace(reg, "$1= " + "'" + v + "'");
             }
             fs.writeFileSync(envFilePath, envFileContent)
         }
-        if(docker){
-            const projectPath = newPath === undefined ? path.resolve(process.cwd(),name, "Docker") : path.resolve(newPath.path, name, "Docker");
+        if (docker) {
+            const projectPath = newPath === undefined ? path.resolve(process.cwd(), name, "Docker") : path.resolve(newPath.path, name, "Docker");
             files.creatDirectory(projectPath);
-            await shellCmd.createDockerImage(projectPath,dockerFile,Container_name, dockerEnv.EXPOSE)
+            await shellCmd.createDockerImage(projectPath, dockerFile, Container_name, dockerEnv.EXPOSE)
         }
     },
-}
+};
