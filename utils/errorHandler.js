@@ -24,7 +24,6 @@ exports.migrateRunFail = async () =>{
       let migName = regex.exec(mig.name);
        return `${mig.timestamp}-${migName[0]}.js`;
     });
-
     files.forEach(file =>{
         if (!migrationFiles.includes(file) && file !== 'dump')
           fs.unlinkSync(`./dist/migration/${file}`);
