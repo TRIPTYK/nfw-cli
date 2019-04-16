@@ -223,78 +223,6 @@ module.exports = {
         process.exit(0);
     },
     /**
-     * @description Starts the server in the shell and display every output
-     * @param {string} environement Environement
-     */
-    startServer: async(environement, enableMonitoring) => {
-        let envFile = dotenv.parse(fs.readFileSync(`${environement}.env`));
-        let ormconfigFile = JSON.parse(fs.readFileSync(`ormconfig.json`));
-        let mergeNeeded = false;
-        if(envFile.TYPEORM_TYPE !== ormconfigFile.type){
-
-        }else if((envFile.TYPEORM_NAME != ormconfigFile.name)){
-          mergeNeeded = true;
-        }
-        if((envFile.TYPEORM_HOST != ormconfigFile.host) && !mergeNeeded){
-          mergeNeeded = true;
-        }
-        if((envFile.TYPEORM_DB != ormconfigFile.database) && !mergeNeeded){
-          mergeNeeded = true;
-        }
-        if((envFile.TYPEORM_USER != ormconfigFile.username) && !mergeNeeded){
-          mergeNeeded = true;
-        }
-        if((envFile.TYPEORM_PWD != ormconfigFile.password) && !mergeNeeded){
-          mergeNeeded = true;
-        }
-        if((parseInt(envFile.TYPEORM_PORT) != ormconfigFile.port) && !mergeNeeded){
-          mergeNeeded = true;
-        }
-
-        if(mergeNeeded){
-            ormconfigFile.name = envFile.TYPEORM_NAME;
-            ormconfigFile.host = envFile.TYPEORM_HOST;
-            ormconfigFile.database = envFile.TYPEORM_DB;
-            ormconfigFile.username = envFile.TYPEORM_USER;
-            ormconfigFile.password = (envFile.TYPEORM_PWD);
-            ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
-            fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, 1));
-            console.log(chalk.green('Successfully updated the ormconfig.json file'))
-      }
-
-        try {
-          await sqlAdaptor.tryConnect();
-        }catch(e) {
-          if (e.code == 'ER_BAD_DB_ERROR')
-          {
-              let { canCreate } = await inquirer.askForDatabaseCreation();
-              if (canCreate) {
-                await sqlAdaptor.createDatabase();
-              }
-          }else{
-            Log.error("Unhandled database connection error : exiting ...");
-            process.exit();
-          }
-        }
-
-        if (enableMonitoring) {
-          let monitoring = spawn(`node`,[`${path.resolve('monitoring','app.js')}`]);
-          monitoring.stdout.on('data', (chunk) => {
-            console.log(`Monitoring: ${chunk}`)
-          });
-        }
-
-        let executed = spawn(`ts-node-dev --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environement}`);
-
-        executed.stdout.on('data', (chunk) => {
-            console.log(chunk.toString())
-        });
-
-        executed.on('close', (code) => {
-          console.log(chalk.red(`Process exited with code ${code}`));
-        });
-    },
-    /**
      * @description Generate and execute the typeorm migration
      * @param {string} modelName Model name
      */
@@ -405,17 +333,6 @@ module.exports = {
             process.exit(0);
           });
     },
-    /**
-     * @description Create a Super User
-     * @param {string} username Super user username
-     */
-    createSuperUser: async(username) => {
-      let credentials = await sqlAdaptor.insertAdmin(username);
-      fs.writeFileSync('credentials.json',JSON.stringify({ login: credentials.login , password: credentials.password},null,2));
-      console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :'))+ "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password");
-      process.exit(0);
-    },
-
     editENVFiles: async() => {
       let files = fs.readdirSync('./');
       let envFiles = []
@@ -457,4 +374,4 @@ async function editEnvironementFile(env, chosenOne){
   let reg = /\"(.*)\":\s*(\".*\"|\d+)/gm;
   let output = envString.replace(reg,`$1 = $2`).replace('{',"").replace('}','').replace(/(,)(?!.*,)/gm,"")
   fs.writeFileSync(`${env}.env`, output);
-} 
+}
