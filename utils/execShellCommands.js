@@ -13,6 +13,7 @@ const spawn = require('cross-spawn');
 const path = require('path');
 const snake = require('to-snake-case');
 const pluralize = require('pluralize');
+const {singular,plural} = require('pluralize');
 const dotenv = require('dotenv');
 
 const generator = require("../generate/generateFromDB");
@@ -27,6 +28,7 @@ const databaseInfo = require("../generate/databaseInfo");
 const cli = require("../generate/index");
 const del = require("../generate/delete");
 const rmMod = require('./removeFromModel');
+const sql = require('../database/sqlAdaptator');
 
 const WriteFile = util.promisify(fs.writeFile);
 const operatingSystem = process.platform;
@@ -295,6 +297,8 @@ module.exports = {
             process.exit(0);
         }
         await Promise.all([rmMod.removeColumn(model1, model2), rmMod.removeColumn(model2, model1)]);
+        if(mod1plural && mod2plural) await sql.DropBridgingTable(singular(model1),singular(model2))
+        else module.exports.migrate(`${model1}-${model2}`);
         Log.success('Relation removed');
         process.exit(0);
     },

@@ -8,6 +8,7 @@ const ejs = require('ejs');
 const {capitalizeEntity, lowercaseEntity, isImportPresent, writeToFirstEmptyLine} = require('./utils');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
+const { plural } = require('pluralize');
 
 const processPath = process.cwd();
 
@@ -34,7 +35,8 @@ module.exports = async (action) => {
 
     route = ejs.compile(route)({
         entityLowercase: lowercase,
-        entityCapitalize: capitalize
+        entityCapitalize: capitalize,
+        plural
     });
 
     if (!isImportPresent(proxy, `${capitalize}Router`)) {
