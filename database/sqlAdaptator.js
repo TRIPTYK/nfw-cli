@@ -20,7 +20,7 @@ const util = require('util');
 const mysqldump = require('mysqldump');
 const chalk = require('chalk');
 const bcrypt = require('bcrypt');
-const utils = require('../generate/utils');
+const utils = require('../actions/lib/utils');
 
 var db = mysql.createConnection({
     host: env.host,

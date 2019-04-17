@@ -11,7 +11,7 @@ const addToValidations = () =>{
 
 }
 
-const addToTest = (model,column) =>{
+const addToTest = async (model,column) =>{
     //Path to .test.js file and read it
     let testPath = `${process.cwd()}/test/${model}.test.js`;
     let testFile = await ReadFile(testPath,'utf-8');
