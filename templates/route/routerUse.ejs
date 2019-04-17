@@ -1,4 +1,4 @@
 /**
  *<%- entityCapitalize %> routes
  */
-router.use('/<%- entityLowercase %>s/', <%- entityCapitalize %>Router);
+router.use('/<%- plural(entityLowercase) %>/', <%- entityCapitalize %>Router);

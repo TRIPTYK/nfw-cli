@@ -28,7 +28,7 @@ exports.newColumn = async () => {
     if (type === ':exit') return null;
     //if type need a length/width or is enum and need an array . Ask the user
     if (needLength.includes(type)) {
-        length_enum = await inquirer.lengthQuestion();
+        length_enum = await inquirer.lengthQuestion(type);
         if (length_enum.enum === ':exit') return null;
         else length = length_enum.enum
     } else if (type === 'enum') {
@@ -41,12 +41,12 @@ exports.newColumn = async () => {
             let more = await inquirer.askForConfirmation('add more Value ?');
             if (!more.confirmation) arrayDone = true;
         }
-        length = `[${length.substr(0, length.length - 1)}]`;
+        length = length.substr(0, length.length - 1);
     }
     //certain type can't have a default + unique and primary don't have a default.
     if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) def = ':no';
     else {
-        let {defaultValue} = await inquirer.questionDefault(type, length, uni);
+        let {defaultValue} = await inquirer.questionDefault(type, length);
         def = defaultValue
     }
     if (def === ':exit') return null;
@@ -70,7 +70,7 @@ exports.newColumn = async () => {
 };
 
 
-const needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint', 'char', 'binary', 'varbinary'];
+const needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint', 'char', 'binary', 'varbinary','decimal'];
 
 /**
  * @description Ask for createAt,updateAt column then for a new column until user is done

@@ -73,13 +73,15 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
-    lengthQuestion: () => {
+    lengthQuestion: (type) => {
         const question = {
             type: 'input',
             name: 'enum',
             message: 'what\'s the data length ?',
             validate: value => {
                 let pass = value.match(/[0-9]+$/);
+                let rgxDec = value.match(/^\d+,\d+$/);
+                if(type === 'decimal') return rgxDec ? true : 'for decimal type, lenght must be [precision],[scale]';
                 if (value === ':exit') return true;
                 if (value < 0) return "length can't be negative";
                 return pass ? true : "You must provide a number !";
@@ -147,13 +149,11 @@ module.exports = {
         ];
         return inquirer.prompt(questionsParams);
     },
-    questionDefault: (type, enumArray, nullable) => {
+    questionDefault: (type, enumArray) => {
         let questionType;
-        enumArray.includes('[') ? questionType = 'list' : questionType = 'input';
-        enumArray = enumArray.substr(1, enumArray.length - 2);
+        type ==='enum' ? questionType = 'list' : questionType = 'input';
         enumArray = enumArray.split(',');
         if (Array.isArray(enumArray)) enumArray.push('Cancel current column');
-        if (nullable) enumArray.unshift('null');
         const questionsParams = [
             {
                 type: questionType,

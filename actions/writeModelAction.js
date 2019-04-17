@@ -28,12 +28,11 @@ const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lo
  */
 const _getDefault = (col) => {
     let sqlFunction = ['CURRENT_TIMESTAMP', 'GETDATE', 'GETUTCDATE', 'SYSDATETIME'];
-    if (col.Default === 'null' || col.Default === ':no' || col.Default === null && !(col.key === 'UNI' || col.Key === 'PRI')) {
+    if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')) return '';
+    else if (col.Default === 'null'  || col.Default === null && !(col.key === 'UNI' || col.Key === 'PRI')) {
         if (col.Null !== 'nullable:false,') return 'default : null';
         else return ''
-    } else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type === 'double' || col.Type.type === 'decimal') return `default : ${col.Default}`;
-    else if (col.Default === ':no' || col.Type.type.includes('blob') || col.Type.type.includes('json') || col.Type.type.includes('text')) return '';
-    else if (col.key === 'UNI' || col.Key === 'PRI') return '';
+    } else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type === 'double' || col.Type.type === 'decimal' || col.Type.type === 'enum') return `default : ${col.Default}`;
     else if ((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))) return ` default : () => "${col.Default}"`;
     else return `default :\`${col.Default}\``;
 
@@ -93,10 +92,14 @@ const _getKey = data => {
  * @param info
  */
 const _getLength = (info) => {
-    if (info.type === "enum") return `enum  : ${info.length},`;
+    if (info.type === "enum")return `enum  :  [${info.length}],`;  
+    if(info.type === 'decimal'){
+      values = info.length.split(',');
+      return `precision :${values[0]},\n    scale:${values[1]},`
+    }
     if (info.length !== undefined && info.length !== '') {
         if (info.type.includes('int')) return `width : ${info.length},`;
-        if ((info.type.includes('date') || info.type.includes('time'))) return `precision : ${info.length},`;
+        if (info.type.includes('date') || info.type.includes('time') || info.type === 'year') return `precision : ${info.length},`;
         return `length : ${info.length},`;
     }
     return "";

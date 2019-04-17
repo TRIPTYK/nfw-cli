@@ -35,6 +35,8 @@ const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn, writeToFirstEmptyL
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 
+const kebabCase = require('kebab-case');
+
 const crudOptions = {
     create: false,
     read: false,
@@ -140,6 +142,7 @@ const _write = async (data) => {
             capitalizeEntity,
             foreignKeys,
             pluralize,
+            kebabCase,
             validation: tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/))
         });
 

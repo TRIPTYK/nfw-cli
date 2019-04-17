@@ -119,7 +119,7 @@ exports.lowercaseEntity = (entity) => entity[0].toLowerCase() + entity.substr(1)
  * @description transform an sql type string to an object with type and length
  * @param {string} type
  */
-exports.sqlTypeData = (type) => /(?<type>\w+)(?:\((?<length>\d+)\))?/.exec(type).groups;
+exports.sqlTypeData = (type) => /(?<type>\w+)(?:\((?<length>.+)\))?/.exec(type).groups;
 
 /**
  * @description check if file exists

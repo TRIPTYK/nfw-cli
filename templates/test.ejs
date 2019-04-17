@@ -50,7 +50,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .send({
         data : {
           attributes : { <% tableColumns.forEach(column => { %>
-              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- (column.Type.type === 'enum' && column.Type.length != undefined && !column.Type.length.includes('[') )? `[${column.Type.length}]` : column.Type.length  %>),<% -%>
             <% }); %>
           }
         }
@@ -59,7 +59,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         let status = res.status | res.statusCode;
         expect(status).to.equal(201);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
         );
         id = res.body.data.id;
         done();
@@ -79,7 +79,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
         );
         done();
       })
@@ -99,7 +99,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .send({
         data : {
           attributes : { <% tableColumns.forEach(column => { %>
-              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- (column.Type.type === 'enum' && column.Type.length != undefined && !column.Type.length.includes('[') )? `[${column.Type.length}]` : column.Type.length %>),<% -%>
             <% }); %>
           }
         }
@@ -108,7 +108,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
         );
         done();
       })
@@ -128,7 +128,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
       .send({
         data : {
           attributes : { <% tableColumns.forEach(column => { %>
-              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- column.Type.length %>),<% -%>
+              <%- column.Field %> : fixtures.random<%- column.Type.type %>(<%- (column.Type.type === 'enum')? `[${column.Type.length}]` : column.Type.length  %>),<% -%>
             <% }); %>
           }
         }
@@ -137,7 +137,7 @@ describe("<%- entityCapitalize %> CRUD", function () {
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${col.Field.replace(/_/g,"-")}'`) %>
+          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
         );
         done();
       })

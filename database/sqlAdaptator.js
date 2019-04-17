@@ -20,6 +20,7 @@ const util = require('util');
 const mysqldump = require('mysqldump');
 const chalk = require('chalk');
 const bcrypt = require('bcrypt');
+const utils = require('../generate/utils');
 
 var db = mysql.createConnection({
     host: env.host,
@@ -202,3 +203,26 @@ exports.createDatabase = async () => {
     const tmpQuery = util.promisify(tmpConnection.query.bind(tmpConnection));
     return await tmpQuery(`CREATE DATABASE IF NOT EXISTS ${env.database}`);
 };
+
+
+/**
+ * @param {string} dbType
+ * @param {string} tableName
+ * @description call getColumns function in correct adapator to get data of columns
+ * @returns {object} data of a table
+ */
+exports.getTableInfo = async (tableName) => {
+        let p_columns = module.exports.getColumns(tableName);
+        let p_foreignKeys = module.exports.getForeignKeys(tableName);
+        let [columns, foreignKeys] = await Promise.all([p_columns, p_foreignKeys]);
+        return {columns, foreignKeys};
+};
+
+exports.DropBridgingTable = async (model1,model2) => {
+    let result = await query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
+    WHERE CONSTRAINT_SCHEMA = 'testType' 
+    AND (REFERENCED_TABLE_NAME ='${model1}' 
+    OR REFERENCED_TABLE_NAME='${model2}');
+  `) 
+   for(let i=0 ; i<result.length ; i++) if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
+}

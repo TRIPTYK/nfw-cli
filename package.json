@@ -28,12 +28,15 @@
     "ejs": "^2.6.1",
     "figlet": "^1.2.1",
     "inquirer": "^6.2.2",
+    "kebab-case": "^1.0.0",
     "mysql": "^2.16.0",
     "mysqldump": "^2.2.1",
     "pluralize": "^7.0.0",
     "reserved-words": "^0.1.2",
     "rimraf": "^2.6.3",
     "to-snake-case": "^1.0.0",
+    "ts-node": "^8.1.0",
+    "ts-node-dev": "^1.0.0-pre.32",
     "yargs": "^13.2.1"
   }
 }
