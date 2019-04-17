@@ -3,7 +3,7 @@
  * @exports getTableInfo
  * @exports tableExistsInDB
  */
-const sqlAdaptator = require('../database/sqlAdaptator');
+const sqlAdaptator = require('./sqlAdaptator');
 const Log = require('../utils/log');
 
 /**

@@ -1,7 +1,6 @@
 /**
  * node modules imports
  */
-const yargs = require('yargs');
 const chalk = require('chalk');
 const fs = require('fs');
 
@@ -16,7 +15,7 @@ exports.aliases = ['csu'];
 
 exports.describe = 'Create a Super User and save the credentials in a file';
 
-exports.builder = (yargs) => {
+exports.builder = () => {
 };
 
 exports.handler = async (argv) => {
@@ -34,4 +33,6 @@ exports.handler = async (argv) => {
         chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :')) +
         "You have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password"
     );
+
+    process.exit(0);
 };

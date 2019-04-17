@@ -4,16 +4,15 @@
  * @exports dbParams
  * @exports columnParams
  */
-const inquirer = require('./inquirer');
+const inquirer = require('../../utils/inquirer');
 const colors = require('colors/safe');
 let columnWritten = [];
 
 /**
  * @description Ask every questions about the column
- * @param {string} entity Model name
  * @returns {Array}
  */
-exports.newColumn = async (entity) => {
+exports.newColumn = async () => {
     //if any answer of the question is :exit , cancel current column
     let length = '', def, uni, paramsTemp, paramsArray = [], length_enum, arrayDone = false;
     let {columnName} = await inquirer.questionColumnName(columnWritten);
@@ -89,8 +88,8 @@ exports.dbParams = async (entity) => {
         //ask the user the column to add to his entity until user is done
         let data = await module.exports.newColumn(entity).catch(e => console.log(e.message));
         //add value to array that will be returned if value is not null
-        if (data != null && data.columns != undefined) paramsArray['columns'].push(data.columns);
-        if (data != null && data.foreignKeys != undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
+        if (data != null && data.columns !== undefined) paramsArray['columns'].push(data.columns);
+        if (data != null && data.foreignKeys !== undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
         console.clear();
         let {confirmation} = await inquirer.askForConfirmation("Want to add more column ? ");
         if (!confirmation) isDoneColumn = true;

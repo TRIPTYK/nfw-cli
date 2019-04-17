@@ -6,8 +6,8 @@
  * @exports _unconfig
  * @exports _unroute
  */
-const {items} = require('./resources');
-const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./utils');
+const {items} = require('../static/resources');
+const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
 const FS = require('fs');
 const Log = require('../utils/log');
 const Util = require('util');

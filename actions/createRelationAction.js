@@ -3,7 +3,7 @@ const Util = require('util');
 const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const {modelFileExists, columnExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('../generate/utils');
+const {modelFileExists, columnExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./lib/utils');
 const pluralize = require('pluralize');
 
 // documents : {
@@ -157,7 +157,7 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
  * @param {String} refCol for Oto only , name of the referenced column in the foreign key (must be primary or unique)
  * @description  Create a reliationship between 2 models
  */
-exports.createRelation = async (model1, model2, relation, name, refCol) => {
+module.exports = async (model1, model2, relation, name, refCol) => {
     model1 = lowercaseEntity(model1);
     model2 = lowercaseEntity(model2);
     if (!modelFileExists(model1) || !modelFileExists(model2)) throw new Error("Both model should exist in order to create a many to many relationship");

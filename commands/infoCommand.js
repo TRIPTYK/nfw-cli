@@ -1,7 +1,6 @@
 /**
  * node modules
  */
-const yargs = require('yargs');
 const chalk = require('chalk');
 
 exports.command = 'info';
@@ -9,10 +8,11 @@ exports.aliases = ['i'];
 
 exports.describe = 'Show the information about the developers';
 
-exports.builder = (yargs) => {
+exports.builder = () => {
+
 };
 
-exports.handler = (argv) => {
+exports.handler = () => {
     console.log(
         chalk.bgGreen('Made by :') +
         "\n Amaury Deflorenne <https://github.com/AmauryD>" +

@@ -2,12 +2,11 @@ const Util = require('util');
 const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const {lowercaseEntity} = require('../generate/utils');
 const {singular, isSingular, plural} = require('pluralize');
 
 /**
  * @description  Remove relationship from serializer and controller
- * @param {string} model Model name
+ * @param entity
  * @param {string} column relation name
  */
 const removefromRelationTable = async (entity, column) => {
@@ -53,7 +52,7 @@ const removeFromValidation = async (model, column) => {
  * @param {string} model Model name
  * @param {string} column Column name
  */
-exports.removeColumn = async (model, column) => {
+module.exports = async (model, column) => {
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
     let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);

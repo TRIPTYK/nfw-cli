@@ -17,7 +17,7 @@ const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
-const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./utils');
+const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./lib/utils');
 
 
 /**
@@ -112,7 +112,7 @@ const _getLength = (info) => {
 exports.writeModel = async (action, data = null) => {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
-    let p_file = await ReadFile(`${__dirname}/templates/model/model.ejs`, 'utf-8');
+    let p_file = await ReadFile(`${__baseDir}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
     let {columns, foreignKeys} = data;
 
@@ -135,7 +135,7 @@ exports.writeModel = async (action, data = null) => {
         col.length = _getLength(col.Type);
         entities.push(col);
     });
-    let output = ejs.compile(p_file, {root: `${__dirname}/templates/`})({
+    let output = ejs.compile(p_file, {root: `${__baseDir}/templates/`})({
         entityLowercase: lowercase,
         entityCapitalize: capitalize,
         entities,
@@ -156,7 +156,7 @@ exports.basicModel = async (action) => {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-    let modelTemp = await ReadFile(`${__dirname}/templates/model/model.ejs`);
+    let modelTemp = await ReadFile(`${__baseDir}/templates/model/model.ejs`);
     let basicModel = ejs.compile(modelTemp.toString())({
         entityLowercase: lowercase,
         entityCapitalize: capitalize,
@@ -197,7 +197,7 @@ const writeSerializer = async (model, column) => {
  */
 exports.addColumn = async (model, data) => {
     let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-    let [columnTemp, modelFile] = await Promise.all([ReadFile(`${__dirname}/templates/model/_column.ejs`), ReadFile(pathModel)]);
+    let [columnTemp, modelFile] = await Promise.all([ReadFile(`${__baseDir}/templates/model/_column.ejs`), ReadFile(pathModel)]);
     if (data == null) throw  new Error('Column cancelled');
     if (await columnExist(model, data.columns.Field)) throw new Error('Column already added');
     let entity = data.columns;

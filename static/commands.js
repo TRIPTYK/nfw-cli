@@ -3,19 +3,6 @@
  * @module commands
  */
 module.exports = {
-    getGitCommands: {
-        init: "git init",
-        clone: "git clone https://github.com/TRIPTYK/3rd-party-ts-boilerplate.git",
-        currentDirectory: "cd "
-    },
-    rmGitUnix: {
-        rmGit: "rm -rf .git",
-        rename: "mv 3rd-party-ts-boilerplate "
-    },
-    rmGitWin: {
-        rmGit: "rmdir /Q /S .git",
-        rename: "rename 3rd-party-ts-boilerplate "
-    },
     getNPMCommandsUnix: {
         currentDirectory: "cd ",
         kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript -g && npm i typeorm -g && npm i && tsc",

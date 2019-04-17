@@ -18,26 +18,22 @@ const Util = require('util');
  * Get the informations about the templates generation
  * @returns {Array.<JSON>} Return an array of json object
  */
-const {items} = require('./resources');
+const {items} = require('../../static/resources');
 /**
  * Requirement of the logs library
  *@description Define function to simplify console logging
  */
-const Log = require('../utils/log');
+const Log = require('../../utils/log');
 /**
  * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
  */
-const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn} = require('./utils');
+const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn, writeToFirstEmptyLine, isImportPresent} = require('./utils');
 /**
  * Transform a async method to a promise
  * @returns {Promise} returns FS.exists async function as a promise
  */
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-/**
- * Requirement of the library readline
- */
-const routerWrite = require('./routerWrite');
 
 const crudOptions = {
     create: false,
@@ -71,6 +67,44 @@ const _checkForCrud = (arg) => {
     return crudOptions;
 };
 
+const _routerWrite = async () => {
+    let proxyPath = `${processPath}/src/api/routes/v1/index.ts`;
+    let routeUsePath = `${__baseDir}/templates/route/routerUse.ejs`;
+
+    let p_proxy = ReadFile(proxyPath, 'utf-8');
+    let p_route = ReadFile(routeUsePath, 'utf-8');
+    let [proxy, route] = await Promise.all([p_proxy, p_route]); //wait for countlines and read to finish
+
+    route = ejs.compile(route)({
+        entityLowercase: lowercase,
+        entityCapitalize: capitalize
+    });
+
+    if (!isImportPresent(proxy, `${capitalize}Router`)) {
+        let output = writeToFirstEmptyLine(proxy, `import { router as ${capitalize}Router } from "./${lowercase}.route";\n`)
+            .replace(/^\s*(?=.*export.*)/m, `\n\n${route}\n\n`); // inserts route BEFORE the export statement , eliminaing some false-positive
+
+        try {
+            await WriteFile(proxyPath, output)
+                .then(() => {
+                    Log.success(`Proxy router file updated.`);
+                    Log.success(`Files generating done.`);
+                });
+        } catch (e) { // try-catch block needed , otherwise we will need to launch an async function in catch()
+            console.log(e.message);
+            console.log('Original router file will be restored ...');
+            await WriteFile(proxyPath, proxy)
+                .catch(e => Log.error(e.message));
+            Log.success(`Original router file restoring done.`);
+            Log.success(`Files generating done.`);
+            Log.warning(`Check the api/routes/v1/index.ts to update`);
+        }
+    } else {
+        Log.info(`Proxy router already contains routes for this entity : routes/v1/index.ts generating ignored.`);
+        Log.success(`Files generating done.`);
+    }
+};
+
 /**
  * @description replace the vars in placeholder in file and creates them
  * @param data
@@ -94,7 +128,7 @@ const _write = async (data) => {
         // handle model template separately
         if (item.template === 'model') return;
 
-        let file = await ReadFile(`${__dirname}/templates/${item.template}.ejs`, 'utf-8');
+        let file = await ReadFile(`${__baseDir}/templates/${item.template}.ejs`, 'utf-8');
 
         let output = ejs.compile(file)({
             entityLowercase: lowercase,
@@ -119,7 +153,7 @@ const _write = async (data) => {
             });
     });
 
-    promises.push(routerWrite(lowercase)); // add the router write promise to the queue
+    promises.push(_routerWrite()); // add the router write promise to the queue
     await Promise.all(promises); // wait for all async to finish
 };
 

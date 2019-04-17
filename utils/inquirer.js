@@ -3,7 +3,7 @@
  */
 const inquirer = require('inquirer');
 const files = require('./files');
-const utils = require("../generate/utils");
+const utils = require("../actions/lib/utils");
 
 /**
  * @module inquirer

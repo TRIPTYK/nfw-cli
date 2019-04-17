@@ -15,3 +15,11 @@ exports.items = [
     {template: 'middleware', dest: 'middlewares', ext: 'ts'},
     {template: 'model', dest: 'models', ext: 'ts'},
 ];
+
+/**
+ *
+ * @type {string[]}
+ */
+exports.noGenerate = [
+    'user', 'document', 'refresh_token', 'migration_table'
+];
