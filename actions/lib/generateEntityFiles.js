@@ -9,6 +9,7 @@
 const FS = require('fs');
 const ejs = require('ejs');
 const pluralize = require('pluralize');
+const { plural } = require('pluralize');
 /**
  * Requirement of the library Utils
  * @description Needed to promisify async methods
@@ -79,7 +80,8 @@ const _routerWrite = async () => {
 
     route = ejs.compile(route)({
         entityLowercase: lowercase,
-        entityCapitalize: capitalize
+        entityCapitalize: capitalize,
+        plural
     });
 
     if (!isImportPresent(proxy, `${capitalize}Router`)) {
