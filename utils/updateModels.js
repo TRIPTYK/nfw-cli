@@ -1,4 +1,4 @@
-const Log = require('../generate/log');
+const Log = require('../utils/log');
 const Util = require('util');
 const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
@@ -12,7 +12,7 @@ const addToValidations = () =>{
 }
 
 const addToTest = (model,column) =>{
-    // Path to .test.js file and read it
+    //Path to .test.js file and read it
     let testPath = `${process.cwd()}/test/${model}.test.js`;
     let testFile = await ReadFile(testPath,'utf-8');
 
