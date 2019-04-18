@@ -31,5 +31,19 @@ exports.handler = async (argv) => {
         process.exit(0);
     }
 
-    generateAction(modelName, crud);
+    let crudOptions = {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+    };
+
+    if ((/^[crud]{1,4}$/).test(crud)) {
+        crudOptions.create = crud.includes('c');
+        crudOptions.read = crud.includes('r');
+        crudOptions.update = crud.includes('u');
+        crudOptions.delete = crud.includes('d');
+    }
+
+    generateAction(modelName, crudOptions);
 };
