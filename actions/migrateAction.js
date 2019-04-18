@@ -19,16 +19,16 @@ module.exports = async (modelName) => {
     migrate.start();
 
     await exec(`tsc`)
-        .then(() => console.log(chalk.green("Compiled successfully")))
+        .then(() => Log.success(chalk.green("Compiled successfully")))
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
     await exec(`typeorm migration:generate -n ${modelName}`)
-        .then(() => console.log(chalk.green("Migration generated successfully")))
+        .then(() => Log.success(chalk.green("Migration generated successfully")))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
     await exec(`tsc`)
         .then(() => {
-            Log.success("Compiled successfully");
+            Log.success(chalk.green("Compiled successfully"));
             rimraf('./src/migration').catch((e) => {
                 console.log("Could not delete non-compiled migration because :" + e.message);
             });
