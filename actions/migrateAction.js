@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const rimraf = util.promisify(require('rimraf'));
 const exec = util.promisify(require('child_process').exec);
 const {Spinner} = require('clui');
+const path = require('path');
 
 /**
  * Project modules
@@ -22,7 +23,7 @@ module.exports = async (modelName) => {
         .then(() => Log.success(chalk.green("Compiled successfully")))
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
-    await exec(`typeorm migration:generate -n ${modelName}`)
+    await exec(`${path.resolve('node_modules','.bin','typeorm')} migration:generate -n ${modelName}`)
         .then(() => Log.success(chalk.green("Migration generated successfully")))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
@@ -35,7 +36,7 @@ module.exports = async (modelName) => {
         })
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
-    await exec(`typeorm migration:run`)
+    await exec(`${path.resolve('node_modules','.bin','typeorm')}  migration:run`)
         .then(() => console.log(chalk.green("Migration executed successfully")))
         .catch(async e => {
             Log.error(`Failed to execute migration : ${e.message}`);

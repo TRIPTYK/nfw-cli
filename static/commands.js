@@ -5,7 +5,7 @@
 module.exports = {
     getNPMCommandsUnix: {
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript -g && npm i typeorm -g && npm i && tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript && npm i typeorm && npm i && ./node_modules/.bin/tsc",
         compileTypeScript: "tsc",
         test: "npm run testUnix"
     },
@@ -17,7 +17,7 @@ module.exports = {
     },
     getYarnCommandsUnix: {
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --dev && yarn global add typescript --dev && yarn global add typeorm --dev && yarn && tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --dev && yarn add typescript --dev && yarn add typeorm --dev && yarn && ./node_modules/.bin/tsc",
         compileTypeScript: "tsc",
         test: "yarn run testUnix"
     },
