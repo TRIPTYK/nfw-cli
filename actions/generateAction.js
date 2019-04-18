@@ -17,8 +17,6 @@ const migrateAction = require('./migrateAction');
  * @returns {Promise<void>}
  */
 module.exports = async (modelName, crud) => {
-    console.log(modelName);
-
     modelName = snake(modelName);
     const modelExists = await utils.modelFileExists(modelName);
     let override = true;

@@ -103,6 +103,7 @@ const _unconfig = async () => {
  * @constructor
  */
 module.exports = async (action, drop) => {
+    action = snake(action);
     //constructor behavior
     capitalize = capitalizeEntity(action);
     lowercase = lowercaseEntity(action);

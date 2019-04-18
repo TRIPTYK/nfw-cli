@@ -34,7 +34,6 @@ module.exports = async () => {
     let Bridgings = [], foreignConstraint = [];
     let [tables, tablesIn] = await Promise.all([p_tables, p_tablesIn]);
     for (let j = 0; j < tables.length; j++) {
-        if (noGenerate.includes(tables[j][tablesIn])) continue;
         let {columns, foreignKeys} = await databaseInfo.getTableInfo("sql", tables[j][tablesIn]);
         entityModelData = {columns, foreignKeys};
         if (utils.isBridgindTable(entityModelData)) {
@@ -43,6 +42,7 @@ module.exports = async () => {
         }
         for (let j = 0; j < columns.length; j++) columns[j].Type = utils.sqlTypeData(columns[j].Type);
         for (let j = 0; j < foreignKeys.length; j++) foreignConstraint.push(foreignKeys[j]);
+        if (noGenerate.includes(tables[j][tablesIn])) continue; 
         await modelWrite.writeModel(tables[j][tablesIn], entityModelData)
             .catch(e => {
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);

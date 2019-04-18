@@ -57,15 +57,14 @@ module.exports = async (model, column) => {
     let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
     let pathModel = `${process.cwd()}/src/api/models/${singular(model)}.model.ts`;
-    let modelFile = await ReadFile(pathModel);
-    let isRelation = false;
-    let newModel;
-    if (modelFile.toString().match(regexColumn)) newModel = modelFile.toString().replace(regexColumn, '');
-    else if (modelFile.toString().match(regexMany)) {
-        newModel = modelFile.toString().replace(regexMany, '');
+    let modelFile = await ReadFile(pathModel,'utf-8');
+    let isRelation = false;  
+    if (modelFile.match(regexColumn)) newModel = modelFile.toString().replace(regexColumn, '');
+    else if (modelFile.match(regexMany)) {
+        modelFile = modelFile.replace(regexMany, '');
         isRelation = true;
-    } else if (modelFile.toString().match(regexOne)) {
-        newModel = modelFile.toString().replace(regexOne, '');
+    } else if (modelFile.match(regexOne)) {
+        modelFile = modelFile.replace(regexOne, '');
         isRelation = true;
     } else throw new Error('Column doesn\'t exist');
     let toExec = [WriteFile(pathModel, newModel), removeFromSerializer(model, column), removefromRelationTable(model, column)];
