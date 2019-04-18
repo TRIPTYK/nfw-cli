@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const spawn = require('cross-spawn');
 const fs = require('fs');
 const path = require('path');
+const chalk = require('chalk');
 
 /**
  * Project modules

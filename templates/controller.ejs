@@ -61,7 +61,7 @@ export class <%- entityCapitalize %>Controller extends BaseController {
       res.status( HttpStatus.CREATED );
       res.json( new <%- entityCapitalize %>Serializer().serialize(saved) );
     }
-    catch (e) { next( e.message ); }
+    catch (e) { next(e); }
   }
 <% } %>
 
@@ -76,16 +76,16 @@ export class <%- entityCapitalize %>Controller extends BaseController {
    * @public
    */
   public async update (req: Request, res : Response, next: Function) {
-
     try {
       const repository = getRepository(<%- entityCapitalize %>);
       const <%- entityLowercase %> = await repository.findOne(req.params.id);
       if (!<%- entityLowercase %>) throw Boom.notFound();
+
       repository.merge(<%- entityLowercase %>, req.body);
       repository.save(<%- entityLowercase %>);
       res.json(new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>) );
     }
-    catch(e) { next( e.message ); }
+    catch(e) { next(e ); }
 
   };
 <% } %>

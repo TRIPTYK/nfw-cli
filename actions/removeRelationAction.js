@@ -1,5 +1,4 @@
 const pluralize = require('pluralize');
-const Log = require('../utils/log');
 const utils = require('./lib/utils');
 const removeFromModel = require('./lib/removeFromModel');
 const Log = require('../utils/log');
