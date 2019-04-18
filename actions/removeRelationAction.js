@@ -1,5 +1,5 @@
 const pluralize = require('pluralize');
-
+const Log = require('../utils/log');
 const utils = require('./lib/utils');
 const removeFromModel = require('./lib/removeFromModel');
 
@@ -23,7 +23,7 @@ module.exports = async (model1, model2) => {
         process.exit(0);
     }
 
-    await Promise.all([removeFromModel.removeColumn(model1, model2), removeFromModel.removeColumn(model2, model1)]);
+    await Promise.all([removeFromModel(model1, model2), removeFromModel(model2, model1)]);
     Log.success('Relation removed');
     process.exit(0);
 };
