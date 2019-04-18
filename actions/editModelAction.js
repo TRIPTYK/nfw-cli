@@ -4,7 +4,7 @@ const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
 
 module.exports = async (action, model, column = null) => {
-    if (action === 'remove') await removeColumn(model, column)
+    if (action === 'remove') await removeColumn(model, column,false)
         .then(() => Log.success('Column successfully removed'))
         .catch(err => Log.error(err.message));
 

@@ -14,7 +14,7 @@
 const inquirer = require('../utils/inquirer');
 const databaseInfo = require('../database/databaseInfo');
 const modelWrite = require('./writeModelAction');
-const index = require('./generateAction');
+const generateEntityFiles = require('./lib/generateEntityFiles');
 const utils = require('./lib/utils');
 const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
@@ -48,7 +48,7 @@ module.exports = async () => {
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                 process.exit(1);
             });
-        await index(tables[j][tablesIn], 'crud', entityModelData);
+        await generateEntityFiles(tables[j][tablesIn], 'crud', entityModelData);
     }
     await _BridgingTableHander(Bridgings);
     await _RelationHandler(foreignConstraint);
