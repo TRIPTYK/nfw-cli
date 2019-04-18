@@ -10,6 +10,7 @@ const generateEntityFiles = require('./lib/generateEntityFiles');
 const chalk = require('chalk');
 const migrateAction = require('./migrateAction');
 const Log = require('../utils/log');
+
 /**
  *
  * @param modelName

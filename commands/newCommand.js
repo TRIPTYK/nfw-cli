@@ -51,5 +51,5 @@ exports.handler = (argv) => {
         process.exit(0);
     }
 
-    newAction(name, defaultEnv, useDifferentPath, setupDocker, useYarn);
+    newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn);
 };
