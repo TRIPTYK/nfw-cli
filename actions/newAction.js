@@ -89,6 +89,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     if (process.cwd() !== newPath && newPath !== undefined) {
         console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ") + chalk.blue(path.resolve(newPath.path, name)));
     }
+
     if (defaultEnv) {
         const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
         const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
@@ -108,6 +109,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         }
         fs.writeFileSync(envFilePath, envFileContent)
     }
+
     if (docker) {
         const projectPath = newPath === undefined ? path.resolve(process.cwd(), name, "Docker") : path.resolve(newPath.path, name, "Docker");
         files.createDirectory(projectPath);
