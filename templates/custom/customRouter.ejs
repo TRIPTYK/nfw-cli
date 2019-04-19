@@ -1,0 +1,26 @@
+<%# Custom route template
+   params :
+    @controllerName
+    @routes
+      @path
+      @methods
+          @method
+          @authorization
+          @controllerMethod
+-%>
+import { Router } from "express";
+import { authorize, ADMIN, LOGGED_USER } from "./../../middlewares/auth.middleware";
+import { <%- capitalizeEntity(controllerName) %>Controller } from "./../../controllers/<%- controllerName %>.controller";
+
+const router = Router();
+const <%- controllerName %>Controller = new <%- capitalizeEntity(controllerName) %>Controller();
+
+<% routes.forEach((route) => { %>
+    router
+    .route('<%- route.path %>')
+    <% route.methods.forEach((method) => { -%>
+        .<%- method.method %>(<% if (method.authorization) { %>authorize([<%- method.authorization %>]),<% } %><%- controllerName %>Controller.<%- method.controllerMethod %>)
+    <% }); -%>
+<% }); %>
+
+export { router };

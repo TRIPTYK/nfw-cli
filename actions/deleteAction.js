@@ -14,6 +14,7 @@ const Util = require('util');
 const ReadFile = Util.promisify(FS.readFile);
 const Unlink = Util.promisify(FS.unlink);
 const WriteFile = Util.promisify(FS.writeFile);
+const snake = require('to-snake-case');
 const SqlAdaptator = require('../database/sqlAdaptator');
 
 // simulate class properties

@@ -75,8 +75,9 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 
     await _gitCloneAndRemove(name);
     const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
+    console.time("Execution time");
     await _kickStart(kickstartCommand, name, newPath);
-
+    console.timeEnd("Execution time")
     const config = {
         name: name,
         path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name)

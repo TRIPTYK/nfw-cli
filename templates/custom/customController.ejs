@@ -1,0 +1,30 @@
+<%# Custom controller template
+   params :
+    @controllerName
+    @methods
+      @name
+-%>
+import * as HttpStatus from "http-status";
+
+import * as Boom from "boom";
+import { Request, Response } from "express";
+import { BaseController } from "./base.controller";
+
+export class <%- capitalizeEntity(controllerName) %>Controller extends BaseController {
+/** */
+constructor() { super(); }
+<% methods.forEach((method) => { %>
+    /**
+    * @param {Object} req
+    * @param {Object} res
+    * @param {Function} next
+    */
+    public async <%- method.name %>(req: Request, res : Response, next: Function) {
+    try {
+    throw Boom.notImplemented();
+    }catch(e) {
+    next(e);
+    }
+    }
+<% }); %>
+}

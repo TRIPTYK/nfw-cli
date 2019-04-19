@@ -6,7 +6,6 @@ const spawn = require('cross-spawn');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-
 /**
  * Project modules
  */
@@ -80,7 +79,7 @@ module.exports = async (environment, monitoringEnabled) => {
 
     }
 
-    let executed = spawn(`ts-node-dev --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environment}`);
+    let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')} --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environment}`);
 
     executed.stdout.on('data', (chunk) => {
         console.log(chunk.toString())

@@ -30,21 +30,46 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
-    askForProjectName: () => {
-        const question = {
-            name: 'name',
-            type: 'input',
-            message: 'Please enter a name for your project :',
-            validate: function (value) {
-                if (value.length) {
-                    return true;
-                } else {
-                    return 'Please enter a name for your project';
-                }
+
+    /**
+     * CUSTOM ROUTES QUESTIONS
+     */
+    askRoutePath: () => {
+        const question =
+            {
+                name: 'routePath',
+                type: 'input',
+                message: 'Please enter the route path',
+                default: '/'
             }
-        };
+        ;
         return inquirer.prompt(question);
     },
+    askRouteData: () => {
+        const question = [
+            {
+                name: 'routeMethod',
+                type: 'list',
+                message: 'Route method',
+                default: '/',
+                choices: ['get', 'post', 'put', 'patch', 'delete']
+            },
+            {
+                name: 'controllerMethod',
+                type: 'input',
+                message: 'Route controller method',
+                choices: ['get', 'post', 'put', 'patch', 'delete']
+            },
+            {
+                name: 'routeAuthorization',
+                type: 'list',
+                message: 'Route authorization level',
+                choices: ['ADMIN', 'LOGGED_USER', 'GHOST'],
+            }
+        ];
+        return inquirer.prompt(question);
+    },
+
     askForDatabaseCreation: () => {
         const question = {
             name: 'canCreate',
