@@ -17,6 +17,6 @@ module.exports = async (action, model, column = null) => {
             .then(() => Log.success('Column successfully added'))
             .catch(err => Log.error(err));
     }
-
+    await migrate(`${action}-in-${model}`)
     process.exit(0);
 };
