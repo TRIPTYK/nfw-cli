@@ -57,7 +57,6 @@ const _addToController = async (entity, column) => {
     let regex = new RegExp(`(];)`, 'gm');
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
-    let fileContent = fileContent;
     if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
     await WriteFile(serializer, fileContent).then(Log.success(`${column} controller updated`));
 };
