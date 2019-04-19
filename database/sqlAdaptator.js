@@ -21,6 +21,7 @@ const mysqldump = require('mysqldump');
 const chalk = require('chalk');
 const bcrypt = require('bcrypt');
 const utils = require('../actions/lib/utils');
+const {singular} = require('pluralize');
 
 var db = mysql.createConnection({
     host: env.host,
@@ -219,6 +220,8 @@ exports.getTableInfo = async (tableName) => {
 };
 
 exports.DropBridgingTable = async (model1,model2) => {
+    model1 = singular(model1);
+    model2 = singular(model2)
     let result = await query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
     WHERE CONSTRAINT_SCHEMA = 'testType' 
     AND (REFERENCED_TABLE_NAME ='${model1}' 

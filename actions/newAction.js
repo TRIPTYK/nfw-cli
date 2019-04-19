@@ -115,14 +115,22 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         files.createDirectory(projectPath);
 
         fs.writeFileSync(path.resolve(projectPath, "dockerfile"), dockerFile);
-        await exec(`docker build ${projectPath} -t ${Container_name.toLowerCase()}`);
-        try {
-            await exec(`docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name}`);
+        exec(`docker build ${projectPath} -t ${Container_name.toLowerCase()}`)
+        .then(()=> {
+            console.log(`Image Build and named: ${Container_name}`);
+        })
+        .catch(() => {
+            Log.error('Cannot Cannot build the image')
+            console.log(`Can't start the container run the command below to see the details \n docker build ${projectPath} -t ${Container_name.toLowerCase()}`)
+        });
+        let DockerRun = await exec(`docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name}`)
+        .then(()=> {
             console.log(`Container launched and named: ${Container_name}`);
-        } catch (err) {
-            console.log(err);
+        })
+        .catch(() => {
+            Log.error('Cannot run docker container : '+DockerRun.stderr)
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
-        }
+        });
     }
 };
 

@@ -178,6 +178,7 @@ module.exports = {
         let questionType;
         type ==='enum' ? questionType = 'list' : questionType = 'input';
         enumArray = enumArray.split(',');
+        for(let i=0;i<enumArray.length;i++)enumArray[i].replace('\'','');
         if (Array.isArray(enumArray)) enumArray.push('Cancel current column');
         const questionsParams = [
             {

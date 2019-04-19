@@ -1,10 +1,11 @@
 const Log = require('../utils/log');
 const Util = require('util');
 const FS = require('fs');
-const ReadFile = Util.promisify(FS.readFile);
+const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
-const {modelFileExists, columnExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./lib/utils');
-const pluralize = require('pluralize');
+const {format,modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
+const {plural,singular ,isPlural} = require('pluralize');
+
 
 // documents : {
 //   ref:'id',
@@ -21,23 +22,29 @@ const pluralize = require('pluralize');
 const _addToSerializer = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
     let fileContent = await ReadFile(serializer, 'utf-8');
+    //All regex needed
     let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`, 'm');
     let regexsetRel = new RegExp(`const data[\\s\\S]*?},`);
     let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
     let regexAddRel = new RegExp(`${column} :[\\s\\S]*?},`);
-    let newValue;
-    let newSer = fileContent.toString();
-    let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+    let regexArray = fileContent.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+
+    //code to add the relation in the serializer if it isn't already added
     let toPut;
-    if (pluralize.isPlural(column)) toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity(pluralize.singular(column))}Serializer.withelist,\n     valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity(pluralize.singular(column))}).findOne(relationship.id);\n     }\n    },`;
-    else toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity(pluralize.singular(column))}Serializer.withelist,\n    },\n    ${pluralize.plural(column)} : {\n    valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity(pluralize.singular(column))}).findOne(relationship.id);\n     }\n    },`;
+    if ( isPlural(column)) toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity( singular(column))}Serializer.withelist,\n     valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity( singular(column))}).findOne(relationship.id);\n     }\n    },`;
+    else toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity( singular(column))}Serializer.withelist,\n    },\n    ${ plural(column)} : {\n    valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity( singular(column))}).findOne(relationship.id);\n     }\n    },`;
+    if (!fileContent.match(regexAddRel)) fileContent = fileContent.replace(regexsetRel, `$&\n ${toPut}`);
+    
+    //code to add the relation in the whitelist if it isn't already added
+    let newValue;
     if (regexArray[3].includes("'")) newValue = `,'${column}'`;
     else newValue = `'${column}'`;
-    if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
-    if (!newSer.match(regexAddRel)) newSer = newSer.replace(regexsetRel, `$&\n ${toPut}`);
-    if (!isImportPresent(fileContent, `${capitalizeEntity(pluralize.singular(column))}Serializer`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity(pluralize.singular(column))}Serializer } from "./${pluralize.singular(column)}.serializer";\n`);
-    if (!isImportPresent(newSer, `${capitalizeEntity(pluralize.singular(column))}`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity(pluralize.singular(column))} } from "../models/${pluralize.singular(column)}.model";\n`);
-    await WriteFile(serializer, newSer).then(() => Log.success(`${entity} serializer updated`));
+    if (!fileContent.match(regexArrayCheck)) fileContent = fileContent.replace(regexWhitelist, `$1$2$3${newValue}`);
+    
+    //Add the import if they're not already there the write in the serializer
+    if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}Serializer`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))}Serializer } from "./${ singular(column)}.serializer";\n`);
+    if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`);
+    await WriteFile(serializer, fileContent).then(() => Log.success(`${entity} serializer updated`));
 };
 
 /**
@@ -51,9 +58,8 @@ const _addToController = async (entity, column) => {
     let regex = new RegExp(`(];)`, 'gm');
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
-    let newSer = fileContent.toString();
-    if (!newSer.match(regexArray)) newSer = fileContent.replace(regex, `${toPut}\n$1`);
-    await WriteFile(serializer, newSer).then(Log.success(`${column} controller updated`));
+    if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
+    await WriteFile(serializer, fileContent).then(Log.success(`${column} controller updated`));
 };
 
 
@@ -90,9 +96,9 @@ const _RefCol = (name, refCol) => {
  * @return *[] to write in a model for many to many reliationship
  */
 const _Mtm = (model1, model2, isFirst, name) => {
-    let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n`;
+    let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n`;
     if (isFirst) toPut += `  @JoinTable({${_Name(name)}})\n`;
-    return [toPut += `  ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`, pluralize.plural(model2)];
+    return [toPut += `  ${ plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`,  plural(model2)];
 };
 
 /**
@@ -105,9 +111,9 @@ const _Mtm = (model1, model2, isFirst, name) => {
  * @return string to write in a model for one to one reliationship
  */
 const _Oto = (model1, model2, isFirst, name, refCol) => {
-    let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n`;
+    let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n`;
     if (isFirst) toPut += `@JoinColumn({${_Name(name)}${_RefCol(name, refCol)}})\n`;
-    return [toPut += `  ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)};`, lowercaseEntity(model2)];
+    return [toPut += `  ${model2} : ${capitalizeEntity(model2)};`, model2];
 };
 
 /**
@@ -119,9 +125,9 @@ const _Oto = (model1, model2, isFirst, name, refCol) => {
  */
 const _Otm = (model1, model2, isFirst) => {
     let toPut;
-    if (isFirst) toPut = `@OneToMany(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${lowercaseEntity(model1)})\n ${pluralize.plural(model2)} : ${capitalizeEntity(model2)}[]`;
-    else toPut = `@ManyToOne(type => ${capitalizeEntity(model2)}, ${lowercaseEntity(model2)} => ${lowercaseEntity(model2)}.${pluralize.plural(model1)})\n ${lowercaseEntity(model2)} : ${capitalizeEntity(model2)}`;
-    return [toPut, isFirst ? pluralize.plural(model2) : lowercaseEntity(model2)]
+    if (isFirst) toPut = `@OneToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n ${ plural(model2)} : ${capitalizeEntity(model2)}[]`;
+    else toPut = `@ManyToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n ${model2} : ${capitalizeEntity(model2)}`;
+    return [toPut, isFirst ?  plural(model2) : model2]
 };
 
 /**
@@ -134,17 +140,27 @@ const _Otm = (model1, model2, isFirst) => {
  * @param {string} refCol  for Oto only , name of the referenced column in the foreign key (must be primary or unique)
  */
 const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => {
-    let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model1)}.model.ts`;
-    let modelFile = await ReadFile(pathModel, 'utf-8');
+    // Get the string to write in modelFile
+    // in case of many to one , exchange model1 and model2 because the logic is reversed 
     let toPut;
     if (relation === 'mtm') toPut = _Mtm(model1, model2, isFirst, name);
     if (relation === 'oto') toPut = _Oto(model1, model2, isFirst, name, refCol);
     if (relation === 'otm') toPut = _Otm(model1, model2, isFirst);
-    if (relation === 'mto') toPut = _Otm(model2, model1, isFirst);
+    if (relation === 'mto') {
+        toPut = _Otm(model2, model1, isFirst);
+        let temp= model1; 
+        model1= model2;
+        model2 = temp
+    }
+    //Get the file to write in
+    let pathModel = `${process.cwd()}/src/api/models/${model1}.model.ts`;
+    let modelFile = ReadFile(pathModel, 'utf-8');
+    //Get the last { and write the relation before the last { if the relation isn't already written
     let pos = modelFile.lastIndexOf('}');
-    let newModel = `${modelFile.toString().substring(0, pos)}${toPut[0]}\n\n}`;
-    if (!isImportPresent(modelFile, capitalizeEntity(model2))) newModel = writeToFirstEmptyLine(newModel.toString(), `import { ${capitalizeEntity(model2)} } from "./${lowercaseEntity(model2)}.model";\n`);
-    await Promise.all([WriteFile(pathModel, newModel), _addToSerializer(model1, toPut[1]), _addToController(model1, toPut[1])]);
+    if(!relationExist(model1,toPut[1])) modelFile = `${modelFile.substring(0, pos)}${toPut[0]}\n\n}`;
+    //import the model of the second entity if it is not already present then write process to update serializer and controller
+    if (!isImportPresent(modelFile, capitalizeEntity(model2))) modelFile = writeToFirstEmptyLine(modelFile, `import { ${capitalizeEntity(model2)} } from "./${model2}.model";\n`);
+    await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToController(model1, toPut[1])]);
 };
 
 
@@ -158,10 +174,10 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
  * @description  Create a reliationship between 2 models
  */
 module.exports = async (model1, model2, relation, name, refCol) => {
-    model1 = lowercaseEntity(model1);
-    model2 = lowercaseEntity(model2);
+    model1 =format(model1);
+    model2 =format(model2)
     if (!modelFileExists(model1) || !modelFileExists(model2)) throw new Error("Both model should exist in order to create a many to many relationship");
-    if (await columnExist(model1, pluralize.plural(model2)) || await columnExist(model2, pluralize.plural(model1)) || await columnExist(model1, model2) || await columnExist(model2, model1)) throw new Error("A column with the name of the other model exist in one or both model");
+    if (columnExist(model1, model2) || columnExist(model2, model1)) throw new Error("A Column have a name that conflicts with the creation of the relationship in one or both models");
     await _addRelation(model1, model2, true, relation, name, refCol)
         .catch(err => Log.error(err.message));
     await _addRelation(model2, model1, false, relation, name, refCol)

@@ -2,9 +2,12 @@ const removeColumn = require('./lib/removeFromModel');
 const modelWrite = require('./writeModelAction');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
+const migrate = require('./migrateAction');
+const {format} =require('../actions/lib/utils');
 
 module.exports = async (action, model, column = null) => {
-    if (action === 'remove') await removeColumn(model, column)
+    model = format(model);
+    if (action === 'remove') await removeColumn(model, column,false)
         .then(() => Log.success('Column successfully removed'))
         .catch(err => Log.error(err.message));
 
@@ -14,5 +17,6 @@ module.exports = async (action, model, column = null) => {
             .then(() => Log.success('Column successfully added'))
             .catch(err => Log.error(err));
     }
+    await migrate(`${action}-in-${model}`)
     process.exit(0);
 };

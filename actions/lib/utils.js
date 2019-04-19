@@ -22,7 +22,9 @@
 const FS = require('fs');
 const readline = require('readline');
 const Util = require('util');
-const ReadFile = Util.promisify(FS.readFile);
+const ReadFile = FS.readFileSync;
+const snake= require('to-snake-case');
+const removeAccent= require('remove-accents');
 
 /**
  * @description : count the lines of a file
@@ -186,15 +188,26 @@ exports.isBridgindTable = (entity) => {
  * @param {string} column Column name
  * @returns {boolean}
  */
-exports.columnExist = async (model, column) => {
+exports.columnExist =  (model, column) => {
     let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
-    let modelFile = await ReadFile(pathModel, 'utf-8');
+    let modelFile =  ReadFile(pathModel, 'utf-8');
     let exist = false;
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
-    let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
-    let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
     if (modelFile.match(regexColumn)) exist = true;
-    else if (modelFile.match(regexMany)) exist = true;
-    else if (modelFile.match(regexOne)) exist = true;
     return exist
 };
+
+exports.relationExist=  (model,column) =>{
+    let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
+    let modelFile =  ReadFile(pathModel, 'utf-8');
+    let exist = false;
+    let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
+    let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
+    if (modelFile.match(regexMany)) exist = true;
+    else if (modelFile.match(regexOne)) exist = true;
+    return exist
+} 
+
+exports.format = (name) =>{
+    return snake(removeAccent(name));
+}
