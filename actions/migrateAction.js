@@ -19,7 +19,7 @@ module.exports = async (modelName) => {
     const migrate = new Spinner('Generating migration ...');
     migrate.start();
 
-    await exec(`tsc`)
+    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
         .then(() => Log.success(chalk.green("Compiled successfully")))
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
@@ -27,7 +27,7 @@ module.exports = async (modelName) => {
         .then(() => Log.success(chalk.green("Migration generated successfully")))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
-    await exec(`tsc`)
+    await exec(`${path.resolve('node_modules','.bin','tsc')
         .then(() => {
             Log.success(chalk.green("Compiled successfully"));
             rimraf('./src/migration').catch((e) => {
