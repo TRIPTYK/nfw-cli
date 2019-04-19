@@ -64,6 +64,7 @@ const _BridgingTableHander = async (Bridgings) => {
 
 const _RelationHandler = async (foreignConstraint) => {
     for (let j = 0; j < foreignConstraint.length; j++) {
+        if(noGenerate.includes(foreignConstraint[j].TABLE_NAME) && noGenerate.includes(foreignConstraint[j].REFERENCED_TABLE_NAME)) continue;
         let {response} = await inquirer.askForeignKeyRelation(foreignConstraint[j]);
         await createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, foreignConstraint[j].COLUMN_NAME, foreignConstraint[j].REFERENCED_COLUMN_NAME)
             .then(() => Log.success("Relation successfully added !"))
