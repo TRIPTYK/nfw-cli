@@ -27,7 +27,7 @@ module.exports = async (modelName) => {
         .then(() => Log.success(chalk.green("Migration generated successfully")))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
-    await exec(`${path.resolve('node_modules','.bin','tsc')
+    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
         .then(() => {
             Log.success(chalk.green("Compiled successfully"));
             rimraf('./src/migration').catch((e) => {
