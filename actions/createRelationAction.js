@@ -21,23 +21,29 @@ const {plural,singular ,isPlural} = require('pluralize');
 const _addToSerializer = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
     let fileContent = await ReadFile(serializer, 'utf-8');
+    //All regex needed
     let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`, 'm');
     let regexsetRel = new RegExp(`const data[\\s\\S]*?},`);
     let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
     let regexAddRel = new RegExp(`${column} :[\\s\\S]*?},`);
-    let newValue;
-    let newSer = fileContent;
-    let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+    let regexArray = fileContent.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
+
+    //code to add the relation in the serializer if it isn't already added
     let toPut;
     if ( isPlural(column)) toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity( singular(column))}Serializer.withelist,\n     valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity( singular(column))}).findOne(relationship.id);\n     }\n    },`;
     else toPut = `   ${column} : {\n     ref : 'id', \n     attributes : ${capitalizeEntity( singular(column))}Serializer.withelist,\n    },\n    ${ plural(column)} : {\n    valueForRelationship: async function (relationship) {\n     return await getRepository(${capitalizeEntity( singular(column))}).findOne(relationship.id);\n     }\n    },`;
+    if (!fileContent.match(regexAddRel)) fileContent = fileContent.replace(regexsetRel, `$&\n ${toPut}`);
+    
+    //code to add the relation in the whitelist if it isn't already added
+    let newValue;
     if (regexArray[3].includes("'")) newValue = `,'${column}'`;
     else newValue = `'${column}'`;
-    if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
-    if (!newSer.match(regexAddRel)) newSer = newSer.replace(regexsetRel, `$&\n ${toPut}`);
-    if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}Serializer`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity( singular(column))}Serializer } from "./${ singular(column)}.serializer";\n`);
-    if (!isImportPresent(newSer, `${capitalizeEntity( singular(column))}`)) newSer = writeToFirstEmptyLine(newSer, `import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`);
-    await WriteFile(serializer, newSer).then(() => Log.success(`${entity} serializer updated`));
+    if (!fileContent.match(regexArrayCheck)) fileContent = fileContent.replace(regexWhitelist, `$1$2$3${newValue}`);
+    
+    //Add the import if they're not already there the write in the serializer
+    if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}Serializer`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))}Serializer } from "./${ singular(column)}.serializer";\n`);
+    if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`);
+    await WriteFile(serializer, fileContent).then(() => Log.success(`${entity} serializer updated`));
 };
 
 /**
@@ -51,9 +57,9 @@ const _addToController = async (entity, column) => {
     let regex = new RegExp(`(];)`, 'gm');
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
-    let newSer = fileContent;
-    if (!newSer.match(regexArray)) newSer = fileContent.replace(regex, `${toPut}\n$1`);
-    await WriteFile(serializer, newSer).then(Log.success(`${column} controller updated`));
+    let fileContent = fileContent;
+    if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
+    await WriteFile(serializer, fileContent).then(Log.success(`${column} controller updated`));
 };
 
 
@@ -134,15 +140,25 @@ const _Otm = (model1, model2, isFirst) => {
  * @param {string} refCol  for Oto only , name of the referenced column in the foreign key (must be primary or unique)
  */
 const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => {
-    let pathModel = `${process.cwd()}/src/api/models/${model1}.model.ts`;
-    let modelFile = ReadFile(pathModel, 'utf-8');
+    // Get the string to write in modelFile
+    // in case of many to one , exchange model1 and model2 because the logic is reversed 
     let toPut;
     if (relation === 'mtm') toPut = _Mtm(model1, model2, isFirst, name);
     if (relation === 'oto') toPut = _Oto(model1, model2, isFirst, name, refCol);
     if (relation === 'otm') toPut = _Otm(model1, model2, isFirst);
-    if (relation === 'mto') toPut = _Otm(model2, model1, isFirst);
+    if (relation === 'mto') {
+        toPut = _Otm(model2, model1, isFirst);
+        let temp= model1; 
+        model1= model2;
+        model2 = temp
+    }
+    //Get the file to write in
+    let pathModel = `${process.cwd()}/src/api/models/${model1}.model.ts`;
+    let modelFile = ReadFile(pathModel, 'utf-8');
+    //Get the last { and write the relation before the last { if the relation isn't already written
     let pos = modelFile.lastIndexOf('}');
     if(!relationExist(model1,toPut[1])) modelFile = `${modelFile.substring(0, pos)}${toPut[0]}\n\n}`;
+    //import the model of the second entity if it is not already present then write process to update serializer and controller
     if (!isImportPresent(modelFile, capitalizeEntity(model2))) modelFile = writeToFirstEmptyLine(modelFile, `import { ${capitalizeEntity(model2)} } from "./${model2}.model";\n`);
     await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToController(model1, toPut[1])]);
 };
