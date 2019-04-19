@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const spawn = require('cross-spawn');
 const fs = require('fs');
 const path = require('path');
+const chalk = require('chalk');
 
 /**
  * Project modules
@@ -73,6 +74,10 @@ module.exports = async (environment, monitoringEnabled) => {
         monitoring.stdout.on('data', (chunk) => {
             console.log(`Monitoring: ${chunk}`)
         });
+        monitoring.stderr.on('data', (chunk) => {
+            console.log(`Monitoring error : ${chunk}`)
+        });
+
     }
 
     let executed = spawn(`ts-node-dev --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environment}`);

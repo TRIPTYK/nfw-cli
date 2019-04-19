@@ -32,7 +32,11 @@ const _getDefault = (col) => {
     else if (col.Default === 'null'  || col.Default === null && !(col.key === 'UNI' || col.Key === 'PRI')) {
         if (col.Null !== 'nullable:false,') return 'default : null';
         else return ''
+<<<<<<< HEAD
     } else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type === 'double' || col.Type.type === 'decimal' ) return `default : ${col.Default}`;
+=======
+    } else if (col.Type.type.includes('int') || col.Type.type === 'float' || col.Type.type === 'double' || col.Type.type === 'decimal') return `default : ${col.Default}`;
+>>>>>>> b485bb1e758f834f14a952ad6b0518cf5740e96f
     else if ((col.Type.type === 'timestamp' || col.Type.type === 'datetime') && (col.Default != null || col.Default.includes('(') || sqlFunction.includes(col.Default))) return ` default : () => "${col.Default}"`;
     else return `default :\`${col.Default}\``;
 

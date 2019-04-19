@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const rimraf = util.promisify(require('rimraf'));
 const exec = util.promisify(require('child_process').exec);
 const {Spinner} = require('clui');
+const path = require('path');
 
 /**
  * Project modules
@@ -18,24 +19,24 @@ module.exports = async (modelName) => {
     const migrate = new Spinner('Generating migration ...');
     migrate.start();
 
-    await exec(`tsc`)
-        .then(() => console.log(chalk.green("Compiled successfully")))
+    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
+        .then(() => Log.success(chalk.green("Compiled successfully")))
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
-    await exec(`typeorm migration:generate -n ${modelName}`)
-        .then(() => console.log(chalk.green("Migration generated successfully")))
+    await exec(`${path.resolve('node_modules','.bin','typeorm')} migration:generate -n ${modelName}`)
+        .then(() => Log.success(chalk.green("Migration generated successfully")))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
-    await exec(`tsc`)
+    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
         .then(() => {
-            Log.success("Compiled successfully");
+            Log.success(chalk.green("Compiled successfully"));
             rimraf('./src/migration').catch((e) => {
                 console.log("Could not delete non-compiled migration because :" + e.message);
             });
         })
         .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
-    await exec(`typeorm migration:run`)
+    await exec(`${path.resolve('node_modules','.bin','typeorm')}  migration:run`)
         .then(() => console.log(chalk.green("Migration executed successfully")))
         .catch(async e => {
             Log.error(`Failed to execute migration : ${e.message}`);

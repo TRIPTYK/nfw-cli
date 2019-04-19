@@ -38,37 +38,12 @@ const WriteFile = Util.promisify(FS.writeFile);
 
 const kebabCase = require('kebab-case');
 
-const crudOptions = {
-    create: false,
-    read: false,
-    update: false,
-    delete: false
-};
-
 const processPath = process.cwd();
 
 // false class properties
 var capitalize;
 var lowercase;
 
-/**
- * @description : Check in a string if the letter C R U D are present and set the boolean of each Crud varable present in crudOption
- * @param  {string} arg - The thirs argument of 'npm run generate stringName {CRUD}'
- * @returns {Array.boolean} Return an array of boolean depending on the input string
- */
-const _checkForCrud = (arg) => {
-    let crudString = arg.toLowerCase();
-
-    if ((/^[crud]{1,4}$/).test(crudString)) {
-        if (crudString.includes('c')) crudOptions.create = true;
-        if (crudString.includes('r')) crudOptions.read = true;
-        if (crudString.includes('u')) crudOptions.update = true;
-        if (crudString.includes('d')) crudOptions.delete = true;
-    } else {
-        return false;
-    }
-    return crudOptions;
-};
 
 const _routerWrite = async () => {
     let proxyPath = `${processPath}/src/api/routes/v1/index.ts`;
@@ -112,8 +87,9 @@ const _routerWrite = async () => {
 /**
  * @description replace the vars in placeholder in file and creates them
  * @param data
+ * @param crudOptions
  */
-const _write = async (data) => {
+const _write = async (data, crudOptions) => {
     let tableColumns, foreignKeys;
     tableColumns = data ? data.columns : [];
     foreignKeys = data ? data.foreignKeys : [];
@@ -167,33 +143,20 @@ const _write = async (data) => {
  * Check entity existence, and write file or not according to the context
  *
  * @param modelName
- * @param crudArgs
+ * @param crudOptions
  * @param data
  */
-const build = async (modelName, crudArgs, data = null) => {
+const build = async (modelName, crudOptions, data = null) => {
     if (!modelName.length) {
         Log.error('Nothing to generate. Please, get entity name parameter.');
         return;
-    }
-
-    if (!crudArgs.length) {
-        Log.rainbow('Warning : ', 'No CRUD options, set every option to true by default');
-        crudOptions.create = true;
-        crudOptions.update = true;
-        crudOptions.read = true;
-        crudOptions.delete = true;
-    } else {
-        if (!_checkForCrud(crudArgs)) {
-            Log.error('Error : Wrong CRUD arguments');
-            return;
-        }
     }
 
     // assign false class properties
     lowercase = lowercaseEntity(modelName);
     capitalize = capitalizeEntity(modelName);
 
-    await _write(data);
+    await _write(data, crudOptions);
 
     Log.success('Generating task done');
 };
