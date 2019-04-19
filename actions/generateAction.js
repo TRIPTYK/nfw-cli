@@ -2,7 +2,6 @@ const modelWriteAction = require('./writeModelAction');
 const utils = require('./lib/utils');
 const inquirer = require('../utils/inquirer');
 const databaseInfo = require('../database/databaseInfo');
-const snake = require('to-snake-case');
 const {Spinner} = require('clui');
 const createRelationAction = require('./createRelationAction');
 const modelSpecs = require('./lib/modelSpecs');
@@ -10,6 +9,8 @@ const generateEntityFiles = require('./lib/generateEntityFiles');
 const chalk = require('chalk');
 const migrateAction = require('./migrateAction');
 const Log = require('../utils/log');
+const {format} =require('../actions/lib/utils');
+
 
 /**
  *
@@ -18,7 +19,7 @@ const Log = require('../utils/log');
  * @returns {Promise<void>}
  */
 module.exports = async (modelName, crud) => {
-    modelName = snake(modelName);
+    modelName = format(modelName);
     const modelExists = await utils.modelFileExists(modelName);
     let override = true;
 

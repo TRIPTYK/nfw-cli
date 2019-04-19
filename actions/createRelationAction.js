@@ -3,8 +3,9 @@ const Util = require('util');
 const FS = require('fs');
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
-const {modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
+const {format,modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
 const {plural,singular ,isPlural} = require('pluralize');
+
 
 // documents : {
 //   ref:'id',
@@ -173,6 +174,8 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
  * @description  Create a reliationship between 2 models
  */
 module.exports = async (model1, model2, relation, name, refCol) => {
+    model1 =format(model1);
+    model2 =format(model2)
     if (!modelFileExists(model1) || !modelFileExists(model2)) throw new Error("Both model should exist in order to create a many to many relationship");
     if (columnExist(model1, model2) || columnExist(model2, model1)) throw new Error("A Column have a name that conflicts with the creation of the relationship in one or both models");
     await _addRelation(model1, model2, true, relation, name, refCol)

@@ -23,6 +23,8 @@ const FS = require('fs');
 const readline = require('readline');
 const Util = require('util');
 const ReadFile = FS.readFileSync;
+const snake= require('to-snake-case');
+const removeAccent= require('remove-accents');
 
 /**
  * @description : count the lines of a file
@@ -205,3 +207,7 @@ exports.relationExist=  (model,column) =>{
     else if (modelFile.match(regexOne)) exist = true;
     return exist
 } 
+
+exports.format = (name) =>{
+    return snake(removeAccent(name));
+}
