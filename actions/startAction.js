@@ -79,7 +79,7 @@ module.exports = async (environment, monitoringEnabled) => {
 
     }
 
-    let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')} --respawn --transpileOnly ./src/app.bootstrap.ts --env ${environment}`);
+    let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')}`, ["--respawn","--transpileOnly","./src/app.bootstrap.ts","--env" ,`${environment}`]);
 
     executed.stdout.on('data', (chunk) => {
         console.log(chunk.toString())
