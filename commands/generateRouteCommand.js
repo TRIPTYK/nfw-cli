@@ -11,6 +11,8 @@ const generateRouterAction = require('../actions/generateRouterAction');
 const inquirer = require('../utils/inquirer');
 const {lowercaseEntity} = require("../actions/lib/utils");
 const {fileExists} = require('../utils/files');
+const Log = require('../utils/log');
+const snakeCase = require('to-snake-case');
 
 exports.command = 'createRouter <routeName>';
 exports.aliases = ['gr'];
@@ -29,7 +31,7 @@ exports.builder = () => {
 exports.handler = async (argv) => {
     commandUtils.validateDirectory();
 
-    const routeName = argv.routeName;
+    const routeName = snakeCase(argv.routeName);
     const lowercase = lowercaseEntity(routeName);
     const controllerPath = `/src/api/controllers/${lowercase}.controller.ts`;
 
@@ -73,7 +75,15 @@ exports.handler = async (argv) => {
         continueAsking = (await inquirer.askForConfirmation('Do you want to add a new route ?')).confirmation;
     }
 
-    await generateRouterAction(lowercase, routes);
+    await generateRouterAction(lowercase, routes)
+        .then((writtenPaths) => {
+            writtenPaths.forEach((path) => {
+                Log.success(`Created ${path}`);
+            });
+        })
+        .catch((error) => {
+            Log.error('Failed to generate : ' + error.message);
+        });
 
     process.exit();
 };
