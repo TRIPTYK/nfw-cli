@@ -2,11 +2,14 @@
  * Node modules
  */
 const reservedWords = require('reserved-words');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
 
 /**
  * project imports
  */
 const commandUtils = require('./commandUtils');
+const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const migrateAction = require('../actions/migrateAction');
 
@@ -21,6 +24,7 @@ exports.builder = () => {
 
 exports.handler = async (argv) => {
     const modelName = argv.migrateName;
+    const spinner = new Spinner("Generating and executing migration");
 
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
@@ -30,5 +34,19 @@ exports.handler = async (argv) => {
         process.exit(0);
     }
 
-    migrateAction(modelName);
+    spinner.start();
+
+    await migrateAction(modelName)
+        .then((generated) => {
+            const [migrationDir] = generated;
+            spinner.stop(true);
+            Log.success(`Executed migration successfully`);
+            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        })
+        .catch((e) => {
+            spinner.stop(true);
+            Log.error(e.message);
+        });
+
+    process.exit(0);
 };
