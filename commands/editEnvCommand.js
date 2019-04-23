@@ -26,15 +26,17 @@ exports.handler = async () => {
 
     let files = fs.readdirSync('./');
 
-    let envFiles = [];
-    files.forEach(element => {
-        if (element.includes('.env')) {
-            envFiles.push(element.split('.')[0]);
-        }
-    });
+    // select only env files
+    let envFiles = files.filter((file) => file.includes('.env'));
 
     let {env} = await inquirer.ChoseEnvFile(envFiles);
     let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
 
-    editEnvAction(env, chosenOne);
+    await editEnvAction(env, chosenOne)
+        .catch((e) => {
+            Log.error(`Cannot edit ${env}.env : ` + e.message);
+        })
+        .then(() => {
+            Log.success(`${env}.env edited successfully`);
+        });
 };

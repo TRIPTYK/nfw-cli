@@ -10,6 +10,7 @@ const inquirer = require('../utils/inquirer');
 
 module.exports = async (env, chosenOne) => {
     let response = await inquirer.EditEnvFile(chosenOne);
+
     response.NODE_ENV = env;
     response.API_VERSION = "v1";
     response.PORT = parseInt(response.PORT);
@@ -31,8 +32,12 @@ module.exports = async (env, chosenOne) => {
     }
 
     let envString = JSON.stringify(response, null, '\n');
-    let reg = /"(.*)":\s*(".*"|\d+)/gm;
-    let output = envString.replace(reg, `$1 = $2`).replace('{', "").replace('}', '').replace(/(,)(?!.*,)/gm, "");
+    let reg = /"(.*)":\s*(".*"|\d+)/gm; // select all key / value from env
+    let output = envString
+        .replace(reg, `$1 = $2`)
+        .replace('{', "")
+        .replace('}', '')
+        .replace(/(,)(?!.*,)/gm, "");
 
     fs.writeFileSync(`${env}.env`, output);
 };

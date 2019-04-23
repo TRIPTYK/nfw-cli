@@ -6,16 +6,17 @@
  * @exports _unconfig
  * @exports _unroute
  */
-const {items} = require('../static/resources');
-const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
 const FS = require('fs');
-const Log = require('../utils/log');
 const Util = require('util');
 const ReadFile = Util.promisify(FS.readFile);
 const Unlink = Util.promisify(FS.unlink);
 const WriteFile = Util.promisify(FS.writeFile);
 const snake = require('to-snake-case');
+
 const SqlAdaptator = require('../database/sqlAdaptator');
+const Log = require('../utils/log');
+const {items} = require('../static/resources');
+const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
 
 // simulate class properties
 var capitalize;

@@ -1,6 +1,7 @@
 /**
  * node modules imports
  */
+const {Spinner} = require('clui');
 
 /**
  * project imports
@@ -8,7 +9,6 @@
 const commandUtils = require('./commandUtils');
 const generateDocumentationAction = require('../actions/generateDocumentationAction');
 const Log = require('../utils/log');
-const {Spinner} = require('clui');
 
 const generateDocSpinner = new Spinner('Generating documentation');
 
