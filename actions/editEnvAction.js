@@ -1,13 +1,20 @@
 /**
- * Node modules
+ * @module editEnvAction
+ * @description Edit existing environment file
  */
+
+// Node modules
 const fs = require('fs');
 
-/**
- * Project modules
- */
+// Project modules
 const inquirer = require('../utils/inquirer');
 
+/**
+ * Main function
+ * @param env
+ * @param chosenOne
+ * @returns {Promise<string[]>}
+ */
 module.exports = async (env, chosenOne) => {
     let response = await inquirer.editEnvFile(chosenOne);
 
