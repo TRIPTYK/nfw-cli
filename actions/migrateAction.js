@@ -17,31 +17,22 @@ const sqlAdaptor = require('../database/sqlAdaptator');
 
 module.exports = async (modelName) => {
     const migrate = new Spinner('Generating migration ...');
+    const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
+    const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
+
     migrate.start();
 
-    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
-        .then(() => Log.success(chalk.green("Compiled successfully")))
-        .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
 
-    await exec(`${path.resolve('node_modules','.bin','typeorm')} migration:generate -n ${modelName}`)
-        .then(() => Log.success(chalk.green("Migration generated successfully")))
+    await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`)
+        .then(() => Log.success(chalk.green("Migration generated successfully : " + modelName)))
         .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
 
-    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
-        .then(() => {
-            Log.success(chalk.green("Compiled successfully"));
-            rimraf('./src/migration').catch((e) => {
-                console.log("Could not delete non-compiled migration because :" + e.message);
-            });
-        })
-        .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
-
-    await exec(`${path.resolve('node_modules','.bin','typeorm')}  migration:run`)
-        .then(() => console.log(chalk.green("Migration executed successfully")))
+    await exec(`${ts_node} ${typeorm_cli}  migration:run`)
+        .then(() => Log.success(chalk.green("Migration executed successfully")))
         .catch(async e => {
             Log.error(`Failed to execute migration : ${e.message}`);
 
-            let files = fs.readdirSync('./dist/migration/');
+            let files = fs.readdirSync('./src/migration/');
             let regex = /[^0-9]+/;
             let migration = await sqlAdaptor.select(['timestamp', 'name'], 'migration_table');
 
@@ -53,7 +44,7 @@ module.exports = async (modelName) => {
             });
             files.forEach(file => {
                 if (!migrationFiles.includes(file) && file !== 'dump')
-                    fs.unlinkSync(`./dist/migration/${file}`);
+                    fs.unlinkSync(`./src/migration/${file}`);
             });
         });
 

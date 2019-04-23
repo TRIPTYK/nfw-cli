@@ -20,7 +20,7 @@ exports.builder = () => {
 };
 
 exports.handler = async (argv) => {
-    const modelName = argv.modelName;
+    const modelName = argv.migrateName;
 
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
