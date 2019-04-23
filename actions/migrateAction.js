@@ -1,16 +1,24 @@
 /**
- * Node modules
+ * @author Antoine Samuel
+ * @author Deflorenne Amaury
+ * @description Generate and executes a migration
+ * @module migrateAction
  */
+
+// Node modules
 const util = require('util');
 const fs = require('fs');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 
-/**
- * Project modules
- */
+// Project modules
 const sqlAdaptor = require('../database/sqlAdaptator');
 
+/**
+ * Main function
+ * @param modelName
+ * @returns {Promise<array>}
+ */
 module.exports = async (modelName) => {
     const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
     const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');

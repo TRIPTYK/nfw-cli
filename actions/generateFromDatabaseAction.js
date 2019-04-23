@@ -1,16 +1,10 @@
 /**
  * @author Verliefden Romain
- * @description get all table from DB then call writeModel method for each table in the database
+ * @module generateFromDatabaseAction
+ * @description Get all table from DB then call writeModel method for each table in the database
  */
 
-/**
- * Node modules
- */
-
-
-/**
- * Project modules
- */
+// Project modules
 const inquirer = require('../utils/inquirer');
 const databaseInfo = require('../database/databaseInfo');
 const modelWrite = require('./writeModelAction');
@@ -18,14 +12,11 @@ const generateEntityFiles = require('./lib/generateEntityFiles');
 const utils = require('./lib/utils');
 const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
-
-
-// createRelation module
 const createRelation = require('./createRelationAction');
 const {noGenerate} = require('../static/resources');
 
-
 /**
+ * Main function
  * @returns {Promise<void>}
  */
 module.exports = async () => {
@@ -54,6 +45,11 @@ module.exports = async () => {
     await _RelationHandler(foreignConstraint);
 };
 
+/**
+ *
+ * @param Bridgings
+ * @returns {Promise<void>}
+ */
 const _BridgingTableHander = async (Bridgings) => {
     for (let j = 0; j < Bridgings.length; j++) {
         await createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null)
@@ -62,6 +58,11 @@ const _BridgingTableHander = async (Bridgings) => {
     }
 };
 
+/**
+ *
+ * @param foreignConstraint
+ * @returns {Promise<void>}
+ */
 const _RelationHandler = async (foreignConstraint) => {
     for (let j = 0; j < foreignConstraint.length; j++) {
         if(noGenerate.includes(foreignConstraint[j].TABLE_NAME) && noGenerate.includes(foreignConstraint[j].REFERENCED_TABLE_NAME)) continue;

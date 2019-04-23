@@ -1,40 +1,46 @@
 /**
  * @author Samuel Antoine
- * @module New
- * @exports New
+ * @module newAction
+ * @description Generates and setup a new boilerplate project
  */
+
+/// node modules
 const util = require('util');
 const chalk = require('chalk');
 const figlet = require('figlet');
-const operatingSystem = process.platform;
 const path = require('path');
 const fs = require('fs');
 const cmdExists = require('command-exists').sync;
 const {Spinner} = require('clui');
 const rimraf = require("rimraf");
-const exec = util.promisify(require('child_process').exec);
-const rmdir = util.promisify(rimraf);
-const renameDir = util.promisify(fs.rename);
 
+// project modules
 const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
 
+// promisified
+const exec = util.promisify(require('child_process').exec);
+const rmdir = util.promisify(rimraf);
+const renameDir = util.promisify(fs.rename);
 const WriteFile = util.promisify(fs.writeFile);
 
-var newPath = undefined;
+// module vars
+const operatingSystem = process.platform;
+let newPath = undefined;
 let dockerFile = undefined;
 let Container_name = undefined;
 let dockerEnv = undefined;
 
 /**
  *  @description Generate a new project
- *   @param {string} name Project name
- *   @param defaultEnv
- *   @param {boolean} pathOption Ask for path
- *   @param {boolean} docker Ask for docker env variables
- *   @param {boolean} yarn Install dependencies with yarn
+ *  @param {string} name Project name
+ *  @param {boolean} defaultEnv
+ *  @param {boolean} pathOption Ask for path
+ *  @param {boolean} docker Ask for docker env variables
+ *  @param {boolean} yarn Install dependencies with yarn
+ *  @returns {Promise<void>}
  */
 module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     console.log(
@@ -77,7 +83,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
     console.time("Execution time");
     await _kickStart(kickstartCommand, name, newPath);
-    console.timeEnd("Execution time")
+    console.timeEnd("Execution time");
     const config = {
         name: name,
         path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name)
@@ -121,7 +127,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Image Build and named: ${Container_name}`);
         })
         .catch(() => {
-            Log.error('Cannot Cannot build the image')
+            Log.error('Cannot Cannot build the image');
             console.log(`Can't start the container run the command below to see the details \n docker build ${projectPath} -t ${Container_name.toLowerCase()}`)
         });
         let DockerRun = await exec(`docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name}`)
@@ -129,12 +135,19 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Container launched and named: ${Container_name}`);
         })
         .catch(() => {
-            Log.error('Cannot run docker container : '+DockerRun.stderr)
+            Log.error('Cannot run docker container : ' + DockerRun.stderr);
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
         });
     }
 };
 
+/**
+ * Setup project
+ * @param {object} command
+ * @param {string} name
+ * @param {string} newPath
+ * @returns {Promise<void>}
+ */
 const _kickStart = async (command, name, newPath) => {
     const kickstart = new Spinner('Generating app ...');
     kickstart.start();
@@ -151,6 +164,11 @@ const _kickStart = async (command, name, newPath) => {
     kickstart.stop();
 };
 
+/**
+ * Git clone and deletes .git folder
+ * @param {string} name
+ * @returns {Promise<void>}
+ */
 const _gitCloneAndRemove = async (name) => {
     Log.success('Cloning repository  ...');
     const clone = await exec("git clone https://github.com/TRIPTYK/3rd-party-ts-boilerplate.git");

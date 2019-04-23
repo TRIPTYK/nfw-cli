@@ -1,20 +1,27 @@
 /**
- * Node Modules
+ * @author Deflorenne Amaury
+ * @description Generates a custom router and controller
+ * @module generateRouterAction
  */
+
+// node modules
 const util = require('util');
 const fs = require('fs');
 const ejs = require('ejs');
 
+// project modules
 const routerWrite = require('./lib/routerWrite');
 const {capitalizeEntity} = require("./lib/utils");
 
+// promisify
 const ReadFile = util.promisify(fs.readFile);
 const WriteFile = util.promisify(fs.writeFile);
 
 /**
- *
+ * Main function
  * @param entityName
  * @param routes
+ * @returns {Promise<string[]>} Generated files
  */
 module.exports = async (entityName, routes) => {
     const [controllerTemplateFile, routerTemplateFile] = await Promise.all([

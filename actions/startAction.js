@@ -1,18 +1,27 @@
 /**
- * Node modules
+ * @module startAction
+ * @description start server and monitoring , also watch typescript files
+ * @author Sam Antoine
  */
+
+// Node modules
 const dotenv = require('dotenv');
 const spawn = require('cross-spawn');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-/**
- * Project modules
- */
+
+// Project modules
 const sqlAdaptor = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const inquirer = require('../utils/inquirer');
 
+/**
+ * Main function
+ * @param {string} environment
+ * @param {boolean} monitoringEnabled
+ * @returns {Promise<void>}
+ */
 module.exports = async (environment, monitoringEnabled) => {
     const envFileContent = fs.readFileSync(`${environment}.env`);
     const ormConfigContent = fs.readFileSync(`ormconfig.json`);

@@ -1,10 +1,24 @@
+/**
+ * @author Verliefden Romain
+ * @module editModelAction
+ * @description Edit a model
+ */
+
+// project modules
 const removeColumn = require('./lib/removeFromModel');
 const modelWrite = require('./writeModelAction');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
 const migrate = require('./migrateAction');
-const {format} =require('../actions/lib/utils');
+const {format} = require('../actions/lib/utils');
 
+/**
+ * Main function
+ * @param {string} action
+ * @param {string} model Model name
+ * @param {string|null} column Column name
+ * @returns {Promise<void>}
+ */
 module.exports = async (action, model, column = null) => {
     model = format(model);
 

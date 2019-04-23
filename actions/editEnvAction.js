@@ -1,5 +1,6 @@
 /**
  * @module editEnvAction
+ * @author Samuel Antoine
  * @description Edit existing environment file
  */
 
@@ -13,7 +14,7 @@ const inquirer = require('../utils/inquirer');
  * Main function
  * @param env
  * @param chosenOne
- * @returns {Promise<string[]>}
+ * @returns {Promise<string[]>} Written files
  */
 module.exports = async (env, chosenOne) => {
     let response = await inquirer.editEnvFile(chosenOne);

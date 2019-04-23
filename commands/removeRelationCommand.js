@@ -44,5 +44,13 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
 
-    removeRelationAction(model1, model2);
+    await removeRelationAction(model1, model2)
+        .then(() => {
+            Log.success(`Relation removed between ${model1} and ${model2}`);
+        })
+        .catch((e) => {
+            Log.error("Cannot remove relation : " + e.message);
+        });
+
+    process.exit(0);
 };

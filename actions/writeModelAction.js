@@ -1,14 +1,10 @@
 /**
- * @module modelWrite
- * @author Verliefden Romain , Deflorenne Amaury
+ * @module writeModelAction
+ * @author Verliefden Romain
+ * @author Deflorenne Amaury
  * @description this module write the model.ts based on columns of the database
  * if the table exist. If the table doesn't exist , the user enter the columns of
- * the futur table and the table is created in the database.
- * @exports writeModel
- * @exports addRelation
- * @exports removeColumn
- * @exports addColumn
- * @exports main
+ * the future table and the table is created in the database.
  */
 const ejs = require('ejs');
 const Util = require('util');
@@ -22,7 +18,7 @@ const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lo
 
 /**
  *
- * @param {Array} col
+ * @param {array} col
  * @description set default value for the column and check that default is not null when value can't be null
  * @returns {string} default
  */
@@ -40,12 +36,11 @@ const _getDefault = (col) => {
 
 
 /**
- *
  * @param {String} data
  * @param {String} key
  * @description  check if column can be null or not and check if key is primay. if key is primary , there's no need to check if column can be null
  * because primary imply that value can't be null
- * @returns {string} empty : property
+ * @returns {string}
  */
 const _getNull = (data, key) => {
     if (key === 'PRI' || key === 'UNI') return '';
@@ -54,9 +49,10 @@ const _getNull = (data, key) => {
 };
 
 /**
- *  @param {String} lowercase
- *  @param {String} capitalize
+ * @param {String} lowercase
+ * @param {String} capitalize
  * @description add and import generated class names to the typeorm config file
+ * @returns {Promise<void>}
  **/
 const _addToConfig = async (lowercase, capitalize) => {
     let configFileName = `${process.cwd()}/src/config/typeorm.config.ts`;
@@ -74,7 +70,6 @@ const _addToConfig = async (lowercase, capitalize) => {
 
 
 /**
- *
  * @param {string} data
  * @description  mysql send key value as PRI , UNI. but a column written for a typeorm model primary or unique as parameter
  * @returns {string} primary or unique
@@ -86,16 +81,15 @@ const _getKey = data => {
 };
 
 /**
- *
  * @description  Format to typeorm format
  * @returns {string} data lenght/enum
  * @param info
  */
 const _getLength = (info) => {
-    if (info.type === "enum")return `enum  :  [${info.length}],`;  
-    if(info.type === 'decimal'){
-      values = info.length.split(',');
-      return `precision :${values[0]},\n    scale:${values[1]},`
+    if (info.type === "enum") return `enum  :  [${info.length}],`;
+    if (info.type === 'decimal') {
+        let values = info.length.split(',');
+        return `precision :${values[0]},\n    scale:${values[1]},`
     }
     if (info.length !== undefined && info.length !== '') {
         if (info.type.includes('int')) return `width : ${info.length},`;
@@ -107,10 +101,9 @@ const _getLength = (info) => {
 
 /**
  * @param {string} action Model name
- * @param {Array} data Data describing the model
- *
+ * @param {array} data Data describing the model
  * @description write a typeorm model from an array of info about an entity
- *
+ * @returns {Promise<void>}
  */
 exports.writeModel = async (action, data = null) => {
     let lowercase = lowercaseEntity(action);
