@@ -20,9 +20,20 @@ exports.builder = (yargs) => {
 };
 
 exports.handler = async (argv) => {
+    const {modelName} = argv;
+
     commandUtils.validateDirectory();
 
     if (argv.DROP) await sqlAdaptor.checkConnexion();
 
-    deleteAction(argv.modelName, argv.DROP);
+    // TODO : move all error handling messages to this level
+    await deleteAction(modelName, argv.DROP)
+        .then(() => {
+            Log.success("Deleted files successfully");
+        })
+        .catch((e) => { // catch unhandled errors
+            Log.error(`Failed to delete ${modelName} : ${e.message}`);
+        });
+
+    process.exit();
 };

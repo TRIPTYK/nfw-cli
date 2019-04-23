@@ -129,7 +129,4 @@ module.exports = async (action, drop) => {
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
     }
-    Log.success('Delete task done');
-
-    process.exit(0);
 };
