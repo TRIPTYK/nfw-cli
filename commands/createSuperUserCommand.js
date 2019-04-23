@@ -24,6 +24,7 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
     let credentials = await sqlAdaptor.insertAdmin(username);
+
     fs.writeFileSync('credentials.json', JSON.stringify({
         login: credentials.login,
         password: credentials.password

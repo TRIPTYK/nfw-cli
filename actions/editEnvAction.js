@@ -33,12 +33,17 @@ module.exports = async (env, chosenOne) => {
 
     let envString = JSON.stringify(response, null, '\n');
     let reg = /"(.*)":\s*(".*"|\d+)/gm; // select all key / value from env
+
     let output = envString
         .replace(reg, `$1 = $2`)
         .replace('{', "")
         .replace('}', '')
         .replace(/(,)(?!.*,)/gm, "");
 
-    fs.writeFileSync(`${env}.env`, output);
+    const writeFileName = `${env}.env`;
+
+    fs.writeFileSync(writeFileName, output);
+
+    return [writeFileName];
 };
 

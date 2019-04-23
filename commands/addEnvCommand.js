@@ -19,12 +19,20 @@ exports.builder = () => {
 
 };
 
-exports.handler = (argv) => {
+exports.handler = async (argv) => {
     const env = argv.env;
 
     console.log(chalk.blue('The default choices are based on the default environement setting -> developement.env'));
 
     let chosenOne = dotenv.parse(fs.readFileSync(`development.env`));
 
-    editEnvAction(env, chosenOne);
+    await editEnvAction(env, chosenOne)
+        .then((written) => {
+            const [envFile] = written;
+            Log.success(`New environment generated successfully`);
+            Log.info(`Created ${chalk.cyan(envFile)}`);
+        })
+        .catch((e) => {
+            Log.error("Failed to generate new environment : " + e.message);
+        });
 };
