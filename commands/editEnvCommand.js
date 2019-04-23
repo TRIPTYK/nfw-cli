@@ -3,7 +3,7 @@
  */
 const fs = require('fs');
 const dotenv = require('dotenv');
-
+const chalk = require('chalk');
 
 /**
  * Project modules
@@ -11,6 +11,7 @@ const dotenv = require('dotenv');
 const inquirer = require('../utils/inquirer');
 const commandUtils = require('./commandUtils');
 const editEnvAction = require('../actions/editEnvAction');
+const Log = require('../utils/log');
 
 exports.command = 'editENV';
 exports.aliases = ["ee", "editE"];
@@ -27,16 +28,18 @@ exports.handler = async () => {
     let files = fs.readdirSync('./');
 
     // select only env files
-    let envFiles = files.filter((file) => file.includes('.env'));
+    let envFiles = files.filter((file) => file.includes('.env')).map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')));
 
     let {env} = await inquirer.ChoseEnvFile(envFiles);
-    let chosenOne = dotenv.parse(fs.readFileSync(`${env}.env`));
+    const envFileName = `${env}.env`;
+    let chosenOne = dotenv.parse(fs.readFileSync(envFileName));
 
     await editEnvAction(env, chosenOne)
         .catch((e) => {
-            Log.error(`Cannot edit ${env}.env : ` + e.message);
+            Log.error(`Cannot edit ${envFileName} : ` + e.message);
         })
         .then(() => {
-            Log.success(`${env}.env edited successfully`);
+            Log.success(`Edited environment successfully`);
+            Log.info(`Updated ${chalk.cyan(envFileName)}`);
         });
 };
