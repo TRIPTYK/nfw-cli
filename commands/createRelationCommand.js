@@ -40,11 +40,18 @@ exports.handler = async (argv) => {
     const name = argv.name;
     const refCol = argv.refCol;
 
-
     await createRelationAction(model1, model2, relation, name, refCol)
-        .then(() => {
+        .then(async () => {
             Log.success("Relation successfully added !");
-            migrateAction(`${model1}-${model2}`);
+            await migrateAction(`${model1}-${model2}`)
+                .then((generated) => {
+                    const [migrationDir] = generated;
+                    Log.success(`Executed migration successfully`);
+                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+                })
+                .catch((e) => {
+                    Log.error(e.message);
+                });
         })
         .catch((err) => Log.error(err.message));
 };

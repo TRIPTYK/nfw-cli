@@ -9,6 +9,8 @@ const chalk = require('chalk');
  * Project modules
  */
 const editEnvAction = require('../actions/editEnvAction');
+const commandUtils = require('./commandUtils');
+const Log = require('../utils/log');
 
 exports.command = 'addENV <env>';
 exports.aliases = ["ae", "addE"];
@@ -21,6 +23,8 @@ exports.builder = () => {
 
 exports.handler = async (argv) => {
     const env = argv.env;
+
+    commandUtils.validateDirectory();
 
     console.log(chalk.blue('The default choices are based on the default environement setting -> developement.env'));
 
