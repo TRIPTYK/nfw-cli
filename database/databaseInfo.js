@@ -1,16 +1,23 @@
 /**
  * @module databaseInfo
- * @exports getTableInfo
- * @exports tableExistsInDB
+ * @description middleware function get database infos from a database adaptor
+ * @author Deflorenne Amaury
+ * @author Verliefden Romain
  */
 const sqlAdaptator = require('./sqlAdaptator');
 const Log = require('../utils/log');
 
 /**
- * @param {string} dbType
+ * @typedef {Object} tableData
+ * @property {array} columns
+ * @property {array} foreign keys / relations
+ */
+
+/**
+ * @param {string} dbType can be "sql" , "mongodb" . Only sql is supported at the moment
  * @param {string} tableName
- * @description call getColumns function in correct adapator to get data of columns
- * @returns {object} data of a table
+ * @description Call getColumns function in correct adapter to get data of columns
+ * @return {tableData}
  */
 exports.getTableInfo = async (dbType, tableName) => {
     if (dbType === "sql") {
@@ -30,7 +37,7 @@ exports.getTableInfo = async (dbType, tableName) => {
 /**
  * @param {string} tableName
  * @description Check if table exists in database
- * @returns {boolean} table exists
+ * @returns {boolean} Table exists
  */
 exports.tableExistsInDB = async (tableName) => {
     return (

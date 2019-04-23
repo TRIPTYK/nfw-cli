@@ -1,27 +1,50 @@
 /**
- * Node modules
+ * @module migrateCommmand
+ * @description Command module to execute migration of a model
+ * @author Deflorenne Amaury
  */
+
+// Node modules
 const reservedWords = require('reserved-words');
 const {Spinner} = require('clui');
 const chalk = require('chalk');
 
-/**
- * project imports
- */
+// Project imports
 const commandUtils = require('./commandUtils');
 const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const migrateAction = require('../actions/migrateAction');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'migrate  <migrateName>';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ["mig", "M"];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate, compile and run the migration';
 
+/**
+ * Yargs command builder
+ */
 exports.builder = () => {
 
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
     const modelName = argv.migrateName;
     const spinner = new Spinner("Generating and executing migration");

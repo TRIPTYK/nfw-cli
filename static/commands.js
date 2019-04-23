@@ -1,6 +1,7 @@
 /**
  * @author Samuel Antoine
  * @module commands
+ * @description store OS specific commands
  */
 module.exports = {
     getNPMCommandsUnix: {

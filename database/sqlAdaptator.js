@@ -1,29 +1,24 @@
 /**
  * @module sqlAdapatator
+ * @description Fetch data from an sql database
  * @author Verliefden Romain
- * @description this module provide method to get data from a sql database.
- * @exports getColumns
- * @exports getTables
- * @exports getTablesInName
- * @exports dropTable
- * @exports tableExists
- * @exports insertAdmin
- * @exports getForeignKeys
- * @exports dumpAll
- * @exports dumpTable
- * @exports select
- * @exports checkConnexion
+ * @author Deflorenne Amaury
  */
+
+// project modules
 const mysql = require('mysql');
-const env = require('./databaseEnv');
 const util = require('util');
 const mysqldump = require('mysqldump');
 const chalk = require('chalk');
 const bcrypt = require('bcrypt');
-const utils = require('../actions/lib/utils');
 const {singular} = require('pluralize');
 
-var db = mysql.createConnection({
+// project imports
+const utils = require('../actions/lib/utils');
+const env = require('./databaseEnv');
+
+// sql connection
+let db = mysql.createConnection({
     host: env.host,
     user: env.user,
     password: env.pwd,
@@ -31,21 +26,29 @@ var db = mysql.createConnection({
     port: env.port
 });
 
+// promisified
 const query = util.promisify(db.query.bind(db));
 const connect = util.promisify(db.connect.bind(db));
 
 /**
- * @description : get table foreign keys
- * @param {string} tableName
- * @returns {Array} query results
+ * @description Get table foreign keys
+ * @param {string} tableName Table name
+ * @returns {Promise<array>} Foreign keys
  */
 exports.getForeignKeys = async (tableName) => {
     return await query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${env.database}' AND TABLE_NAME='${tableName}';`);
 };
 
 /**
+ * @typedef {object} InsertedUser
+ * @property {string} login User email
+ * @property {string} password User password
+ */
+
+/**
  * @description Generate a random password hash it, create a super user, write in in the database, then write the credential in a file
  * @param {string} username
+ * @returns {Promise<InsertedUser>}
  */
 exports.insertAdmin = async (username) => {
     let password = "";
@@ -61,18 +64,18 @@ exports.insertAdmin = async (username) => {
 };
 
 /**
- * @description : deletes a table
+ * @description Deletes a table from database
  * @param {string} tableName
- * @returns {Array} query results
+ * @returns {Promise<number>} Number of deleted records
  */
 exports.dropTable = async (tableName) => {
     return await query(`DROP TABLE ${tableName};`);
 };
 
 /**
- * @param {string} tableName
- * @description get all data related to columns of a table
- * @returns {Array} query results
+ * @param {string} tableName Table name
+ * @description Get all data related to columns of a table
+ * @returns {Promise<array>} Column data
  */
 exports.getColumns = async (tableName) => {
     return await query(`SHOW COLUMNS FROM ${tableName} ;`);
@@ -80,9 +83,9 @@ exports.getColumns = async (tableName) => {
 
 
 /**
- * @description checks if table exists
- * @param {string} tableName
- * @returns {boolean} true/false
+ * @description Check if table exists
+ * @param {string} tableName Table name
+ * @returns {Promise<boolean>} Exists
  */
 exports.tableExists = async (tableName) => {
     let result = await query(`
@@ -95,16 +98,15 @@ exports.tableExists = async (tableName) => {
 };
 
 /**
- * @returns get all name of table in a database
- * @returns {Array} query results
+ * @returns Get all table names in database
+ * @returns {Promise<array>} Tables
  */
 exports.getTables = async () => {
-    result = await query(`SHOW TABLES`);
-    return result;
+    return await query(`SHOW TABLES`);
 };
 
 /**
- * @description as name of table are given in a associative array where the field wich contains the table is Tables_In_dbName . i need this so that
+ * @description as name of table are given in a associative array where the field which contains the table is Tables_In_dbName . i need this so that
  * i can get the correct field
  *
  * @returns {string} Tables_in_dbName
@@ -115,8 +117,9 @@ exports.getTablesInName = () => {
 
 
 /**
- * @description dump all into file
+ * @description Dump all database into file
  * @param {string} path
+ * @returns {Promise<void>}
  */
 exports.dumpAll = async (path) => {
     // dump the result straight to a file
@@ -132,9 +135,10 @@ exports.dumpAll = async (path) => {
 };
 
 /**
- * @description dump a table into file
+ * @description Dump a table into file
  * @param {string} table
  * @param {string} path
+ * @returns {Promise<void>}
  */
 exports.dumpTable = async (table, path) => {
     // dump the result straight to a file
@@ -153,10 +157,10 @@ exports.dumpTable = async (table, path) => {
 };
 
 /**
- * @description select Fields from a table
+ * @description Select fields from a table
  * @param {string[]} fields
  * @param {string} table
- * @returns {Array} query results
+ * @returns {Promise<array>} query results
  */
 exports.select = async (fields, table) => {
     let fieldValue = '';
@@ -167,9 +171,9 @@ exports.select = async (fields, table) => {
     return await query(`SELECT ${fieldValue} from  ${table}`);
 };
 
-
 /**
- * @description CHeck if the datapase if reachable, if not process exit with error message
+ * @description Check if the database is reachable, if not process exit with error message
+ * @return {Promise<void>}
  */
 exports.checkConnexion = async () => {
     const connect = util.promisify(db.connect.bind(db));
@@ -179,11 +183,11 @@ exports.checkConnexion = async () => {
             process.exit(0);
         }
     });
-
 };
 
 /**
  * @description tries to connect to database , can throw an error
+ * @returns {Promise<void>}
  */
 exports.tryConnect = async () => {
     return await connect();
@@ -191,8 +195,9 @@ exports.tryConnect = async () => {
 
 
 /**
- * creates the env database
+ * @description Creates the env database
  * Need to create a tmpConnection otherwise it will throw an error because the database does not exists
+ * @returns Promise<void>
  */
 exports.createDatabase = async () => {
     let tmpConnection = mysql.createConnection({
@@ -207,10 +212,9 @@ exports.createDatabase = async () => {
 
 
 /**
- * @param {string} dbType
  * @param {string} tableName
- * @description call getColumns function in correct adapator to get data of columns
- * @returns {object} data of a table
+ * @description Call getColumns function in correct adapator to get data of columns
+ * @returns {tableData} data of a table
  */
 exports.getTableInfo = async (tableName) => {
         let p_columns = module.exports.getColumns(tableName);
@@ -219,13 +223,19 @@ exports.getTableInfo = async (tableName) => {
         return {columns, foreignKeys};
 };
 
-exports.DropBridgingTable = async (model1,model2) => {
+/**
+ * @description TODO
+ * @param model1
+ * @param model2
+ * @returns {Promise<void>}
+ */
+exports.DropBridgingTable = async (model1, model2) => {
     model1 = singular(model1);
-    model2 = singular(model2)
+    model2 = singular(model2);
     let result = await query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
     WHERE CONSTRAINT_SCHEMA = 'testType' 
     AND (REFERENCED_TABLE_NAME ='${model1}' 
     OR REFERENCED_TABLE_NAME='${model2}');
-  `) 
-   for(let i=0 ; i<result.length ; i++) if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
-}
+  `);
+    for (let i = 0; i < result.length; i++) if (utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
+};

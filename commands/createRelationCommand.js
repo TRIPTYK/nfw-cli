@@ -1,10 +1,10 @@
 /**
- * node modules imports
+ * @module createRelationCommand
+ * @description Command module to handle creating relation between 2 models
+ * @author Deflorenne Amaury
  */
 
-/**
- * project imports
- */
+// Project imports
 const commandUtils = require('./commandUtils');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const migrateAction = require('../actions/migrateAction');
@@ -12,11 +12,28 @@ const createRelationAction = require('../actions/createRelationAction');
 const Log = require('../utils/log');
 const {format} =require('../actions/lib/utils');
 
+/**
+ * Yargs command syntax
+ * @type {string}
+ */
 exports.command = 'addRelationship <relation> <model1> <model2>';
+
+/**
+ * Aliases for Yargs command
+ * @type {string[]}
+ */
 exports.aliases = ['ar', 'addR'];
 
+/**
+ * Command description
+ * @type {string}
+ */
 exports.describe = 'Create  relation between two table';
 
+/**
+ * Handle and build command options
+ * @param yargs
+ */
 exports.builder = (yargs) => {
     yargs.option('name', {
         desc: "Specify the name of foreign key (for Oto) or the name of the bridging table (for Mtm)",
@@ -30,6 +47,11 @@ exports.builder = (yargs) => {
     });
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();

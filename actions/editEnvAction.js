@@ -9,7 +9,7 @@ const fs = require('fs');
 const inquirer = require('../utils/inquirer');
 
 module.exports = async (env, chosenOne) => {
-    let response = await inquirer.EditEnvFile(chosenOne);
+    let response = await inquirer.editEnvFile(chosenOne);
 
     response.NODE_ENV = env;
     response.API_VERSION = "v1";

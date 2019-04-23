@@ -1,24 +1,47 @@
 /**
- * node modules imports
+ * @module createSuperUserCommand
+ * @description Creates a super user in the boilerplate database
+ * @author Deflorenne Amaury
  */
+
+//Node modules imports
 const chalk = require('chalk');
 const fs = require('fs');
 
-/**
- * project imports
- */
+// Project imports
 const commandUtils = require('./commandUtils');
 const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
 
+/**
+ * Yargs command syntax
+ * @type {string}
+ */
 exports.command = 'createSU <username>';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ['csu'];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Create a Super User and save the credentials in a file';
 
+/**
+ *  Yargs command builder
+ */
 exports.builder = () => {
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
     const username = argv.username;
     const credentialsFileName = 'credentials.json';

@@ -1,30 +1,47 @@
 /**
- * node modules imports
+ * @module generateRouteCommand
+ * @description Command module to handle route with controller generation
+ * @author Deflorenne Amaury
  */
 
-/**
- * project imports
- */
+// Node modules imports
+const snakeCase = require('to-snake-case');
+
+// Project imports
 const commandUtils = require('./commandUtils');
-
 const generateRouterAction = require('../actions/generateRouterAction');
 const inquirer = require('../utils/inquirer');
 const {lowercaseEntity} = require("../actions/lib/utils");
 const {fileExists} = require('../utils/files');
 const Log = require('../utils/log');
-const snakeCase = require('to-snake-case');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'createRouter <routeName>';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ['gr'];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate a router with associated controller methods without model';
 
+/**
+ * Yargs command builder
+ */
 exports.builder = () => {
 
 };
 
 /**
- * Handler , ask question , format data and then executes associated action
+ * Main function
  * @param argv
  * @returns {Promise<void>}
  */

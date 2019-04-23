@@ -1,19 +1,38 @@
 /**
- * node modules
+ * @module newCommand
+ * @description Command module to handle generation of a new project
+ * @author Deflorenne Amaury
  */
+
+// Node modules
 const chalk = require('chalk');
 const clearConsole = require('clear');
 
-/**
- * Project imports
- */
+// Project imports
 const newAction = require('../actions/newAction');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'new';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ['n'];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate a new project';
 
+/**
+ * Yargs command builder
+ * @param yargs
+ */
 exports.builder = (yargs) => {
     yargs.option('default', {
         desc: "Generate a project with default env variables",
@@ -37,6 +56,10 @@ exports.builder = (yargs) => {
     });
 };
 
+/**
+ * Main function
+ * @param argv
+ */
 exports.handler = (argv) => {
     const name = argv._[1];
     const defaultEnv = argv.default;

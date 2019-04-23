@@ -1,8 +1,14 @@
 /**
- * array of each element to generate with the provided entity
- * @template : template file name in /cli/generate/template folder
- * @dest : destination folder
- * @ext : file extension
+ * @module resources
+ * @author Amaury Deflorenne
+ * @author Samuel Antoine
+ * @author Verliefden Romain
+ * @description Static resources for project
+ */
+
+/**
+ * @description Array of each element to generate with the provided entity
+ * @type {object[]}
  */
 exports.items = [
     {template: 'controller', dest: 'controllers', ext: 'ts'},
@@ -17,7 +23,7 @@ exports.items = [
 ];
 
 /**
- *
+ * @description Specific entities that already exists in the boilerplate
  * @type {string[]}
  */
 exports.noGenerate = [

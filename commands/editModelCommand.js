@@ -1,25 +1,46 @@
 /**
- * node modules imports
+ * @module editModelCommand
+ * @description Command module to handle editing of a given entity
+ * @author Deflorenne Amaury
  */
 
-/**
- * project imports
- */
+// Project imports
 const commandUtils = require('./commandUtils');
 const utils = require('../actions/lib/utils');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const editModelAction = require('../actions/editModelAction');
 const Log = require('../utils/log');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'editModel <model> <action> [column]';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ["em", "edit"];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'add or remove column in a model';
 
+/**
+ * Yargs command builder
+ */
 exports.builder = () => {
 
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
     const {model, column, action} = argv;
 
@@ -43,6 +64,5 @@ exports.handler = async (argv) => {
             .catch((e) => {
                 Log.error('Failed to edit model : ' + e.message)
             })
-    }
-    else Log.info("action must be add or remove");
+    } else Log.info("action must be add or remove");
 };
