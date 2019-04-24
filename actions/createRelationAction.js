@@ -102,7 +102,8 @@ const _RefCol = (name, refCol) => {
 const _Mtm = (model1, model2, isFirst, name) => {
     let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n`;
     if (isFirst) toPut += `  @JoinTable({${_Name(name)}})\n`;
-    return [toPut += `  ${ plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`,  plural(model2)];
+    toPut += `  ${ plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
+    return [toPut ,  plural(model2)];
 };
 
 /**
@@ -117,7 +118,8 @@ const _Mtm = (model1, model2, isFirst, name) => {
 const _Oto = (model1, model2, isFirst, name, refCol) => {
     let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n`;
     if (isFirst) toPut += `@JoinColumn({${_Name(name)}${_RefCol(name, refCol)}})\n`;
-    return [toPut += `  ${model2} : ${capitalizeEntity(model2)};`, model2];
+    toPut += `  ${model2} : ${capitalizeEntity(model2)};`;
+    return [toPut, model2];
 };
 
 /**
