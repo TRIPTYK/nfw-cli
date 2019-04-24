@@ -66,7 +66,9 @@ module.exports = {
                 name: 'controllerMethod',
                 type: 'input',
                 message: 'Route controller method',
-                choices: ['get', 'post', 'put', 'patch', 'delete']
+                validate: (input) => {
+                    return input !== '';
+                }
             },
             {
                 name: 'routeAuthorization',
@@ -227,7 +229,7 @@ module.exports = {
                     else return data
                 },
                 validate: (data) => {
-                    numberType = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double'];
+                    let numberType = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double'];
                     if (data === ':no') return true;
                     if (data === ':exit') return true;
                     if (numberType.includes(type)) {
@@ -244,7 +246,7 @@ module.exports = {
                         return true;
                     } else if (type === 'datetime' || type === 'timestamp') {
                         let sqlFunction = ['CURRENT_TIMESTAMP', 'GETDATE', 'GETUTCDATE', 'SYSDATETIME'];
-                        regex = /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/;
+                        let regex = /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/;
                         if (data.match(regex) && type !== 'timestamp') return true;
                         if (!isNaN(data)) return true;
                         if (sqlFunction.includes(data)) return true;

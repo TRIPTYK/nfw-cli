@@ -1,13 +1,30 @@
+/**
+ * @module routerWrite
+ * @description Append router link to router index.ts
+ * @author Deflorenne Amaury
+ */
+
+// node modules
 const ejs = require('ejs');
 const util = require('util');
 const fs = require('fs');
-const processPath = process.cwd();
-const ReadFile = util.promisify(fs.readFile);
-const WriteFile = util.promisify(fs.writeFile);
 const {plural} = require('pluralize');
+
+// project modules
 const Log = require('../../utils/log');
 const {capitalizeEntity, lowercaseEntity, writeToFirstEmptyLine, isImportPresent} = require('./utils');
 
+// promisify
+const ReadFile = util.promisify(fs.readFile);
+const WriteFile = util.promisify(fs.writeFile);
+
+const processPath = process.cwd();
+
+/**
+ * Main function
+ * @param {string} entityName
+ * @returns {Promise<void>}
+ */
 module.exports = async (entityName) => {
     const lowercase = lowercaseEntity(entityName);
     const capitalize = capitalizeEntity(entityName);

@@ -31,7 +31,7 @@ module.exports = async (entityName, routes) => {
 
     const methods = [];
     const routerPath = `/src/api/routes/v1/${entityName}.route.ts`;
-    const controllerPath = `/src/api/controllers/${entityName}.route.ts`;
+    const controllerPath = `/src/api/controllers/${entityName}.controller.ts`;
 
     routes.forEach((route) => {
         route.methods.forEach((method) => {

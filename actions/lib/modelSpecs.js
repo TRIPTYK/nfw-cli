@@ -1,16 +1,20 @@
 /**
- * @author Romain Verliefden
+ * @author Verliefden Romain
  * @module modelSpecs
- * @exports dbParams
- * @exports columnParams
+ * @description TODO
  */
-const inquirer = require('../../utils/inquirer');
+
+// node modules
 const colors = require('colors/safe');
+
+//project modules
+const inquirer = require('../../utils/inquirer');
+
 let columnWritten = [];
 
 /**
  * @description Ask every questions about the column
- * @returns {Array}
+ * @returns {Promise<null|Array>}
  */
 exports.newColumn = async () => {
     //if any answer of the question is :exit , cancel current column
@@ -69,13 +73,14 @@ exports.newColumn = async () => {
     return paramsArray;
 };
 
-
+// TODO : move to resources
 const needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint', 'char', 'binary', 'varbinary','decimal'];
 
 /**
  * @description Ask for createAt,updateAt column then for a new column until user is done
  * @param {string} entity Model name
- * @returns {Array}
+ * @param entity
+ * @returns {Promise<Array>}
  */
 exports.dbParams = async (entity) => {
     let isDoneColumn = false, paramsArray = [];
