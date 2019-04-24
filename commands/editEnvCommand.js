@@ -60,8 +60,9 @@ exports.handler = async () => {
         .catch((e) => {
             Log.error(`Cannot edit ${envFileName} : ` + e.message);
         })
-        .then(() => {
+        .then((written) => {
+            const [confFile] = written;
             Log.success(`Edited environment successfully`);
-            Log.info(`Updated ${chalk.cyan(envFileName)}`);
+            Log.info(`Updated ${confFile}`);
         });
 };

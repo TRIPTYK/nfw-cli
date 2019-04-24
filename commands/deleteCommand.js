@@ -55,8 +55,10 @@ exports.handler = async (argv) => {
 
     // TODO : move all error handling messages to this level
     await deleteAction(modelName, argv.DROP)
-        .then(() => {
-            Log.success("Deleted files successfully");
+        .then((array) => {
+            array.forEach((e) => {
+                Log.logModification(e);
+            });
         })
         .catch((e) => { // catch unhandled errors
             Log.error(`Failed to delete ${modelName} : ${e.message}`);
