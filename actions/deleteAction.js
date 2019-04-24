@@ -136,7 +136,7 @@ module.exports = async (entityName, drop) => {
                 throw new Error('Failed to create dump');
             });
         await SqlAdaptator.DeleteForeignKeys(entityName)
-            .then(() => Log.success("Table dropped"))
+            .then(() => Log.success("Foreign keys dropped"))
             .catch(() => {
                 throw new Error('Failed to drop foreign keys');
             });
