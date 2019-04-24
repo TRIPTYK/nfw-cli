@@ -223,9 +223,16 @@ exports.DropBridgingTable = async (model1,model2) => {
     model1 = singular(model1);
     model2 = singular(model2)
     let result = await query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
-    WHERE CONSTRAINT_SCHEMA = 'testType' 
+    WHERE CONSTRAINT_SCHEMA = '${env.database}' 
     AND (REFERENCED_TABLE_NAME ='${model1}' 
     OR REFERENCED_TABLE_NAME='${model2}');
   `) 
    for(let i=0 ; i<result.length ; i++) if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
+};
+
+exports.DeleteForeignKeys = async (model1) =>{
+
 }
+
+
+//SELECT CONSTRAINT_NAME,TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS      WHERE CONSTRAINT_SCHEMA = 'testType'      AND REFERENCED_TABLE_NAME ='hey';

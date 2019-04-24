@@ -3,17 +3,10 @@ const Util = require('util');
 const FS = require('fs');
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
-const {format,modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
+const {modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
 const {plural,singular ,isPlural} = require('pluralize');
 
 
-// documents : {
-//   ref:'id',
-//   attributes:DocumentSerializer.withelist,
-//   valueForRelationship: async function (relationship) {
-//      return await getRepository(Document).findOne(relationship.id);
-//  }
-// }
 /**
  * @description add reliationship in the serializer of an entity
  * @param {string} entity
