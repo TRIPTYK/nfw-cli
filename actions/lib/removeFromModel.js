@@ -1,22 +1,38 @@
+/**
+ *  @module removeFromModel
+ *  @description Remove relation from model
+ *  @author Verliefden Romain
+ */
+
+// node modules
 const Util = require('util');
 const FS = require('fs');
+const {singular, isSingular, plural} = require('pluralize');
+
+// promisify
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const {singular, isSingular, plural} = require('pluralize');
 
 /**
  * @description  Remove relationship from serializer and controller
- * @param entity
+ * @param {string} entity
  * @param {string} column relation name
+ * @returns {Promise<void>}
  */
 const removefromRelationTable = async (entity, column) => {
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'm');
     let relation = `${process.cwd()}/src/api/enums/relations/${singular(entity)}.relations.ts`;
     let relationContent = await ReadFile(relation, 'utf-8');
-    newRel = relationContent.replace(regexArray, '');
+    let newRel = relationContent.replace(regexArray, '');
     await WriteFile(relation, newRel);
 };
 
+/**
+ *
+ * @param entity
+ * @param column
+ * @returns {Promise<void>}
+ */
 const removeFromSerializer = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/serializers/${singular(entity)}.serializer.ts`;
     let newSer = await ReadFile(serializer, 'utf-8');
@@ -28,6 +44,12 @@ const removeFromSerializer = async (entity, column) => {
     await WriteFile(serializer, newSer)
 };
 
+/**
+ *
+ * @param model
+ * @param column
+ * @returns {Promise<void>}
+ */
 const removeFromTest = async (model, column) => {
     let testPath = `${process.cwd()}/test/${model}.test.js`;
     let regexRandom = new RegExp(`[^']${column}.*?,`, 'gm');
@@ -37,7 +59,12 @@ const removeFromTest = async (model, column) => {
     await WriteFile(testPath, testFile);
 };
 
-
+/**
+ *
+ * @param model
+ * @param column
+ * @returns {Promise<void>}
+ */
 const removeFromValidation = async (model, column) => {
     let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
     let regexRandom = new RegExp(`${column} :.*?,`, 'gm');
@@ -46,11 +73,12 @@ const removeFromValidation = async (model, column) => {
     await WriteFile(valPath, valFile);
 };
 
-
 /**
  * @description  Remove a column in a model
  * @param {string} model Model name
  * @param {string} column Column name
+ * @param isRelation
+ * @returns {Promise<void>}
  */
 module.exports = async (model, column, isRelation) => {
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');

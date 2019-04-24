@@ -1,54 +1,39 @@
 /**
- * @module index
- * @exports build
+ * @module generateEntityFiles
+ * @description Generate entity files except model
+ * @author Deflorenne Amaury
+ * @author Verliefden Romain
+ * @author Sam Antoine
  */
-/**
- * Requirement of the library FS
- * @description Handle read/write stream I/O
- */
+
+// node modules
 const FS = require('fs');
 const ejs = require('ejs');
 const pluralize = require('pluralize');
-/**
- * Requirement of the library Utils
- * @description Needed to promisify async methods
- */
 const Util = require('util');
-/**
- * Get the informations about the templates generation
- * @returns {Array.<JSON>} Return an array of json object
- */
-const {items} = require('../../static/resources');
-/**
- * Requirement of the logs library
- *@description Define function to simplify console logging
- */
-const Log = require('../../utils/log');
-/**
- * Requirement of the functions "countLine" and "capitalizeEntity" from the local file utils
- */
-const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn} = require('./utils');
-/**
- * Transform a async method to a promise
- * @returns {Promise} returns FS.exists async function as a promise
- */
-const ReadFile = Util.promisify(FS.readFile);
-const WriteFile = Util.promisify(FS.writeFile);
-
 const kebabCase = require('kebab-case');
 
+// project modules
+const {items} = require('../../static/resources');
+const Log = require('../../utils/log');
 const writeToRouter = require('./routerWrite');
+const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn} = require('./utils');
+
+// promisify
+const ReadFile = Util.promisify(FS.readFile);
+const WriteFile = Util.promisify(FS.writeFile);
 
 const processPath = process.cwd();
 
 // false class properties
-var capitalize;
-var lowercase;
+let capitalize;
+let lowercase;
 
 /**
- * @description replace the vars in placeholder in file and creates them
- * @param data
- * @param crudOptions
+ * Generate files from EJS templates , model generation is handled in another file
+ * @param {object} data
+ * @param {object} crudOptions
+ * @returns {Promise<void>}
  */
 const _write = async (data, crudOptions) => {
     let tableColumns, foreignKeys;
@@ -103,9 +88,10 @@ const _write = async (data, crudOptions) => {
  * Main function
  * Check entity existence, and write file or not according to the context
  *
- * @param modelName
- * @param crudOptions
- * @param data
+ * @param {string} modelName
+ * @param {object} crudOptions
+ * @param {object|null} data
+ * @returns {Promise<void>}
  */
 const build = async (modelName, crudOptions, data = null) => {
     if (!modelName.length) {

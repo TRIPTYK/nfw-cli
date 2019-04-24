@@ -1,34 +1,23 @@
 /**
  * @module utils
- * @exports countLines
- * @exports prompt
- * @exports isImportPresent
- * @exports removeImport
- * @exports writeToFirstEmptyLine
- * @exports removeEmptyLines
- * @exports modelFileExists
- * @exports capitalizeEntity
- * @exports lowercaseEntity
- * @exports sqlTypeData
- * @exports fileExists
- * @exports buildJoiFromColumn
- * @exports isBridgindTable
- * @exports columnExist
+ * @description utilities for project
+ * @author Deflorenne Amaury
+ * @author Verliefden Romain
+ * @author Sam Antoine
  */
 
-/**
- * Requires
- */
+// node modules
 const FS = require('fs');
 const readline = require('readline');
-const Util = require('util');
-const ReadFile = FS.readFileSync;
 const snake= require('to-snake-case');
 const removeAccent= require('remove-accents');
 
+const ReadFile = FS.readFileSync;
+
 /**
- * @description : count the lines of a file
- * @param {string} path
+ * @description : Count the lines of a file
+ * @param {string} path File path
+ * @returns {Promise<number>}
  */
 exports.countLines = (path) => {
     let count = 0;
@@ -51,7 +40,8 @@ exports.countLines = (path) => {
 
 /**
  * @description prompt a question and wait for a response
- * @param {string} question the question to ask
+ * @param {string} question
+ * @returns {Promise<string>}
  */
 exports.prompt = (question) => {
     const rl = readline.createInterface({
@@ -68,13 +58,13 @@ exports.prompt = (question) => {
 };
 
 /**
- * @description check if import is present in string
+ * @description Check if import is present in string
  * @param {string} string
- * @param {string} imprt import name
- * @returns {boolean} true/false
+ * @param {string} importName import name
+ * @returns {boolean}
  */
-exports.isImportPresent = (string, imprt) => {
-    let match = string.match(new RegExp(`import\\s+{.*${imprt}\\b.*}.*;`, 'gm'));
+exports.isImportPresent = (string, importName) => {
+    let match = string.match(new RegExp(`import\\s+{.*${importName}\\b.*}.*;`, 'gm'));
     return match !== null;
 };
 
@@ -82,6 +72,7 @@ exports.isImportPresent = (string, imprt) => {
  * @description remove import from string
  * @param {string} string
  * @param {string} imprt import name
+ * @return {string}
  */
 exports.removeImport = (string, imprt) => string.replace(new RegExp(`\n?import\\s+{.*${imprt}\\b.*}.*;`, "g"), "");
 
@@ -89,37 +80,43 @@ exports.removeImport = (string, imprt) => string.replace(new RegExp(`\n?import\\
  * @description replace text to the first empty line of string
  * @param {string} string
  * @param {string} by text to replace by
+ * @returns {string}
  */
 exports.writeToFirstEmptyLine = (string, by = "") => string.replace(/^\s*$/m, by);
 
 /**
  * @description remove blank lines from text
  * @param {string} string
+ * @returns {string}
  */
 exports.removeEmptyLines = (string) => string.replace(/\n?^\s*$/gm, "");
 
 
 /**
  * @description check if model file exists in projet
- * @param entity
+ * @param {string} entity
+ * @returns {boolean}
  */
 exports.modelFileExists = (entity) => exports.fileExists(`${process.cwd()}/src/api/models/${exports.lowercaseEntity(entity)}.model.ts`);
 
 /**
  * @description capitalize first letter of String
  * @param {string} entity
+ * @returns {string}
  */
 exports.capitalizeEntity = (entity) => entity[0].toUpperCase() + entity.substr(1);
 
 /**
  * @description lowercase first letter of string
  * @param {string} entity
+ * @returns {string}
  */
 exports.lowercaseEntity = (entity) => entity[0].toLowerCase() + entity.substr(1);
 
 /**
  * @description transform an sql type string to an object with type and length
  * @param {string} type
+ * @returns {object}
  */
 exports.sqlTypeData = (type) => /(?<type>\w+)(?:\((?<length>.+)\))?/.exec(type).groups;
 
@@ -173,7 +170,7 @@ exports.buildJoiFromColumn = (column) => {
 /**
  * @description Check if a table is a bridging table in a many to many relationship
  * @returns {boolean}
- * @param entity
+ * @param {string} entity
  */
 exports.isBridgindTable = (entity) => {
     let {columns, foreignKeys} = entity;
@@ -197,7 +194,13 @@ exports.columnExist =  (model, column) => {
     return exist
 };
 
-exports.relationExist=  (model,column) =>{
+/**
+ * Check if relation exists in model
+ * @param {string} model
+ * @param {string} column
+ * @returns {boolean}
+ */
+exports.relationExist=  (model, column) =>{
     let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
     let modelFile =  ReadFile(pathModel, 'utf-8');
     let exist = false;
@@ -206,8 +209,13 @@ exports.relationExist=  (model,column) =>{
     if (modelFile.match(regexMany)) exist = true;
     else if (modelFile.match(regexOne)) exist = true;
     return exist
-} 
+};
 
+/**
+ * Sanitize string : removes accents and transform to snake_case
+ * @param name
+ * @returns {String}
+ */
 exports.format = (name) =>{
     return snake(removeAccent(name));
-}
+};
