@@ -1,35 +1,54 @@
 /**
- * node modules imports
+ * @module generateRouteCommand
+ * @description Command module to handle route with controller generation
+ * @author Deflorenne Amaury
  */
 
-/**
- * project imports
- */
+// Node modules imports
+const snakeCase = require('to-snake-case');
+
+// Project imports
 const commandUtils = require('./commandUtils');
-
 const generateRouterAction = require('../actions/generateRouterAction');
 const inquirer = require('../utils/inquirer');
 const {lowercaseEntity} = require("../actions/lib/utils");
 const {fileExists} = require('../utils/files');
+const Log = require('../utils/log');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'createRouter <routeName>';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ['gr'];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate a router with associated controller methods without model';
 
+/**
+ * Yargs command builder
+ */
 exports.builder = () => {
 
 };
 
 /**
- * Handler , ask question , format data and then executes associated action
+ * Main function
  * @param argv
  * @returns {Promise<void>}
  */
 exports.handler = async (argv) => {
     commandUtils.validateDirectory();
 
-    const routeName = argv.routeName;
+    const routeName = snakeCase(argv.routeName);
     const lowercase = lowercaseEntity(routeName);
     const controllerPath = `/src/api/controllers/${lowercase}.controller.ts`;
 
@@ -73,7 +92,15 @@ exports.handler = async (argv) => {
         continueAsking = (await inquirer.askForConfirmation('Do you want to add a new route ?')).confirmation;
     }
 
-    await generateRouterAction(lowercase, routes);
+    await generateRouterAction(lowercase, routes)
+        .then((writtenPaths) => {
+            writtenPaths.forEach((path) => {
+                Log.success(`Created ${path}`);
+            });
+        })
+        .catch((error) => {
+            Log.error('Failed to generate : ' + error.message);
+        });
 
     process.exit();
 };

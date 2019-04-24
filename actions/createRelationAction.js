@@ -1,16 +1,26 @@
-const Log = require('../utils/log');
+/**
+ * @module createRelationAction
+ * @author Verliefden Romain
+ * @description creates relationship between 2 models
+ */
+
+// node modules
 const Util = require('util');
 const FS = require('fs');
+const {plural, singular, isPlural} = require('pluralize');
+
+// project modules
+const {modelFileExists, columnExist, relationExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
+const Log = require('../utils/log');
+
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
-const {modelFileExists, columnExist, relationExist,capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
-const {plural,singular ,isPlural} = require('pluralize');
-
 
 /**
- * @description add reliationship in the serializer of an entity
+ * @description add relationship in the serializer of an entity
  * @param {string} entity
- * @param column
+ * @param {string} column
+ * @returns {Promise<void>}
  */
 const _addToSerializer = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/serializers/${entity}.serializer.ts`;
@@ -41,9 +51,10 @@ const _addToSerializer = async (entity, column) => {
 };
 
 /**
- * @description add reliationship in the controller of an entity
+ * @description add relationship in the controller of an entity
  * @param {string} entity
  * @param {string} column
+ * @returns {Promise<void>}
  */
 const _addToController = async (entity, column) => {
     let serializer = `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
@@ -52,14 +63,14 @@ const _addToController = async (entity, column) => {
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
     if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
-    await WriteFile(serializer, fileContent).then(Log.success(`${column} controller updated`));
+    await WriteFile(serializer, fileContent).then(() => Log.success(`${column} controller updated`));
 };
 
 
 /**
- * @description  built string to write for name option in a JoinColum/JoinTable decorator
- * @param {String} name name of the bridging table/refenrenced column ina foreign key
- * @returns {string}  '': 'name:<name>'
+ * @description  built string to write for name option in a JoinColumn/JoinTable decorator
+ * @param {String} name name of the bridging table/referenced column ina foreign key
+ * @returns {string}
  */
 const _Name = (name) => {
     if (name != null) return `name:"${name}"`;
@@ -68,10 +79,10 @@ const _Name = (name) => {
 
 
 /**
- * @description  Build the string to write for referencedColumn option in a JoinColum/JoinTable decorato
+ * @description  Build the string to write for referencedColumn option in a JoinColumn/JoinTable decorator
  * @param {String} name name of the bridging table/name of the foreign key
- * @param {String} refCol refenrenced column in a foreign key
- * @returns {string} referencedColumnName optin ready to be written
+ * @param {String} refCol referenced column in a foreign key
+ * @returns {string} referencedColumnName option ready to be written
  */
 const _RefCol = (name, refCol) => {
     let ref = '';
@@ -86,12 +97,13 @@ const _RefCol = (name, refCol) => {
  * @param {string} model2 model related to the model you want to write in
  * @param {boolean} isFirst First in the relationship
  * @param {string} name name of the bridging table
- * @return *[] to write in a model for many to many reliationship
+ * @return {array} to write in a model for many to many relationship
  */
 const _Mtm = (model1, model2, isFirst, name) => {
     let toPut = `\n  @ManyToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n`;
     if (isFirst) toPut += `  @JoinTable({${_Name(name)}})\n`;
-    return [toPut += `  ${ plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`,  plural(model2)];
+    toPut += `  ${ plural(model2)} : ${capitalizeEntity(model2)}[];\n\n`;
+    return [toPut ,  plural(model2)];
 };
 
 /**
@@ -101,12 +113,13 @@ const _Mtm = (model1, model2, isFirst, name) => {
  * @param {boolean} isFirst First in the relationship
  * @param {string} name name of the foreignKey in the table
  * @param {string} refCol the column referenced in the foreign key
- * @return string to write in a model for one to one reliationship
+ * @return {array} to write in a model for one to one relationship
  */
 const _Oto = (model1, model2, isFirst, name, refCol) => {
     let toPut = ` @OneToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n`;
     if (isFirst) toPut += `@JoinColumn({${_Name(name)}${_RefCol(name, refCol)}})\n`;
-    return [toPut += `  ${model2} : ${capitalizeEntity(model2)};`, model2];
+    toPut += `  ${model2} : ${capitalizeEntity(model2)};`;
+    return [toPut, model2];
 };
 
 /**
@@ -114,7 +127,7 @@ const _Oto = (model1, model2, isFirst, name, refCol) => {
  * @param {string} model1 model you want to write in
  * @param {string} model2 model related to the model you want to write in
  * @param {boolean} isFirst First in the relationship
- * @return []* string to write in a model for one to many reliationship
+ * @return {array} string to write in a model for one to many relationship
  */
 const _Otm = (model1, model2, isFirst) => {
     let toPut;
@@ -131,6 +144,7 @@ const _Otm = (model1, model2, isFirst) => {
  * @param {string} relation Relation type
  * @param {string} name either the name of the foreign key (for oto) or the name of the bridging table (for mtm)
  * @param {string} refCol  for Oto only , name of the referenced column in the foreign key (must be primary or unique)
+ * @returns {Promise<void>}
  */
 const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => {
     // Get the string to write in modelFile
@@ -159,12 +173,13 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
 
 /**
  *
- * @param {String} model1 one of the model of the reliationship
- * @param {String} model2 the second model of the reliationship
+ * @param {String} model1 one of the model of the relationship
+ * @param {String} model2 the second model of the relationship
  * @param {String} relation the relation you want between the two models
  * @param {String} name either the name of the foreign key (for oto) or the name of the bridging table (for mtm)
  * @param {String} refCol for Oto only , name of the referenced column in the foreign key (must be primary or unique)
- * @description  Create a reliationship between 2 models
+ * @description  Create a relationship between 2 models
+ * @returns {Promise<void>}
  */
 module.exports = async (model1, model2, relation, name, refCol) => {
     if (!modelFileExists(model1) || !modelFileExists(model2)) throw new Error("Both model should exist in order to create a many to many relationship");
@@ -172,6 +187,6 @@ module.exports = async (model1, model2, relation, name, refCol) => {
     await _addRelation(model1, model2, true, relation, name, refCol)
         .catch(err => Log.error(err.message));
     await _addRelation(model2, model1, false, relation, name, refCol)
-        .then(() => Log.success(`reliatonship between ${model1} and  ${model2} added in models`))
+        .then(() => Log.success(`Relationship between ${model1} and  ${model2} added in models`))
         .catch(err => Log.error(err.message));
 };

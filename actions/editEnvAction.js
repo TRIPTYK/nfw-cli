@@ -1,15 +1,24 @@
 /**
- * Node modules
+ * @module editEnvAction
+ * @author Samuel Antoine
+ * @description Edit existing environment file
  */
+
+// Node modules
 const fs = require('fs');
 
-/**
- * Project modules
- */
+// Project modules
 const inquirer = require('../utils/inquirer');
 
+/**
+ * Main function
+ * @param env
+ * @param chosenOne
+ * @returns {Promise<string[]>} Written files
+ */
 module.exports = async (env, chosenOne) => {
-    let response = await inquirer.EditEnvFile(chosenOne);
+    let response = await inquirer.editEnvFile(chosenOne);
+
     response.NODE_ENV = env;
     response.API_VERSION = "v1";
     response.PORT = parseInt(response.PORT);
@@ -31,9 +40,18 @@ module.exports = async (env, chosenOne) => {
     }
 
     let envString = JSON.stringify(response, null, '\n');
-    let reg = /"(.*)":\s*(".*"|\d+)/gm;
-    let output = envString.replace(reg, `$1 = $2`).replace('{', "").replace('}', '').replace(/(,)(?!.*,)/gm, "");
+    let reg = /"(.*)":\s*(".*"|\d+)/gm; // select all key / value from env
 
-    fs.writeFileSync(`${env}.env`, output);
+    let output = envString
+        .replace(reg, `$1 = $2`)
+        .replace('{', "")
+        .replace('}', '')
+        .replace(/(,)(?!.*,)/gm, "");
+
+    const writeFileName = `${env}.env`;
+
+    fs.writeFileSync(writeFileName, output);
+
+    return [writeFileName];
 };
 

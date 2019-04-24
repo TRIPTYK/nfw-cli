@@ -1,24 +1,48 @@
 /**
- * node modules imports
+ * @module generateCommand
+ * @description Command module to handle dynamic entity files generation for the boilerplate
+ * @author Deflorenne Amaury
  */
+
+// Node modules imports
 const reservedWords = require('reserved-words');
 
-/**
- * project imports
- */
+// Project imports
 const commandUtils = require('./commandUtils');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const generateAction = require('../actions/generateAction');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'generate <modelName> [CRUD]';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ['gen', 'g'];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate a new model';
 
+/**
+ * Yargs command builder
+ * @param yargs
+ */
 exports.builder = (yargs) => {
     yargs.default('CRUD', 'CRUD');
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
     const modelName = argv.modelName;
     const crud = argv.CRUD;
@@ -45,5 +69,5 @@ exports.handler = async (argv) => {
         crudOptions.delete = crud.includes('d');
     }
 
-    generateAction(modelName, crudOptions);
+    await generateAction(modelName, crudOptions);
 };

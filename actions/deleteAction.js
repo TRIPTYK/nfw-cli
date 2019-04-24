@@ -1,31 +1,35 @@
 /**
  * @module delete
- * @exports _deleteCompiledJS
- * @exports _deleteTypescriptFiles
- * @exports _unroute
- * @exports _unconfig
- * @exports _unroute
+ * @author Verliefden Romain
+ * @author Deflorenne Amaury
+ * @description Delete entity files
  */
+
+// Node modules
+const FS = require('fs');
+const Util = require('util');
+const snake = require('to-snake-case');
+
+// Project modules
+const SqlAdaptator = require('../database/sqlAdaptator');
+const Log = require('../utils/log');
 const {items} = require('../static/resources');
 const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
-const FS = require('fs');
-const Log = require('../utils/log');
-const Util = require('util');
+
+// Promisify
 const ReadFile = Util.promisify(FS.readFile);
 const Unlink = Util.promisify(FS.unlink);
 const WriteFile = Util.promisify(FS.writeFile);
-const snake = require('to-snake-case');
-const SqlAdaptator = require('../database/sqlAdaptator');
 
 // simulate class properties
-var capitalize;
-var lowercase;
+let capitalize;
+let lowercase;
 
 const processPath = process.cwd();
 
-
 /**
- * @description delete compiled typescript files , ignoring tests
+ * @description deletes compiled typescript files , ignoring tests
+ * @returns {Promise<void>}
  */
 const _deleteCompiledJS = async () => {
     await Promise.all(items.map(async (item) => {
@@ -45,7 +49,8 @@ const _deleteCompiledJS = async () => {
 };
 
 /**
- *  @description delete typescript files
+ *  @description deletes typescript files
+ *  @returns {Promise<void>}
  */
 const _deleteTypescriptFiles = async () => {
     await Promise.all(items.map(async (item) => {
@@ -64,6 +69,7 @@ const _deleteTypescriptFiles = async () => {
 
 /**
  * @description Delete route related informations in router index.ts
+ * @returns {Promise<void>}
  */
 const _unroute = async () => {
     let proxyPath = `${processPath}/src/api/routes/v1/index.ts`;
@@ -81,7 +87,8 @@ const _unroute = async () => {
 };
 
 /**
- * @description removes Object and import from typeorm config file
+ * @description removes Object and import from Typeorm config file
+ * @returns {Promise<void>}
  */
 const _unconfig = async () => {
     let configFileName = `${process.cwd()}/src/config/typeorm.config.ts`;
@@ -98,16 +105,16 @@ const _unconfig = async () => {
 };
 
 /**
- * @description module export main entry , it deletes generated files
- * @param {string} action
- * @param {boolean} drop
- * @constructor
+ * @description Module export main entry , it deletes generated files
+ * @param {string} entityName
+ * @param {boolean} drop if true , drop the table in database
+ * @returns {Promise<void>}
  */
-module.exports = async (action, drop) => {
-    action = snake(action);
+module.exports = async (entityName, drop) => {
+    entityName = snake(entityName);
     //constructor behavior
-    capitalize = capitalizeEntity(action);
-    lowercase = lowercaseEntity(action);
+    capitalize = capitalizeEntity(entityName);
+    lowercase = lowercaseEntity(entityName);
 
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
@@ -118,17 +125,14 @@ module.exports = async (action, drop) => {
 
     await Promise.all(promises);
 
-    let dumpPath = `./dist/migration/dump/${+new Date()}-${action}`;
+    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
 
-    if (await SqlAdaptator.tableExists(action) && drop) {
-        await SqlAdaptator.dumpTable(action, dumpPath)
+    if (await SqlAdaptator.tableExists(entityName) && drop) {
+        await SqlAdaptator.dumpTable(entityName, dumpPath)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => Log.error("Failed to create table dump"));
-        await SqlAdaptator.dropTable(action)
+        await SqlAdaptator.dropTable(entityName)
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
     }
-    Log.success('Delete task done');
-
-    process.exit(0);
 };

@@ -1,27 +1,17 @@
 /**
  * @author Samuel Antoine
  * @module files
- * @exports getCurrentDirectoryBase
- * @exports directoryExists
- * @exports createDirectory
- * @exports fileExists
- * @exports isProjectDirectory
+ * @description Utils for file manipulation
  */
+
+// node modules
 const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-
-    /**
-     * @description Return the current working directory
-     * @returns {string}
-     */
-    getCurrentDirectoryBase: () => {
-        return path.basename(process.cwd());
-    },
     /**
      * @description Check if a directory exists
-     * @returns {Boolean}
+     * @returns {boolean}
      */
     directoryExists: (filePath) => {
         try {
@@ -31,7 +21,7 @@ module.exports = {
         }
     },
     /**
-     * @description Create a directory (sync)
+     * @description Creates a directory
      * @param {string} filePath path
      * @returns {boolean}
      */
@@ -45,7 +35,7 @@ module.exports = {
     /**
      * @description Check if a file exists
      * @param {string} filePath path
-     * @returns {Boolean}
+     * @returns {boolean}
      */
     fileExists: (filePath) => {
         try {
@@ -56,7 +46,7 @@ module.exports = {
     },
     /**
      * @description Check is the current working directory is a project directory
-     * @returns {Boolean}
+     * @returns {boolean}
      */
     isProjectDirectory: () => {
         return module.exports.fileExists(path.resolve(process.cwd(), ".nfw"));

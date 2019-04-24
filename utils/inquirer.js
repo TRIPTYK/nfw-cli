@@ -1,16 +1,20 @@
 /**
  * @author Samuel Antoine
- */
-const inquirer = require('inquirer');
-const files = require('./files');
-const utils = require("../actions/lib/utils");
-
-/**
  * @module inquirer
- * @returns {functions}
- * @description Inquirer questions
+ * @description Module to store inquirer questions
  */
+
+// node modules
+const inquirer = require('inquirer');
+
+// project modules
+const files = require('./files');
+
 module.exports = {
+
+    /**
+     * TODO
+     */
     askForNewPath: () => {
         const question = {
             name: 'path',
@@ -32,7 +36,7 @@ module.exports = {
     },
 
     /**
-     * CUSTOM ROUTES QUESTIONS
+     * Ask route path
      */
     askRoutePath: () => {
         const question =
@@ -45,6 +49,10 @@ module.exports = {
         ;
         return inquirer.prompt(question);
     },
+
+    /**
+     * TODO
+     */
     askRouteData: () => {
         const question = [
             {
@@ -70,6 +78,9 @@ module.exports = {
         return inquirer.prompt(question);
     },
 
+    /**
+     * TODO
+     */
     askForDatabaseCreation: () => {
         const question = {
             name: 'canCreate',
@@ -78,6 +89,10 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
+
+    /**
+     * TODO
+     */
     enumQuestion: () => {
         const question = {
             type: 'input',
@@ -90,6 +105,11 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
+
+    /**
+     * TODO
+     * @param q
+     */
     askForConfirmation: (q) => {
         const question = {
             type: 'confirm',
@@ -98,6 +118,11 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
+
+    /**
+     * TODO
+     * @param type
+     */
     lengthQuestion: (type) => {
         const question = {
             type: 'input',
@@ -114,15 +139,11 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
-    relationQuestion: () => {
-        const question = {
-            type: 'confirm',
-            name: 'addRelation',
-            message: 'Do you want to add relation between tables ?',
-            default: true
-        };
-        return inquirer.prompt(question);
-    },
+
+    /**
+     * TODO
+     * @param columnWritten
+     */
     questionColumnName: (columnWritten) => {
         const questionsParams = [
             {
@@ -140,6 +161,10 @@ module.exports = {
             }];
         return inquirer.prompt(questionsParams);
     },
+
+    /**
+     * TODO
+     */
     questionColumnKey: () => {
         const questionsParams = [
             {
@@ -159,6 +184,10 @@ module.exports = {
         return inquirer.prompt(questionsParams);
 
     },
+
+    /**
+     * TODO
+     */
     questionUnique: () => {
         const questionsParams = [
             {
@@ -174,11 +203,17 @@ module.exports = {
         ];
         return inquirer.prompt(questionsParams);
     },
+
+    /**
+     * TODO
+     * @param type
+     * @param enumArray
+     */
     questionDefault: (type, enumArray) => {
         let questionType;
         type ==='enum' ? questionType = 'list' : questionType = 'input';
         enumArray = enumArray.split(',');
-        for(let i=0;i<enumArray.length;i++)enumArray[i].replace('\'','');
+        for (let i = 0; i < enumArray.length; i++) enumArray[i].replace('\'', '');
         if (Array.isArray(enumArray)) enumArray.push('Cancel current column');
         const questionsParams = [
             {
@@ -219,6 +254,10 @@ module.exports = {
             },];
         return inquirer.prompt(questionsParams);
     },
+
+    /**
+     * TODO
+     */
     questionType: () => {
         const questionsParams = [
             {
@@ -233,42 +272,11 @@ module.exports = {
             },];
         return inquirer.prompt(questionsParams);
     },
-    questionRelation: () => {
-        const questionRelation = [
-            {
-                type: 'input',
-                name: 'referencedTable',
-                message: 'Which table is related to this table ?',
-                validate: async (data) => {
-                    path = require('path');
-                    // MARK : path to cli/generate/utils
-                    data = data.trim();
-                    if (data == null || data === '' || data === undefined) {
-                        return "you must enter a value";
-                    } else if (await utils.modelFileExists(data) || data === ':exit') {
-                        return true;
-                    } else {
-                        return "Model doesn't exist. type :exit if you want to cancel current column";
-                    }
-                }
-            }
-        ];
-        return inquirer.prompt(questionRelation);
-    },
-    questionReferencedColumn: () => {
-        const questionRelation = [
-            {
-                type: 'input',
-                name: 'referencedColumn',
-                message: 'Which column is the referenced column ?',
-                validate: data => {
-                    if (data == null || data === '' || data === undefined) return "you must enter a value";
-                    else return true;
-                }
-            }
-        ];
-        return inquirer.prompt(questionRelation);
-    },
+
+    /**
+     * TODO
+     * @param exist
+     */
     askForChoice: (exist) => {
         let create = ['create an entity', 'create a basic model', 'nothing'];
         if (exist) create.unshift('create from db');
@@ -283,6 +291,11 @@ module.exports = {
         ];
         return inquirer.prompt(options);
     },
+
+    /**
+     * TODO
+     * @param tmpKey
+     */
     askForeignKeyRelation: (tmpKey) => {
         const question = [
             {
@@ -299,6 +312,10 @@ module.exports = {
         ];
         return inquirer.prompt(question);
     },
+
+    /**
+     * TODO
+     */
     askForEnvVariable: () => {
         const envQuestion = [
             {
@@ -360,6 +377,10 @@ module.exports = {
         ];
         return inquirer.prompt(envQuestion);
     },
+
+    /**
+     * TODO
+     */
     askForCreateUpdate: () => {
         const question = [{
             type: 'confirm',
@@ -375,6 +396,10 @@ module.exports = {
 
         return inquirer.prompt(question)
     },
+
+    /**
+     * TODO
+     */
     askForDockerVars: () => {
         const dockerQuestion = [
             {
@@ -411,7 +436,12 @@ module.exports = {
         ];
         return inquirer.prompt(dockerQuestion);
     },
-    ChoseEnvFile: (envFiles) => {
+
+    /**
+     * TODO
+     * @param envFiles
+     */
+    choseEnvFile: (envFiles) => {
         const question = {
             type: "list",
             name: "env",
@@ -420,7 +450,12 @@ module.exports = {
         };
         return inquirer.prompt(question);
     },
-    EditEnvFile: (envData) => {
+
+    /**
+     * TODO
+     * @param envData
+     */
+    editEnvFile: (envData) => {
         const questions = [
             {
                 type: "input",

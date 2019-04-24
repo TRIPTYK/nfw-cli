@@ -1,26 +1,53 @@
 /**
- * Node modules
+ * @module migrateCommmand
+ * @description Command module to execute migration of a model
+ * @author Deflorenne Amaury
  */
-const reservedWords = require('reserved-words');
 
-/**
- * project imports
- */
+// Node modules
+const reservedWords = require('reserved-words');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
+
+// Project imports
 const commandUtils = require('./commandUtils');
+const Log = require('../utils/log');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const migrateAction = require('../actions/migrateAction');
 
+/**
+ * Yargs command
+ * @type {string}
+ */
 exports.command = 'migrate  <migrateName>';
+
+/**
+ * Yargs command aliases
+ * @type {string[]}
+ */
 exports.aliases = ["mig", "M"];
 
+/**
+ * Yargs command description
+ * @type {string}
+ */
 exports.describe = 'Generate, compile and run the migration';
 
+/**
+ * Yargs command builder
+ */
 exports.builder = () => {
 
 };
 
+/**
+ * Main function
+ * @param argv
+ * @return {Promise<void>}
+ */
 exports.handler = async (argv) => {
-    const modelName = argv.modelName;
+    const modelName = argv.migrateName;
+    const spinner = new Spinner("Generating and executing migration");
 
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
@@ -30,5 +57,19 @@ exports.handler = async (argv) => {
         process.exit(0);
     }
 
-    migrateAction(modelName);
+    spinner.start();
+
+    await migrateAction(modelName)
+        .then((generated) => {
+            const [migrationDir] = generated;
+            spinner.stop(true);
+            Log.success(`Executed migration successfully`);
+            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        })
+        .catch((e) => {
+            spinner.stop(true);
+            Log.error(e.message);
+        });
+
+    process.exit(0);
 };

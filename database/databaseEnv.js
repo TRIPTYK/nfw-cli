@@ -1,8 +1,13 @@
 /**
- * Exports environment settings for the database from the .env file in the root foler
+ * @module databaseEnv
+ * @description Parse information from current environment
+ * @author Deflorenne Amaury
  */
+
+// node modules
 const dotenv = require('dotenv');
 
+// current env
 let environment = "development";
 
 dotenv.config({path: `${process.cwd()}/${environment}.env`});

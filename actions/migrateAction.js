@@ -1,62 +1,57 @@
 /**
- * Node modules
+ * @author Antoine Samuel
+ * @author Deflorenne Amaury
+ * @description Generate and executes a migration
+ * @module migrateAction
  */
+
+// Node modules
 const util = require('util');
 const fs = require('fs');
-const chalk = require('chalk');
-const rimraf = util.promisify(require('rimraf'));
 const exec = util.promisify(require('child_process').exec);
-const {Spinner} = require('clui');
 const path = require('path');
 
-/**
- * Project modules
- */
-const Log = require('../utils/log');
+// Project modules
 const sqlAdaptor = require('../database/sqlAdaptator');
 
+/**
+ * Main function
+ * @param modelName
+ * @returns {Promise<array>}
+ */
 module.exports = async (modelName) => {
-    const migrate = new Spinner('Generating migration ...');
-    migrate.start();
+    const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
+    const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
 
-    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
-        .then(() => Log.success(chalk.green("Compiled successfully")))
-        .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+    // parse ormconfig.json
+    const ormConfig = JSON.parse(fs.readFileSync(`${process.cwd()}/ormconfig.json`, 'utf-8'));
 
-    await exec(`${path.resolve('node_modules','.bin','typeorm')} migration:generate -n ${modelName}`)
-        .then(() => Log.success(chalk.green("Migration generated successfully")))
-        .catch(e => Log.error(`Failed to generate migration : ${e.message}`));
+    // check if field cli exists
+    if (!ormConfig.cli)
+        throw new Error("Please check the cli:migrationDir field in ormconfig.json");
 
-    await exec(`${path.resolve('node_modules','.bin','tsc')}`)
-        .then(() => {
-            Log.success(chalk.green("Compiled successfully"));
-            rimraf('./src/migration').catch((e) => {
-                console.log("Could not delete non-compiled migration because :" + e.message);
-            });
-        })
-        .catch(e => Log.error(`Failed to compile typescript : ${e.message}`));
+    const outputPath = ormConfig.cli.migrationsDir;
 
-    await exec(`${path.resolve('node_modules','.bin','typeorm')}  migration:run`)
-        .then(() => console.log(chalk.green("Migration executed successfully")))
-        .catch(async e => {
-            Log.error(`Failed to execute migration : ${e.message}`);
+    await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
 
-            let files = fs.readdirSync('./dist/migration/');
+    await exec(`${ts_node} ${typeorm_cli}  migration:run`)
+        .catch(async e => { //Handle delete failed migration
+            let files = fs.readdirSync('./src/migration/');
             let regex = /[^0-9]+/;
             let migration = await sqlAdaptor.select(['timestamp', 'name'], 'migration_table');
-
-            Log.error("Please check your model then run nfw migrate");
 
             let migrationFiles = migration.map(mig => {
                 let migName = regex.exec(mig.name);
                 return `${mig.timestamp}-${migName[0]}.js`;
             });
+
             files.forEach(file => {
                 if (!migrationFiles.includes(file) && file !== 'dump')
-                    fs.unlinkSync(`./dist/migration/${file}`);
+                    fs.unlinkSync(`./src/migration/${file}`);
             });
+
+            throw new Error(`Failed to execute migration : ${e.message}`); // throw error again
         });
 
-    migrate.stop();
-    process.exit(0);
+    return [outputPath]; // return migration output path
 };

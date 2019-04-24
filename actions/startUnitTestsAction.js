@@ -1,14 +1,17 @@
 /**
- * Node modules
+ * @module startUnitTestsAction
+ * @description Starts mocha unit tests
+ * @author Antoine Samuel
+ * @author Deflorenne Amaury
  */
+
+// Node modules
 const {Spinner} = require('clui');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const chalk = require('chalk');
 
-/**
- * Project modules
- */
+// Project modules
 const commands = require('../static/commands');
 
 const operatingSystem = process.platform;
