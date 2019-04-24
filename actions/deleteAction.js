@@ -116,25 +116,32 @@ module.exports = async (entityName, drop) => {
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
 
-    await SqlAdaptator.DeleteForeignKeys(entityName);
+   
 
-    // let promises = [  // launch all tasks in async
-    //     _deleteTypescriptFiles(),
-    //     _deleteCompiledJS(),
-    //     _unroute(),
-    //     _unconfig(),
-    // ];
+    let promises = [  // launch all tasks in async
+        _deleteTypescriptFiles(),
+        _deleteCompiledJS(),
+        _unroute(),
+        _unconfig(),
+    ];
 
-    // await Promise.all(promises);
+    await Promise.all(promises);
 
-    // let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
+    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
 
-    // if (await SqlAdaptator.tableExists(entityName) && drop) {
-    //     await SqlAdaptator.dumpTable(entityName, dumpPath)
-    //         .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
-    //         .catch(() => Log.error("Failed to create table dump"));
-    //     await SqlAdaptator.dropTable(entityName)
-    //         .then(() => Log.success("Table dropped"))
-    //         .catch(() => Log.error("Failed to delete table"));
-    // }
+    if (await SqlAdaptator.tableExists(entityName) && drop) {
+        await SqlAdaptator.dumpTable(entityName, dumpPath)
+            .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
+            .catch(() => {
+                throw new Error('Failed to create dump');
+            });
+        await SqlAdaptator.DeleteForeignKeys(entityName)
+            .then(() => Log.success("Table dropped"))
+            .catch(() => {
+                throw new Error('Failed to drop foreign keys');
+            });
+        await SqlAdaptator.dropTable(entityName)
+            .then(() => Log.success("Table dropped"))
+            .catch(() => Log.error("Failed to delete table"));
+    }
 };
