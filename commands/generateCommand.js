@@ -70,4 +70,6 @@ exports.handler = async (argv) => {
     }
 
     await generateAction(modelName, crudOptions);
+
+    process.exit();
 };
