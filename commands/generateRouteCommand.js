@@ -6,6 +6,7 @@
 
 // Node modules imports
 const snakeCase = require('to-snake-case');
+const chalk = require('chalk');
 
 // Project imports
 const commandUtils = require('./commandUtils');
@@ -95,7 +96,7 @@ exports.handler = async (argv) => {
     await generateRouterAction(lowercase, routes)
         .then((writtenPaths) => {
             writtenPaths.forEach((path) => {
-                Log.success(`Created ${path}`);
+                Log.info(`Created ${chalk.cyan(path)}`);
             });
         })
         .catch((error) => {
