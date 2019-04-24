@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
 import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
 import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityLowercase %>.repository";
-import { relations as <%- entityLowercase %>Relations } from "../enums/relations/document.relations";
+import { relations as <%- entityLowercase %>Relations } from "../enums/relations/<%- entityLowercase %>.relations";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
 import { SerializerParams } from "../serializers/serializerParams";
