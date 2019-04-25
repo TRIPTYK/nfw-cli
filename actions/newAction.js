@@ -90,8 +90,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
-        .then(() => Log.success("Config file generated successfully"))
-        .catch(e => Log.error(e.message));
+        .then(() => Log.success("Config file generated successfully"));
 
     if (process.cwd() !== newPath && newPath !== undefined) {
         console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ") + chalk.blue(path.resolve(newPath.path, name)));
@@ -154,11 +153,9 @@ const _kickStart = async (command, name, newPath) => {
     const dir = newPath === undefined ? command.currentDirectory + name + "  && " : command.currentDirectory + path.resolve(newPath.path, name) + " && ";
 
     await exec(dir + command.kickstart)
-        .catch(e => Log.error(`Failed to generate project : ${e.message}`))
         .then(() => console.log(chalk.green("Generated successfully, Compiling TypeScript ")));
 
     await exec(dir + command.compileTypeScript)
-        .catch(e => Log.error(`Failed to compile typescript : ${e.message}`))
         .then(() => console.log(chalk.green("Compiled successfully")));
 
     kickstart.stop();
@@ -183,12 +180,10 @@ const _gitCloneAndRemove = async (name) => {
 
     // rename git folder command
     await renameDir(`${process.cwd()}/3rd-party-ts-boilerplate`, newDirPath)
-        .then(() => Log.success('Renamed directory successfully'))
-        .catch(() => Log.error('Failed to rename directory'));
+        .then(() => Log.success('Renamed directory successfully'));
 
     await rmdir(`${newDirPath}/.git`)
-        .then(() => Log.success('.git folder successfully deleted ...'))
-        .catch(() => Log.error('Failed to remove .git directory'));
+        .then(() => Log.success('.git folder successfully deleted ...'));
 
     Log.success("Project successfully set up ....");
 };

@@ -10,6 +10,7 @@ const clearConsole = require('clear');
 
 // Project imports
 const newAction = require('../actions/newAction');
+const Log = require('../utils/log');
 
 /**
  * Yargs command
@@ -60,7 +61,7 @@ exports.builder = (yargs) => {
  * Main function
  * @param argv
  */
-exports.handler = (argv) => {
+exports.handler = async (argv) => {
     const name = argv._[1];
     const defaultEnv = argv.default;
     const useDifferentPath = argv.path;
@@ -74,5 +75,14 @@ exports.handler = (argv) => {
         process.exit(0);
     }
 
-    newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn);
+    await newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn)
+        .then(() => {
+            Log.success("New project generated successfully");
+            Log.info("Don't forget to use the migrate command before starting your server");
+        })
+        .catch((e) => {
+            Log.error("Error when generating new project : " + e.message);
+        });
+
+    process.exit();
 };
