@@ -129,6 +129,8 @@ module.exports = async (entityName, drop) => {
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
 
+
+
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
         _deleteCompiledJS(),
@@ -148,8 +150,15 @@ module.exports = async (entityName, drop) => {
     if (await SqlAdaptor.tableExists(entityName) && drop) {
         await SqlAdaptor.dumpTable(entityName, dumpPath)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
-            .catch(() => Log.error("Failed to create table dump"));
-        await SqlAdaptor.dropTable(entityName)
+            .catch(() => {
+                throw new Error('Failed to create dump');
+            });
+        await SqlAdaptator.DeleteForeignKeys(entityName)
+            .then(() => Log.success("Foreign keys dropped"))
+            .catch(() => {
+                throw new Error('Failed to drop foreign keys');
+            });
+        await SqlAdaptator.dropTable(entityName)
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
     }
