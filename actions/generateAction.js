@@ -57,7 +57,7 @@ module.exports = async (modelName, crud) => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                     });
-                migrateAction(modelName);
+                await migrateAction(modelName);
                 break;
             case "create a basic model":
                 await modelWriteAction.basicModel(modelName)
@@ -65,7 +65,7 @@ module.exports = async (modelName, crud) => {
                         Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                         process.exit(1);
                     });
-                migrateAction(modelName);
+                await migrateAction(modelName);
                 entityModelData = [];
                 entityModelData['columns'] = [];
                 entityModelData['foreignKeys'] = [];
