@@ -6,11 +6,24 @@
 
 // node modules
 const dotenv = require('dotenv');
+const fs = require('fs');
+
+// project modules
+const Log = require('../utils/log');
+
+let currentEnv = 'development';
 
 // current env
-let environment = "development";
+try {
+    let nfwFile = fs.readFileSync(".nfw", 'utf-8');
+    let nfwObj = JSON.parse(nfwFile);
+    if (nfwObj.env)
+        currentEnv = nfwObj.env.toLowerCase();
+} catch (e) {
+    Log.warning("Failed to read env variable from .nfw file , development has been set by default");
+}
 
-dotenv.config({path: `${process.cwd()}/${environment}.env`});
+dotenv.config({path: `${process.cwd()}/${currentEnv}.env`});
 const env = process.env.NODE_ENV;
 const type = process.env.TYPEORM_TYPE;
 const name = process.env.TYPEORM_NAME;

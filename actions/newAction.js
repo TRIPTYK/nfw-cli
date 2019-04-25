@@ -88,7 +88,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     const config = {
         name: name,
         path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name),
-        env: envVar === undefined ? 'development' : envVar.env
+        env: envVar === undefined ? 'development' : envVar.env.toLowerCase()
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
