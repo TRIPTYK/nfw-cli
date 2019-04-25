@@ -28,7 +28,7 @@ exports.aliases = ['ar', 'addR'];
  * Command description
  * @type {string}
  */
-exports.describe = 'Create  relation between two table';
+exports.describe = 'Create  relation between two table\n Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)';
 
 /**
  * Handle and build command options
@@ -53,6 +53,7 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
+    relations=['mtm','mto','otm','oto'];
     commandUtils.validateDirectory();
     await sqlAdaptor.checkConnexion();
 
@@ -61,6 +62,11 @@ exports.handler = async (argv) => {
     const relation = argv.relation;
     const name = argv.name;
     const refCol = argv.refCol;
+
+    if(!relations.includes(relation)){
+        Log.info('Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)');
+        process.exit(0)
+    }
 
     await createRelationAction(model1, model2, relation, name, refCol)
         .then(async () => {
