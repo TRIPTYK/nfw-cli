@@ -67,8 +67,8 @@ module.exports = async (environment, monitoringEnabled) => {
     } catch (e) {
         console.log(e);
         if (e.code === 'ER_BAD_DB_ERROR') {
-            let {canCreate} = await inquirer.askForDatabaseCreation();
-            if (canCreate) {
+            let {confirmation} = await inquirer.askForConfirmation('Database does not exists , do you want to create it ?');
+            if (confirmation) {
                 await sqlAdaptor.createDatabase();
             }
         } else {

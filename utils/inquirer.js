@@ -83,18 +83,6 @@ module.exports = {
     /**
      * TODO
      */
-    askForDatabaseCreation: () => {
-        const question = {
-            name: 'canCreate',
-            type: 'confirm',
-            message: 'Database does not exists , do you want to create it ?',
-        };
-        return inquirer.prompt(question);
-    },
-
-    /**
-     * TODO
-     */
     enumQuestion: () => {
         const question = {
             type: 'input',
