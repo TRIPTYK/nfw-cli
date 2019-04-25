@@ -78,7 +78,6 @@ exports.handler = async (argv) => {
     await newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn)
         .then(() => {
             Log.success("New project generated successfully");
-            Log.info("Don't forget to use the migrate command before starting your server");
         })
         .catch((e) => {
             Log.error("Error when generating new project : " + e.message);

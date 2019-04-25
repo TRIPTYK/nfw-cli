@@ -11,11 +11,6 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-// Project modules
-const sqlAdaptor = require('../database/sqlAdaptator');
-const Log = require('../utils/log');
-const inquirer = require('../utils/inquirer');
-
 /**
  * Main function
  * @param {string} environment
@@ -60,21 +55,6 @@ module.exports = async (environment, monitoringEnabled) => {
 
         fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, 1));
         console.log(chalk.green('Successfully updated the ormconfig.json file'))
-    }
-
-    try {
-        await sqlAdaptor.tryConnect();
-    } catch (e) {
-        console.log(e);
-        if (e.code === 'ER_BAD_DB_ERROR') {
-            let {canCreate} = await inquirer.askForDatabaseCreation();
-            if (canCreate) {
-                await sqlAdaptor.createDatabase();
-            }
-        } else {
-            Log.error(`Unhandled database connection error (${e.code}) : exiting ...`);
-            process.exit();
-        }
     }
 
     if (monitoringEnabled) {

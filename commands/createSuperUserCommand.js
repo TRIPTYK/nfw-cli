@@ -7,6 +7,7 @@
 //Node modules imports
 const chalk = require('chalk');
 const fs = require('fs');
+const ejs = require('ejs');
 
 // Project imports
 const commandUtils = require('./commandUtils');
@@ -55,14 +56,18 @@ exports.handler = async (argv) => {
             process.exit();
         });
 
-    fs.writeFileSync('credentials.json', JSON.stringify({
+    const credentialsTemplate = `${process.cwd()}/templates/custom/userCredentials.ejs`;
+
+    const compiled = ejs.compile(credentialsTemplate)({
         login: credentials.login,
         password: credentials.password
-    }, null, 2));
+    });
+
+    fs.writeFileSync('credentials.json', compiled);
 
     console.log(
         chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :')) +
-        "\nYou have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsability to change this password to your own password"
+        "\nYou have generated a Super User for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password"
     );
 
     Log.info(`Created ${credentialsFileName}`);

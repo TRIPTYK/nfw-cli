@@ -19,6 +19,8 @@ const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
+const migrateAction = require('./migrateAction');
+const sqlAdaptor = require('../database/sqlAdaptator');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);
@@ -81,12 +83,12 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 
     await _gitCloneAndRemove(name);
     const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
-    console.time("Execution time");
     await _kickStart(kickstartCommand, name, newPath);
-    console.timeEnd("Execution time");
+
     const config = {
         name: name,
-        path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name)
+        path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name),
+        env: envVar === undefined ? 'development' : envVar.env
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
@@ -138,6 +140,28 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
         });
     }
+
+    try {
+        await sqlAdaptor.tryConnect();
+    } catch (e) {
+        if (e.code === 'ER_BAD_DB_ERROR') {
+            await sqlAdaptor.createDatabase();
+        } else {
+            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
+        }
+    }
+
+
+    const spinner = new Spinner("Generating migration");
+    spinner.start();
+
+    await migrateAction("project_init")
+        .then((generated) => {
+            const [migrationDir] = generated;
+            spinner.stop();
+            Log.success(`Executed migration successfully`);
+            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        });
 };
 
 /**
