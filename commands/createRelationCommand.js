@@ -64,6 +64,7 @@ exports.handler = async (argv) => {
     const refCol = argv.refCol;
 
     if(!relations.includes(relation)){
+        Log.error('Wrong relation');
         Log.info('Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)');
         process.exit(0)
     }
