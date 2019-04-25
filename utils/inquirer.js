@@ -44,7 +44,16 @@ module.exports = {
                 name: 'routePath',
                 type: 'input',
                 message: 'Please enter the route path',
-                default: '/'
+                default: '/',
+                validate : (input) =>{
+                    if (input === "" || input ==='/') return "route path must contains at least one letter";
+                    else if(input.includes(' ')) return 'route path can\'t contains space';
+                    else return true;
+                },
+                filter : (input) =>{
+                    if(input[0] !== '/') return `/${input}`;
+                    else return input;
+                }
             }
         ;
         return inquirer.prompt(question);
@@ -67,14 +76,17 @@ module.exports = {
                 type: 'input',
                 message: 'Route controller method',
                 validate: (input) => {
-                    return input !== '';
+                    if( input === '') return "Controller method can't be empty";        
+                    else if(input.includes(' ')) return 'Controller method can\'t contains space';
+                    else if (!input.match(/^[a-zA-Z]\w+$/)) return "Controller method contain fordibben charachter";
+                    else return true;
                 }
             },
             {
                 name: 'routeAuthorization',
                 type: 'list',
                 message: 'Route authorization level',
-                choices: ['ADMIN', 'LOGGED_USER', 'GHOST'],
+                choices: ['ADMIN', 'LOGGED_USER', 'GHOST']
             }
         ];
         return inquirer.prompt(question);
