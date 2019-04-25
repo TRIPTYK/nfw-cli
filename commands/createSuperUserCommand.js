@@ -56,7 +56,7 @@ exports.handler = async (argv) => {
             process.exit();
         });
 
-    const credentialsTemplate = `${process.cwd()}/templates/custom/userCredentials.ejs`;
+    const credentialsTemplate = fs.readFileSync(`${__baseDir}/templates/custom/userCredentials.ejs`,'utf-8');
 
     const compiled = ejs.compile(credentialsTemplate)({
         login: credentials.login,
