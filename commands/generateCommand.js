@@ -11,6 +11,7 @@ const reservedWords = require('reserved-words');
 const commandUtils = require('./commandUtils');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const generateAction = require('../actions/generateAction');
+const migrateAction = require('../actions/migrateAction');
 
 /**
  * Yargs command
@@ -70,6 +71,16 @@ exports.handler = async (argv) => {
     }
 
     await generateAction(modelName, crudOptions);
+
+    await migrateAction(modelName)
+        .then((generated) => {
+            const [migrationDir] = generated;
+            Log.success(`Executed migration successfully`);
+            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        })
+        .catch((e) => {
+            Log.error(e.message);
+        });
 
     process.exit();
 };
