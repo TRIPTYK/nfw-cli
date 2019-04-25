@@ -13,6 +13,11 @@ const sqlAdaptor = require('../database/sqlAdaptator');
 const generateAction = require('../actions/generateAction');
 const migrateAction = require('../actions/migrateAction');
 
+const Log = require('../utils/log');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
+
+
 /**
  * Yargs command
  * @type {string}
@@ -72,9 +77,12 @@ exports.handler = async (argv) => {
 
     await generateAction(modelName, crudOptions);
 
+    const spinner = new Spinner("Generating and executing migration");
+    spinner.start();
     await migrateAction(modelName)
         .then((generated) => {
             const [migrationDir] = generated;
+            spinner.stop();
             Log.success(`Executed migration successfully`);
             Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
         })
