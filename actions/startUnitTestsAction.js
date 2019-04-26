@@ -6,7 +6,6 @@
  */
 
 // Node modules
-const {Spinner} = require('clui');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const chalk = require('chalk');
@@ -21,8 +20,6 @@ const operatingSystem = process.platform;
  * @returns {Array.string}
  */
 module.exports = async (logs) => {
-    const status = new Spinner('Executing unit tests, please wait ...');
-    status.start();
     let command = operatingSystem === "win32" ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
     const unitTestOutput = await exec(command.test);
     let string = unitTestOutput.stdout;
@@ -45,7 +42,4 @@ module.exports = async (logs) => {
 
         console.log(`${chalk.green(output[0])} \n ${output[1] !== undefined ? chalk.bgRed(chalk.black(output[1] + " =>")) : ""} \n ${errors !== undefined ? chalk.red(errors) : ""}`);
     }
-
-    status.stop();
-    process.exit(0);
 };

@@ -9,260 +9,264 @@
 const mysql = require('mysql');
 const util = require('util');
 const mysqldump = require('mysqldump');
-const chalk = require('chalk');
 const bcrypt = require('bcrypt');
 const {singular} = require('pluralize');
+const dotenv = require('dotenv');
+const fs = require('fs');
 
 // project imports
 const utils = require('../actions/lib/utils');
-const env = require('./databaseEnv');
 
-// sql connection
-let db = mysql.createConnection({
-    host: env.host,
-    user: env.user,
-    password: env.pwd,
-    database: env.database,
-    port: env.port
-});
+class DatabaseEnv
+{
+    /**
+     *
+     * @param {string} path
+     */
+    constructor(path)
+    {
+        if (typeof path === "string")
+            this.loadFromFile(path);
+        if (typeof path === "object")
+            this.envVariables = path;
+    }
 
-// promisified
-const query = util.promisify(db.query.bind(db));
-const connect = util.promisify(db.connect.bind(db));
+    loadFromFile(path)
+    {
+        this.envVariables = dotenv.config({path: path}).parsed;
+    }
 
-/**
- * @description Get table foreign keys
- * @param {string} tableName Table name
- * @returns {Promise<array>} Foreign keys
- */
-exports.getForeignKeys = async (tableName) => {
-    return await query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${env.database}' AND TABLE_NAME='${tableName}';`);
-};
+    getEnvironment()
+    {
+        return this.envVariables;
+    }
+}
 
-/**
- * @typedef {object} InsertedUser
- * @property {string} login User email
- * @property {string} password User password
- */
+class SqlConnection
+{
+    /**
+     *
+     * @param {DatabaseEnv} env
+     */
+    constructor(env = null)
+    {
+        if (env)
+            this.environement = env.getEnvironment();
+    }
 
-/**
- * @description Generate a random password hash it, create a super user, write in in the database, then write the credential in a file
- * @param {string} username
- * @returns {Promise<InsertedUser>}
- */
-exports.insertAdmin = async (username) => {
-    let password = "";
-    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 24; i++)
-        password += possible.charAt(Math.floor(Math.random() * possible.length));
-    let hashed = await bcrypt.hash(password, 10);
-    await query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${username}@localhost.com','${username}','${username}','{}','admin', '${hashed}')`);
-    return {
-        login: `${username}@localhost.com`,
-        password
-    };
-};
+    /**
+     *
+     * @param {DatabaseEnv} env
+     */
+    async connect(env = null)
+    {
+        if (!env)
+            env = this.environement;
 
-/**
- * @description Deletes a table from database
- * @param {string} tableName
- * @returns {Promise<number>} Number of deleted records
- */
-exports.dropTable = async (tableName) => {
-    return await query(`DROP TABLE ${tableName};`);
-};
+        this.db = mysql.createConnection({
+            host: env.TYPEORM_HOST,
+            user: env.TYPEORM_USER,
+            password: env.TYPEORM_PWD,
+            database: env.TYPEORM_DB,
+            port: env.TYPEORM_PORT
+        });
 
-/**
- * @param {string} tableName Table name
- * @description Get all data related to columns of a table
- * @returns {Promise<array>} Column data
- */
-exports.getColumns = async (tableName) => {
-    return await query(`SHOW COLUMNS FROM ${tableName} ;`);
-};
+        const connect = util.promisify(this.db.connect).bind(this.db);
+        await connect();
+        this.query = util.promisify(this.db.query).bind(this.db);
+    }
 
-
-/**
- * @description Check if table exists
- * @param {string} tableName Table name
- * @returns {Promise<boolean>} Exists
- */
-exports.tableExists = async (tableName) => {
-    let result = await query(`
-    SELECT COUNT(*) as 'count'
-    FROM information_schema.tables
-    WHERE table_schema = '${env.database}'
-    AND table_name = '${tableName}';
-  `).catch(() => [{count: false}]);
-    return result[0].count > 0;
-};
-
-/**
- * @returns Get all table names in database
- * @returns {Promise<array>} Tables
- */
-exports.getTables = async () => {
-    return await query(`SHOW TABLES`);
-};
-
-/**
- * @description as name of table are given in a associative array where the field which contains the table is Tables_In_dbName . i need this so that
- * i can get the correct field
- *
- * @returns {string} Tables_in_dbName
- */
-exports.getTablesInName = () => {
-    return "Tables_in_" + env.database.replace('-', '_');
-};
-
-
-/**
- * @description Dump all database into file
- * @param {string} path
- * @returns {Promise<void>}
- */
-exports.dumpAll = async (path) => {
-    // dump the result straight to a file
-    await mysqldump({
-        connection: {
-            host: env.host,
-            user: env.user,
-            password: env.pwd,
-            database: env.database,
-        },
-        dumpToFile: path + '.sql',
-    });
-};
-
-/**
- * @description Dump a table into file
- * @param {string} table
- * @param {string} path
- * @returns {Promise<void>}
- */
-exports.dumpTable = async (table, path) => {
-    // dump the result straight to a file
-    await mysqldump({
-        connection: {
-            host: env.host,
-            user: env.user,
-            password: env.pwd,
-            database: env.database,
-        },
-        dump: {
-            tables: [table]
-        },
-        dumpToFile: path + '.sql',
-    })
-};
-
-/**
- * @description Select fields from a table
- * @param {string[]} fields
- * @param {string} table
- * @returns {Promise<array>} query results
- */
-exports.select = async (fields, table) => {
-    let fieldValue = '';
-    fields.forEach(field => {
-        fieldValue += field + ",";
-    });
-    fieldValue = fieldValue.substr(0, fieldValue.length - 1);
-    return await query(`SELECT ${fieldValue} from  ${table}`);
-};
-
-/**
- * @description Check if the database is reachable, if not process exit with error message
- * @return {Promise<void>}
- */
-exports.checkConnexion = async () => {
-    const connect = util.promisify(db.connect.bind(db));
-    await connect().catch(err => {
-        if (err) {
-            console.log(chalk.red("Database is unreachable"));
-            process.exit(0);
-        }
-    });
-};
-
-/**
- * @description tries to connect to database , can throw an error
- * @returns {Promise<void>}
- */
-exports.tryConnect = async () => {
-    return await connect();
-};
-
-
-/**
- * @description Creates the env database
- * Need to create a tmpConnection otherwise it will throw an error because the database does not exists
- * @returns Promise<void>
- */
-exports.createDatabase = async () => {
-    let tmpConnection = mysql.createConnection({
-        host: env.host,
-        user: env.user,
-        password: env.pwd,
-        port: env.port
-    });
-    const tmpQuery = util.promisify(tmpConnection.query.bind(tmpConnection));
-    return await tmpQuery(`CREATE DATABASE IF NOT EXISTS ${env.database}`);
-};
-
-
-/**
- * @param {string} tableName
- * @description Call getColumns function in correct adapator to get data of columns
- * @returns {tableData} data of a table
- */
-exports.getTableInfo = async (tableName) => {
-        let p_columns = module.exports.getColumns(tableName);
-        let p_foreignKeys = module.exports.getForeignKeys(tableName);
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<{foreignKeys: *, columns: *}>}
+     */
+    async getTableInfo(tableName)
+    {
+        let p_columns = this.getColumns(tableName);
+        let p_foreignKeys = this.getForeignKeys(tableName);
         let [columns, foreignKeys] = await Promise.all([p_columns, p_foreignKeys]);
         return {columns, foreignKeys};
-};
+    }
 
-/**
- * @description Drop bridging table with both models
- * @param model1
- * @param model2
- * @returns {Promise<void>}
- */
-exports.DropBridgingTable = async (model1, model2) => {
-    model1 = singular(model1);
-    model2 = singular(model2);
-    let result = await query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
-    WHERE CONSTRAINT_SCHEMA = '${env.database}' 
-    AND (REFERENCED_TABLE_NAME ='${model1}' 
-    OR REFERENCED_TABLE_NAME='${model2}');
-  `) 
-   for(let i=0 ; i<result.length ; i++) if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
-};
+    /**
+     *
+     * @param model1
+     * @param model2
+     * @returns {Promise<void>}
+     */
+    async dropBridgingTable(model1,model2)
+    {
+        model1 = singular(model1);
+        model2 = singular(model2);
+        let result = await this.query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
+            WHERE CONSTRAINT_SCHEMA = '${this.environement.database}' 
+            AND (REFERENCED_TABLE_NAME ='${model1}' 
+            OR REFERENCED_TABLE_NAME='${model2}');
+        `);
+        for(let i=0 ; i<result.length ; i++)
+            if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME)))
+                await module.exports.dropTable(result[i].TABLE_NAME);
+    }
 
+    /**
+     *
+     * @returns {Promise<any | void>}
+     */
+    async getTables()
+    {
+        return await this.query(`SHOW TABLES`);
+    }
 
-/**
- * @description Delete all foreignKeys that point to a specific table
- * @param model1
- * @param model2
- * @returns {Promise<void>}
- */
-exports.DeleteForeignKeys = async (tableName) =>{
-    let result = await query(`SELECT COLUMN_NAME,CONSTRAINT_NAME,TABLE_NAME 
-    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-    WHERE REFERENCED_TABLE_SCHEMA='${env.database}' 
-    AND REFERENCED_TABLE_NAME='${tableName}';
-    `);
-    for(let i=0 ; i<result.length ; i++) {
-        if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
-        else {
-            let queryDel = await query(`ALTER TABLE ${result[i].TABLE_NAME} 
-            DROP FOREIGN KEY ${result[i].CONSTRAINT_NAME},
-            DROP ${result[i].COLUMN_NAME}`); 
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<any | void>}
+     */
+    async getForeignKeys(tableName) {
+        return await this.query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${this.environement.database}' AND TABLE_NAME='${tableName}';`);
+    };
+
+    /**
+     *
+     * @param username
+     * @returns {Promise<{password: (string|string), login: string}>}
+     */
+    async insertAdmin(username)
+    {
+        let password = "";
+        let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for (let i = 0; i < 24; i++)
+            password += possible.charAt(Math.floor(Math.random() * possible.length));
+        let hashed = await bcrypt.hash(password, 10);
+        await this.query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${username}@localhost.com','${username}','${username}','{}','admin', '${hashed}')`);
+        return {
+            login: `${username}@localhost.com`,
+            password
+        };
+    }
+
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<boolean>}
+     */
+    async tableExists(tableName) {
+        let result = await this.query(`
+            SELECT COUNT(*) as 'count'
+            FROM information_schema.tables
+            WHERE table_schema = '${env.database}'
+            AND table_name = '${tableName}';
+        `).catch(() => [{count: false}]);
+        return result[0].count > 0;
+    }
+
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<any | void>}
+     */
+    async getColumns(tableName)
+    {
+        return await this.query(`SHOW COLUMNS FROM ${tableName} ;`);
+    }
+
+    /**
+     *
+     * @param table
+     * @param fields
+     * @returns {Promise<any | void>}
+     */
+    async select(table,fields)
+    {
+        return await this.query(`SELECT ${fields} from  ${table}`);
+    }
+
+    /**
+     *
+     * @param databaseName
+     * @returns {Promise<any | void>}
+     */
+    async createDatabase(databaseName)
+    {
+        return await this.query(`CREATE DATABASE IF NOT EXISTS ${databaseName}`);
+    }
+
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<void>}
+     */
+    async deleteForeignKeys(tableName)
+    {
+        let result = await this.query(`SELECT COLUMN_NAME,CONSTRAINT_NAME,TABLE_NAME 
+        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+        WHERE REFERENCED_TABLE_SCHEMA='${env.database}' 
+        AND REFERENCED_TABLE_NAME='${tableName}';
+        `);
+        for(let i=0 ; i<result.length ; i++) {
+            if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME)))
+                await this.dropTable(result[i].TABLE_NAME);
+            else {
+                await query(`ALTER TABLE ${result[i].TABLE_NAME} DROP FOREIGN KEY ${result[i].CONSTRAINT_NAME}, DROP ${result[i].COLUMN_NAME}`);
+            }
         }
     }
 
+    /**
+     *
+     * @param tableName
+     * @returns {Promise<any | void>}
+     */
+    async dropTable(tableName)
+    {
+        return await this.query(`DROP TABLE ${tableName};`);
+    }
+
+    /**
+     *
+     * @param env
+     * @param path
+     * @param table
+     * @returns {Promise<void>}
+     */
+    static async dumpTable(env,path,table)
+    {
+        await mysqldump({
+            connection: env.getEnvironment(),
+            dumpToFile: path + '.sql',
+            dump: {
+                tables: [table]
+            }
+        });
+    }
+
+    /**
+     *
+     * @param env
+     * @param path
+     * @returns {Promise<void>}
+     */
+    static async dumpAll(env,path)
+    {
+        await mysqldump({
+            connection: env.getEnvironment(),
+            dumpToFile: path + '.sql',
+        });
+    }
 }
 
+exports.DatabaseEnv = DatabaseEnv;
+exports.SqlConnection = SqlConnection;
 
-//     WHERE CONSTRAINT_SCHEMA = 'testType'      AND REFERENCED_TABLE_NAME ='hey';
+exports.getSqlConnectionFromNFW = async () => {
+    const nfwFile = fs.readFileSync('.nfw','utf-8');
+    let nfwEnv = JSON.parse(nfwFile).env;
+
+    if (!nfwEnv)
+        nfwEnv = 'development';
+
+    const connection =  new SqlConnection(new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`));
+    await connection.connect();
+    return connection;
+};

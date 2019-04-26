@@ -9,7 +9,6 @@ const chalk = require('chalk');
 
 // project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const inquirer = require('../utils/inquirer');
 const Log = require('../utils/log');
 
@@ -45,7 +44,7 @@ exports.builder = () => {
  */
 exports.handler = async () => {
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
+    await commandUtils.checkConnectToDatabase();
 
     const {confirmation} = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will override existing models with the same name ! Do you want to continue ?`);
 

@@ -7,9 +7,12 @@
 // Node modules
 const chalk = require('chalk');
 const clearConsole = require('clear');
+const { Spinner } = require('clui');
 
 // Project imports
 const newAction = require('../actions/newAction');
+const migrateAction = require('../actions/migrateAction');
+const createSuperUserAction = require('../actions/createSuperUserAction');
 const Log = require('../utils/log');
 
 /**
@@ -80,7 +83,43 @@ exports.handler = async (argv) => {
             Log.success("New project generated successfully");
         })
         .catch((e) => {
+            console.log(e);
             Log.error("Error when generating new project : " + e.message);
+            process.exit();
+        });
+
+    // change dir for migration
+    clearConsole();
+    process.chdir(name);
+
+    const migrationSpinner = new Spinner("Executing migration ...");
+    migrationSpinner.start();
+
+    await migrateAction("init_project")
+        .then((generated) => {
+            const [migrationDir] = generated;
+            Log.success(`Executed migration successfully`);
+            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        })
+        .catch((e) => {
+            Log.error("Failed to execute migration : " + e.message);
+        });
+
+    migrationSpinner.stop();
+
+    await createSuperUserAction("admin")
+        .then((generated) => {
+            const [ filePath ] = generated;
+
+            Log.info(`Created ${filePath}`);
+
+            console.log(
+                chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :')) +
+                `\nA Super User named ${chalk.red('admin')} has been generated for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password`
+            );
+        })
+        .catch((e) => {
+            Log.error("Failed to create super user : " + e.message);
         });
 
     process.exit();

@@ -6,7 +6,6 @@
 
 // Project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const deleteAction = require('../actions/deleteAction');
 const Log = require('../utils/log');
 
@@ -51,7 +50,7 @@ exports.handler = async (argv) => {
 
     commandUtils.validateDirectory();
 
-    if (argv.DROP) await sqlAdaptor.checkConnexion();
+    if (argv.DROP) await commandUtils.checkConnectToDatabase();
 
     // TODO : move all error handling messages to this level
     await deleteAction(modelName, argv.DROP)
