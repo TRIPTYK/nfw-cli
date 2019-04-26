@@ -8,13 +8,15 @@
 const Util = require('util');
 const FS = require('fs');
 const {singular, isSingular, plural} = require('pluralize');
+const chalk = require('chalk');
 
 // promisify
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 
-//utils
+//project modules
 const {removeImport,capitalizeEntity} =require('./utils');
+const Log = require('../../utils/log');
 
 /**
  * @description  Remove relationship from serializer and controller
@@ -27,7 +29,7 @@ const removefromRelationTable = async (entity, column) => {
     let relation = `${process.cwd()}/src/api/enums/relations/${singular(entity)}.relations.ts`;
     let relationContent = await ReadFile(relation, 'utf-8');
     let newRel = relationContent.replace(regexArray, '');
-    await WriteFile(relation, newRel);
+    await WriteFile(relation, newRel).then(() => Log.info(`${chalk.cyan(`/src/api/enums/relations/${singular(entity)}.relations.ts`)} updated`));
 };
 
 /**
@@ -46,7 +48,7 @@ const removeFromSerializer = async (entity, column) => {
     newSer = newSer.replace(regexArray, '');
     newSer = removeImport(newSer, capitalizeEntity(singular(column)));
     newSer = removeImport(newSer, capitalizeEntity(singular(`${column}Serializer`)));
-    await WriteFile(serializer, newSer)
+    await WriteFile(serializer, newSer).then(() => Log.info(`${chalk.cyan(`/src/api/serializers/${singular(entity)}.serializer.ts`)} updated`));
 };
 
 /**
@@ -61,7 +63,7 @@ const removeFromTest = async (model, column) => {
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
     let testFile = await ReadFile(testPath, 'utf-8');
     testFile = testFile.replace(regexRandom, '').replace(regexArray, '');
-    await WriteFile(testPath, testFile);
+    await WriteFile(testPath, testFile).then(() => Log.info(`${chalk.cyan(`/test/${model}.test.js`)} updated`));
 };
 
 /**
@@ -75,7 +77,7 @@ const removeFromValidation = async (model, column) => {
     let regexRandom = new RegExp(`${column} :.*?,`, 'gm');
     let valFile = await ReadFile(valPath, 'utf-8');
     valFile = valFile.replace(regexRandom, '');
-    await WriteFile(valPath, valFile);
+    await WriteFile(valPath, valFile).then(() => Log.info(`${chalk.cyan(`/src/api/validations/${model}.validation.ts`)} updated`));
 };
 
 /**

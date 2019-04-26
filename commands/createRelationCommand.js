@@ -12,8 +12,7 @@ const createRelationAction = require('../actions/createRelationAction');
 const Log = require('../utils/log');
 const {format} =require('../actions/lib/utils');
 
-const {Spinner} = require('clui');
-const chalk = require('chalk');
+
 
 /**
  * Yargs command syntax
