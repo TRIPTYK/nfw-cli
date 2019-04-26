@@ -13,6 +13,9 @@ const {singular, isSingular, plural} = require('pluralize');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 
+//utils
+const {removeImport,capitalizeEntity} =require('./utils');
+
 /**
  * @description  Remove relationship from serializer and controller
  * @param {string} entity
@@ -41,6 +44,8 @@ const removeFromSerializer = async (entity, column) => {
     if (isSingular(column) && newSer.match(regexAddRel)) newSer = newSer.replace(new RegExp(`${plural(column)} :[\\s\\S]*?},`), '');
     newSer = newSer.replace(regexAddRel, '');
     newSer = newSer.replace(regexArray, '');
+    newSer = removeImport(newSer, capitalizeEntity(singular(column)));
+    newSer = removeImport(newSer, capitalizeEntity(singular(`${column}Serializer`)));
     await WriteFile(serializer, newSer)
 };
 
@@ -90,6 +95,7 @@ module.exports = async (model, column, isRelation) => {
     else if (modelFile.match(regexMany) && isRelation)  modelFile = modelFile.replace(regexMany, '');
     else if (modelFile.match(regexOne) && isRelation) modelFile = modelFile.replace(regexOne, '');
     else throw new Error('Column doesn\'t exist');
+    modelFile= removeImport(modelFile,capitalizeEntity(singular(column)));
     let toExec = [WriteFile(pathModel, modelFile), removeFromSerializer(model, column), removefromRelationTable(model, column)];
     if (!isRelation) toExec.push(removeFromTest(model, column), removeFromValidation(model, column));
     await Promise.all(toExec);

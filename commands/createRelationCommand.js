@@ -12,6 +12,9 @@ const createRelationAction = require('../actions/createRelationAction');
 const Log = require('../utils/log');
 const {format} =require('../actions/lib/utils');
 
+const {Spinner} = require('clui');
+const chalk = require('chalk');
+
 /**
  * Yargs command syntax
  * @type {string}
@@ -72,15 +75,7 @@ exports.handler = async (argv) => {
     await createRelationAction(model1, model2, relation, name, refCol)
         .then(async () => {
             Log.success("Relation successfully added !");
-            await migrateAction(`${model1}-${model2}`)
-                .then((generated) => {
-                    const [migrationDir] = generated;
-                    Log.success(`Executed migration successfully`);
-                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
-                })
-                .catch((e) => {
-                    Log.error(e.message);
-                });
         })
         .catch((err) => Log.error(err.message));
+    process.exit(0);    
 };

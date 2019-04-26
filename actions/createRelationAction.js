@@ -8,10 +8,14 @@
 const Util = require('util');
 const FS = require('fs');
 const {plural, singular, isPlural} = require('pluralize');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
 
 // project modules
 const {modelFileExists, columnExist, relationExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
 const Log = require('../utils/log');
+const migrateAction= require('./migrateAction');
+
 
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
@@ -187,6 +191,21 @@ module.exports = async (model1, model2, relation, name, refCol) => {
     await _addRelation(model1, model2, true, relation, name, refCol)
         .catch(err => Log.error(err.message));
     await _addRelation(model2, model1, false, relation, name, refCol)
-        .then(() => Log.success(`Relationship between ${model1} and  ${model2} added in models`))
-        .catch(err => Log.error(err.message));
+        .then(async () => {
+            const spinner = new Spinner("Generating and executing migration");
+            Log.success("Relation successfully added !");
+            spinner.start()
+            await migrateAction(`${model1}-${model2}`)
+                .then((generated) => {
+                    spinner.stop();
+                    const [migrationDir] = generated;
+                    Log.success(`Executed migration successfully`);
+                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+                })
+                .catch((e) => {
+                    spinner.stop();
+                    Log.error(e.message);
+                });
+        })
+        .catch((err) => Log.error(err.message));
 };

@@ -8,6 +8,7 @@
 const commandUtils = require('./commandUtils');
 const sqlAdaptor = require('../database/sqlAdaptator');
 const removeRelationAction = require('../actions/removeRelationAction');
+const Log = require('../utils/log');
 
 /**
  * Yargs command
