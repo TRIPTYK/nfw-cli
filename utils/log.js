@@ -48,9 +48,8 @@ exports.success = text => {
 /**
  * Text with rainbow text before
  * @param {string} preText Rainbow-color text
- * @param {string} text Log text
  */
-exports.rainbow = (preText, text) => {
+exports.rainbow = preText => {
     console.log(`${colors.rainbow(preText)} ${text}`);
 };
 

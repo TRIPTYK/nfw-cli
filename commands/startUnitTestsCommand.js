@@ -6,7 +6,7 @@
 
 // Project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
+const {Spinner} = require('clui');
 const startUnitTestsAction = require('../actions/startUnitTestsAction');
 
 /**
@@ -46,8 +46,14 @@ exports.builder = (yargs) => {
  */
 exports.handler = async (argv) => {
     const fullLog = argv.logs;
+    const status = new Spinner('Executing unit tests, please wait ...');
+    status.start();
 
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
-    startUnitTestsAction(fullLog);
+    await commandUtils.checkConnectToDatabase();
+
+    await startUnitTestsAction(fullLog);
+
+    status.stop();
+    process.exit(0);
 };

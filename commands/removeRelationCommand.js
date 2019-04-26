@@ -6,7 +6,6 @@
 
 // project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const removeRelationAction = require('../actions/removeRelationAction');
 const Log = require('../utils/log');
 
@@ -43,7 +42,7 @@ exports.handler = async (argv) => {
     const {model1, model2} = argv;
 
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
+    await commandUtils.checkConnectToDatabase();
 
     await removeRelationAction(model1, model2)
         .then(() => {

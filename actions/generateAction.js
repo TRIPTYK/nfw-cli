@@ -16,7 +16,6 @@ const databaseInfo = require('../database/databaseInfo');
 const createRelationAction = require('./createRelationAction');
 const modelSpecs = require('./lib/modelSpecs');
 const generateEntityFiles = require('./lib/generateEntityFiles');
-const migrateAction = require('./migrateAction');
 const Log = require('../utils/log');
 const {format} =require('../actions/lib/utils');
 
@@ -97,7 +96,7 @@ module.exports = async (modelName, crud) => {
             }
             break;
     }
-    
+
     await generateEntityFiles(modelName, crud, entityModelData)
         .catch(e => {
             console.log(e);

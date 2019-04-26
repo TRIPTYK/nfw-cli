@@ -11,7 +11,7 @@ const modelWrite = require('./writeModelAction');
 const generateEntityFiles = require('./lib/generateEntityFiles');
 const utils = require('./lib/utils');
 const Log = require('../utils/log');
-const sqlAdaptor = require('../database/sqlAdaptator');
+const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 const createRelation = require('./createRelationAction');
 const {noGenerate} = require('../static/resources');
 
@@ -19,9 +19,11 @@ const {noGenerate} = require('../static/resources');
  * Main function
  * @returns {Promise<void>}
  */
-module.exports = async () => {
+module.exports = async (databaseName) => {
+    const sqlAdaptor = await getSqlConnectionFromNFW();
+
     let p_tables = sqlAdaptor.getTables();
-    let p_tablesIn = sqlAdaptor.getTablesInName();
+    let p_tablesIn = "Tables_in_" + databaseName;
     let Bridgings = [], foreignConstraint = [];
     let [tables, tablesIn] = await Promise.all([p_tables, p_tablesIn]);
     for (let j = 0; j < tables.length; j++) {

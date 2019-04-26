@@ -4,25 +4,21 @@
  * @author Deflorenne Amaury
  * @author Verliefden Romain
  */
-const sqlAdaptator = require('./sqlAdaptator');
+const { getSqlConnectionFromNFW } = require('./sqlAdaptator');
 const Log = require('../utils/log');
-
-/**
- * @typedef {Object} tableData
- * @property {array} columns
- * @property {array} foreign keys / relations
- */
 
 /**
  * @param {string} dbType can be "sql" , "mongodb" . Only sql is supported at the moment
  * @param {string} tableName
  * @description Call getColumns function in correct adapter to get data of columns
- * @return {tableData}
+ * @return {object}
  */
 exports.getTableInfo = async (dbType, tableName) => {
+    const sqlAdaptor = await getSqlConnectionFromNFW();
+
     if (dbType === "sql") {
-        let p_columns = sqlAdaptator.getColumns(tableName);
-        let p_foreignKeys = sqlAdaptator.getForeignKeys(tableName);
+        let p_columns = sqlAdaptor.getColumns(tableName);
+        let p_foreignKeys = sqlAdaptor.getForeignKeys(tableName);
         let [columns, foreignKeys] = await Promise.all([p_columns, p_foreignKeys]);
 
         return {columns, foreignKeys};
@@ -40,8 +36,10 @@ exports.getTableInfo = async (dbType, tableName) => {
  * @returns {boolean} Table exists
  */
 exports.tableExistsInDB = async (tableName) => {
+    const sqlAdaptor = await getSqlConnectionFromNFW();
+
     return (
-        await sqlAdaptator.tableExists(tableName)
+        await sqlAdaptor.tableExists(tableName)
             .catch(() => {
                 Log.error("Failed to connect to database");
                 return false;

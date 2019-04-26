@@ -7,7 +7,6 @@
 // Project imports
 const commandUtils = require('./commandUtils');
 const utils = require('../actions/lib/utils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const editModelAction = require('../actions/editModelAction');
 const Log = require('../utils/log');
 
@@ -45,7 +44,7 @@ exports.handler = async (argv) => {
     const {model, column, action} = argv;
 
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
+    await commandUtils.checkConnectToDatabase();
 
     if (!utils.modelFileExists(model)) {
         Log.error("Model should exist in order to edit him :)");

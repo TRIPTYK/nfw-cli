@@ -12,7 +12,7 @@ const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 
 // Project modules
-const sqlAdaptor = require('../database/sqlAdaptator');
+const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 
 /**
  * Main function
@@ -38,7 +38,7 @@ module.exports = async (modelName) => {
         .catch(async e => { //Handle delete failed migration
             let files = fs.readdirSync('./src/migration/');
             let regex = /[^0-9]+/;
-            let migration = await sqlAdaptor.select(['timestamp', 'name'], 'migration_table');
+            let migration = (await getSqlConnectionFromNFW()).select(['timestamp', 'name'], 'migration_table');
 
             let migrationFiles = migration.map(mig => {
                 let migName = regex.exec(mig.name);

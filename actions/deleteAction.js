@@ -11,10 +11,11 @@ const Util = require('util');
 const snake = require('to-snake-case');
 
 // Project modules
-const SqlAdaptor = require('../database/sqlAdaptator');
+const { getSqlConnectionFromNFW  } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const {items} = require('../static/resources');
 const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
+const removeRel = require('./removeRelationAction');
 
 // Promisify
 const ReadFile = Util.promisify(FS.readFile);
@@ -129,38 +130,37 @@ module.exports = async (entityName, drop) => {
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
 
+    let promises = [  // launch all tasks in async
+        _deleteTypescriptFiles(),
+        _deleteCompiledJS(),
+        _unroute(),
+        _unconfig(),
+    ];
 
+    let results = await Promise.all(promises);
+    let modifiedFiles = [];
 
-    // let promises = [  // launch all tasks in async
-    //     _deleteTypescriptFiles(),
-    //     _deleteCompiledJS(),
-    //     _unroute(),
-    //     _unconfig(),
-    // ];
+    results.forEach((e) => {
+        modifiedFiles = modifiedFiles.concat(e)
+    });
 
-    // let results = await Promise.all(promises);
-    // let modifiedFiles = [];
+    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
+    const sqlConnection = await getSqlConnectionFromNFW();
 
-    // results.forEach((e) => {
-    //     modifiedFiles = modifiedFiles.concat(e)
-    // });
-
-    // let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
-
-    // if (await SqlAdaptor.tableExists(entityName) && drop) {
-    //     await SqlAdaptor.dumpTable(entityName, dumpPath)
-    //         .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
-    //         .catch(() => {
-    //             throw new Error('Failed to create dump');
-    //         });
-        let foreignKeys = await SqlAdaptor.getForeignKeysRelatedTo(entityName)
+    if (await sqlConnection.tableExists(entityName) && drop) {
+        await sqlConnection.dumpTable(entityName, dumpPath)
+            .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => {
                 throw new Error(`Failed to get foreign keys related to ${entityName}`);
-            });
-    //     await SqlAdaptator.dropTable(entityName)
-    //         .then(() => Log.success("Table dropped"))
-    //         .catch(() => Log.error("Failed to delete table"));
-    // }
+           });
+        let relations = await sqlConnection.getForeignKeysRelatedTo(entityName).catch((err) => {
+            throw new Error(`Failed to get foreign keys related to ${entityName}`+ err)
+        });
+        for(let i = 0; i<relations.length; i++) await removeRel(relations[i].TABLE_NAME,relations[i].REFERENCED_TABLE_NAME)     
+        await sqlConnection.dropTable(entityName)
+            .then(() => Log.success("Table dropped"))
+            .catch(() => Log.error("Failed to delete table"));
+    }
 
-    // return modifiedFiles;
+    return modifiedFiles;
 };

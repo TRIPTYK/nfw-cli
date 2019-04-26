@@ -19,8 +19,7 @@ const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
-const migrateAction = require('./migrateAction');
-const sqlAdaptor = require('../database/sqlAdaptator');
+const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);
@@ -82,6 +81,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     }
 
     await _gitCloneAndRemove(name);
+
     const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
     await _kickStart(kickstartCommand, name, newPath);
 
@@ -141,27 +141,23 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         });
     }
 
+    const env = new DatabaseEnv(`./${name}/${envVar.env.toLowerCase()}.env`);
+    const sqlConnection = new SqlConnection();
+    const currentEnvData = env.getEnvironment();
+
     try {
-        await sqlAdaptor.tryConnect();
+        await sqlConnection.connect(env.getEnvironment());
     } catch (e) {
+        let clonedEnv = { ... currentEnvData };
+        delete clonedEnv.TYPEORM_DB;
+        await sqlConnection.connect(clonedEnv);
+
         if (e.code === 'ER_BAD_DB_ERROR') {
-            await sqlAdaptor.createDatabase();
-        } else {
-            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
+            await sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB);
         }
+        else
+            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
     }
-
-
-    const spinner = new Spinner("Generating migration");
-    spinner.start();
-
-    await migrateAction("project_init")
-        .then((generated) => {
-            const [migrationDir] = generated;
-            spinner.stop();
-            Log.success(`Executed migration successfully`);
-            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
-        });
 };
 
 /**

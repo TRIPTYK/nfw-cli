@@ -9,7 +9,6 @@ const reservedWords = require('reserved-words');
 
 // Project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const generateAction = require('../actions/generateAction');
 const migrateAction = require('../actions/migrateAction');
 
@@ -54,7 +53,7 @@ exports.handler = async (argv) => {
     const crud = argv.CRUD;
 
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
+    await commandUtils.checkConnectToDatabase();
 
     if (await reservedWords.check(modelName, 6)) {
         console.log("modelName is a reserved word");

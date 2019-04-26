@@ -6,7 +6,6 @@
 
 // Project imports
 const commandUtils = require('./commandUtils');
-const sqlAdaptor = require('../database/sqlAdaptator');
 const migrateAction = require('../actions/migrateAction');
 const createRelationAction = require('../actions/createRelationAction');
 const Log = require('../utils/log');
@@ -55,9 +54,10 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    relations=['mtm','mto','otm','oto'];
+    let relations=['mtm','mto','otm','oto'];
+
     commandUtils.validateDirectory();
-    await sqlAdaptor.checkConnexion();
+    await commandUtils.checkConnectToDatabase();
 
     const model1 = format(argv.model1);
     const model2 = format(argv.model2);
