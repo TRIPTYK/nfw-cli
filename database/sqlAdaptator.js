@@ -225,15 +225,19 @@ class SqlConnection
 
     /**
      *
-     * @param env
      * @param path
      * @param table
      * @returns {Promise<void>}
      */
-    static async dumpTable(env,path,table)
+    async dumpTable(path,table)
     {
         await mysqldump({
-            connection: env.getEnvironment(),
+            connection: {
+                host: this.environement.TYPEORM_HOST,
+                user: this.environement.TYPEORM_USER,
+                password: this.environement.TYPEORM_PWD,
+                database: this.environement.TYPEORM_DB,
+            },
             dumpToFile: path + '.sql',
             dump: {
                 tables: [table]
@@ -243,14 +247,18 @@ class SqlConnection
 
     /**
      *
-     * @param env
      * @param path
      * @returns {Promise<void>}
      */
-    static async dumpAll(env,path)
+    async dumpAll(path)
     {
         await mysqldump({
-            connection: env.getEnvironment(),
+            connection: {
+                host: this.environement.TYPEORM_HOST,
+                user: this.environement.TYPEORM_USER,
+                password: this.environement.TYPEORM_PWD,
+                database: this.environement.TYPEORM_DB,
+            },
             dumpToFile: path + '.sql',
         });
     }

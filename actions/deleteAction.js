@@ -11,7 +11,7 @@ const Util = require('util');
 const snake = require('to-snake-case');
 
 // Project modules
-const SqlAdaptor = require('../database/sqlAdaptator');
+const { getSqlConnectionFromNFW  } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const {items} = require('../static/resources');
 const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
@@ -129,8 +129,6 @@ module.exports = async (entityName, drop) => {
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
 
-
-
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
         _deleteCompiledJS(),
@@ -146,19 +144,20 @@ module.exports = async (entityName, drop) => {
     });
 
     let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
+    const sqlConnection = await getSqlConnectionFromNFW();
 
-    if (await SqlAdaptor.tableExists(entityName) && drop) {
-        await SqlAdaptor.dumpTable(entityName, dumpPath)
+    if (await sqlConnection.tableExists(entityName) && drop) {
+        await sqlConnection.dumpTable(entityName, dumpPath)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => {
                 throw new Error('Failed to create dump');
             });
-        await SqlAdaptator.DeleteForeignKeys(entityName)
+        await sqlConnection.deleteForeignKeys(entityName)
             .then(() => Log.success("Foreign keys dropped"))
             .catch(() => {
                 throw new Error('Failed to drop foreign keys');
             });
-        await SqlAdaptator.dropTable(entityName)
+        await sqlConnection.dropTable(entityName)
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
     }
