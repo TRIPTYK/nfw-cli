@@ -247,22 +247,14 @@ exports.DropBridgingTable = async (model1, model2) => {
  * @param model2
  * @returns {Promise<void>}
  */
-exports.DeleteForeignKeys = async (tableName) =>{
-    let result = await query(`SELECT COLUMN_NAME,CONSTRAINT_NAME,TABLE_NAME 
+exports.getForeignKeysRelatedTo = async (tableName) =>{
+    let result = await query(`SELECT REFERENCED_TABLE_NAME,TABLE_NAME 
     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
     WHERE REFERENCED_TABLE_SCHEMA='${env.database}' 
-    AND REFERENCED_TABLE_NAME='${tableName}';
+    AND REFERENCED_TABLE_NAME='${tableName}'
+    OR TABLE_NAME='${tableName}'
+    AND REFERENCED_TABLE_NAME IS NOT NULL;
     `);
-    for(let i=0 ; i<result.length ; i++) {
-        if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME))) await module.exports.dropTable(result[i].TABLE_NAME);
-        else {
-            let queryDel = await query(`ALTER TABLE ${result[i].TABLE_NAME} 
-            DROP FOREIGN KEY ${result[i].CONSTRAINT_NAME},
-            DROP ${result[i].COLUMN_NAME}`); 
-        }
-    }
-
+    return result;
 }
 
-
-//     WHERE CONSTRAINT_SCHEMA = 'testType'      AND REFERENCED_TABLE_NAME ='hey';

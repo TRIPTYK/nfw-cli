@@ -131,37 +131,36 @@ module.exports = async (entityName, drop) => {
 
 
 
-    let promises = [  // launch all tasks in async
-        _deleteTypescriptFiles(),
-        _deleteCompiledJS(),
-        _unroute(),
-        _unconfig(),
-    ];
+    // let promises = [  // launch all tasks in async
+    //     _deleteTypescriptFiles(),
+    //     _deleteCompiledJS(),
+    //     _unroute(),
+    //     _unconfig(),
+    // ];
 
-    let results = await Promise.all(promises);
-    let modifiedFiles = [];
+    // let results = await Promise.all(promises);
+    // let modifiedFiles = [];
 
-    results.forEach((e) => {
-        modifiedFiles = modifiedFiles.concat(e)
-    });
+    // results.forEach((e) => {
+    //     modifiedFiles = modifiedFiles.concat(e)
+    // });
 
-    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
+    // let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
 
-    if (await SqlAdaptor.tableExists(entityName) && drop) {
-        await SqlAdaptor.dumpTable(entityName, dumpPath)
-            .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
+    // if (await SqlAdaptor.tableExists(entityName) && drop) {
+    //     await SqlAdaptor.dumpTable(entityName, dumpPath)
+    //         .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
+    //         .catch(() => {
+    //             throw new Error('Failed to create dump');
+    //         });
+        let foreignKeys = await SqlAdaptor.getForeignKeysRelatedTo(entityName)
             .catch(() => {
-                throw new Error('Failed to create dump');
+                throw new Error(`Failed to get foreign keys related to ${entityName}`);
             });
-        await SqlAdaptator.DeleteForeignKeys(entityName)
-            .then(() => Log.success("Foreign keys dropped"))
-            .catch(() => {
-                throw new Error('Failed to drop foreign keys');
-            });
-        await SqlAdaptator.dropTable(entityName)
-            .then(() => Log.success("Table dropped"))
-            .catch(() => Log.error("Failed to delete table"));
-    }
+    //     await SqlAdaptator.dropTable(entityName)
+    //         .then(() => Log.success("Table dropped"))
+    //         .catch(() => Log.error("Failed to delete table"));
+    // }
 
-    return modifiedFiles;
+    // return modifiedFiles;
 };

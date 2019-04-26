@@ -10,6 +10,8 @@ const pluralize = require('pluralize');
 
 
 const addToValidations = () =>{
+    let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
+    let valFile = await ReadFile(valPath, 'utf-8');
 
 };
 
@@ -36,6 +38,6 @@ const addToTest = async (model, column) => {
 
     //put the string in the file then write
     testFile = testFile.replace(rgxRandomType,`$1 \n ${toPutRandType} \n $3`).replace(rgxList,`$1$2${toPutInList}`);
-    await WriteFile(testPath,testFile);
+    await WriteFile(testPath,testFile).then(() => Log.info(`${chalk.cyan(`/test/${model}.test.js`)} updated`));
 
 };
