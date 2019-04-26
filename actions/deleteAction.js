@@ -151,7 +151,7 @@ module.exports = async (entityName, drop) => {
         await sqlConnection.dumpTable(entityName, dumpPath)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => {
-                throw new Error(`Failed to get foreign keys related to ${entityName}`);
+                throw new Error(`Failed to create dump`);
            });
         let relations = await sqlConnection.getForeignKeysRelatedTo(entityName).catch((err) => {
             throw new Error(`Failed to get foreign keys related to ${entityName}`+ err)
