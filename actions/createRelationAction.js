@@ -8,10 +8,14 @@
 const Util = require('util');
 const FS = require('fs');
 const {plural, singular, isPlural} = require('pluralize');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
 
 // project modules
 const {modelFileExists, columnExist, relationExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
 const Log = require('../utils/log');
+const migrateAction= require('./migrateAction');
+
 
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
@@ -47,7 +51,7 @@ const _addToSerializer = async (entity, column) => {
     //Add the import if they're not already there the write in the serializer
     if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}Serializer`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))}Serializer } from "./${ singular(column)}.serializer";\n`);
     if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`);
-    await WriteFile(serializer, fileContent).then(() => Log.success(`${entity} serializer updated`));
+    await WriteFile(serializer, fileContent).then(() => Log.info(`${chalk.cyan(`/src/api/serializers/${entity}.serializer.ts`)} updated`));
 };
 
 /**
@@ -56,14 +60,14 @@ const _addToSerializer = async (entity, column) => {
  * @param {string} column
  * @returns {Promise<void>}
  */
-const _addToController = async (entity, column) => {
-    let serializer = `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
-    let fileContent = await ReadFile(serializer, 'utf-8');
+const _addToRelation = async (entity, column) => {
+    let relation = `${process.cwd()}/src/api/enums/relations/${entity}.relations.ts`;
+    let fileContent = await ReadFile(relation, 'utf-8');
     let regex = new RegExp(`(];)`, 'gm');
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
     if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
-    await WriteFile(serializer, fileContent).then(() => Log.success(`${column} controller updated`));
+    await WriteFile(relation, fileContent).then(() => Log.info(`${chalk.cyan(`/src/api/enums/relations/${entity}.relations.ts`)} updated`));
 };
 
 
@@ -167,7 +171,7 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
     if(!relationExist(model1,toPut[1])) modelFile = `${modelFile.substring(0, pos)}${toPut[0]}\n\n}`;
     //import the model of the second entity if it is not already present then write process to update serializer and controller
     if (!isImportPresent(modelFile, capitalizeEntity(model2))) modelFile = writeToFirstEmptyLine(modelFile, `import { ${capitalizeEntity(model2)} } from "./${model2}.model";\n`);
-    await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToController(model1, toPut[1])]);
+    await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToRelation(model1, toPut[1])]);
 };
 
 
@@ -187,6 +191,20 @@ module.exports = async (model1, model2, relation, name, refCol) => {
     await _addRelation(model1, model2, true, relation, name, refCol)
         .catch(err => Log.error(err.message));
     await _addRelation(model2, model1, false, relation, name, refCol)
-        .then(() => Log.success(`Relationship between ${model1} and  ${model2} added in models`))
-        .catch(err => Log.error(err.message));
+        .then(async () => {
+            const spinner = new Spinner("Generating and executing migration");
+            spinner.start()
+            await migrateAction(`${model1}-${model2}`)
+                .then((generated) => {
+                    spinner.stop();
+                    const [migrationDir] = generated;
+                    Log.success(`Executed migration successfully`);
+                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+                })
+                .catch((e) => {
+                    spinner.stop();
+                    Log.error(e.message);
+                });
+        })
+        .catch((err) => Log.error(err.message));
 };

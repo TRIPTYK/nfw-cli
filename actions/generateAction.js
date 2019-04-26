@@ -29,7 +29,6 @@ const {format} =require('../actions/lib/utils');
 module.exports = async (modelName, crud) => {
     modelName = format(modelName);
     const modelExists = await utils.modelFileExists(modelName);
-    let override = true;
 
     if (modelExists) {
         const {confirmation} = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?`);
@@ -46,58 +45,58 @@ module.exports = async (modelName, crud) => {
 
     let entityModelData = null;
 
-    if (override) {
-        const data = await inquirer.askForChoice(isExisting);
-        switch (data.value) {
-            case "create an entity":
-                entityModelData = await modelSpecs.dbParams(modelName);
-                await modelWriteAction.writeModel(modelName, entityModelData)
-                    .catch(e => {
-                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                        process.exit(1);
-                    });
-                break;
-            case "create a basic model":
-                await modelWriteAction.basicModel(modelName)
-                    .catch(e => {
-                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                        process.exit(1);
-                    });
-                entityModelData = [];
-                entityModelData['columns'] = [];
-                entityModelData['foreignKeys'] = [];
-                entityModelData['createUpdate'] = {
-                    createAt: true,
-                    updateAt: true
-                };
-                break;
-            case "nothing":
-                console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
-                process.exit(0);
-                break;
-            case 'create from db':
-                let {columns, foreignKeys} = await databaseInfo.getTableInfo("sql", modelName);
-                for (let j = 0; j < columns.length; j++) {
-                    columns[j].Type = utils.sqlTypeData(columns[j].Type);
+
+    const data = await inquirer.askForChoice(isExisting);
+    switch (data.value) {
+        case "create an entity":
+            entityModelData = await modelSpecs.dbParams(modelName);
+            await modelWriteAction.writeModel(modelName, entityModelData)
+                .catch(e => {
+                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                    process.exit(1);
+                });
+            break;
+        case "create a basic model":
+            await modelWriteAction.basicModel(modelName)
+                .catch(e => {
+                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                    process.exit(1);
+                });
+            entityModelData = [];
+            entityModelData['columns'] = [];
+            entityModelData['foreignKeys'] = [];
+            entityModelData['createUpdate'] = {
+                createAt: true,
+                updateAt: true
+            };
+            break;
+        case "nothing":
+            console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
+            process.exit(0);
+            break;
+        case 'create from db':
+            let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", modelName);
+            for (let j = 0; j < columns.length; j++) {
+                columns[j].Type = utils.sqlTypeData(columns[j].Type);
+            }
+            entityModelData = { columns, foreignKeys };
+            await modelWriteAction.writeModel(modelName, entityModelData)
+                .catch(e => {
+                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                    process.exit(1);
+                });
+            if (foreignKeys && foreignKeys.length) {
+                for (let i = 0; i < foreignKeys.length; i++) {
+                    let tmpKey = foreignKeys[i];
+                    let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
+                    await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME)
+                        .then(() => Log.success("Relation successfully added !"))
+                        .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                 }
-                entityModelData = {columns, foreignKeys};
-                await modelWriteAction.writeModel(modelName, entityModelData)
-                    .catch(e => {
-                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                        process.exit(1);
-                    });
-                if (foreignKeys && foreignKeys.length) {
-                    for (let i = 0; i < foreignKeys.length; i++) {
-                        let tmpKey = foreignKeys[i];
-                        let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
-                        await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME)
-                            .then(() => Log.success("Relation successfully added !"))
-                            .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
-                    }
-                }
-                break;
-        }
+            }
+            break;
     }
+
     await generateEntityFiles(modelName, crud, entityModelData)
         .catch(e => {
             console.log(e);

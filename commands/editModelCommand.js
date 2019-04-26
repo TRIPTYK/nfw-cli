@@ -58,7 +58,7 @@ exports.handler = async (argv) => {
             .catch((e) => {
                 Log.error('Failed to edit model : ' + e.message)
             });
-    } else if (action === 'remove' && !column) {
+    } else if (action === 'remove' && column) {
         editModelAction('remove', model, column)
             .catch((e) => {
                 Log.error('Failed to edit model : ' + e.message)

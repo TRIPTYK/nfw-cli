@@ -6,6 +6,8 @@
 
 // node modules
 const pluralize = require('pluralize');
+const {Spinner} = require('clui');
+const chalk = require('chalk');
 
 // project modules
 const utils = require('./lib/utils');
@@ -38,8 +40,22 @@ module.exports = async (model1, model2) => {
     if (mod2plural) model2 = pluralize.plural(model2);
     if (mod1plural) model1 = pluralize.plural(model1);
 
-    -   await Promise.all([removeFromModel(model1, model2, true), removeFromModel(model2, model1,true)]).then(async() =>{
-        if(mod1plural && mod2plural) await sql.DropBridgingTable(model1,model2).catch((e) => Log.error(e.message));
-        else await migrate(`${model1}-${model2}`);
+    -   await Promise.all([removeFromModel(model1, model2, true), removeFromModel(model2, model1, true)]).then(async () => {
+        if (mod1plural && mod2plural) await sql.DropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
+        else {
+            const spinner = new Spinner("Generating and executing migration");
+            spinner.start()
+            await migrate(`${model1}-${model2}`)
+            .then((generated) => {
+                spinner.stop();
+                const [migrationDir] = generated;
+                Log.success(`Executed migration successfully`);
+                Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+            })
+            .catch((e) => {
+                spinner.stop();
+                Log.error(e.message);
+            });
+        }
     });
 };

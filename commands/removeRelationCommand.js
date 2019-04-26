@@ -7,6 +7,7 @@
 // project imports
 const commandUtils = require('./commandUtils');
 const removeRelationAction = require('../actions/removeRelationAction');
+const Log = require('../utils/log');
 
 /**
  * Yargs command
