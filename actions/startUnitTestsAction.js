@@ -9,19 +9,18 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const chalk = require('chalk');
+const path = require('path');
 
 // Project modules
 const commands = require('../static/commands');
-
-const operatingSystem = process.platform;
 
 /**
  * @description Returns how many unit test passed, failed, and which one failed
  * @returns {Array.string}
  */
 module.exports = async (logs) => {
-    let command = operatingSystem === "win32" ? commands.getNPMCommandsWindows : commands.getNPMCommandsUnix;
-    const unitTestOutput = await exec(command.test);
+    let command = commands.unitTests;
+    const unitTestOutput = await exec(path.resolve(command));
     let string = unitTestOutput.stdout;
 
 
