@@ -20,7 +20,7 @@ const commands = require('../static/commands');
  */
 module.exports = async (logs) => {
     let command = commands.unitTests;
-    const unitTestOutput = await exec(path.resolve(command));
+    const unitTestOutput = await exec(command);
     let string = unitTestOutput.stdout;
 
 
