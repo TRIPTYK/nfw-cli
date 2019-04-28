@@ -9,7 +9,7 @@ module.exports = {
 
     getNPMCommandsUnix: {
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript && npm i typeorm && npm i && ./node_modules/.bin/tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && npm i bcrypt --save && npm i typescript && npm i typeorm && npm i",
     },
     getNPMCommandsWindows: {
         currentDirectory: "cd ",
@@ -17,7 +17,7 @@ module.exports = {
     },
     getYarnCommandsUnix: {
         currentDirectory: "cd ",
-        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --dev && yarn add typescript --dev && yarn add typeorm --dev && yarn && ./node_modules/.bin/tsc",
+        kickstart: "mkdir -p ./dist/logs ./dist/migration/dump ./dist/uploads/documents/xs ./dist/uploads/documents/md ./dist/uploads/documents/xl && yarn add bcrypt --dev && yarn add typescript --dev && yarn add typeorm --dev && yarn",
     },
     getYarnCommandsWindows: {
         currentDirectory: "cd ",
