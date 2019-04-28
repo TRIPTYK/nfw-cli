@@ -15,7 +15,7 @@ exports.items = [
     {template: 'repository', dest: 'repositories', ext: 'ts'},
     {template: 'validation', dest: 'validations', ext: 'ts'},
     {template: 'route', dest: 'routes/v1', ext: 'ts'},
-    {template: 'test', dest: '../../test', ext: 'js'},
+    {template: 'test', dest: '../../test', ext: 'ts'},
     {template: 'serializer', dest: 'serializers', ext: 'ts'},
     {template: 'relations', dest: 'enums/relations', ext: 'ts'},
     {template: 'middleware', dest: 'middlewares', ext: 'ts'},
