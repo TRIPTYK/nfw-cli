@@ -272,7 +272,9 @@ exports.getSqlConnectionFromNFW = async () => {
     if (!nfwEnv)
         nfwEnv = 'development';
 
-    const connection =  new SqlConnection(new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`));
+    const connection =  new SqlConnection(
+        new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`)
+    );
     await connection.connect();
     return connection;
 };

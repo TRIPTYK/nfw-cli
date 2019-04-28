@@ -9,6 +9,7 @@ const fs = require('fs');
 
 const filesHelper = require('../utils/files');
 const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
+const Log = require('../utils/log');
 
 /**
  * Check if we are in a valid project directory
