@@ -12,7 +12,7 @@ const chalk = require('chalk');
 // project modules
 const utils = require('./lib/utils');
 const removeFromModel = require('./lib/removeFromModel');
-const sql = require('../database/sqlAdaptator');
+const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const migrate = require('./migrateAction');
 const {format} =require('../actions/lib/utils');
@@ -26,6 +26,7 @@ const {format} =require('../actions/lib/utils');
 module.exports = async (model1, model2) => {
     model1 = format(model1);
     model2 = format(model2);
+    const sql = await getSqlConnectionFromNFW();
 
     let mod1plural = false;
     let mod2plural = false;
@@ -40,11 +41,11 @@ module.exports = async (model1, model2) => {
     if (mod2plural) model2 = pluralize.plural(model2);
     if (mod1plural) model1 = pluralize.plural(model1);
 
-    -   await Promise.all([removeFromModel(model1, model2, true), removeFromModel(model2, model1, true)]).then(async () => {
-        if (mod1plural && mod2plural) await sql.DropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
+    await Promise.all([removeFromModel(model1, model2, true), removeFromModel(model2, model1, true)]).then(async () => {
+        if (mod1plural && mod2plural) await sql.dropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
         else {
             const spinner = new Spinner("Generating and executing migration");
-            spinner.start()
+            spinner.start();
             await migrate(`${model1}-${model2}`)
             .then((generated) => {
                 spinner.stop();

@@ -175,8 +175,8 @@ const _kickStart = async (command, name, newPath) => {
     await exec(dir + command.kickstart)
         .then(() => console.log(chalk.green("Generated successfully, Compiling TypeScript ")));
 
-    await exec(dir + command.compileTypeScript)
-        .then(() => console.log(chalk.green("Compiled successfully")));
+    await exec(dir + commands.compileTypeScript)
+        .then(() => console.log(chalk.green("Typescript compiled successfully")));
 
     kickstart.stop();
 };
