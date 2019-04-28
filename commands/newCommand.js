@@ -78,6 +78,7 @@ exports.handler = async (argv) => {
         process.exit(0);
     }
 
+    // process cwd is changed in newAction to the new project folder
     await newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn)
         .then(() => {
             Log.success("New project generated successfully");
@@ -90,7 +91,6 @@ exports.handler = async (argv) => {
 
     // change dir for migration
     clearConsole();
-    process.chdir(name);
 
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();

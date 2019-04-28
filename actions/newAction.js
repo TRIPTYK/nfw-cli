@@ -53,6 +53,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     if (pathOption) {
         newPath = await inquirer.askForNewPath();
     }
+
     if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
         console.log(chalk.red('Error :') + `You already have a directory name \"3rd_party_ts_boilerplate\" or "${name}" !`);
         process.exit(0);
@@ -82,13 +83,17 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 
     await _gitCloneAndRemove(name);
 
+    process.chdir(name); // set current directory inside boilerplate
+
     const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
     await _kickStart(kickstartCommand, name, newPath);
 
+    const setupEnv = envVar === undefined ? 'development' : envVar.env.toLowerCase();
+
     const config = {
         name: name,
-        path: newPath === undefined ? path.resolve(process.cwd(), name) : path.resolve(newPath.path, name),
-        env: envVar === undefined ? 'development' : envVar.env.toLowerCase()
+        path: process.cwd(),
+        env: setupEnv
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
@@ -99,8 +104,8 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     }
 
     if (defaultEnv) {
-        const envFilePath = newPath === undefined ? path.resolve(process.cwd(), name + `/${envVar.env.toLowerCase()}.env`) : path.resolve(newPath.path, name + `/${envVar.env.toLowerCase()}.env`);
-        const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(), name + `/ormconfig.json`) : path.resolve(newPath.path, name + `/ormconfig.json`);
+        const envFilePath = newPath === undefined ? path.resolve(process.cwd(), `${setupEnv}.env`) : path.resolve(newPath.path,  `${setupEnv}.env`);
+        const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(),`ormconfig.json`) : path.resolve(newPath.path, `ormconfig.json`);
         let envFileContent = await fs.readFileSync(envFilePath).toString();
         const ormConfigRaw = fs.readFileSync(ormConfigPath);
         const ormConfig = JSON.parse(ormConfigRaw);
@@ -119,7 +124,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     }
 
     if (docker) {
-        const projectPath = newPath === undefined ? path.resolve(process.cwd(), name, "Docker") : path.resolve(newPath.path, name, "Docker");
+        const projectPath = newPath === undefined ? path.resolve(process.cwd(), "Docker") : path.resolve(newPath.path,"Docker");
         files.createDirectory(projectPath);
 
         fs.writeFileSync(path.resolve(projectPath, "dockerfile"), dockerFile);
@@ -141,7 +146,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         });
     }
 
-    const env = new DatabaseEnv(`./${name}/${envVar.env.toLowerCase()}.env`);
+    const env = new DatabaseEnv(`${setupEnv}.env`);
     const sqlConnection = new SqlConnection();
     const currentEnvData = env.getEnvironment();
 
@@ -170,12 +175,11 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 const _kickStart = async (command, name, newPath) => {
     const kickstart = new Spinner('Generating app ...');
     kickstart.start();
-    const dir = newPath === undefined ? command.currentDirectory + name + "  && " : command.currentDirectory + path.resolve(newPath.path, name) + " && ";
 
-    await exec(dir + command.kickstart)
+    await exec(command.kickstart)
         .then(() => console.log(chalk.green("Generated successfully, Compiling TypeScript ")));
 
-    await exec(dir + commands.compileTypeScript)
+    await exec(commands.compileTypeScript)
         .then(() => console.log(chalk.green("Typescript compiled successfully")));
 
     kickstart.stop();
