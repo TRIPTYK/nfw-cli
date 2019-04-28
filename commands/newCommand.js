@@ -89,9 +89,6 @@ exports.handler = async (argv) => {
             process.exit();
         });
 
-    // change dir for migration
-    clearConsole();
-
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();
 
