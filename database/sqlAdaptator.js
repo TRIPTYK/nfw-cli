@@ -111,7 +111,7 @@ class SqlConnection
 
     /**
      *
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async getTables()
     {
@@ -121,7 +121,7 @@ class SqlConnection
     /**
      *
      * @param tableName
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async getForeignKeys(tableName) {
         return await this.query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${this.environement.TYPEORM_DB}' AND TABLE_NAME='${tableName}';`);
@@ -164,7 +164,7 @@ class SqlConnection
     /**
      *
      * @param tableName
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async getColumns(tableName)
     {
@@ -175,7 +175,7 @@ class SqlConnection
      *
      * @param table
      * @param fields
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async select(table,fields)
     {
@@ -185,7 +185,7 @@ class SqlConnection
     /**
      *
      * @param databaseName
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async createDatabase(databaseName)
     {
@@ -197,7 +197,7 @@ class SqlConnection
     /**
      *
      * @param tableName
-     * @returns {Promise<any | void>}
+     * @returns {Promise<void>}
      */
     async dropTable(tableName)
     {
@@ -206,9 +206,8 @@ class SqlConnection
 
     /**
      * @description Delete all foreignKeys that point to a specific table
-     * @param model1
-     * @param model2
      * @returns {Promise<void>}
+     * @param tableName
      */
     async getForeignKeysRelatedTo (tableName){
         return await this.query(`SELECT REFERENCED_TABLE_NAME,TABLE_NAME 

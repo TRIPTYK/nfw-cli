@@ -11,6 +11,7 @@ const reservedWords = require('reserved-words');
 const commandUtils = require('./commandUtils');
 const generateAction = require('../actions/generateAction');
 const migrateAction = require('../actions/migrateAction');
+const generateDocAction = require('../actions/generateDocumentationAction');
 
 const Log = require('../utils/log');
 const {Spinner} = require('clui');
@@ -73,10 +74,12 @@ exports.handler = async (argv) => {
         crudOptions.update = crud.includes('u');
         crudOptions.delete = crud.includes('d');
     }
+
     await generateAction(modelName, crudOptions);
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
+
     await migrateAction(modelName)
         .then((generated) => {
             const [migrationDir] = generated;
@@ -86,6 +89,15 @@ exports.handler = async (argv) => {
         })
         .catch((e) => {
             Log.error(e.message);
+            process.exit();
+        });
+
+    await generateDocAction()
+        .then(() => {
+            Log.success('Typedoc generated successfully');
+        })
+        .catch((e) => {
+            Log.error('Typedoc failed to generate : ' + e.message);
         });
 
     process.exit();
