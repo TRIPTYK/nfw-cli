@@ -8,7 +8,6 @@
 const Util = require('util');
 const FS = require('fs');
 const {plural, singular, isPlural} = require('pluralize');
-const {Spinner} = require('clui');
 const chalk = require('chalk');
 
 // project modules
@@ -191,20 +190,5 @@ module.exports = async (model1, model2, relation, name, refCol) => {
     await _addRelation(model1, model2, true, relation, name, refCol)
         .catch(err => Log.error(err.message));
     await _addRelation(model2, model1, false, relation, name, refCol)
-        .then(async () => {
-            const spinner = new Spinner("Generating and executing migration");
-            spinner.start()
-            await migrateAction(`${model1}-${model2}`)
-                .then((generated) => {
-                    spinner.stop();
-                    const [migrationDir] = generated;
-                    Log.success(`Executed migration successfully`);
-                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
-                })
-                .catch((e) => {
-                    spinner.stop();
-                    Log.error(e.message);
-                });
-        })
         .catch((err) => Log.error(err.message));
 };

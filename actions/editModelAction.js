@@ -6,7 +6,7 @@
 
 // project modules
 const removeColumn = require('./lib/removeFromModel');
-const modelWrite = require('./writeModelAction');
+const addInModels = require('./addInModel');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
 const migrate = require('./migrateAction');
@@ -31,7 +31,7 @@ module.exports = async (action, model, column = null) => {
 
     if (action === 'add') {
         let data = await modelSpecs.newColumn();
-        await modelWrite.addColumn(model, data)
+        await addInModels(model, data)
             .then(async () =>{
                 Log.success('Column successfully added');
 
