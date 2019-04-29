@@ -19,15 +19,21 @@ const {noGenerate} = require('../static/resources');
  * Main function
  * @returns {Promise<void>}
  */
-module.exports = async (databaseName) => {
+module.exports = async () => {
     const sqlAdaptor = await getSqlConnectionFromNFW();
-
+    const databaseName = sqlAdaptor.environement.TYPEORM_DB;
     let p_tables = sqlAdaptor.getTables();
     let p_tablesIn = "Tables_in_" + databaseName;
     let Bridgings = [], foreignConstraint = [];
     let [tables, tablesIn] = await Promise.all([p_tables, p_tablesIn]);
+    let crudOptions = {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+    };
     for (let j = 0; j < tables.length; j++) {
-        let {columns, foreignKeys} = await databaseInfo.getTableInfo("sql", tables[j][tablesIn]);
+        let {columns, foreignKeys} = await sqlAdaptor.getTableInfo(tables[j][tablesIn]);
         entityModelData = {columns, foreignKeys};
         if (utils.isBridgindTable(entityModelData)) {
             Bridgings.push(foreignKeys);
@@ -41,7 +47,7 @@ module.exports = async (databaseName) => {
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                 process.exit(1);
             });
-        await generateEntityFiles(tables[j][tablesIn], 'crud', entityModelData);
+        await generateEntityFiles(tables[j][tablesIn], crudOptions, entityModelData);
     }
     await _BridgingTableHander(Bridgings);
     await _RelationHandler(foreignConstraint);
