@@ -9,7 +9,6 @@ const removeColumn = require('./lib/removeFromModel');
 const addInModels = require('./addInModel');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
-const migrate = require('./migrateAction');
 const {format} = require('../actions/lib/utils');
 
 
