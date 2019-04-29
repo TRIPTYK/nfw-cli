@@ -16,10 +16,13 @@ let columnWritten = [];
  * @description Ask every questions about the column
  * @returns {Promise<null|Array>}
  */
-exports.newColumn = async () => {
+exports.newColumn = async (columnName=null) => {
     //if any answer of the question is :exit , cancel current column
     let length = '', def, uni, paramsTemp, paramsArray = [], length_enum, arrayDone = false;
-    let {columnName} = await inquirer.questionColumnName(columnWritten);
+    if(!columnName) {
+        let name = await inquirer.questionColumnName(columnWritten);
+        columnName = name.columnName;  
+    } 
     if (columnName === ':exit') return null;
     let {constraintValue} = await inquirer.questionColumnKey();
     if (constraintValue === ':exit') return null;

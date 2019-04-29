@@ -10,6 +10,7 @@ const utils = require('../actions/lib/utils');
 const editModelAction = require('../actions/editModelAction');
 const Log = require('../utils/log');
 const migrate = require('../actions/migrateAction');
+const {columnExist} = require('../actions/lib/utils')
 
 //Node Modules
 const {Spinner} = require('clui');
@@ -59,7 +60,11 @@ exports.handler = async (argv) => {
     if (action === 'remove' && !column) {
         Log.info("you must specify the column to remove");
     } else if (action === 'add') {
-        await editModelAction('add', model)
+        if(column && columnExist(model,column)){
+            Log.error('Column already exist');
+            process.exit(0);
+        }
+        await editModelAction('add', model,column)
             .then(async () =>{
                 spinner.start();
                 await migrate(`remove-${column}-from-${model}`)

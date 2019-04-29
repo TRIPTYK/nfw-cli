@@ -59,7 +59,7 @@ const removeFromSerializer = async (entity, column) => {
  */
 const removeFromTest = async (model, column) => {
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
-    let regexRandom = new RegExp(`[^']${column}.*?,`, 'gm');
+    let regexRandom = new RegExp(`[\\s]${column}.*?,`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
     let testFile = await ReadFile(testPath, 'utf-8');
     testFile = testFile.replace(regexRandom, '').replace(regexArray, '');
@@ -74,7 +74,7 @@ const removeFromTest = async (model, column) => {
  */
 const removeFromValidation = async (model, column) => {
     let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
-    let regexRandom = new RegExp(`${column} :.*?,`, 'gm');
+    let regexRandom = new RegExp(`[\s]${column} :.*?,`, 'gm');
     let valFile = await ReadFile(valPath, 'utf-8');
     valFile = valFile.replace(regexRandom, '');
     await WriteFile(valPath, valFile).then(() => Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`));
