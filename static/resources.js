@@ -11,15 +11,15 @@
  * @type {object[]}
  */
 exports.items = [
-    {template: 'controller', dest: 'controllers', ext: 'ts'},
-    {template: 'repository', dest: 'repositories', ext: 'ts'},
-    {template: 'validation', dest: 'validations', ext: 'ts'},
-    {template: 'route', dest: 'routes/v1', ext: 'ts'},
-    {template: 'test', dest: '../../test', ext: 'ts'},
-    {template: 'serializer', dest: 'serializers', ext: 'ts'},
-    {template: 'relations', dest: 'enums/relations', ext: 'ts'},
-    {template: 'middleware', dest: 'middlewares', ext: 'ts'},
-    {template: 'model', dest: 'models', ext: 'ts'},
+    {template: 'controller', path : 'src/api/controllers' },
+    {template: 'repository', path : 'src/api/repositories'},
+    {template: 'validation', path: 'src/api/validations'},
+    {template: 'route',  path :'src/api/routes/v1'},
+    {template: 'test',  path :'test'},
+    {template: 'serializer', path :'src/api/serializers' },
+    {template: 'relations',  path :'src/api/enums/relations'},
+    {template: 'middleware',  path :'src/api/middlewares'},
+    {template: 'model',  path :'src/api/models'},
 ];
 
 /**

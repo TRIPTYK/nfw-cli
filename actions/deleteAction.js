@@ -61,7 +61,7 @@ const _deleteTypescriptFiles = async () => {
     let deleted = [];
 
     await Promise.all(items.map(async (item) => {
-        let relativeFilePath = `/src/api/${item.dest}/${lowercase}.${item.template}.${item.ext}`;
+        let relativeFilePath = `/${item.path}/${lowercase}.${item.template}.ts`;
         let filePath = processPath + relativeFilePath;
 
         if (fileExists(filePath)) {
@@ -132,7 +132,6 @@ module.exports = async (entityName, drop) => {
 
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
-        _deleteCompiledJS(),
         _unroute(),
         _unconfig(),
     ];

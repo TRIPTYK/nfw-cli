@@ -12,6 +12,7 @@ const ejs = require('ejs');
 const pluralize = require('pluralize');
 const Util = require('util');
 const kebabCase = require('kebab-case');
+const chalk = require('chalk');
 
 // project modules
 const {items} = require('../../static/resources');
@@ -70,13 +71,13 @@ const _write = async (data, crudOptions) => {
             validation: tableColumns.map(c => buildJoiFromColumn(c)).filter(c => !c.name.match(/create_at|update_at/))
         });
 
-        await WriteFile(`${processPath}/src/api/${item.dest}/${lowercase}.${item.template}.${item.ext}`, output)
+        await WriteFile(`${processPath}/${item.path}/${lowercase}.${item.template}.ts`, output)
             .then(() => {
-                Log.success(`${capitalizeEntity(item.template)} generated.`)
+                Log.success(`${capitalizeEntity(item.template)} generated in ${chalk.cyan(`${item.path}/${lowercase}.${item.template}.ts`)}`);
             })
             .catch(() => {
                 Log.error(`Error while ${item.template} file generating \n`);
-                Log.warning(`Check the api/${item.dest}/${lowercase}.${item.template}.${item.ext} to update`);
+                Log.warning(`Check the api/${item.path}/${lowercase}.${item.template}.${item.ext} to update`);
             });
     });
 
