@@ -29,7 +29,7 @@ const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 module.exports = async (modelName, crud) => {
     modelName = format(modelName);
     const modelExists = await utils.modelFileExists(modelName);
-    const sqlConnection = getSqlConnectionFromNFW();
+    const sqlConnection =  await getSqlConnectionFromNFW();
 
     if (modelExists) {
         const {confirmation} = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?`);

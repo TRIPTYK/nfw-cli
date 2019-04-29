@@ -31,6 +31,7 @@ exports.describe = 'Remove a relation between two table';
  * Yargs builder
  */
 exports.builder = () => {
+
 };
 
 /**
