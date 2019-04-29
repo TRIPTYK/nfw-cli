@@ -6,7 +6,6 @@
 
 // Project modules
 const inquirer = require('../utils/inquirer');
-const databaseInfo = require('../database/databaseInfo');
 const modelWrite = require('./writeModelAction');
 const generateEntityFiles = require('./lib/generateEntityFiles');
 const utils = require('./lib/utils');

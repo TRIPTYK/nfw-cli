@@ -12,12 +12,12 @@ const chalk = require('chalk');
 const modelWriteAction = require('./writeModelAction');
 const utils = require('./lib/utils');
 const inquirer = require('../utils/inquirer');
-const databaseInfo = require('../database/databaseInfo');
 const createRelationAction = require('./createRelationAction');
 const modelSpecs = require('./lib/modelSpecs');
 const generateEntityFiles = require('./lib/generateEntityFiles');
 const Log = require('../utils/log');
-const {format} =require('../actions/lib/utils');
+const { format } =require('../actions/lib/utils');
+const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 
 
 /**
@@ -29,6 +29,7 @@ const {format} =require('../actions/lib/utils');
 module.exports = async (modelName, crud) => {
     modelName = format(modelName);
     const modelExists = await utils.modelFileExists(modelName);
+    const sqlConnection = getSqlConnectionFromNFW();
 
     if (modelExists) {
         const {confirmation} = await inquirer.askForConfirmation(`${chalk.magenta(modelName)} already exists, will you overwrite it ?`);
@@ -40,7 +41,7 @@ module.exports = async (modelName, crud) => {
 
     const spinner = new Spinner("Checking for existing entities ....");
     spinner.start();
-    const isExisting = await databaseInfo.tableExistsInDB(modelName);
+    const isExisting = await sqlConnection.tableExists(modelName);
     spinner.stop();
 
     let entityModelData = null;
@@ -75,7 +76,7 @@ module.exports = async (modelName, crud) => {
             process.exit(0);
             break;
         case 'create from db':
-            let { columns, foreignKeys } = await databaseInfo.getTableInfo("sql", modelName);
+            let { columns, foreignKeys } = await sqlConnection.getTableInfo(modelName);
             for (let j = 0; j < columns.length; j++) {
                 columns[j].Type = utils.sqlTypeData(columns[j].Type);
             }
