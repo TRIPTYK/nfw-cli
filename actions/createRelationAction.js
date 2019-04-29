@@ -50,7 +50,7 @@ const _addToSerializer = async (entity, column) => {
     //Add the import if they're not already there the write in the serializer
     if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}Serializer`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))}Serializer } from "./${ singular(column)}.serializer";\n`);
     if (!isImportPresent(fileContent, `${capitalizeEntity( singular(column))}`)) fileContent = writeToFirstEmptyLine(fileContent, `import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`);
-    await WriteFile(serializer, fileContent).then(() => Log.info(`${chalk.cyan(`/src/api/serializers/${entity}.serializer.ts`)} updated`));
+    await WriteFile(serializer, fileContent).then(() => Log.info(`${chalk.cyan(`src/api/serializers/${entity}.serializer.ts`)} updated`));
 };
 
 /**
@@ -66,7 +66,7 @@ const _addToRelation = async (entity, column) => {
     let regexArray = new RegExp(`'${column}'`, 'm');
     let toPut = `,'${column}'`;
     if (!fileContent.match(regexArray)) fileContent = fileContent.replace(regex, `${toPut}\n$1`);
-    await WriteFile(relation, fileContent).then(() => Log.info(`${chalk.cyan(`/src/api/enums/relations/${entity}.relations.ts`)} updated`));
+    await WriteFile(relation, fileContent).then(() => Log.info(`${chalk.cyan(`src/api/enums/relations/${entity}.relations.ts`)} updated`));
 };
 
 
@@ -134,8 +134,8 @@ const _Oto = (model1, model2, isFirst, name, refCol) => {
  */
 const _Otm = (model1, model2, isFirst) => {
     let toPut;
-    if (isFirst) toPut = `@OneToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n ${ plural(model2)} : ${capitalizeEntity(model2)}[]`;
-    else toPut = `@ManyToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n ${model2} : ${capitalizeEntity(model2)}`;
+    if (isFirst) toPut = `@OneToMany(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${model1})\n ${ plural(model2)} : ${capitalizeEntity(model2)}[];`;
+    else toPut = `@ManyToOne(type => ${capitalizeEntity(model2)}, ${model2} => ${model2}.${ plural(model1)})\n ${model2} : ${capitalizeEntity(model2)};`;
     return [toPut, isFirst ?  plural(model2) : model2]
 };
 

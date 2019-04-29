@@ -58,7 +58,7 @@ const removeFromSerializer = async (entity, column) => {
  * @returns {Promise<void>}
  */
 const removeFromTest = async (model, column) => {
-    let testPath = `${process.cwd()}/test/${model}.test.js`;
+    let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let regexRandom = new RegExp(`[^']${column}.*?,`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
     let testFile = await ReadFile(testPath, 'utf-8');
