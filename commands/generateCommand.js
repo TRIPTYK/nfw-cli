@@ -6,16 +6,18 @@
 
 // Node modules imports
 const reservedWords = require('reserved-words');
+const { Spinner } = require('clui');
+const chalk = require('chalk');
 
 // Project imports
 const commandUtils = require('./commandUtils');
 const generateAction = require('../actions/generateAction');
 const migrateAction = require('../actions/migrateAction');
 const generateDocAction = require('../actions/generateDocumentationAction');
-
 const Log = require('../utils/log');
-const {Spinner} = require('clui');
-const chalk = require('chalk');
+
+
+const generateDocSpinner = new Spinner('Generating documentation');
 
 
 /**
@@ -92,6 +94,9 @@ exports.handler = async (argv) => {
             process.exit();
         });
 
+
+    generateDocSpinner.start();
+
     await generateDocAction()
         .then(() => {
             Log.success('Typedoc generated successfully');
@@ -99,6 +104,8 @@ exports.handler = async (argv) => {
         .catch((e) => {
             Log.error('Typedoc failed to generate : ' + e.message);
         });
+
+    generateDocSpinner.stop();
 
     process.exit();
 };
