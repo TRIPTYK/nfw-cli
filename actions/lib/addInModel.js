@@ -2,7 +2,8 @@ const ejs = require('ejs');
 const Util = require('util');
 const Log = require('../../utils/log');
 const FS = require('fs');
-const chalk = require('chalk/types');
+const chalk = require('chalk');
+
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const { columnExist, lowercaseEntity, buildJoiFromColumn} = require('./utils');
