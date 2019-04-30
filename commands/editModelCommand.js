@@ -20,7 +20,7 @@ const chalk = require('chalk');
  * Yargs command
  * @type {string}
  */
-exports.command = 'editModel <model> <action> [column]';
+exports.command = 'editModel <model> <action> [columnName]';
 
 /**
  * Yargs command aliases
@@ -32,7 +32,7 @@ exports.aliases = ["em", "edit"];
  * Yargs command description
  * @type {string}
  */
-exports.describe = 'add or remove column in a model';
+exports.describe = 'add or remove column in an existing model\nAction can be either add or remove\ncolumnName is required only for the remove action.';
 
 /**
  * Yargs command builder
@@ -47,7 +47,7 @@ exports.builder = () => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    const {model, column, action} = argv;
+    const {model, columnName, action} = argv;
     const spinner = new Spinner("Generating and executing migration");
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
@@ -60,14 +60,14 @@ exports.handler = async (argv) => {
     if (action === 'remove' && !column) {
         Log.info("you must specify the column to remove");
     } else if (action === 'add') {
-        if(column && columnExist(model,column)){
-            Log.error('Column already exist');
+        if(columnName && columnExist(model,columnName)){
+            Log.error('column already exist');
             process.exit(0);
         }
-        await editModelAction('add', model,column)
+        await editModelAction('add', model,columnName)
             .then(async () =>{
                 spinner.start();
-                await migrate(`remove-${column}-from-${model}`)
+                await migrate(`remove-${columnName}-from-${model}`)
                     .then((generated) => {
                         const [migrationDir] = generated;
                         spinner.stop(true);
@@ -82,11 +82,11 @@ exports.handler = async (argv) => {
             .catch((e) => {
                 Log.error('Failed to edit model : ' + e.message)
             });
-    } else if (action === 'remove' && column) {
-        await editModelAction('remove', model, column)
+    } else if (action === 'remove' && columnName) {
+        await editModelAction('remove', model, columnName)
             .then(async () => {
                 spinner.start();
-                await migrate(`remove-${column}-from-${model}`)
+                await migrate(`remove-${columnName}-from-${model}`)
                     .then((generated) => {
                         const [migrationDir] = generated;
                         spinner.stop(true);
