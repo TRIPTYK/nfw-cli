@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
+
 /**
  * Main function
  * @param {string} environment
@@ -65,7 +66,6 @@ module.exports = async (environment, monitoringEnabled) => {
         monitoring.stderr.on('data', (chunk) => {
             console.log(`Monitoring error : ${chunk}`)
         });
-
     }
 
     let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')}`, ["--respawn","--transpileOnly","./src/app.bootstrap.ts","--env" ,`${environment}`]);

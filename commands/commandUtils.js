@@ -23,13 +23,19 @@ exports.validateDirectory = () => {
 };
 
 exports.checkConnectToDatabase = async () => {
-    const nfwFile = fs.readFileSync('.nfw','utf-8');
-    const nfwEnv = JSON.parse(nfwFile).env;
-
     try {
-        await new SqlConnection(new DatabaseEnv(`${nfwEnv}.env`)).connect();
+        await new SqlConnection(exports.getCurrentEnvironment()).connect();
     }catch(e) {
         Log.error("Can't connect to database : " + e.message);
         process.exit();
     }
+};
+
+exports.getCurrentEnvironment = () => {
+    const nfwFile = fs.readFileSync('.nfw','utf-8');
+    let nfwEnv = JSON.parse(nfwFile).env;
+
+    if (!nfwEnv) nfwEnv = 'development';
+
+    return new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`);
 };

@@ -4,9 +4,14 @@
  * @author Deflorenne Amaury
  */
 
+// node modules
+const inquirer = require("../utils/inquirer");
+
 // Project imports
 const commandUtils = require('./commandUtils');
 const startAction = require('../actions/startAction');
+const {SqlConnection} = require("../database/sqlAdaptator");
+
 
 /**
  * Yargs command
@@ -53,6 +58,24 @@ exports.handler = async (argv) => {
 
     const environement = argv.env;
     const monitoringEnabled = argv.monitoring;
+
+    const sqlConnection = new SqlConnection();
+    const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
+
+    try {
+        await sqlConnection.connect(currentEnv);
+    } catch (e) {
+        let clonedEnv = { ... currentEnv };
+        delete clonedEnv.TYPEORM_DB;
+        await sqlConnection.connect(clonedEnv);
+
+        if (e.code === 'ER_BAD_DB_ERROR') {
+            const dbName = currentEnv.TYPEORM_DB;
+            const confirmation = (await inquirer.askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
+
+            if (confirmation) await sqlConnection.createDatabase(dbName);
+        }
+    }
 
     startAction(environement, monitoringEnabled);
 };
