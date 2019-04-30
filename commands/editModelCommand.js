@@ -20,7 +20,7 @@ const chalk = require('chalk');
  * Yargs command
  * @type {string}
  */
-exports.command = 'editModel <model> <action> [column]';
+exports.command = 'editModel <model> <action> [columnName]';
 
 /**
  * Yargs command aliases
@@ -32,7 +32,7 @@ exports.aliases = ["em", "edit"];
  * Yargs command description
  * @type {string}
  */
-exports.describe = 'add or remove column in a model';
+exports.describe = 'add or remove column in an existing model\nAction can be either add or remove\ncolumnName is required only for the remove action.';
 
 /**
  * Yargs command builder
