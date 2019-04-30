@@ -19,6 +19,28 @@ const migrateAction= require('./migrateAction');
 const ReadFile = FS.readFileSync;
 const WriteFile = Util.promisify(FS.writeFile);
 
+
+const _addToController = async (entity,column) =>{
+    let controllerPath = `${process.cwd()}/src/api/controllers/${entity}.controller.ts`;
+    let controller = await ReadFile(controllerPath, 'utf-8');
+
+    let regex = new RegExp(`.*merge[\\s\\S]*?\\.save\\(${entity}\\);|.+\\.save.*?;`,'gm')
+
+    toPut=`      if(req.body.${column}){\n`
+    if(isPlural(column)) toPut += `              ${entity}.${column} = await getRepository(${capitalizeEntity(singular(column))}).findByIds(req.body.${column})\n      }`;
+    else toPut += `              ${entity}.${column} = await getRepository(${capitalizeEntity(singular(column))}).findOne(req.body.${column})\n      }`;
+     
+
+
+    controller = controller.replace(regex,`${toPut}\n$& `);
+    if(!isImportPresent(controller,'capitalizeEntity(singular(column))')) controller = writeToFirstEmptyLine(controller,`import { ${capitalizeEntity( singular(column))} } from "../models/${ singular(column)}.model";\n`)
+
+    await WriteFile(controllerPath,controller).then(() => Log.info(`${chalk.cyan(`src/api/controllers/${entity}.controller.ts`)} updated`));
+
+}
+
+
+
 /**
  * @description add relationship in the serializer of an entity
  * @param {string} entity
@@ -170,7 +192,7 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol) => 
     if(!relationExist(model1,toPut[1])) modelFile = `${modelFile.substring(0, pos)}${toPut[0]}\n\n}`;
     //import the model of the second entity if it is not already present then write process to update serializer and controller
     if (!isImportPresent(modelFile, capitalizeEntity(model2))) modelFile = writeToFirstEmptyLine(modelFile, `import { ${capitalizeEntity(model2)} } from "./${model2}.model";\n`);
-    await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToRelation(model1, toPut[1])]);
+    await Promise.all([WriteFile(pathModel, modelFile), _addToSerializer(model1, toPut[1]), _addToRelation(model1, toPut[1]), _addToController(model1,toPut[1])]);
 };
 
 
