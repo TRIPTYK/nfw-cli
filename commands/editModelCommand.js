@@ -57,7 +57,7 @@ exports.handler = async (argv) => {
         process.exit(0);
     }
 
-    if (action === 'remove' && !column) {
+    if (action === 'remove' && !columnName) {
         Log.info("you must specify the column to remove");
     } else if (action === 'add') {
         if(columnName && columnExist(model,columnName)){
