@@ -29,7 +29,7 @@ module.exports = async (action, model, column = null) => {
             });
 
     if (action === 'add') {
-        let data = await modelSpecs.newColumn();
+        let data = await modelSpecs.newColumn(column);
         await addInModels(model, data)
             .then(async () =>{
                 Log.success('Column successfully added');
