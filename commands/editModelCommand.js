@@ -15,6 +15,7 @@ const {columnExist} = require('../actions/lib/utils')
 //Node Modules
 const {Spinner} = require('clui');
 const chalk = require('chalk');
+const snake = require('to-snake-case');
 
 /**
  * Yargs command
@@ -47,7 +48,8 @@ exports.builder = () => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    const {model, columnName, action} = argv;
+    let {model, columnName, action} = argv;
+    model= snake(model);
     const spinner = new Spinner("Generating and executing migration");
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();

@@ -59,7 +59,7 @@ const removeFromSerializer = async (entity, column) => {
  */
 const removeFromTest = async (model, column) => {
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
-    let regexRandom = new RegExp(`[\\s]${column}.*?,`, 'gm');
+    let regexRandom = new RegExp(`[\\s]${column}.*?\\),`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
     let testFile = await ReadFile(testPath, 'utf-8');
     testFile = testFile.replace(regexRandom, '').replace(regexArray, '');
