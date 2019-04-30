@@ -10,12 +10,11 @@ const utils = require('../actions/lib/utils');
 const editModelAction = require('../actions/editModelAction');
 const Log = require('../utils/log');
 const migrate = require('../actions/migrateAction');
-const {columnExist} = require('../actions/lib/utils')
+const {columnExist,format} = require('../actions/lib/utils')
 
 //Node Modules
 const {Spinner} = require('clui');
 const chalk = require('chalk');
-const snake = require('to-snake-case');
 
 /**
  * Yargs command
@@ -49,7 +48,7 @@ exports.builder = () => {
  */
 exports.handler = async (argv) => {
     let {model, columnName, action} = argv;
-    model= snake(model);
+    model= format(model);
     const spinner = new Spinner("Generating and executing migration");
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
