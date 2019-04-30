@@ -13,7 +13,6 @@ const chalk = require('chalk');
 // project modules
 const {modelFileExists, columnExist, relationExist, capitalizeEntity, writeToFirstEmptyLine, isImportPresent} = require('./lib/utils');
 const Log = require('../utils/log');
-const migrateAction= require('./migrateAction');
 
 
 const ReadFile = FS.readFileSync;
