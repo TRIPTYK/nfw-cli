@@ -84,7 +84,6 @@ exports.handler = async (argv) => {
             Log.success("New project generated successfully");
         })
         .catch((e) => {
-            console.log(e);
             Log.error("Error when generating new project : " + e.message);
             process.exit();
         });

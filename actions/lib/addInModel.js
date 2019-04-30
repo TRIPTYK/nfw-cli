@@ -1,12 +1,12 @@
 const ejs = require('ejs');
 const Util = require('util');
-const Log = require('../utils/log');
+const Log = require('../../utils/log');
 const FS = require('fs');
-const chalk = require('chalk');
+const chalk = require('chalk/types');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const { columnExist, lowercaseEntity, buildJoiFromColumn} = require('./lib/utils');
-const {getKey,getDefault,getNull,getLength,addToConfig} = require('./lib/writeForTypeORM');
+const { columnExist, lowercaseEntity, buildJoiFromColumn} = require('./utils');
+const {getKey,getDefault,getNull,getLength} = require('./writeForTypeORM');
 
 
 const addToValidations = async (model,column) =>{
@@ -19,14 +19,14 @@ const addToValidations = async (model,column) =>{
     let regexRandom = new RegExp(`[\\s]${column.Field} :.*?,`, 'gm');
 
     //build string based on Joi object
-    let col = await buildJoiFromColumn(column)
+    let col = await buildJoiFromColumn(column);
     let toPut = `   ${col.name} : Joi.${col.baseType}()`;
     if(col.specificType) toPut+= `.${col.specificType}()`;
-    if(col.length && col.baseType !== 'any') toPut += `.max(${col.length})`
-    col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL' ? toPut+='.required(),' : toPut+='.optional(),' 
+    if(col.length && col.baseType !== 'any') toPut += `.max(${col.length})`;
+    col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL' ? toPut+='.required(),' : toPut+='.optional(),';
 
-    if(!valFile.match(regexRandom))valFile = valFile.replace(regexVal,`$1 ${toPut} `)
-    await WriteFile(valPath,valFile).then(Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`))
+    if(!valFile.match(regexRandom))valFile = valFile.replace(regexVal,`$1 ${toPut} `);
+    await WriteFile(valPath,valFile).then(() => Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`))
 };
 
 const addToTest = async (model, column) => {
@@ -53,7 +53,7 @@ const addToTest = async (model, column) => {
     //put the string in the file if not already present then write
     let regexRandom = new RegExp(`[\\s]${column.Field}.*?,`, 'gm');
     let regexArray = new RegExp(`,'${column.Field}'|'${column.Field}',|'${column.Field}'`, 'gm');
-    if(!testFile.match(regexRandom))testFile = testFile.replace(rgxRandomType,`$1${toPutRandType}\n$3`)
+    if(!testFile.match(regexRandom))testFile = testFile.replace(rgxRandomType,`$1${toPutRandType}\n$3`);
     if(!testFile.match(regexArray))testFile = testFile.replace(rgxList,`$1$2$3${toPutInList}`);
     await WriteFile(testPath,testFile).then(() => Log.info(`${chalk.cyan(`test/${model}.test.ts`)} updated`));
 
@@ -89,7 +89,7 @@ module.exports = async (model, data) => {
     entity.Default = getDefault(entity);
     entity.length = getLength(entity.Type);
     let newCol = '  ' + ejs.compile(columnTemp.toString())({entity});
-    var pos = modelFile.lastIndexOf('}'); let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`;
-    Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`)
+    let pos = modelFile.lastIndexOf('}'); let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`;
+    Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
     await Promise.all([WriteFile(pathModel, newModel), writeSerializer(model, data.columns.Field),addToTest(model, data.columns),addToValidations(model, data.columns)]);
 };

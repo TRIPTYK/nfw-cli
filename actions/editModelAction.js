@@ -6,7 +6,7 @@
 
 // project modules
 const removeColumn = require('./lib/removeFromModel');
-const addInModels = require('./addInModel');
+const addInModels = require('./lib/addInModel');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
 const {format} = require('../actions/lib/utils');

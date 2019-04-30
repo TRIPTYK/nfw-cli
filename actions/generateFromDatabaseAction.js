@@ -25,12 +25,14 @@ module.exports = async () => {
     let p_tablesIn = "Tables_in_" + databaseName;
     let Bridgings = [], foreignConstraint = [];
     let [tables, tablesIn] = await Promise.all([p_tables, p_tablesIn]);
+
     let crudOptions = {
         create: true,
         read: true,
         update: true,
         delete: true
     };
+
     for (let j = 0; j < tables.length; j++) {
         let {columns, foreignKeys} = await sqlAdaptor.getTableInfo(tables[j][tablesIn]);
         entityModelData = {columns, foreignKeys};
