@@ -94,7 +94,7 @@ exports.dbParams = async (entity) => {
     paramsArray['createUpdate'] = await inquirer.askForCreateUpdate();
     while (!isDoneColumn) {
         //ask the user the column to add to his entity until user is done
-        let data = await module.exports.newColumn(entity).catch(e => console.log(e.message));
+        let data = await module.exports.newColumn().catch(e => console.log(e.message));
         //add value to array that will be returned if value is not null
         if (data != null && data.columns !== undefined) paramsArray['columns'].push(data.columns);
         if (data != null && data.foreignKeys !== undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
