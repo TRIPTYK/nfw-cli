@@ -38,8 +38,7 @@ module.exports = async (modelName) => {
         .catch(async e => { //Handle delete failed migration
             let files = fs.readdirSync('./src/migration/');
             let regex = /[^0-9]+/;
-            let migration = (await getSqlConnectionFromNFW()).select(['timestamp', 'name'], 'migration_table');
-
+            let migration = await(await getSqlConnectionFromNFW()).select( 'migration_table',['timestamp', 'name']);
             let migrationFiles = migration.map(mig => {
                 let migName = regex.exec(mig.name);
                 return `${mig.timestamp}-${migName[0]}.js`;
