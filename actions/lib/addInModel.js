@@ -26,7 +26,7 @@ const addToValidations = async (model,column) =>{
     if(col.length && col.baseType !== 'any') toPut += `.max(${col.length})`;
     col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL' ? toPut+='.required(),' : toPut+='.optional(),';
 
-    if(!valFile.match(regexRandom))valFile = valFile.replace(regexVal,`$1 ${toPut} `);
+    if(!valFile.match(regexRandom))valFile = valFile.replace(regexVal,`$1 ${toPut}\n$2 `);
     await WriteFile(valPath,valFile).then(() => Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`))
 };
 
@@ -39,6 +39,7 @@ const addToTest = async (model, column) => {
     //regex to put fixtures.randomType(length) in the .test.js file and string to write
     let rgxRandomType = new RegExp(`(.send\\({[\\s\\S]*?)()(})`,'gm');
     if (column.Type.length === undefined) column.Type.length = '';
+    if (column.Type.type ==='enum') column.Type.length = `[${column.Type.length}]`
     let toPutRandType = `       ${column.Field} : fixtures.random${column.Type.type}(${column.Type.length}),`;
 
 
