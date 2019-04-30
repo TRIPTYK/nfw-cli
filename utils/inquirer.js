@@ -43,7 +43,7 @@ module.exports = {
             {
                 name: 'routePath',
                 type: 'input',
-                message: 'Please enter the route path',
+                message: 'Please enter the sub-route path',
                 default: '/',
                 validate : (input) =>{
                     if (input === "" || input ==='/') return "route path must contains at least one letter";

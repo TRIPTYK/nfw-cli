@@ -58,7 +58,7 @@ module.exports = async (entityName, routes) => {
                 capitalizeEntity
             })
         ),
-        routerWrite(entityName)
+        routerWrite(entityName,false)
     ]);
 
     // return written files

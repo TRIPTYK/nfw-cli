@@ -66,6 +66,8 @@ exports.handler = async (argv) => {
     let continueAsking = true;
     let routes = [];
 
+    Log.info(`Base route will be : /api/v1/${routeName}`);
+
     while (continueAsking) {
         let {routePath} = await inquirer.askRoutePath();
         let routeMethods = [];
@@ -82,7 +84,7 @@ exports.handler = async (argv) => {
                 controllerMethod: controllerMethod
             });
 
-            continueAskingMethods = (await inquirer.askForConfirmation(`Do you want to add a new method to route '${routePath}' ?`)).confirmation;
+            continueAskingMethods = (await inquirer.askForConfirmation(`Do you want to add a new method to route /api/v1/${routeName}${routePath} ?`)).confirmation;
         }
 
         routes.push({

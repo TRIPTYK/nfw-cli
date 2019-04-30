@@ -23,9 +23,10 @@ const processPath = process.cwd();
 /**
  * Main function
  * @param {string} entityName
+ * @param pluralizeRoute
  * @returns {Promise<void>}
  */
-module.exports = async (entityName) => {
+module.exports = async (entityName,pluralizeRoute = true) => {
     const lowercase = lowercaseEntity(entityName);
     const capitalize = capitalizeEntity(entityName);
 
@@ -39,7 +40,7 @@ module.exports = async (entityName) => {
     route = ejs.compile(route)({
         entityLowercase: lowercase,
         entityCapitalize: capitalize,
-        plural
+        routeName : pluralizeRoute ? plural(lowercase) : lowercase
     });
 
     if (!isImportPresent(proxy, `${capitalize}Router`)) {
