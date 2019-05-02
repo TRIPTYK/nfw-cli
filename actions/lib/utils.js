@@ -11,6 +11,8 @@ const FS = require('fs');
 const readline = require('readline');
 const snake= require('to-snake-case');
 const removeAccent= require('remove-accents');
+const reservedWords = require('reserved-words');
+
 const { SqlConnection , DatabaseEnv } = require('../../database/sqlAdaptator');
 
 const ReadFile = FS.readFileSync;
@@ -221,9 +223,32 @@ exports.format = (name) =>{
     return snake(removeAccent(name));
 };
 
+/**
+ *
+ * @param string
+ * @returns {Promise<Response | undefined> | *}
+ */
 exports.isAlphanumeric = (string) => {
-  return string.match(/(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/);
+    return string.match(/(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/);
 };
+
+/**
+ *
+ * @param string
+ * @returns {Promise<Response | undefined> | *}
+ */
+exports.isValidVarname = (string) => {
+    return string.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/);
+};
+
+/**
+ *
+ * @param string
+ * @returns {boolean}
+ */
+exports.isValidParam = (string) => !exports.isValidVarname(string) || !reservedWords.check(string, 6);
+
+
 
 exports.createDataBaseIfNotExists = async (setupEnv) => {
     const env = new DatabaseEnv(`${setupEnv}.env`);
@@ -242,4 +267,4 @@ exports.createDataBaseIfNotExists = async (setupEnv) => {
         else
             throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
     }
-}
+};
