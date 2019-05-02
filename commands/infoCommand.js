@@ -41,7 +41,6 @@ exports.handler = () => {
         chalk.bgGreen('Made by :') +
         "\n Amaury Deflorenne <https://github.com/AmauryD>" +
         "\n Romain Verliefden <https://github.com/DramixDW>" +
-        "\n Samuel Antoine <https://github.com/Snorkell>" +
-        "\n Steve Lebleu <https://github.com/konfer-be>"
+        "\n Samuel Antoine <https://github.com/Snorkell>"
     );
 };

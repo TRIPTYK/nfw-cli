@@ -20,25 +20,9 @@ const commands = require('../static/commands');
  */
 module.exports = async (logs) => {
     let command = commands.unitTests;
-    const unitTestOutput = await exec(command);
-    let string = unitTestOutput.stdout;
 
+    const { stdout } = await exec(command)
+      .catch((e) => e); // Throws error when the unit test fails , need to catch and return the stdout
 
-    if (logs) {
-        let regex = /(?<green>√.*|.*passing.*|(?<=\s)-.*)|(?<red>(?<=\s)[0-9]+\).*|.*failing.*|(?<=\s)\+.*)/gm;
-        let coloredText = string.replace(regex, `${chalk.green('$1')}${chalk.red('$2')}`);
-        console.log(coloredText);
-    } else {
-        let regex = new RegExp("(^.*passing.*$)|(^.*failing.*$)|(^\\s*Error:.*)|(^.*Uncaught.*$)", "gm");
-        let output = string.match(regex);
-        let errors = "";
-
-        if (output[1] !== undefined) {
-            for (let i = 2; i < output.length; i++) {
-                errors += output[i] + "\n";
-            }
-        }
-
-        console.log(`${chalk.green(output[0])} \n ${output[1] !== undefined ? chalk.bgRed(chalk.black(output[1] + " =>")) : ""} \n ${errors !== undefined ? chalk.red(errors) : ""}`);
-    }
+    console.log(stdout);
 };

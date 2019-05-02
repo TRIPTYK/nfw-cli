@@ -19,7 +19,7 @@ const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
-const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
+const utils = require('./lib/utils');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);
@@ -54,8 +54,8 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         newPath = await inquirer.askForNewPath();
     }
 
-    if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "3rd_party_ts_boilerplate")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
-        console.log(chalk.red('Error :') + `You already have a directory name \"3rd_party_ts_boilerplate\" or "${name}" !`);
+    if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "nfw")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
+        console.log(chalk.red('Error :') + `You already have a directory name \"nfw\" or "${name}" !`);
         process.exit(0);
     }
     if (docker) {
@@ -145,24 +145,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
         });
     }
-
-    const env = new DatabaseEnv(`${setupEnv}.env`);
-    const sqlConnection = new SqlConnection();
-    const currentEnvData = env.getEnvironment();
-
-    try {
-        await sqlConnection.connect(env.getEnvironment());
-    } catch (e) {
-        let clonedEnv = { ... currentEnvData };
-        delete clonedEnv.TYPEORM_DB;
-        await sqlConnection.connect(clonedEnv);
-
-        if (e.code === 'ER_BAD_DB_ERROR') {
-            await sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB);
-        }
-        else
-            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
-    }
+    utils.createDataBaseIfNotExists(setupEnv);
 };
 
 /**
@@ -192,7 +175,7 @@ const _kickStart = async (command, name, newPath) => {
  */
 const _gitCloneAndRemove = async (name) => {
     Log.success('Cloning repository  ...');
-    const clone = await exec("git clone https://github.com/TRIPTYK/3rd-party-ts-boilerplate.git");
+    const clone = await exec("git clone https://github.com/TRIPTYK/nfw.git");
 
     if (clone.stderr.length) {
         Log.success('Git repository cloned successfully ....');
@@ -203,7 +186,7 @@ const _gitCloneAndRemove = async (name) => {
     const newDirPath = `${process.cwd()}/${name}`;
 
     // rename git folder command
-    await renameDir(`${process.cwd()}/3rd-party-ts-boilerplate`, newDirPath)
+    await renameDir(`${process.cwd()}/nfw`, newDirPath)
         .then(() => Log.success('Renamed directory successfully'));
 
     await rmdir(`${newDirPath}/.git`)

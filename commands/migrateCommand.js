@@ -13,6 +13,7 @@ const chalk = require('chalk');
 const commandUtils = require('./commandUtils');
 const Log = require('../utils/log');
 const migrateAction = require('../actions/migrateAction');
+const utils = require('../actions/lib/utils');
 
 /**
  * Yargs command
@@ -50,6 +51,11 @@ exports.handler = async (argv) => {
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
+
+    if (!utils.isAlphanumeric(modelName)) {
+      console.log(`Migration name can be only alphanumeric caracters`);
+      process.exit(0);
+    }
 
     if (await reservedWords.check(modelName, 6)) {
         console.log(`${modelName} is a reserved word`);
