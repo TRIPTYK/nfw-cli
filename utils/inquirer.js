@@ -262,13 +262,16 @@ module.exports = {
     /**
      * TODO
      */
-    questionType: () => {
+    questionType: (key) => {
+        console.log(key);
+        typeList = ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column']
+        if(key === 'PRI' || key === 'UNI') typeList = typeList.filter(type => !type.match(/text|blob|json/))
         const questionsParams = [
             {
                 type: 'list',
                 name: 'type',
                 message: "What's the column type ?",
-                choices: ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column'],
+                choices: typeList ,
                 filter: data => {
                     if (data === 'Cancel current column') return ':exit';
                     else return data;

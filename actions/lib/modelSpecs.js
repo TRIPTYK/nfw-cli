@@ -31,7 +31,7 @@ exports.newColumn = async (columnName=null) => {
         let {uniqueValue} = await inquirer.questionUnique();
         uni = uniqueValue;
     } else uni = true;
-    let {type} = await inquirer.questionType();
+    let {type} = await inquirer.questionType(constraintValue);
     if (type === ':exit') return null;
     //if type need a length/width or is enum and need an array . Ask the user
     if (needLength.includes(type)) {
