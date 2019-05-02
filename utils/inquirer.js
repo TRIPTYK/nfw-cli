@@ -76,7 +76,7 @@ module.exports = {
                 type: 'input',
                 message: 'Route controller method',
                 validate: (input) => {
-                    if( input === '') return "Controller method can't be empty";        
+                    if( input === '') return "Controller method can't be empty";
                     else if(input.includes(' ')) return 'Controller method can\'t contains space';
                     else if (!input.match(/^[a-zA-Z]\w+$/)) return "Controller method contain fordibben charachter";
                     else return true;
@@ -350,7 +350,7 @@ module.exports = {
                 type: 'input',
                 name: 'TYPEORM_DB',
                 message: 'Database name ?',
-                default: "3rd_party_ts_boilerplate"
+                default: "nfw"
             },
             {
                 type: 'input',
@@ -421,13 +421,13 @@ module.exports = {
                 type: 'input',
                 name: "Container_name",
                 message: "Please enter a name for the docker image and container :",
-                default: "3rd_party_trs_boilerplate"
+                default: "nfw"
             },
             {
                 type: 'input',
                 name: 'MYSQL_DATABASE',
                 message: "Database name ?",
-                default: "3rd_party_ts_boilerplate"
+                default: "nfw"
             },
             {
                 type: "input",
