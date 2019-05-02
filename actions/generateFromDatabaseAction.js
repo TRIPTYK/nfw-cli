@@ -61,6 +61,7 @@ module.exports = async () => {
  */
 const _BridgingTableHander = async (Bridgings) => {
     for (let j = 0; j < Bridgings.length; j++) {
+        Log.info(`a reliationship has been detected between ${Bridgings[j][0].REFERENCED_TABLE_NAME} and ${Bridgings[j][1].REFERENCED_TABLE_NAME}`)
         let {m1Name,m2Name} = await inquirer.questionM1M2(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME);
         await createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null,m1Name,m2Name)
             .then(() => Log.success("Relation successfully added !"))

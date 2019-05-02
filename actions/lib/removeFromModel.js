@@ -92,7 +92,7 @@ const removeFromTest = async (model, column) => {
  */
 const removeFromValidation = async (model, column) => {
     let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
-    let regexRandom = new RegExp(`[\s]${column} :.*?,`, 'gm');
+    let regexRandom = new RegExp(`[\\s]${column} :.*?,`, 'gm');
     let valFile = await ReadFile(valPath, 'utf-8');
     valFile = valFile.replace(regexRandom, '');
     await WriteFile(valPath, valFile).then(() => Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`));
@@ -105,7 +105,8 @@ const removeFromValidation = async (model, column) => {
  * @param isRelation
  * @returns {Promise<void>}
  */
-module.exports = async (model, column, isRelation,model2) => {
+module.exports = async (model, column, isRelation,model2=' ') => {
+    console.log(column);
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
     let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
@@ -115,7 +116,6 @@ module.exports = async (model, column, isRelation,model2) => {
     if (modelFile.match(regexColumn) && !isRelation) modelFile = modelFile.toString().replace(regexColumn, '');
     else if (modelFile.match(regexMany) && isRelation)  modelFile = modelFile.replace(regexMany, '');
     else if (modelFile.match(regexOne) && isRelation) modelFile = modelFile.replace(regexOne, '');
-    else throw new Error('Column doesn\'t exist');
     if(!modelFile.match(regexImportNeeded))modelFile= removeImport(modelFile,capitalizeEntity(model2));
     let toExec = [WriteFile(pathModel, modelFile), removeFromSerializer(model, column,model2), removefromRelationTable(model, column),removeFromController(model,column,model2)];
     if (!isRelation) toExec.push(removeFromTest(model, column), removeFromValidation(model, column));

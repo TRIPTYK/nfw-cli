@@ -100,7 +100,7 @@ module.exports = {
         const question = {
             type: 'input',
             name: 'enum',
-            message: 'add a value to enum array ?',
+            message: 'Plz enter a value for the enum array',
             filter: data => {
                 if (data !== ':exit') return `'${data}',`;
                 else return data;

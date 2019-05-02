@@ -207,8 +207,8 @@ exports.relationExist=  (model, column) =>{
     let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
     let modelFile =  ReadFile(pathModel, 'utf-8');
     let exist = false;
-    let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}.*`);
-    let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}.*`);
+    let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}[\\s:]`);
+    let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}[\\s:]`);
     if (modelFile.match(regexMany)) exist = true;
     else if (modelFile.match(regexOne)) exist = true;
     return exist

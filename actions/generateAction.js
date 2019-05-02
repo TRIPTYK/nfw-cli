@@ -90,7 +90,8 @@ module.exports = async (modelName, crud) => {
                 for (let i = 0; i < foreignKeys.length; i++) {
                     let tmpKey = foreignKeys[i];
                     let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
-                    await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME)
+                    let {m1Name,m2Name} = await inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME);
+                    await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME,m1Name,m2Name)
                         .then(() => Log.success("Relation successfully added !"))
                         .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                 }
