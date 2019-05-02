@@ -57,7 +57,7 @@ exports.handler = async(argv) => {
     Log.error(`Error: ${argv.env} is not found, available environment are : ${envFiles}`);
     process.exit(0);
   }
-  actionUtils.createDataBaseIfNotExists(argv.env);
+    await actionUtils.createDataBaseIfNotExists(argv.env);
   const spinner = new Spinner("Generating and executing migration");
   spinner.start();
 
