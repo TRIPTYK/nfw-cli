@@ -8,8 +8,6 @@
 // Node modules
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const chalk = require('chalk');
-const path = require('path');
 
 // Project modules
 const commands = require('../static/commands');
@@ -18,7 +16,7 @@ const commands = require('../static/commands');
  * @description Returns how many unit test passed, failed, and which one failed
  * @returns {Array.string}
  */
-module.exports = async (logs) => {
+module.exports = async () => {
     let command = commands.unitTests;
 
     const { stdout } = await exec(command)

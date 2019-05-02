@@ -32,11 +32,7 @@ exports.describe = 'Executes unit tests';
  * @param yargs
  */
 exports.builder = (yargs) => {
-    yargs.option('logs', {
-        desc: "Show the full output",
-        type: 'boolean',
-        default: false
-    });
+
 };
 
 /**
@@ -45,14 +41,13 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    const fullLog = argv.logs;
     const status = new Spinner('Executing unit tests, please wait ...');
     status.start();
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
-    await startUnitTestsAction(fullLog);
+    await startUnitTestsAction();
 
     status.stop();
     process.exit(0);
