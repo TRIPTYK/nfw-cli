@@ -19,7 +19,7 @@ const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
-const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
+const utils = require('./lib/utils');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);
@@ -145,24 +145,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
         });
     }
-
-    const env = new DatabaseEnv(`${setupEnv}.env`);
-    const sqlConnection = new SqlConnection();
-    const currentEnvData = env.getEnvironment();
-
-    try {
-        await sqlConnection.connect(env.getEnvironment());
-    } catch (e) {
-        let clonedEnv = { ... currentEnvData };
-        delete clonedEnv.TYPEORM_DB;
-        await sqlConnection.connect(clonedEnv);
-
-        if (e.code === 'ER_BAD_DB_ERROR') {
-            await sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB);
-        }
-        else
-            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
-    }
+    utils.createDataBaseIfNotExists(setupEnv);
 };
 
 /**

@@ -11,6 +11,7 @@ const FS = require('fs');
 const readline = require('readline');
 const snake= require('to-snake-case');
 const removeAccent= require('remove-accents');
+const { SqlConnection , DatabaseEnv } = require('../../database/sqlAdaptator');
 
 const ReadFile = FS.readFileSync;
 
@@ -219,3 +220,22 @@ exports.relationExist=  (model, column) =>{
 exports.format = (name) =>{
     return snake(removeAccent(name));
 };
+
+exports.createDataBaseIfNotExists = async (setupEnv) => {
+    const env = new DatabaseEnv(`${setupEnv}.env`);
+    const sqlConnection = new SqlConnection();
+    const currentEnvData = env.getEnvironment();
+    try {
+        await sqlConnection.connect(env.getEnvironment());
+    } catch (e) {
+        let clonedEnv = { ... currentEnvData };
+        delete clonedEnv.TYPEORM_DB;
+        await sqlConnection.connect(clonedEnv);
+
+        if (e.code === 'ER_BAD_DB_ERROR') {
+            await sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB);
+        }
+        else
+            throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
+    }
+}
