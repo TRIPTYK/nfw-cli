@@ -23,7 +23,7 @@ const {format} =require('../actions/lib/utils');
  * @param {string} model2
  * @returns {Promise<void>}
  */
-module.exports = async (model1, model2) => {
+module.exports = async (model1, model2,m1Name,m2Name) => {
     model1 = format(model1);
     model2 = format(model2);
     const sql = await getSqlConnectionFromNFW();
@@ -31,17 +31,20 @@ module.exports = async (model1, model2) => {
     let mod1plural = false;
     let mod2plural = false;
 
-    if(!utils.modelFileExists(model1) ||!utils.modelFileExists(model1)){
+    if(!utils.modelFileExists(model1) ||!utils.modelFileExists(model2)){
         throw new Error('Both model should exist in order to remove a relation between them');
     }
 
-    if (utils.relationExist(model1, pluralize.plural(model2))) mod2plural = true;
-    if (utils.relationExist(model2, pluralize.plural(model1))) mod1plural = true;
+    if (utils.relationExist(model1, pluralize.plural(m2Name))) mod2plural = true;
+    if (utils.relationExist(model2, pluralize.plural(m1Name))) mod1plural = true;
 
-    if (mod2plural) model2 = pluralize.plural(model2);
-    if (mod1plural) model1 = pluralize.plural(model1);
+    if (mod2plural) m2Name = pluralize.plural(m2Name);
+    if (mod1plural) m1Name = pluralize.plural(m1Name);
 
-    await Promise.all([removeFromModel(model1, model2, true), removeFromModel(model2, model1, true)]).then(async () => {
+
+
+
+    await Promise.all([removeFromModel(model1, m2Name, true,model2), removeFromModel(model2, m1Name, true,model1)]).then(async () => {
         if (mod1plural && mod2plural) await sql.dropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
         else {
             const spinner = new Spinner("Generating and executing migration");

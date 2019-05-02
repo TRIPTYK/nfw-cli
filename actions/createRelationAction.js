@@ -23,7 +23,8 @@ const _addToController = async (entity,column,model) =>{
     let controllerPath = `${process.cwd()}/src/api/controllers/${entity}.controller.ts`;
     let controller = await ReadFile(controllerPath, 'utf-8');
 
-    let regex = new RegExp(`.*merge[\\s\\S]*?\\.save\\(${entity}\\);|.+\\.save.*?;`,'gm')
+    let regex = new RegExp(`.*merge[\\s\\S]*?\\.save\\(${entity}\\);|.+\\.save.*?;`,'gm');
+    let regexIf = new RegExp(`if\\(req\\.body\\.${column}[\\s\\S]*?}`,'gm');
 
     toPut=`      if(req.body.${column}){\n`
     if(isPlural(column)) toPut += `              ${entity}.${column} = await getRepository(${capitalizeEntity(model)}).findByIds(req.body.${column})\n      }`;
@@ -31,7 +32,7 @@ const _addToController = async (entity,column,model) =>{
      
 
 
-    controller = controller.replace(regex,`${toPut}\n$& `);
+    if(!controller.match(regexIf))controller = controller.replace(regex,`${toPut}\n$& `);
     if(!isImportPresent(controller,capitalizeEntity(model))) controller = writeToFirstEmptyLine(controller,`import { ${capitalizeEntity(model)} } from "../models/${model}.model";\n`)
 
     await WriteFile(controllerPath,controller).then(() => Log.info(`${chalk.cyan(`src/api/controllers/${entity}.controller.ts`)} updated`));

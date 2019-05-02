@@ -18,6 +18,7 @@ const WriteFile = Util.promisify(FS.writeFile);
 const {removeImport,capitalizeEntity} =require('./utils');
 const Log = require('../../utils/log');
 
+
 /**
  * @description  Remove relationship from serializer and controller
  * @param {string} entity
@@ -32,22 +33,39 @@ const removefromRelationTable = async (entity, column) => {
     await WriteFile(relation, newRel).then(() => Log.info(`${chalk.cyan(`src/api/enums/relations/${singular(entity)}.relations.ts`)} updated`));
 };
 
+const removeFromController = async (entity,column,model2) =>{
+    let controllerPath =  `${process.cwd()}/src/api/controllers/${singular(entity)}.controller.ts`;
+    let controller = await ReadFile(controllerPath, 'utf8');
+    let regexIf = new RegExp(`if\\(req\\.body\\.${column}[\\s\\S]*?}`,'gm')
+    let regexImportNeeded = new RegExp(`^[^import].*${capitalizeEntity(model2)}`,'gm')
+
+    controller = controller.replace(regexIf,'');
+    if(!controller.match(regexImportNeeded))controller = removeImport(controller, capitalizeEntity(model2));
+
+    await WriteFile(controllerPath, controller).then(() => Log.info(`${chalk.cyan(`src/api/controllers/${singular(entity)}.controller.ts`)} updated`));
+
+}
+
 /**
  *
  * @param entity
  * @param column
  * @returns {Promise<void>}
  */
-const removeFromSerializer = async (entity, column) => {
+const removeFromSerializer = async (entity, column,model2) => {
     let serializer = `${process.cwd()}/src/api/serializers/${singular(entity)}.serializer.ts`;
     let newSer = await ReadFile(serializer, 'utf-8');
     let regexAddRel = new RegExp(`${column} :[\\s\\S]*?},`);
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'm');
+    let regexImportNeeded = new RegExp(`^[^import].*${capitalizeEntity(model2)}`,'gm')
+
     if (isSingular(column) && newSer.match(regexAddRel)) newSer = newSer.replace(new RegExp(`${plural(column)} :[\\s\\S]*?},`), '');
     newSer = newSer.replace(regexAddRel, '');
     newSer = newSer.replace(regexArray, '');
-    newSer = removeImport(newSer, capitalizeEntity(singular(column)));
-    newSer = removeImport(newSer, capitalizeEntity(singular(`${column}Serializer`)));
+    if(!newSer.match(regexImportNeeded)){
+        newSer = removeImport(newSer, capitalizeEntity(model2));
+        newSer = removeImport(newSer, capitalizeEntity(singular(`${model2}Serializer`)));
+    }
     await WriteFile(serializer, newSer).then(() => Log.info(`${chalk.cyan(`src/api/serializers/${singular(entity)}.serializer.ts`)} updated`));
 };
 
@@ -87,18 +105,19 @@ const removeFromValidation = async (model, column) => {
  * @param isRelation
  * @returns {Promise<void>}
  */
-module.exports = async (model, column, isRelation) => {
+module.exports = async (model, column, isRelation,model2) => {
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
     let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);
+    let regexImportNeeded = new RegExp(`^[^import].*${capitalizeEntity(model2)}`,'gm')
     let pathModel = `${process.cwd()}/src/api/models/${singular(model)}.model.ts`;
     let modelFile = await ReadFile(pathModel,'utf-8');
     if (modelFile.match(regexColumn) && !isRelation) modelFile = modelFile.toString().replace(regexColumn, '');
     else if (modelFile.match(regexMany) && isRelation)  modelFile = modelFile.replace(regexMany, '');
     else if (modelFile.match(regexOne) && isRelation) modelFile = modelFile.replace(regexOne, '');
     else throw new Error('Column doesn\'t exist');
-    modelFile= removeImport(modelFile,capitalizeEntity(singular(column)));
-    let toExec = [WriteFile(pathModel, modelFile), removeFromSerializer(model, column), removefromRelationTable(model, column)];
+    if(!modelFile.match(regexImportNeeded))modelFile= removeImport(modelFile,capitalizeEntity(model2));
+    let toExec = [WriteFile(pathModel, modelFile), removeFromSerializer(model, column,model2), removefromRelationTable(model, column),removeFromController(model,column,model2)];
     if (!isRelation) toExec.push(removeFromTest(model, column), removeFromValidation(model, column));
     await Promise.all(toExec);
 };

@@ -8,6 +8,8 @@
 const commandUtils = require('./commandUtils');
 const removeRelationAction = require('../actions/removeRelationAction');
 const Log = require('../utils/log');
+const {format} = require('../actions/lib/utils');
+const {singular} = require('pluralize');
 
 /**
  * Yargs command
@@ -28,11 +30,22 @@ exports.aliases = ['rr', 'rmRl'];
 exports.describe = 'Remove a relation between two table';
 
 /**
- * Yargs builder
+ * Handle and build command options
+ * @param yargs
  */
-exports.builder = () => {
-
+exports.builder = (yargs) => {
+    yargs.option('m1Name', {
+        desc: "Specify the name of the column for the first model",
+        type: "string",
+        default: null
+    });
+    yargs.option('m2Name', {
+        desc: "Specify the name of the column for the second model",
+        type: "string",
+        default: null
+    });
 };
+
 
 /**
  * Main function
@@ -41,11 +54,13 @@ exports.builder = () => {
  */
 exports.handler = async (argv) => {
     const {model1, model2} = argv;
-
+    let m1Name,m2Name;
+    argv.m1Name ? m1Name = singular(format(argv.m1Name)) : m1Name = model1;
+    argv.m2Name ? m2Name = singular(format(argv.m2Name)) : m2Name = model2;
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
-    await removeRelationAction(model1, model2)
+    await removeRelationAction(model1, model2,m1Name,m2Name)
         .then(() => {
             Log.success(`Relation removed between ${model1} and ${model2}`);
         })
