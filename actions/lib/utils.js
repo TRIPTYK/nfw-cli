@@ -221,6 +221,10 @@ exports.format = (name) =>{
     return snake(removeAccent(name));
 };
 
+exports.isAlphanumeric = (string) => {
+  return string.match(/(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/);
+};
+
 exports.createDataBaseIfNotExists = async (setupEnv) => {
     const env = new DatabaseEnv(`${setupEnv}.env`);
     const sqlConnection = new SqlConnection();

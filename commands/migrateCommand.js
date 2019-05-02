@@ -13,6 +13,7 @@ const chalk = require('chalk');
 const commandUtils = require('./commandUtils');
 const Log = require('../utils/log');
 const migrateAction = require('../actions/migrateAction');
+const utils = require('../actions/lib/utils');
 
 /**
  * Yargs command
@@ -51,11 +52,9 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
-    const regex = /(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/; // alphanumeric check
-
-    if (!modelName.match(regex)) {
-        console.log(`Migration name can be only alphanumeric caracters`);
-        process.exit(0);
+    if (!utils.isAlphanumeric(modelName)) {
+      console.log(`Migration name can be only alphanumeric caracters`);
+      process.exit(0);
     }
 
     if (await reservedWords.check(modelName, 6)) {
