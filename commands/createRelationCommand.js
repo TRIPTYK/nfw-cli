@@ -14,6 +14,7 @@ const {format} =require('../actions/lib/utils');
 //node modules
 const {Spinner} = require('clui');
 const chalk = require('chalk');
+const {singular} =require('pluralize');
 
 
 /**
@@ -49,6 +50,16 @@ exports.builder = (yargs) => {
         type: "string",
         default: null
     });
+    yargs.option('m1Name', {
+        desc: "Specify the name of the column for the first model",
+        type: "string",
+        default: null
+    });
+    yargs.option('m2Name', {
+        desc: "Specify the name of the column for the second model",
+        type: "string",
+        default: null
+    });
 };
 
 /**
@@ -67,14 +78,16 @@ exports.handler = async (argv) => {
     const relation = argv.relation;
     const name = argv.name;
     const refCol = argv.refCol;
+    let m1Name,m2Name;
+    argv.m1Name ? m1Name = singular(format(argv.m1Name)) : m1Name = model1;
+    argv.m2Name ? m2Name = singular(format(argv.m2Name)) : m2Name = model2;
 
     if(!relations.includes(relation)){
         Log.error('Wrong relation');
         Log.info('Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)');
         process.exit(0)
     }
-
-    await createRelationAction(model1, model2, relation, name, refCol)
+    await createRelationAction(model1, model2, relation, name, refCol , m1Name , m2Name)
         .then(async () => {
             Log.success("Relation successfully added !");
             const spinner = new Spinner("Generating and executing migration");

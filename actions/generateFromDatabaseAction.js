@@ -61,7 +61,8 @@ module.exports = async () => {
  */
 const _BridgingTableHander = async (Bridgings) => {
     for (let j = 0; j < Bridgings.length; j++) {
-        await createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null)
+        let {m1Name,m2Name} = await inquirer.questionM1M2(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME);
+        await createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null,m1Name,m2Name)
             .then(() => Log.success("Relation successfully added !"))
             .catch((err) => Log.error(err.message));
     }
@@ -76,7 +77,8 @@ const _RelationHandler = async (foreignConstraint) => {
     for (let j = 0; j < foreignConstraint.length; j++) {
         if(noGenerate.includes(foreignConstraint[j].TABLE_NAME) && noGenerate.includes(foreignConstraint[j].REFERENCED_TABLE_NAME)) continue;
         let {response} = await inquirer.askForeignKeyRelation(foreignConstraint[j]);
-        await createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, foreignConstraint[j].COLUMN_NAME, foreignConstraint[j].REFERENCED_COLUMN_NAME)
+        let {m1Name,m2Name} = await inquirer.questionM1M2(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME);
+        await createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, m2Name, foreignConstraint[j].REFERENCED_COLUMN_NAME,m1Name,m2Name)
             .then(() => Log.success("Relation successfully added !"))
             .catch((err) => Log.error(err.message));
     }

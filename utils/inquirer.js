@@ -9,6 +9,7 @@ const inquirer = require('inquirer');
 
 // project modules
 const files = require('./files');
+const {columnExist,relationExist} = require('../actions/lib/utils');
 
 module.exports = {
 
@@ -232,6 +233,7 @@ module.exports = {
                     let numberType = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double'];
                     if (data === ':no') return true;
                     if (data === ':exit') return true;
+                    if (data === 'null') return true;
                     if (numberType.includes(type)) {
                         if (isNaN(data) || data === '') return "Type is numeric.Therefore, default should be a number :)";
                         else return true
@@ -266,7 +268,7 @@ module.exports = {
                 type: 'list',
                 name: 'type',
                 message: "What's the column type ?",
-                choices: ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'smallblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column'],
+                choices: ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column'],
                 filter: data => {
                     if (data === 'Cancel current column') return ':exit';
                     else return data;
@@ -666,5 +668,29 @@ module.exports = {
 
         ];
         return inquirer.prompt(questions);
-    }
+    },    
+    questionM1M2: (model1,model2) => {
+        const questionsM1M2 = [
+            {
+                type: 'input',
+                name: 'm1Name',
+                message: `What's wich name to you want for ${model1} in the model ?`,
+                validate : (input) =>{
+                    if (columnExist(model1,input) || relationExist(model1,input)) return 'Name may create a conflict. please choose another one';
+                    else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";
+                    else return true;
+                }
+            },
+            {
+                type: 'input',
+                name: 'm2Name',
+                message: `What's wich name to you want for ${model2} in the model ?`,
+                validate : (input) =>{
+                    if (columnExist(model2,input) || relationExist(model2,input)) return 'Name may create a conflict. please choose another one';
+                    else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";
+                    else return true;
+                }
+            }];
+        return inquirer.prompt(questionsM1M2);
+    },
 };
