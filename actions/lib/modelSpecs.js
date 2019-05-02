@@ -9,6 +9,7 @@ const colors = require('colors/safe');
 
 //project modules
 const inquirer = require('../../utils/inquirer');
+const Log = require('../../utils/log');
 
 let columnWritten = [];
 
@@ -17,6 +18,7 @@ let columnWritten = [];
  * @returns {Promise<null|Array>}
  */
 exports.newColumn = async (columnName=null) => {
+    Log.info('You can cancel the column at anytime if you write :exit  in an input or choose cancel current column in a choice.')
     //if any answer of the question is :exit , cancel current column
     let length = '', def, uni, paramsTemp, paramsArray = [], length_enum, arrayDone = false;
     if(!columnName) {
