@@ -7,7 +7,7 @@ const path = require('path');
  */
 module.exports = {
     compileTypeScript: `${path.normalize('./node_modules/.bin/tsc')} --noEmit`,
-    unitTests: `${path.normalize('./node_modules/.bin/mocha')} --require ts-node/register/transpile-only ./test/*.ts --reporter spec --timeout 10000 --exit`,
+    unitTests: `${path.normalize('./node_modules/.bin/mocha')} --require ts-node/register/transpile-only ./test/*.ts --reporter spec --timeout 10000 --colors --exit`,
     generateDoc : `${path.normalize('./node_modules/.bin/typedoc')} --out ./docs --ignoreCompilerErrors`,
 
     getNPMCommandsUnix: {
