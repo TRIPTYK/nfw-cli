@@ -106,7 +106,7 @@ const removeFromValidation = async (model, column) => {
  * @returns {Promise<void>}
  */
 module.exports = async (model, column, isRelation,model2=' ') => {
-    console.log(column);
+    
     let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
     let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column} :.*`);
     let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column} :.*`);

@@ -129,6 +129,8 @@ module.exports = async (entityName, drop) => {
     //constructor behavior
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
+   
+
 
     let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
     const sqlConnection = await getSqlConnectionFromNFW();
@@ -138,7 +140,7 @@ module.exports = async (entityName, drop) => {
     });
 
     for (let i = 0; i < relations.length; i++)
-        await removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME);
+        await removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME);
 
 
     let promises = [  // launch all tasks in async
