@@ -57,7 +57,7 @@ exports.handler = async (argv) => {
       process.exit(0);
     }
 
-    if (await reservedWords.check(modelName, 6)) {
+    if (reservedWords.check(modelName, 6)) {
         console.log(`${modelName} is a reserved word`);
         process.exit(0);
     }

@@ -58,7 +58,7 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
-    if (await reservedWords.check(modelName, 6)) {
+    if (reservedWords.check(modelName, 6)) {
         console.log("modelName is a reserved word");
         process.exit(0);
     }
