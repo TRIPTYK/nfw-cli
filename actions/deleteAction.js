@@ -130,6 +130,17 @@ module.exports = async (entityName, drop) => {
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
 
+    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
+    const sqlConnection = await getSqlConnectionFromNFW();
+
+    let relations = await sqlConnection.getForeignKeysRelatedTo(entityName).catch((err) => {
+        throw new Error(`Failed to get foreign keys related to ${entityName}` + err)
+    });
+
+    for (let i = 0; i < relations.length; i++)
+        await removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME);
+
+
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
         _unroute(),
@@ -143,20 +154,13 @@ module.exports = async (entityName, drop) => {
         modifiedFiles = modifiedFiles.concat(e)
     });
 
-    let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
-    const sqlConnection = await getSqlConnectionFromNFW();
-
     if (await sqlConnection.tableExists(entityName) && drop) {
         await sqlConnection.dumpTable(dumpPath, entityName)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => {
                 throw new Error(`Failed to create dump`);
            });
-        let relations = await sqlConnection.getForeignKeysRelatedTo(entityName).catch((err) => {
-            throw new Error(`Failed to get foreign keys related to ${entityName}`+ err)
-        });
 
-        for(let i = 0; i<relations.length; i++) await removeRel(relations[i].TABLE_NAME,relations[i].REFERENCED_TABLE_NAME);
         await sqlConnection.dropTable(entityName)
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
