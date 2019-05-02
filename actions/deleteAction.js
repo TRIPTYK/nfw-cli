@@ -147,7 +147,7 @@ module.exports = async (entityName, drop) => {
     const sqlConnection = await getSqlConnectionFromNFW();
 
     if (await sqlConnection.tableExists(entityName) && drop) {
-        await sqlConnection.dumpTable(entityName, dumpPath)
+        await sqlConnection.dumpTable(dumpPath, entityName)
             .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
             .catch(() => {
                 throw new Error(`Failed to create dump`);
