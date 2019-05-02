@@ -51,6 +51,13 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
+    const regex = /(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/; // alphanumeric check
+
+    if (!modelName.match(regex)) {
+        console.log(`Migration name can be only alphanumeric caracters`);
+        process.exit(0);
+    }
+
     if (await reservedWords.check(modelName, 6)) {
         console.log(`${modelName} is a reserved word`);
         process.exit(0);
