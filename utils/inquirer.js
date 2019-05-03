@@ -9,7 +9,7 @@ const inquirer = require('inquirer');
 
 // project modules
 const files = require('./files');
-const {columnExist,relationExist} = require('../actions/lib/utils');
+const {columnExist,relationExist,format} = require('../actions/lib/utils');
 
 module.exports = {
 
@@ -355,7 +355,8 @@ module.exports = {
                 type: 'input',
                 name: 'TYPEORM_DB',
                 message: 'Database name ?',
-                default: "nfw"
+                default: "nfw",
+                filter : (data) => format(data)
             },
             {
                 type: 'input',
@@ -559,6 +560,7 @@ module.exports = {
                 name: 'TYPEORM_DB',
                 message: 'Database name ?',
                 default: envData.TYPEORM_DB,
+                filter : (data) => format(data)
             },
             {
                 type: 'input',
