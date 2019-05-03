@@ -3,7 +3,7 @@ const Util = require('util');
 const Log = require('../../utils/log');
 const FS = require('fs');
 const chalk = require('chalk');
-const kebab = require('kebab-case')
+const kebab = require('dashify')
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
@@ -46,10 +46,10 @@ const addToTest = async (model, column) => {
 
     //regex to hand 'column' in the .body to include all keys
     //write 'column' or ,'column' if there is already columns in the list
-    let rgxList = new RegExp(`(expect\\(res.body[\\s\\S]*?')([\\n\\r])`,'gm');
+    let rgxList = new RegExp(`(expect\\(res.body[\\s\\S]*?')([\\s\\n\\r])`,'gm');
     let regexMatch = testFile.match(rgxList);
     let toPutInList;
-    if (regexMatch[2].includes('\'')) toPutInList = `,'${kebab(column.Field)}'`;
+    if (regexMatch[2].includes('\'')) toPutInList = `,'${kebab(column.Field)}'\n`;
     else toPutInList = `${kebab(column.Field)}`;
 
 
@@ -57,7 +57,7 @@ const addToTest = async (model, column) => {
     let regexRandom = new RegExp(`[\\s]${column.Field}.*?,`, 'gm');
     let regexArray = new RegExp(`,'${column.Field}'|'${column.Field}',|'${column.Field}'`, 'gm');
     if(!testFile.match(regexRandom))testFile = testFile.replace(rgxRandomType,`$1${toPutRandType}\n$3`);
-    if(!testFile.match(regexArray))testFile = testFile.replace(rgxList,`$1${toPutInList}\n`);
+    if(!testFile.match(regexArray))testFile = testFile.replace(rgxList,`$1${toPutInList}`);
     await WriteFile(testPath,testFile).then(() => Log.info(`${chalk.cyan(`test/${model}.test.ts`)} updated`));
 
 };

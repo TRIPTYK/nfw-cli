@@ -35,6 +35,8 @@ module.exports = async (model1, model2,m1Name,m2Name) => {
         throw new Error('Both model should exist in order to remove a relation between them');
     }
 
+    
+
     if (utils.relationExist(model1, pluralize.plural(m2Name))) mod2plural = true;
     if (utils.relationExist(model2, pluralize.plural(m1Name))) mod1plural = true;
 
