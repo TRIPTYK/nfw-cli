@@ -160,7 +160,7 @@ module.exports = {
                     else if (!data.match(/^[a-zA-Z]\w{0,30}$/) && data !== ':exit') return "Name contain fordibben charachter";
                     else return true;
                 },
-                filter: data => data.toLowerCase().replace(" ", "_").trim()
+                filter: data => format(data)
             }];
         return inquirer.prompt(questionsParams);
     },
