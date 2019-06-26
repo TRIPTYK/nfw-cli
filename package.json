@@ -43,5 +43,9 @@
   },
   "devDependencies": {
     "remove-accents": "^0.4.2"
+  },
+  "volta": {
+    "node": "10.16.0",
+    "yarn": "1.16.0"
   }
 }
