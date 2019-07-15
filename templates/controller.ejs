@@ -2,138 +2,118 @@ import * as HttpStatus from "http-status";
 
 import * as Boom from "boom";
 import { Request, Response } from "express";
-import { <%- entityCapitalize %> } from "./../models/<%- entityLowercase %>.model";
+import { <%- entityCapitalize %> } from "../models/<%- entityLowercase %>.model";
 import { <%- entityCapitalize %>Serializer } from "../serializers/<%- entityLowercase %>.serializer";
-import { <%- entityCapitalize %>Repository } from "./../repositories/<%- entityLowercase %>.repository";
+import { <%- entityCapitalize %>Repository } from "../repositories/<%- entityLowercase %>.repository";
 import { relations as <%- entityLowercase %>Relations } from "../enums/relations/<%- entityLowercase %>.relations";
 import { getRepository, getCustomRepository } from "typeorm";
 import { BaseController } from "./base.controller";
 import { SerializerParams } from "../serializers/serializerParams";
+import {BaseRepository} from "../repositories/base.repository";
 
 /**
  *
  */
 export class <%- entityCapitalize %>Controller extends BaseController {
 
-  /** */
-  constructor() { super(); }
+protected repository: BaseRepository<<%- entityCapitalize %>>;
+
+/** */
+constructor() { super(); }
+
+protected beforeMethod(): void {
+this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
+}
 
 <% if (options.read) { %>
-  /**
-   * Get serialized <%- entityLowercase %>
-   *
-   * @param req Request
-   * @param res Response
-   *
-   * @public
-   */
-   public async get(req: Request, res : Response, next : Function) {
-    try {
-      const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const <%- entityLowercase %> = await repository.jsonApiFindOne(req,req.params.id,<%- entityLowercase %>Relations);
+    /**
+    * Get serialized <%- entityLowercase %>
+    *
+    * @param req Request
+    * @param res Response
+    *
+    * @public
+    */
+    public async get(req: Request, res : Response, next : Function) {
+    const <%- entityLowercase %> = await this.repository.jsonApiFindOne(req,req.params.id,<%- entityLowercase %>Relations);
 
-      if (!<%- entityLowercase %>) throw Boom.notFound();
+    if (!<%- entityLowercase %>) throw Boom.notFound();
 
-      res.json( new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>) );
-    }catch(e) {
-      next(e);
+    return new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>);
     }
-  }
 <% } %>
 
 
 
 <% if (options.create) { %>
-  /**
-   * Create new <%- entityLowercase %>
-   *
-   * @param req Request
-   * @param res Response
-   * @param next Function
-   *
-   * @public
-   */
-  public async create (req: Request, res : Response, next: Function) {
-    try {
-      const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
-      const saved = await repository.save(<%- entityLowercase %>);
-      res.status( HttpStatus.CREATED );
-      res.json( new <%- entityCapitalize %>Serializer().serialize(saved) );
+    /**
+    * Create new <%- entityLowercase %>
+    *
+    * @param req Request
+    * @param res Response
+    * @param next Function
+    *
+    * @public
+    */
+    public async create (req: Request, res : Response, next: Function) {
+    const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
+    const saved = await this.repository.save(<%- entityLowercase %>);
+    res.status( HttpStatus.CREATED );
+    return new <%- entityCapitalize %>Serializer().serialize(saved);
     }
-    catch (e) { next(e); }
-  }
 <% } %>
 
 <% if (options.update) { %>
-  /**
-   * Update existing <%- entityLowercase %>
-   *
-   * @param req Request
-   * @param res Response
-   * @param next Function
-   *
-   * @public
-   */
-  public async update (req: Request, res : Response, next: Function) {
-    try {
-      const repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await repository.findOne(req.params.id);
-      if (!<%- entityLowercase %>) throw Boom.notFound();
+    /**
+    * Update existing <%- entityLowercase %>
+    *
+    * @param req Request
+    * @param res Response
+    * @param next Function
+    *
+    * @public
+    */
+    public async update (req: Request, res : Response, next: Function) {
+    const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
+    if (!<%- entityLowercase %>) throw Boom.notFound();
 
-      repository.merge(<%- entityLowercase %>, req.body);
-      repository.save(<%- entityLowercase %>);
-      res.json(new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>) );
-    }
-    catch(e) { next(e ); }
-
-  };
+    this.repository.merge(<%- entityLowercase %>, req.body);
+    const saved = this.repository.save(<%- entityLowercase %>);
+    return new <%- entityCapitalize %>Serializer().serialize(saved);
+    };
 <% } %>
 
 <% if (options.read) {%>
-  /**
-   * Get <%- entityLowercase %> list
-   *
-   * @param req Request
-   * @param res Response
-   * @param next Function
-   *
-   * @public
-   */
-  public async list (req: Request, res : Response, next: Function) {
-
-    try {
-      const repository = getCustomRepository(<%- entityCapitalize %>Repository);
-      const [<%- entityLowercase %>s,total] = await repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
-      res.json( new <%- entityCapitalize %>Serializer( new SerializerParams().enablePagination(req,total) ).serialize(<%- entityLowercase %>s)  );
-    }catch(e) {
-      next(e);
+    /**
+    * Get <%- entityLowercase %> list
+    *
+    * @param req Request
+    * @param res Response
+    * @param next Function
+    *
+    * @public
+    */
+    public async list (req: Request, res : Response, next: Function) {
+    const [<%- entityLowercase %>s,total] = await this.repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
+    return new <%- entityCapitalize %>Serializer( new SerializerParams().enablePagination(req,total) ).serialize(<%- entityLowercase %>s);
     }
-  }
 <% } %>
 
 <% if (options.delete) {%>
-  /**
-   * Delete <%- entityLowercase %>
-   *
-   * @param req Request
-   * @param res Response
-   * @param next Function
-   *
-   * @public
-   */
-  public async remove (req: Request, res : Response, next: Function) {
-
-    try {
-      const <%- entityLowercase %>Repository = getRepository(<%- entityCapitalize %>);
-      const <%- entityLowercase %> = await <%- entityLowercase %>Repository.findOne(req.params.id);
-      if (!<%- entityLowercase %>) throw Boom.notFound();
-      const repository = getRepository(<%- entityCapitalize %>);
-      await repository.remove(<%- entityLowercase %>);
-      res.sendStatus(HttpStatus.NO_CONTENT).end();
+    /**
+    * Delete <%- entityLowercase %>
+    *
+    * @param req Request
+    * @param res Response
+    * @param next Function
+    *
+    * @public
+    */
+    public async remove (req: Request, res : Response, next: Function) {
+    const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
+    if (!<%- entityLowercase %>) throw Boom.notFound();
+    await this.repository.remove(<%- entityLowercase %>);
+    res.sendStatus(HttpStatus.NO_CONTENT).end();
     }
-    catch(e) { next(e); }
-
-  }
 <% } %>
 }

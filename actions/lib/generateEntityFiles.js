@@ -56,7 +56,6 @@ const _write = async (data, crudOptions) => {
         if (item.template === 'model') return;
 
         let file = await ReadFile(`${__baseDir}/templates/${item.template}.ejs`, 'utf-8');
-
         let output = ejs.compile(file)({
             entityLowercase: lowercase,
             entityCapitalize: capitalize,

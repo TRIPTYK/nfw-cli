@@ -13,53 +13,27 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
   public static withelist : Array<string> = [<%- allColumns %>];
 
   constructor(serializerParams = null) {
-    if (!serializerParams) serializerParams = new SerializerParams();
+  super('<%- pluralize.singular(entityLowercase) %>');
 
     const data = {
-      attributes : <%- entityCapitalize %>Serializer.withelist,
-      dataLinks : {
-        self : (dataSet,data) => {
-          if (data.id)
-            return `${url}/api/${api}/${this.type}/${data.id}`
-        }
-      },
-      
-      <% foreignKeys.forEach(foreignKey => { %>
-        <%- foreignKey.COLUMN_NAME %> : {
-           ref : '<%- foreignKey.REFERENCED_COLUMN_NAME %>',
-           attributes : <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.withelist,
-           <% if (pluralize.isPlural(foreignKey.COLUMN_NAME)) { %>
-           valueForRelationship : async (relationship) => {
-              return await getRepository(<%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>).findOne(relationship.<%- foreignKey.COLUMN_NAME %>);
-           } <% } -%>
-        },
-        <% }); %>
-        <% foreignKeys.filter(foreignKey => pluralize.isSingular(foreignKey.COLUMN_NAME)).forEach(foreignKey => { %>
-        <%- pluralize.plural(foreignKey.COLUMN_NAME) %> : { //serializer type name is always plural for deserializer
-          valueForRelationship : async (relationship) => {
-             return await getRepository(<%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>).findOne(relationship.<%- foreignKey.COLUMN_NAME %>);
-          }
-        },
-      <% }); %>
-    };
-
-    if (serializerParams.hasPaginationEnabled())
-    {
-      const { total , request } = serializerParams.getPaginationData();
-      const page = parseInt(request.query.page.number);
-      const size = request.query.page.size;
-      const baseUrl = `${url}/api/${api}`;
-      const max = Math.ceil(total / size);
-
-      data["topLevelLinks"] = {
-        self : () =>  `${baseUrl}/${this.type}${request.url}`,
-        next : () => `${baseUrl}/${this.type}${this.replacePage(request.url,page + 1 > max ? max  : page + 1)}`,
-        prev : () => `${baseUrl}/${this.type}${this.replacePage(request.url,page - 1 <   1 ? page : page - 1)}`,
-        last : () => `${baseUrl}/${this.type}${this.replacePage(request.url,max)}` ,
-        first : () =>  `${baseUrl}/${this.type}${this.replacePage(request.url,1)}`
-      }
+  whitelist: <%- entityCapitalize %>Serializer.whitelist,
+  relationships: {
+  <% foreignKeys.forEach(foreignKey => { %>
+    <%- foreignKey.COLUMN_NAME %> : {
+    type : <%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>
     }
+  <% }); %>
+  },
+  };
 
-    super(serializerParams.getType() ? serializerParams.getType() : '<%- pluralize.plural(entityLowercase) %>', data );
+  this.setupPagination(data, serializerParams);
+
+  this.serializer.register(this.type, data);
+
+  <% foreignKeys.forEach((foreignKey) => { %>
+    this.serializer.register(<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>, {
+    whitelist: <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.whitelist
+    });
+  <% }); %>
   }
 }
