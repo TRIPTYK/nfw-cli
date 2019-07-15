@@ -67,9 +67,11 @@ module.exports = async (environment, monitoringEnabled) => {
             console.log(`Monitoring error : ${chunk}`)
         });
     }
-
+    
     let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')}`, ["--respawn","--transpileOnly","./src/app.bootstrap.ts","--env" ,`${environment}`]);
-
+    executed.stderr.on('data',(chunk) =>{
+        console.log(chunk.toString())
+    });
     executed.stdout.on('data', (chunk) => {
         console.log(chunk.toString())
     });

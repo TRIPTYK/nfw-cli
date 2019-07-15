@@ -76,6 +76,6 @@ exports.handler = async (argv) => {
             if (confirmation) await sqlConnection.createDatabase(dbName);
         }
     }
-
+ 
     startAction(environement, monitoringEnabled);
 };
