@@ -11,12 +11,12 @@ import {Schema} from "express-validator";
 <% if (options.read) { %>
 // GET /v1/<%- entityLowercase %>s/<%- entityLowercase %>Id
 export const get<%- entityCapitalize %> : Schema = {
-id : {
-in: ['params'],
-errorMessage: 'Please provide a valid id',
-isInt: true
-}
-};
+    id : {
+        in: ['params'],
+        errorMessage: 'Please provide a valid id',
+        isInt: true
+        }
+    };
 <% } %>
 
 <% if (options.create) { %>
@@ -45,13 +45,13 @@ export const create<%- entityCapitalize %> : Schema = {
 <% if (options.update) { %>
 // PATCH /v1/<%- entityLowercase %>s/:Id
 export const update<%- entityCapitalize %> : Schema =  {
-...exports.get,
-...{
-<% validation.forEach(col => { -%>
-    <%- col.name %> : {
-    optional : true
+    ...exports.get,
+    ...{
+    <% validation.forEach(col => { -%>
+        <%- col.name %> : {
+        optional : true
+        },
+    <% }); %>
     },
-<% }); %>
-},
 };
 <% } %>

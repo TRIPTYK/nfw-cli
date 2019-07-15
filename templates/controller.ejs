@@ -35,11 +35,11 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     * @public
     */
     public async get(req: Request, res : Response, next : Function) {
-    const <%- entityLowercase %> = await this.repository.jsonApiFindOne(req,req.params.id,<%- entityLowercase %>Relations);
+        const <%- entityLowercase %> = await this.repository.jsonApiFindOne(req,req.params.id,<%- entityLowercase %>Relations);
 
-    if (!<%- entityLowercase %>) throw Boom.notFound();
+        if (!<%- entityLowercase %>) throw Boom.notFound();
 
-    return new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>);
+        return new <%- entityCapitalize %>Serializer().serialize(<%- entityLowercase %>);
     }
 <% } %>
 
@@ -56,10 +56,10 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     * @public
     */
     public async create (req: Request, res : Response, next: Function) {
-    const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
-    const saved = await this.repository.save(<%- entityLowercase %>);
-    res.status( HttpStatus.CREATED );
-    return new <%- entityCapitalize %>Serializer().serialize(saved);
+        const <%- entityLowercase %> = new <%- entityCapitalize %>(req.body);
+        const saved = await this.repository.save(<%- entityLowercase %>);
+        res.status( HttpStatus.CREATED );
+        return new <%- entityCapitalize %>Serializer().serialize(saved);
     }
 <% } %>
 
@@ -74,12 +74,12 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     * @public
     */
     public async update (req: Request, res : Response, next: Function) {
-    const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
-    if (!<%- entityLowercase %>) throw Boom.notFound();
+        const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
+        if (!<%- entityLowercase %>) throw Boom.notFound();
 
-    this.repository.merge(<%- entityLowercase %>, req.body);
-    const saved = await this.repository.save(<%- entityLowercase %>);
-    return new <%- entityCapitalize %>Serializer().serialize(saved);
+        this.repository.merge(<%- entityLowercase %>, req.body);
+        const saved = await this.repository.save(<%- entityLowercase %>);
+        return new <%- entityCapitalize %>Serializer().serialize(saved);
     };
 <% } %>
 
@@ -94,8 +94,8 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     * @public
     */
     public async list (req: Request, res : Response, next: Function) {
-    const [<%- entityLowercase %>s,total] = await this.repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
-    return new <%- entityCapitalize %>Serializer( new SerializerParams().enablePagination(req,total) ).serialize(<%- entityLowercase %>s);
+        const [<%- entityLowercase %>s,total] = await this.repository.jsonApiRequest(req.query,<%- entityLowercase %>Relations).getManyAndCount();
+        return new <%- entityCapitalize %>Serializer( new SerializerParams().enablePagination(req,total) ).serialize(<%- entityLowercase %>s);
     }
 <% } %>
 
@@ -110,10 +110,10 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     * @public
     */
     public async remove (req: Request, res : Response, next: Function) {
-    const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
-    if (!<%- entityLowercase %>) throw Boom.notFound();
-    await this.repository.remove(<%- entityLowercase %>);
-    res.sendStatus(HttpStatus.NO_CONTENT).end();
+        const <%- entityLowercase %> = await this.repository.findOne(req.params.id);
+        if (!<%- entityLowercase %>) throw Boom.notFound();
+        await this.repository.remove(<%- entityLowercase %>);
+        res.sendStatus(HttpStatus.NO_CONTENT).end();
     }
 <% } %>
 }
