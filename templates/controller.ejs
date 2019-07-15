@@ -78,7 +78,7 @@ this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
     if (!<%- entityLowercase %>) throw Boom.notFound();
 
     this.repository.merge(<%- entityLowercase %>, req.body);
-    const saved = this.repository.save(<%- entityLowercase %>);
+    const saved = await this.repository.save(<%- entityLowercase %>);
     return new <%- entityCapitalize %>Serializer().serialize(saved);
     };
 <% } %>

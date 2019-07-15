@@ -12,7 +12,7 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
 
   public static withelist : Array<string> = [<%- allColumns %>];
 
-  constructor(serializerParams = null) {
+  constructor(serializerParams = new SerializerParams()) {
   super('<%- pluralize.singular(entityLowercase) %>');
 
     const data = {

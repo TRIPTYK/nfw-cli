@@ -120,7 +120,7 @@ router
    * @apiError (Forbidden 403)    Forbidden    Only <%- entityLowercase %> with same id or admins can modify the data
    * @apiError (Not Found 404)    NotFound     <%- entityCapitalize %> does not exist
    */
-  .put(authorize([ADMIN]),<%- entityLowercase %>Middleware.deserialize(),<%- entityLowercase %>Middleware.handleValidation(Validation.update<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.method('update'))
+  .patch(authorize([ADMIN]),<%- entityLowercase %>Middleware.deserialize(),<%- entityLowercase %>Middleware.handleValidation(Validation.update<%- entityCapitalize %>), SecurityMiddleware.sanitize, <%- entityLowercase %>Controller.method('update'))
 <% } %>
 
 <% if (options.delete) { %>
