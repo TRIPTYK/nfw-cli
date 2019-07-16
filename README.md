@@ -1,8 +1,22 @@
 # Node FrameWork
 
-This repository contains a CLI based app that generate a NodeJs API base on [3rd_party_ts_boilerplate](https://github.com/AmauryD/3rd-party-ts-boilerplate)
+This repository contains a CLI based app that generate a NodeJs API base on [NFW](https://github.com/TRIPTYK/nfw)
 
-Commands :
+# Installation
+
+- Clone the project 
+
+```git clone https://github.com/TRIPTYK/nfw-cli```
+
+- Install the dependencies
+
+```yarn``` or ```npm install```
+
+- Link globaly
+
+```yarn link``` or ```npm link```
+
+# Commands :
 
 * [nfw new](#New)
 * [nfw test](#Test)
