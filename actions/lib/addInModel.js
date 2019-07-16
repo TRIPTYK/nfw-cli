@@ -64,8 +64,8 @@ const addToTest = async (model, column) => {
 
 const writeSerializer = async (model, column) => {
     let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
-    let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
-    let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`, 'm');
+    let regexWhitelist = new RegExp('(.+whitelist.+=.+)(\\[)([^\\]]*)');
+    let regexArrayCheck = new RegExp(`.*whitelist.*?'${column}'`, 'm');
     let newSer = await ReadFile(serializerPath, 'utf-8');
     let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
     if (regexArray[3].includes("'")) newValue = `,'${column}'`;

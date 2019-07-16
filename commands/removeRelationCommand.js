@@ -54,9 +54,8 @@ exports.builder = (yargs) => {
  */
 exports.handler = async (argv) => {
     const {model1, model2} = argv;
-    let m1Name,m2Name;
-    argv.m1Name ? m1Name = singular(format(argv.m1Name)) : m1Name = model1;
-    argv.m2Name ? m2Name = singular(format(argv.m2Name)) : m2Name = model2;
+    let m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
+    let m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 

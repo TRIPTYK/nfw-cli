@@ -3,7 +3,7 @@ import {Schema} from "express-validator";
 
 // GET /v1/<%- entityLowercase %>
 <% if (options.read) { %>
-    export const list<%- entityCapitalize %>s : Schema = {
+export const list<%- entityCapitalize %>s : Schema = {
     //for custom list route
 };
 <% } %>
@@ -36,7 +36,7 @@ export const create<%- entityCapitalize %> : Schema = {
 
 // PUT /v1/<%- entityLowercase %>s/:Id
 <% if (options.update) { %>
-    export const replace<%- entityCapitalize %> : Schema =  {
+export const replace<%- entityCapitalize %> : Schema =  {
     ...exports.get,
     ...exports.create
 };

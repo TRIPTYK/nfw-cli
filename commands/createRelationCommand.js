@@ -87,6 +87,7 @@ exports.handler = async (argv) => {
         Log.info('Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)');
         process.exit(0)
     }
+
     await createRelationAction(model1, model2, relation, name, refCol , m1Name , m2Name)
         .then(async () => {
             Log.success("Relation successfully added !");

@@ -35,16 +35,11 @@ module.exports = async (model1, model2,m1Name,m2Name) => {
         throw new Error('Both model should exist in order to remove a relation between them');
     }
 
-    
-
     if (utils.relationExist(model1, pluralize.plural(m2Name))) mod2plural = true;
     if (utils.relationExist(model2, pluralize.plural(m1Name))) mod1plural = true;
 
     if (mod2plural) m2Name = pluralize.plural(m2Name);
     if (mod1plural) m1Name = pluralize.plural(m1Name);
-
-
-
 
     await Promise.all([removeFromModel(model1, m2Name, true,model2), removeFromModel(model2, m1Name, true,model1)]).then(async () => {
         if (mod1plural && mod2plural) await sql.dropBridgingTable(model1, model2).catch((e) => Log.error(e.message));

@@ -19,7 +19,7 @@ const <%- controllerName %>Controller = new <%- capitalizeEntity(controllerName)
     router
     .route('<%- route.path %>')
     <% route.methods.forEach((method) => { -%>
-        .<%- method.method %>(<% if (method.authorization) { %>authorize([<%- method.authorization %>]),<% } %><%- controllerName %>Controller.<%- method.controllerMethod %>)
+        .<%- method.method %>(<% if (method.authorization) { %>authorize([<%- method.authorization %>]),<% } %><%- controllerName %>Controller.method('<%- method.controllerMethod %>'))
     <% }); -%>
 <% }); %>
 

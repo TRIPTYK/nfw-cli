@@ -5,6 +5,8 @@
  * @description Delete entity files
  */
 
+const {forEachStructureChild, StructureTypeGuards} = require('ts-morph');
+
 // Node modules
 const FS = require('fs');
 const Util = require('util');
@@ -14,44 +16,14 @@ const snake = require('to-snake-case');
 const { getSqlConnectionFromNFW  } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const {items} = require('../static/resources');
-const {capitalizeEntity, removeImport, isImportPresent, lowercaseEntity, fileExists} = require('./lib/utils');
+const {capitalizeEntity, lowercaseEntity} = require('./lib/utils');
 const removeRel = require('./removeRelationAction');
 
-// Promisify
-const ReadFile = Util.promisify(FS.readFile);
-const Unlink = Util.promisify(FS.unlink);
-const WriteFile = Util.promisify(FS.writeFile);
+const project = require('../utils/project')();
 
 // simulate class properties
 let capitalize;
 let lowercase;
-
-const processPath = process.cwd();
-
-/**
- * @description deletes compiled typescript files , ignoring tests
- * @returns {Promise<array>} deleted files
- */
-const _deleteCompiledJS = async () => {
-    let deletedJs = [];
-
-    await Promise.all(items.map(async (item) => {
-        if (item.template === 'test') return; // no compiled tests
-
-        let relativeFilePath = `/dist/api/${item.dest}/${lowercase}.${item.template}.js`;
-        let filePath = processPath + relativeFilePath;
-
-        if (fileExists(filePath)) {
-            await Unlink(filePath)
-                .catch(() => Log.error(`Error while deleting compiled ${item.template}`));
-            deletedJs.push({fileName: relativeFilePath, type: 'delete'});
-        } else {
-            Log.warning(`Cannot delete compiled ${relativeFilePath} : file does not exists`);
-        }
-    }));
-
-    return deletedJs;
-};
 
 /**
  *  @description deletes typescript files
@@ -60,17 +32,14 @@ const _deleteCompiledJS = async () => {
 const _deleteTypescriptFiles = async () => {
     let deleted = [];
 
-    await Promise.all(items.map(async (item) => {
-        let relativeFilePath = `/${item.path}/${lowercase}.${item.template}.ts`;
-        let filePath = processPath + relativeFilePath;
-
-        if (fileExists(filePath)) {
-            await Unlink(filePath);
-            deleted.push({fileName: relativeFilePath, type: 'delete'});
-        } else {
-            Log.warning(`Cannot delete ${relativeFilePath} : file does not exists`);
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const file = project.getSourceFile(`${item.path}/${lowercase}.${item.template}.ts`);
+        if (file) {
+            deleted.push({fileName: `${item.path}/${lowercase}.${item.template}.ts`, type: 'delete'});
+            file.delete();
         }
-    }));
+    }
 
     return deleted;
 };
@@ -80,21 +49,15 @@ const _deleteTypescriptFiles = async () => {
  * @returns {Promise<{fileName: string, type: string}[]>} deleted route
  */
 const _unroute = async () => {
-    const relativePath = '/src/api/routes/v1/index.ts';
-    const proxyPath = `${processPath}${relativePath}`;
-    let proxy = await ReadFile(proxyPath, 'utf-8');
+    const fileName = `src/api/routes/v1/index.ts`;
+    const file = project.getSourceFile(fileName);
 
-    // this regex will match a use statement and the associated JSDoc comment
-    let toRoute = new RegExp(`\n?((\\\/\\*[\\w'\\s\\r\\n*]*\\*\\\/)|(\\\/\\\/[\\w\\s']*))\\s*(\\w*.use.*${capitalize}Router(.|\\s){1};)\n?`, "gm");
+    file.getStatementsWithComments().forEach((e) => {
+        if(e.getText().includes(`${capitalize}Router`))
+            e.remove();
+    });
 
-    // replace match by nothing
-    proxy = removeImport(proxy, `${capitalize}Router`)
-        .replace(toRoute, "");
-
-    await WriteFile(proxyPath, proxy)
-        .catch(() => Log.error(`Failed to write to ${proxyPath}`));
-
-    return [{type: 'edit', fileName: relativePath}];
+    return [{type: 'edit', fileName: fileName}];
 };
 
 /**
@@ -102,18 +65,18 @@ const _unroute = async () => {
  * @returns {Promise<{fileName: string, type: string}[]>}
  */
 const _unconfig = async () => {
-    const relativePath = '/src/config/typeorm.config.ts';
-    let configFileName = `${process.cwd()}${relativePath}`;
-    let fileContent = await ReadFile(configFileName, 'utf-8');
+    const relativePath = 'src/config/typeorm.config.ts';
+    const file = project.getSourceFile(relativePath);
 
-    if (isImportPresent(fileContent, capitalize)) {
-        let imprt = removeImport(fileContent, capitalize)
-            .replace(new RegExp(`(?=,?${capitalize}\\b),${capitalize}\\b|${capitalize}\\b,?`, "gm"), "");
+    const entitiesArray = file.getClass('TypeORMConfiguration').getStaticMethod('connect').getVariableDeclaration("entities").getInitializer();
 
-        await WriteFile(configFileName, imprt).catch(() => {
-            Log.error(`Failed to write to : ${configFileName}`);
-        });
-    }
+    const index = entitiesArray.getElements().findIndex((value) => {
+        return value.getText() === capitalize;
+    });
+
+    if (index !== -1) entitiesArray.removeElement(index);
+
+    file.fixUnusedIdentifiers();
 
     return [{type: 'edit', fileName: relativePath}];
 };
@@ -129,8 +92,6 @@ module.exports = async (entityName, drop) => {
     //constructor behavior
     capitalize = capitalizeEntity(entityName);
     lowercase = lowercaseEntity(entityName);
-   
-
 
     let dumpPath = `./dist/migration/dump/${+new Date()}-${entityName}`;
     const sqlConnection = await getSqlConnectionFromNFW();
@@ -167,6 +128,8 @@ module.exports = async (entityName, drop) => {
             .then(() => Log.success("Table dropped"))
             .catch(() => Log.error("Failed to delete table"));
     }
+
+    await project.save();
 
     return modifiedFiles;
 };

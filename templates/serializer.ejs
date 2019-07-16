@@ -9,31 +9,30 @@ import { <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %> } from "../mo
 <% }); %>
 
 export class <%- entityCapitalize %>Serializer extends BaseSerializer {
+    public static whitelist : Array<string> = [<%- allColumns %>];
 
-  public static withelist : Array<string> = [<%- allColumns %>];
+    constructor(serializerParams = new SerializerParams()) {
+        super('<%- pluralize.singular(entityLowercase) %>');
 
-  constructor(serializerParams = new SerializerParams()) {
-  super('<%- pluralize.singular(entityLowercase) %>');
+        const data = {
+        whitelist: <%- entityCapitalize %>Serializer.whitelist,
+        relationships: {
+        <% foreignKeys.forEach(foreignKey => { -%>
+            <%- foreignKey.COLUMN_NAME %> : {
+            type : <%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>
+            }
+        <% }); -%>
+        },
+    };
 
-    const data = {
-  whitelist: <%- entityCapitalize %>Serializer.whitelist,
-  relationships: {
-  <% foreignKeys.forEach(foreignKey => { %>
-    <%- foreignKey.COLUMN_NAME %> : {
-    type : <%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>
-    }
-  <% }); %>
-  },
-  };
+    this.setupPagination(data, serializerParams);
 
-  this.setupPagination(data, serializerParams);
+    this.serializer.register(this.type, data);
 
-  this.serializer.register(this.type, data);
-
-  <% foreignKeys.forEach((foreignKey) => { %>
+    <% foreignKeys.forEach((foreignKey) => { %>
     this.serializer.register(<%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>, {
-    whitelist: <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.whitelist
+        whitelist: <%- capitalizeEntity(foreignKey.REFERENCED_TABLE_NAME) %>Serializer.whitelist
     });
-  <% }); %>
-  }
+    <% }); %>
+    }
 }

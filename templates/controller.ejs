@@ -17,13 +17,12 @@ import {BaseRepository} from "../repositories/base.repository";
 export class <%- entityCapitalize %>Controller extends BaseController {
 
 protected repository: BaseRepository<<%- entityCapitalize %>>;
+    /** */
+    constructor() { super(); }
 
-/** */
-constructor() { super(); }
-
-protected beforeMethod(): void {
-this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
-}
+    protected beforeMethod(): void {
+        this.repository = getCustomRepository(<%- entityCapitalize %>Repository);
+    }
 
 <% if (options.read) { %>
     /**
