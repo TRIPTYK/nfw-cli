@@ -9,7 +9,7 @@ const stringifyObject = require('stringify-object');
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const { columnExist, lowercaseEntity, buildJoiFromColumn , buildModelColumnArgumentsFromObject} = require('./utils');
+const { columnExist, lowercaseEntity, buildJoiFromColumn , buildModelColumnArgumentsFromObject , buildValidationArgumentsFromObject} = require('./utils');
 const project = require('../../utils/project');
 
 const addToValidations = (model,column) =>{
@@ -19,10 +19,17 @@ const addToValidations = (model,column) =>{
     const validationDeclarations = file.getVariableDeclarations().filter((v) => v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword());
 
     validationDeclarations.forEach((declaration) => {
-        const prop = declaration.getInitializer().addPropertyAssignment({
-            name: column,
-            initializer: ""
-        });
+        if (declaration.getName().includes('update'))
+            declaration.getInitializer().addPropertyAssignment({
+                name: column.Field,
+                initializer: stringifyObject(buildValidationArgumentsFromObject(column,true))
+            });
+
+        if (declaration.getName().includes('create') || declaration.getName().includes('replace'))
+            declaration.getInitializer().addPropertyAssignment({
+                name: column.Field,
+                initializer: stringifyObject(buildValidationArgumentsFromObject(column))
+            });
     });
 };
 
@@ -82,6 +89,7 @@ module.exports = async (model, data) => {
 
     writeSerializer(model, data.columns.Field);
     addToValidations(model, data.columns);
+    await addToTest(model,data.columns);
 
     Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
     await project.save();

@@ -12,9 +12,9 @@ export const list<%- entityCapitalize %>s : Schema = {
 // GET /v1/<%- entityLowercase %>s/<%- entityLowercase %>Id
 export const get<%- entityCapitalize %> : Schema = {
     id : {
-        in: ['params'],
-        errorMessage: 'Please provide a valid id',
-        isInt: true
+            in: ['params'],
+            errorMessage: 'Please provide a valid id',
+            isInt: true
         }
     };
 <% } %>
@@ -23,13 +23,7 @@ export const get<%- entityCapitalize %> : Schema = {
 // POST /v1/<%- entityLowercase %>s
 export const create<%- entityCapitalize %> : Schema = {
 <% validation.forEach(col => { -%>
-    <%- col.name %> : {
-    <% if (col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL') { %>
-        optional : true
-    <% }else{ %>
-        exists : true
-    <% } %>
-    },
+    <%- col.name %> : <%- stringifyObject(buildValidationArgumentsFromObject(col.baseColumn)) %>,
 <% }); %>
 };
 <% } %>
@@ -48,9 +42,7 @@ export const update<%- entityCapitalize %> : Schema =  {
     ...exports.get,
     ...{
     <% validation.forEach(col => { -%>
-        <%- col.name %> : {
-        optional : true
-        },
+        <%- col.name %> : <%- stringifyObject(buildValidationArgumentsFromObject(col.baseColumn,true)) %>,
     <% }); %>
     },
 };

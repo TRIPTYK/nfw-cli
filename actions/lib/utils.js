@@ -203,7 +203,7 @@ exports.relationExist=  (model, column) =>{
     let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
     const relProp = modelClass.getInstanceMember(column);
 
-    if(relProp !== null) {
+    if(relProp) {
         relProp.getDecorator(declaration => {
             return declaration.getName().includes('To');
         })
@@ -269,7 +269,7 @@ exports.createDataBaseIfNotExists = async (setupEnv) => {
 
 /**
  *
- * @param dbColumnaData
+ * @param dbColumnaData object
  */
 exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
     const columnArgument = {};
@@ -314,6 +314,68 @@ exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
 
 /**
  *
+ * @param dbColumnaData object
+ * @param isUpdate
+ */
+exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) => {
+    const validationArguments = {};
+
+    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL')
+        validationArguments['exists'] = true;
+    else
+        validationArguments['optional'] = true;
+
+    if (dbColumnaData.Type.length)
+        validationArguments['isLength'] = {
+            errorMessage : `Maximum length is ${dbColumnaData.Type.length}`,
+            options: { min: 0 , max: parseInt(dbColumnaData.Type.length) }
+        };
+    else
+        validationArguments['optional'] = true;
+
+    if (dbColumnaData.Field === 'email')
+        validationArguments['isEmail'] = {
+            errorMessage : 'Email is not valid'
+        };
+
+    if (dbColumnaData.Type.type.includes('text') || dbColumnaData.Type.type.includes('char')) {
+        validationArguments['isString'] = {
+            errorMessage : 'This field must be a string'
+        };
+    }
+
+    if (dbColumnaData.Type.type === 'decimal') {
+        validationArguments['isDecimal'] = {
+            errorMessage : 'This field must be decimal'
+        };
+    }
+
+    if (dbColumnaData.Type.type === 'int') {
+        validationArguments['isInt'] = {
+            errorMessage : 'This field must be an integer'
+        };
+    }
+
+    if (dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type.includes('date')) {
+        validationArguments['custom'] = {
+            errorMessage : 'This field is not a valid date',
+            options : (date) => {
+                return (new Date(date)).getTime() > 0;
+            }
+        }
+    }
+
+    if (dbColumnaData.Type.type === 'enum') {
+        validationArguments['isArray'] = {
+            errorMessage : 'This field must be an array'
+        };
+    }
+
+    return validationArguments;
+};
+
+/**
+ *
  * @param modelClass
  * @return
  */
@@ -326,9 +388,13 @@ exports.addToConfig = async (modelClass) => {
         .getVariableDeclaration("entities")
         .getInitializer();
 
-    entitiesArray.addElement(modelClass);
+    const index = entitiesArray.getElements().findIndex((value) => {
+        return value.getText() === modelClass;
+    });
 
-    file.fixUnusedIdentifiers();
+    if (index === -1) entitiesArray.addElement(modelClass);
+
+    file.fixMissingImports();
 
     await project.save();
 };

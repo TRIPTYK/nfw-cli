@@ -13,12 +13,13 @@ const pluralize = require('pluralize');
 const Util = require('util');
 const kebabCase = require('kebab-case');
 const chalk = require('chalk');
+const stringifyObject = require('stringify-object');
 
 // project modules
 const {items} = require('../../static/resources');
 const Log = require('../../utils/log');
 const writeToRouter = require('./routerWrite');
-const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn} = require('./utils');
+const {capitalizeEntity, lowercaseEntity, buildJoiFromColumn , buildValidationArgumentsFromObject} = require('./utils');
 
 // promisify
 const ReadFile = Util.promisify(FS.readFile);
@@ -64,6 +65,8 @@ const _write = async (data, crudOptions) => {
             allColumns,
             lowercaseEntity,
             capitalizeEntity,
+            stringifyObject,
+            buildValidationArgumentsFromObject,
             foreignKeys,
             pluralize,
             kebabCase,

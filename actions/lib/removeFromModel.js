@@ -119,6 +119,7 @@ const removeRelationFromModelFile = (model,column) => {
  * @param {string} model Model name
  * @param {string} column Column name
  * @param isRelation
+ * @param model2
  */
 module.exports = async (model, column, isRelation,model2=' ') => {
     if (isRelation) {
