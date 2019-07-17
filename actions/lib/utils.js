@@ -72,14 +72,6 @@ exports.isImportPresent = (string, importName) => {
 };
 
 /**
- * @description remove import from string
- * @param {string} string
- * @param {string} imprt import name
- * @return {string}
- */
-exports.removeImport = (string, imprt) => string.replace(new RegExp(`\n?import\\s+{.*${imprt}\\b.*}.*;`, "g"), "");
-
-/**
  * @description replace text to the first empty line of string
  * @param {string} string
  * @param {string} by text to replace by
@@ -312,6 +304,36 @@ exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
     return columnArgument;
 };
 
+
+/**
+ * @description add relationship in the serializer of an entity
+ * @param {string} entity
+ * @param {string} column
+ */
+exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
+    const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
+    const serializerClass = serializerFile.getClasses()[0];
+    const constructor = serializerClass.getConstructors()[0];
+    const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
+
+    if (!relationshipsInitializer.getProperty(column)) {
+        relationshipsInitializer.addPropertyAssignment({
+            name: column,
+            initializer: `{type : '${model}'}`
+        });
+    }
+
+    constructor.addStatements(writer => {
+        writer.write(`this.serializer.register("${model}",`).block(() => {
+            writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
+        }).write(");");
+    });
+
+    serializerFile.fixMissingImports();
+    serializerFile.fixUnusedIdentifiers();
+};
+
+
 /**
  *
  * @param dbColumnaData object
@@ -320,7 +342,7 @@ exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
 exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) => {
     const validationArguments = {};
 
-    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL')
+    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt','updatedAt'].includes(dbColumnaData.Field)))
         validationArguments['exists'] = true;
     else
         validationArguments['optional'] = true;
@@ -379,7 +401,7 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
  * @param modelClass
  * @return
  */
-exports.addToConfig = async (modelClass) => {
+exports.addToConfig = (modelClass) => {
     const relativePath = 'src/config/typeorm.config.ts';
     const file = project.getSourceFile(relativePath);
 
@@ -395,6 +417,4 @@ exports.addToConfig = async (modelClass) => {
     if (index === -1) entitiesArray.addElement(modelClass);
 
     file.fixMissingImports();
-
-    await project.save();
 };

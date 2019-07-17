@@ -14,7 +14,9 @@ const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
 const {capitalizeEntity, lowercaseEntity , buildModelColumnArgumentsFromObject , addToConfig} = require('./lib/utils');
+const project = require('../utils/project');
 const stringifyObject = require('stringify-object');
+const modelTemplateFile = require(`../templates/model`);
 
 /**
  * @param {string} action Model name
@@ -25,39 +27,26 @@ const stringifyObject = require('stringify-object');
 exports.writeModel = async (action, data = null) => {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
-    let p_file = await ReadFile(`${__baseDir}/templates/model/model.ejs`, 'utf-8');
     let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
     let {columns, foreignKeys} = data;
 
-    let entities = [];
     /*
-     filter the foreign keys from columns , they are not needed anymore
-     Only when imported by database
+         filter the foreign keys from columns , they are not needed anymore
+         Only when imported by database
     */
     columns = columns.filter(column => {
         return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
+    }).filter(col => col.Field !== "id");
+
+    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
+        entities : columns,
+        className : capitalize,
+        createUpdate: data.createUpdate
     });
 
+    addToConfig(capitalize);
 
-    columns.forEach(col => {
-        if (col.Field === "id") return;
-        entities.push({
-            column : col,
-            decoratorParams : stringifyObject(buildModelColumnArgumentsFromObject(col))
-        });
-    });
-
-    let output = ejs.compile(p_file, {root: `${__baseDir}/templates/`})({
-        entityLowercase: lowercase,
-        entityCapitalize: capitalize,
-        entities,
-        createUpdate: data.createUpdate,
-        capitalizeEntity,
-        lowercaseEntity
-    });
-
-    await Promise.all([WriteFile(pathModel, output), addToConfig(capitalize)]);
-    Log.success("Model created in :" + pathModel);
+    await project.save();
 };
 
 /**
@@ -67,22 +56,17 @@ exports.writeModel = async (action, data = null) => {
 exports.basicModel = async (action) => {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
-    let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
-    let modelTemp = await ReadFile(`${__baseDir}/templates/model/model.ejs`);
-    let basicModel = ejs.compile(modelTemp.toString())({
-        entityLowercase: lowercase,
-        entityCapitalize: capitalize,
-        entities: [],
-        foreignKeys: [],
-        createUpdate: {
+
+    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
+        entities : [],
+        className : `${capitalize}Model`,
+        createUpdate : {
             createAt: true,
             updateAt: true
         }
     });
 
-    let p_write = WriteFile(pathModel, basicModel)
-        .then(() => Log.success("Model created in :" + pathModel))
-        .catch(() => Log.error("Failed generating model"));
+    addToConfig(capitalize);
 
-    await Promise.all([addToConfig(capitalize), p_write])
+    await project.save();
 };

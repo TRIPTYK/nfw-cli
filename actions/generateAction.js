@@ -53,6 +53,7 @@ module.exports = async (modelName, crud) => {
             entityModelData = await modelSpecs.dbParams(modelName);
             await modelWriteAction.writeModel(modelName, entityModelData)
                 .catch(e => {
+                    console.log(e);
                     Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                     process.exit(1);
                 });

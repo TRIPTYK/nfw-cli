@@ -15,34 +15,6 @@ const project = require('../utils/project');
 const {modelFileExists, columnExist, relationExist, capitalizeEntity} = require('./lib/utils');
 
 /**
- * @description add relationship in the serializer of an entity
- * @param {string} entity
- * @param {string} column
- */
-const _addToSerializer = (entity, column,model,m1Name,m2Name) => {
-    const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
-    const serializerClass = serializerFile.getClasses()[0];
-    const constructor = serializerClass.getConstructors()[0];
-    const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
-
-    if (!relationshipsInitializer.getProperty(column)) {
-        relationshipsInitializer.addPropertyAssignment({
-            name: column,
-            initializer: `{type : '${model}'}`
-        });
-    }
-
-    constructor.addStatements(writer => {
-        writer.write(`this.serializer.register("${model}",`).block(() => {
-            writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
-        }).write(");");
-    });
-
-    serializerFile.fixMissingImports();
-    serializerFile.fixUnusedIdentifiers();
-};
-
-/**
  * @description add relationship in the controller of an entity
  * @param {string} entity
  * @param {string} column

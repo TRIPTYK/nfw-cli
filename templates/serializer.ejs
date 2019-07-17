@@ -15,15 +15,15 @@ export class <%- entityCapitalize %>Serializer extends BaseSerializer {
         super('<%- pluralize.singular(entityLowercase) %>');
 
         const data = {
-        whitelist: <%- entityCapitalize %>Serializer.whitelist,
-        relationships: {
-        <% foreignKeys.forEach(foreignKey => { -%>
-            <%- foreignKey.COLUMN_NAME %> : {
-            type : <%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>
-            }
-        <% }); -%>
-        },
-    };
+            whitelist: <%- entityCapitalize %>Serializer.whitelist,
+            relationships: {
+            <% foreignKeys.forEach(foreignKey => { -%>
+                <%- foreignKey.COLUMN_NAME %> : {
+                type : <%- lowercaseEntity(foreignKey.REFERENCED_TABLE_NAME) %>
+                }
+            <% }); -%>
+            },
+        };
 
     this.setupPagination(data, serializerParams);
 
