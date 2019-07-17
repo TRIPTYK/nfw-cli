@@ -24,16 +24,15 @@ module.exports = async (action, model, column = null) => {
 
     if (action === 'remove')
         await removeColumn(model, column, false)
-            .then(async () => {
+            .then(() => {
                 Log.success('Column successfully removed');
             });
 
     if (action === 'add') {
         let data = await modelSpecs.newColumn(column);
         await addInModels(model, data)
-            .then(async () =>{
+            .then(() =>{
                 Log.success('Column successfully added');
-
             });
     }
 };

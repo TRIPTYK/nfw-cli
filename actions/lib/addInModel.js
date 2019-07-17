@@ -1,34 +1,29 @@
+
 const ejs = require('ejs');
 const Util = require('util');
 const Log = require('../../utils/log');
 const FS = require('fs');
 const chalk = require('chalk');
-const kebab = require('dashify')
+const kebab = require('dashify');
+const stringifyObject = require('stringify-object');
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const { columnExist, lowercaseEntity, buildJoiFromColumn} = require('./utils');
-const {getKey,getDefault,getNull,getLength} = require('./writeForTypeORM');
+const { columnExist, lowercaseEntity, buildJoiFromColumn , buildModelColumnArgumentsFromObject} = require('./utils');
+const project = require('../../utils/project');
 
+const addToValidations = (model,column) =>{
+    let file = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
-const addToValidations = async (model,column) =>{
-    //path to validations.ts file and read it
-    let valPath = `${process.cwd()}/src/api/validations/${model}.validation.ts`;
-    let valFile = await ReadFile(valPath, 'utf-8');
+    // all exported const should be validation schema
+    const validationDeclarations = file.getVariableDeclarations().filter((v) => v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword());
 
-    //regex 
-    let regexVal = new RegExp('(attributes[\\s\\S]*?)(})','gm');
-    let regexRandom = new RegExp(`[\\s]${column.Field} :.*?,`, 'gm');
-
-    //build string based on Joi object
-    let col = await buildJoiFromColumn(column);
-    let toPut = `   ${col.name} : Joi.${col.baseType}()`;
-    if(col.specificType) toPut+= `.${col.specificType}()`;
-    if(col.length && col.baseType !== 'any') toPut += `.max(${col.length})`;
-    col.baseColumn.Null !== 'NO' && col.baseColumn.Default !== 'NULL' ? toPut+='.required(),' : toPut+='.optional(),';
-
-    if(!valFile.match(regexRandom))valFile = valFile.replace(regexVal,`$1 ${toPut}$2 `);
-    await WriteFile(valPath,valFile).then(() => Log.info(`${chalk.cyan(`src/api/validations/${model}.validation.ts`)} updated`))
+    validationDeclarations.forEach((declaration) => {
+        const prop = declaration.getInitializer().addPropertyAssignment({
+            name: column,
+            initializer: ""
+        });
+    });
 };
 
 const addToTest = async (model, column) => {
@@ -62,18 +57,11 @@ const addToTest = async (model, column) => {
 
 };
 
-const writeSerializer = async (model, column) => {
-    let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
-    let regexWhitelist = new RegExp('(.+whitelist.+=.+)(\\[)([^\\]]*)');
-    let regexArrayCheck = new RegExp(`.*whitelist.*?'${column}'`, 'm');
-    let newSer = await ReadFile(serializerPath, 'utf-8');
-    let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
-    if (regexArray[3].includes("'")) newValue = `,'${column}'`;
-    else newValue = `'${column}'`;
-    if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
-    await WriteFile(serializerPath, newSer).then(
-        () => Log.info(`${chalk.cyan(`src/api/serializers/${lowercaseEntity(model)}.serializer.ts`)} updated`)
-    );
+const writeSerializer = (model, column) => {
+    const file = project.getSourceFile(`src/api/serializers/${model}.serializer.ts`);
+    const serializerClass = file.getClasses()[0];
+
+    serializerClass.getStaticProperty('whitelist').getInitializer().addElement(`'${column}'`);
 };
 
 /**
@@ -82,17 +70,19 @@ const writeSerializer = async (model, column) => {
  * @param data
  */
 module.exports = async (model, data) => {
-    let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-    let [columnTemp, modelFile] = await Promise.all([ReadFile(`${__baseDir}/templates/model/_column.ejs`), ReadFile(pathModel)]);
-    if (data == null) throw  new Error('Column cancelled');
+    let pathModel = `src/api/models/${lowercaseEntity(model)}.model.ts`;
+    if (data === null) throw  new Error('Column cancelled');
     if (columnExist(model, data.columns.Field)) throw  new Error('Column already exist');
+
     let entity = data.columns;
-    entity.Null = getNull(entity.Null, entity.Key);
-    entity.Key = getKey(entity.Key);
-    entity.Default = getDefault(entity);
-    entity.length = getLength(entity.Type);
-    let newCol = '  ' + ejs.compile(columnTemp.toString())({entity});
-    let pos = modelFile.lastIndexOf('}'); let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`;
+
+    project.getSourceFile(pathModel).getClasses()[0].addProperty({name : data.columns.Field }).addDecorator({
+        name : 'Column' , arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity))
+    }).setIsDecoratorFactory(true);
+
+    writeSerializer(model, data.columns.Field);
+    addToValidations(model, data.columns);
+
     Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
-    await Promise.all([WriteFile(pathModel, newModel), writeSerializer(model, data.columns.Field),addToTest(model, data.columns),addToValidations(model, data.columns)]);
+    await project.save();
 };

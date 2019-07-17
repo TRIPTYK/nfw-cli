@@ -13,9 +13,9 @@ const snake= require('to-snake-case');
 const removeAccent= require('remove-accents');
 const reservedWords = require('reserved-words');
 
-const { SqlConnection , DatabaseEnv } = require('../../database/sqlAdaptator');
+const project = require('../../utils/project');
 
-const ReadFile = FS.readFileSync;
+const { SqlConnection , DatabaseEnv } = require('../../database/sqlAdaptator');
 
 /**
  * @description : Count the lines of a file
@@ -189,12 +189,8 @@ exports.isBridgindTable = (entity) => {
  * @returns {boolean}
  */
 exports.columnExist =  (model, column) => {
-    let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
-    let modelFile =  ReadFile(pathModel, 'utf-8');
-    let exist = false;
-    let regexColumn = new RegExp(`@Column\\({[\\s\\S][^{]*?${column};`, 'm');
-    if (modelFile.match(regexColumn)) exist = true;
-    return exist
+    let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
+    return modelClass.getInstanceProperty(column) !== undefined;
 };
 
 /**
@@ -204,14 +200,16 @@ exports.columnExist =  (model, column) => {
  * @returns {boolean}
  */
 exports.relationExist=  (model, column) =>{
-    let pathModel = `${process.cwd()}/src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`;
-    let modelFile =  ReadFile(pathModel, 'utf-8');
-    let exist = false;
-    let regexMany = new RegExp(`@Many[\\s\\S][^;]*?${column}[\\s:]`);
-    let regexOne = new RegExp(`@One[\\s\\S][^;]*?${column}[\\s:]`);
-    if (modelFile.match(regexMany)) exist = true;
-    else if (modelFile.match(regexOne)) exist = true;
-    return exist
+    let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
+    const relProp = modelClass.getInstanceMember(column);
+
+    if(relProp !== null) {
+        relProp.getDecorator(declaration => {
+            return declaration.getName().includes('To');
+        })
+    }
+
+    return false;
 };
 
 /**
@@ -267,4 +265,70 @@ exports.createDataBaseIfNotExists = async (setupEnv) => {
         else
             throw new Error(`Unhandled database connection error (${e.code}) : exiting ...`);
     }
+};
+
+/**
+ *
+ * @param dbColumnaData
+ */
+exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
+    const columnArgument = {};
+
+    columnArgument['type'] = dbColumnaData.Type.type;
+
+    //handle default
+    if (dbColumnaData.Default !== ":no")
+        columnArgument['default'] = dbColumnaData.Default;
+
+    //handle nullable
+    if (dbColumnaData.Key !== 'PRI' && dbColumnaData.Key !== 'UNI')
+        columnArgument['nullable'] = dbColumnaData.Null === 'YES';
+    else if (dbColumnaData.Key === 'UNI')
+        columnArgument['unique'] = true;
+    else if (dbColumnaData.Key === 'PRI')
+        columnArgument['primary'] = true;
+
+    //handle length
+    if (dbColumnaData.Type.type === "enum")
+        columnArgument['enum'] = dbColumnaData.Type.length;
+
+    if (dbColumnaData.Type.type === 'decimal') {
+        let [precision,scale] = dbColumnaData.Type.length.split(',');
+        columnArgument['precision'] = precision;
+        columnArgument['scale'] = scale;
+    }
+
+    if (dbColumnaData.Type.length !== undefined && dbColumnaData.Type.length !== '') {
+        const length = parseInt(dbColumnaData.Type.length);
+
+        if (dbColumnaData.Type.type.includes('int'))
+            columnArgument['width'] = length;
+        else if (dbColumnaData.Type.type.includes('date') || dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type === 'year')
+            columnArgument['precision'] = length;
+        else
+            columnArgument['length'] = length;
+    }
+
+    return columnArgument;
+};
+
+/**
+ *
+ * @param modelClass
+ * @return
+ */
+exports.addToConfig = async (modelClass) => {
+    const relativePath = 'src/config/typeorm.config.ts';
+    const file = project.getSourceFile(relativePath);
+
+    const entitiesArray = file.getClass('TypeORMConfiguration')
+        .getStaticMethod('connect')
+        .getVariableDeclaration("entities")
+        .getInitializer();
+
+    entitiesArray.addElement(modelClass);
+
+    file.fixUnusedIdentifiers();
+
+    await project.save();
 };

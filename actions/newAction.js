@@ -7,7 +7,7 @@
 /// node modules
 const util = require('util');
 const chalk = require('chalk');
-const figlet = require('figlet');
+//const figlet = require('figlet');
 const path = require('path');
 const fs = require('fs');
 const cmdExists = require('command-exists').sync;
@@ -46,7 +46,7 @@ let dockerEnv = undefined;
 module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     console.log(
         chalk.blue(
-            figlet.textSync('NFW', {horizontalLayout: 'full', kerning: "fitted"})
+            //figlet.textSync('NFW', {horizontalLayout: 'full', kerning: "fitted"})
         )
     );
 

@@ -19,7 +19,7 @@ const {items} = require('../static/resources');
 const {capitalizeEntity, lowercaseEntity} = require('./lib/utils');
 const removeRel = require('./removeRelationAction');
 
-const project = require('../utils/project')();
+const project = require('../utils/project');
 
 // simulate class properties
 let capitalize;

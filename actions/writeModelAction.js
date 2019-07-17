@@ -13,9 +13,8 @@ const FS = require('fs');
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 const path = require('path');
-const {capitalizeEntity, columnExist, writeToFirstEmptyLine, isImportPresent, lowercaseEntity} = require('./lib/utils');
-const {getKey,getDefault,getNull,getLength,addToConfig} = require('./lib/writeForTypeORM');
-
+const {capitalizeEntity, lowercaseEntity , buildModelColumnArgumentsFromObject , addToConfig} = require('./lib/utils');
+const stringifyObject = require('stringify-object');
 
 /**
  * @param {string} action Model name
@@ -42,13 +41,12 @@ exports.writeModel = async (action, data = null) => {
 
     columns.forEach(col => {
         if (col.Field === "id") return;
-
-        col.Null = getNull(col.Null, col.Key);
-        col.Key = getKey(col.Key);
-        col.Default = getDefault(col);
-        col.length = getLength(col.Type);
-        entities.push(col);
+        entities.push({
+            column : col,
+            decoratorParams : stringifyObject(buildModelColumnArgumentsFromObject(col))
+        });
     });
+
     let output = ejs.compile(p_file, {root: `${__baseDir}/templates/`})({
         entityLowercase: lowercase,
         entityCapitalize: capitalize,
@@ -58,7 +56,7 @@ exports.writeModel = async (action, data = null) => {
         lowercaseEntity
     });
 
-    await Promise.all([WriteFile(pathModel, output), addToConfig(lowercase, capitalize)]).catch(e => Log.error(e.message));
+    await Promise.all([WriteFile(pathModel, output), addToConfig(capitalize)]);
     Log.success("Model created in :" + pathModel);
 };
 
@@ -86,44 +84,5 @@ exports.basicModel = async (action) => {
         .then(() => Log.success("Model created in :" + pathModel))
         .catch(() => Log.error("Failed generating model"));
 
-    await Promise.all([addToConfig(lowercase, capitalize), p_write])
+    await Promise.all([addToConfig(capitalize), p_write])
 };
-
-
-const writeSerializer = async (model, column) => {
-    let serializerPath = `${process.cwd()}/src/api/serializers/${lowercaseEntity(model)}.serializer.ts`;
-    let regexWhitelist = new RegExp('(.+withelist.+=.+)(\\[)([^\\]]*)');
-    let regexArrayCheck = new RegExp(`.*withelist.*?'${column}'`, 'm');
-    let newSer = await ReadFile(serializerPath, 'utf-8');
-    let regexArray = newSer.match(/(.+withelist.+=.+)(\[)([^\]]*)/);
-    if (regexArray[3].includes("'")) newValue = `,'${column}'`;
-    else newValue = `'${column}'`;
-    if (!newSer.match(regexArrayCheck)) newSer = newSer.replace(regexWhitelist, `$1$2$3${newValue}`);
-    await WriteFile(serializerPath, newSer).then(
-        () => Log.success(`${model} serializer updated`)
-    );
-};
-
-/**
- * @description  Add a column in a model
- * @param {string} model Model name
- * @param data
- */
-exports.addColumn = async (model, data) => {
-    let pathModel = `${process.cwd()}/src/api/models/${lowercaseEntity(model)}.model.ts`;
-    let [columnTemp, modelFile] = await Promise.all([ReadFile(`${__baseDir}/templates/model/_column.ejs`), ReadFile(pathModel)]);
-    if (data == null) throw  new Error('Column cancelled');
-    if (await columnExist(model, data.columns.Field)) throw new Error('Column already added');
-    let entity = data.columns;
-    entity.Null = _getNull(entity.Null, entity.Key);
-    entity.Key = _getKey(entity.Key);
-    entity.Default = _getDefault(entity);
-    entity.length = _getLength(entity.Type);
-    let newCol = '  ' + ejs.compile(columnTemp.toString())({entity});
-    var pos = modelFile.lastIndexOf('}');
-    let newModel = `${modelFile.toString().substring(0, pos)}\n${newCol}\n}`;
-    await Promise.all([WriteFile(pathModel, newModel), writeSerializer(model, data.columns.Field)]);
-};
-
- 
-

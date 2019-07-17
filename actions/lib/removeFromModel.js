@@ -16,7 +16,7 @@ const WriteFile = Util.promisify(FS.writeFile);
 
 //project modules
 const Log = require('../../utils/log');
-const project = require('../../utils/project')();
+const project = require('../../utils/project');
 
 
 /**
@@ -109,9 +109,9 @@ const removeRelationFromModelFile = (model,column) => {
         return p.getName() === column || p.getName() === plural(column)
     });
 
-    modelFile.fixUnusedIdentifiers();
-
     if (prop) prop.remove();
+
+    modelFile.fixUnusedIdentifiers();
 };
 
 /**
@@ -121,8 +121,11 @@ const removeRelationFromModelFile = (model,column) => {
  * @param isRelation
  */
 module.exports = async (model, column, isRelation,model2=' ') => {
-    removeFromSerializer(model, column, model2);
-    removeFromRelationTable(model, column);
+    if (isRelation) {
+        removeFromSerializer(model, column, model2);
+        removeFromRelationTable(model, column);
+    }
+
     removeRelationFromModelFile(model, column);
 
     if (!isRelation) {

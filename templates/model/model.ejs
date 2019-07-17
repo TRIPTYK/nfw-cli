@@ -5,27 +5,28 @@ import { <%- entityCapitalize %>Serializer } from "./../serializers/<%- entityLo
 @Entity()
 export class <%- entityCapitalize %> {
 
-  /**
-   * @param payload Object data to assign
-   */
-  constructor(payload: Object ) { Object.assign(this, payload); }
+/**
+* @param payload Object data to assign
+*/
+constructor(payload: Object ) { Object.assign(this, payload); }
 
-  @PrimaryGeneratedColumn()
-  id: Number;
+    @PrimaryGeneratedColumn()
+    id: Number;
 
 <% entities.forEach(entity => {%>
-  <%- include('/model/_column',{entity}) -%>
+    @Column(<%- entity.decoratorParams %>)
+    <%- entity.column.Field %>;
 <%});-%>
 
 
 <% if (createUpdate && createUpdate.createAt) { %>
-  @CreateDateColumn()
-  createdAt;
+    @CreateDateColumn()
+    createdAt;
 <% } -%>
 <% if (createUpdate && createUpdate.updateAt) { %>
-  @UpdateDateColumn({
+    @UpdateDateColumn({
     nullable : true
-  })
-  updatedAt;
+    })
+    updatedAt;
 <% } -%>
 }

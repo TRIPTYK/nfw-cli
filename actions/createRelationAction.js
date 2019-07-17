@@ -6,9 +6,10 @@
 
 // node modules
 const {plural} = require('pluralize');
+const stringifyObject = require('stringify-object');
 
 // project object
-const project = require('../utils/project')();
+const project = require('../utils/project');
 
 // project modules
 const {modelFileExists, columnExist, relationExist, capitalizeEntity} = require('./lib/utils');
@@ -73,7 +74,7 @@ const _Mtm = (modelClass, model1 , model2, isFirst, name, m1Name,m2Name) => {
 
     if (name) args['name'] = name;
 
-    if (isFirst) prop.addDecorator({name : "JoinTable",arguments : [JSON.stringify(args)]}).setIsDecoratorFactory(true);
+    if (isFirst) prop.addDecorator({name : "JoinTable",arguments : [stringifyObject(args)]}).setIsDecoratorFactory(true);
 
     return prop.getName();
 };
@@ -98,7 +99,7 @@ const _Oto = (modelClass, model1 , model2, isFirst, name, refCol, m1Name, m2Name
     if (refCol) args['referencedColumnName'] = refCol;
 
     prop.addDecorator({name : "OneToOne" , arguments : [`type => ${capitalizeEntity(model2)}`,`${model2} => ${model2}.${m1Name}`]}).setIsDecoratorFactory(true);
-    if (isFirst) prop.addDecorator({name : "JoinColumn",arguments : [JSON.stringify(args)]}).setIsDecoratorFactory(true);
+    if (isFirst) prop.addDecorator({name : "JoinColumn",arguments : [stringifyObject(args)]}).setIsDecoratorFactory(true);
 
     return prop.getName();
 };
