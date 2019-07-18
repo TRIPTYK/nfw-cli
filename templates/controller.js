@@ -68,7 +68,7 @@ module.exports = (path,{className,options,entityName}) => {
             parameters : middlewareFunctionParameters
         });
 
-        listMethod.toggleModifier("public").toggleModifier("async")
+        listMethod.toggleModifier("public").toggleModifier("async");
         listMethod.addStatements([
             `const [${entityName}s,total] = await this.repository.jsonApiRequest(req.query,${entityName}Relations).getManyAndCount();`,
             `return new ${entityNameCapitalized}Serializer( new SerializerParams().enablePagination(req,total) ).serialize(${entityName}s);`
@@ -77,6 +77,29 @@ module.exports = (path,{className,options,entityName}) => {
         listMethod.addJsDoc(writer => {
             writer.writeLine(`@description LIST ${entityName}`);
             writer.writeLine(`@return {any} result to send to client`);
+        });
+
+        const relationshipsMethod = controllerClass.addMethod({
+            name : 'fetchRelationships',
+            parameters : middlewareFunctionParameters
+        });
+
+        relationshipsMethod.toggleModifier("public").toggleModifier("async");
+        relationshipsMethod.addStatements([
+            `const {id, relation} = req.params;`,
+            ``,
+            `const ${entityName} = await this.repository.createQueryBuilder('user')`,
+            `\t.leftJoinAndSelect(\`user.\${relation}\`, '${entityName}')`,
+            `\t.where("${entityName}.id = :id", {id})`,
+            `\t.getOne();`,
+            `const serializer = new ${entityNameCapitalized}Serializer();`,
+            `const relationSchemaData = serializer.getSchemaData().relationships.relation;`,
+            `return {data: serializer.serializeRelationships(relationSchemaData.type, ${entityName})};`
+        ]);
+
+        relationshipsMethod.addJsDoc(writer => {
+            writer.writeLine(`@description Get ${entityName} relationships`);
+            writer.writeLine(`@return {array} of relationships id and type`);
         });
     }
 

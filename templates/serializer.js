@@ -38,7 +38,7 @@ module.exports = (path,{className,entityName,columns}) => {
                     .writeLine(`relationships: {}`);
             }).write(";");
         },
-        `this.setupPagination(data, serializerParams);`,
+        `this.setupLinks(data, serializerParams);`,
         `this.serializer.register(this.type, data);`
         ]
     })

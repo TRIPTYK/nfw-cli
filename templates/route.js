@@ -48,6 +48,15 @@ module.exports = (path,{options,entityName}) => {
             .blankLine();
     });
 
+    file.addStatements(writer => {
+        writer
+            .blankLine()
+            .writeLine("router.route('/:id/relationships/:relation')")
+            .conditionalWriteLine(options.read,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('fetchRelationships'))`)
+            .write(";")
+            .blankLine();
+    });
+
     file.addStatements('export { router }');
 
     return file;
