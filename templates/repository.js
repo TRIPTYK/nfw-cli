@@ -25,5 +25,5 @@ module.exports = (path,{className,entityName}) => {
         statements : `super();`
     });
 
-    file.fixMissingImports();
+    return file;
 };

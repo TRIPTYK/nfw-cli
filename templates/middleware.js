@@ -15,9 +15,16 @@ module.exports = (path,{className,entityName}) => {
     middlewareClass.setIsExported(true);
     middlewareClass.setExtends('BaseMiddleware');
 
-    middlewareClass.addConstructor({
-        statements : `super( new ${entityNameCapitalized}Serializer() );`
+    middlewareClass.addJsDoc(writer => {
+        writer.writeLine(`Middleware functions for ${entityName}`)
     });
 
-    file.fixMissingImports();
+    middlewareClass.addConstructor({
+        statements : `super( new ${entityNameCapitalized}Serializer() );`
+    })
+    .addJsDoc(writer => {
+        writer.writeLine(`@description ${className} constructor`)
+    });
+
+    return file;
 };

@@ -44,48 +44,69 @@ module.exports = (path,{className,options,entityName}) => {
     ];
 
     if (options.read) {
-        controllerClass.addMethod({
+
+        const getMethod = controllerClass.addMethod({
             name : 'get',
             parameters : middlewareFunctionParameters
-        })
-        .toggleModifier("public").toggleModifier("async")
+        });
+
+        getMethod.addJsDoc(writer => {
+            writer.writeLine(`@description GET ${entityName} by id`);
+            writer.writeLine(`@throws {Boom.notFound}`);
+            writer.writeLine(`@return {any} result to send to client`);
+        });
+
+        getMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
             `const ${entityName} = await this.repository.jsonApiFindOne(req,req.params.id,${entityName}Relations);`,
             `if (!${entityName}) throw Boom.notFound();`,
             `return new ${entityNameCapitalized}Serializer().serialize(${entityName});`,
         ]);
 
-        controllerClass.addMethod({
+        const listMethod = controllerClass.addMethod({
             name : 'list',
             parameters : middlewareFunctionParameters
-        })
-        .toggleModifier("public").toggleModifier("async")
-        .addStatements([
+        });
+
+        listMethod.toggleModifier("public").toggleModifier("async")
+        listMethod.addStatements([
             `const [${entityName}s,total] = await this.repository.jsonApiRequest(req.query,${entityName}Relations).getManyAndCount();`,
             `return new ${entityNameCapitalized}Serializer( new SerializerParams().enablePagination(req,total) ).serialize(${entityName}s);`
         ]);
+
+        listMethod.addJsDoc(writer => {
+            writer.writeLine(`@description LIST ${entityName}`);
+            writer.writeLine(`@return {any} result to send to client`);
+        });
     }
 
     if (options.create) {
-        controllerClass.addMethod({
+        const createMethod = controllerClass.addMethod({
             name : 'create',
             parameters : middlewareFunctionParameters
-        })
-        .toggleModifier("public").toggleModifier("async")
+        });
+
+        createMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
             `const ${entityName} = new ${entityNameCapitalized}(req.body);`,
             `const saved = await this.repository.save(${entityName});`,
             `res.status( HttpStatus.CREATED );`,
             `return new ${entityNameCapitalized}Serializer().serialize(saved);`
         ]);
+
+        createMethod.addJsDoc(writer => {
+            writer.writeLine(`@description CREATE ${entityName}`);
+            writer.writeLine(`@return {any} result to send to client`);
+        });
     }
 
     if (options.update) {
-        controllerClass.addMethod({
+        const updateMethod = controllerClass.addMethod({
             name : 'update',
             parameters : middlewareFunctionParameters
-        })
-        .toggleModifier("public").toggleModifier("async")
+        });
+
+        updateMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
             `const ${entityName} = await this.repository.findOne(req.params.id);`,
             `if (!${entityName}) throw Boom.notFound();`,
@@ -93,21 +114,34 @@ module.exports = (path,{className,options,entityName}) => {
             `const saved = await this.repository.save(${entityName});`,
             `return new ${entityNameCapitalized}Serializer().serialize(saved);`
         ]);
+
+        updateMethod.addJsDoc(writer => {
+            writer.writeLine(`@description UPDATE ${entityName}`);
+            writer.writeLine(`@throws {Boom.notFound}`);
+            writer.writeLine(`@return {any} result to send to client`);
+        });
     }
 
     if (options.delete) {
-        controllerClass.addMethod({
+        const deleteMethod = controllerClass.addMethod({
             name : 'remove',
             parameters : middlewareFunctionParameters
-        })
-        .toggleModifier("public").toggleModifier("async")
+        });
+
+        deleteMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
             `const ${entityName} = await this.repository.findOne(req.params.id);`,
             `if (!${entityName}) throw Boom.notFound();`,
             `await this.repository.remove(${entityName});`,
             `res.sendStatus(HttpStatus.NO_CONTENT).end();`
         ]);
+
+        deleteMethod.addJsDoc(writer => {
+            writer.writeLine(`@description DELETE ${entityName}`);
+            writer.writeLine(`@throws {Boom.notFound}`);
+            writer.writeLine(`@return {any} result to send to client`);
+        });
     }
 
-    file.fixMissingImports();
+    return file;
 };

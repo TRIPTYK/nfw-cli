@@ -15,30 +15,42 @@ module.exports = (path,{className,entities,createUpdate}) => {
     modelClass.addDecorator({name : "Entity"}).setIsDecoratorFactory(true);
     modelClass.setIsExported(true);
 
-    modelClass.addProperty({
+    const idProperty = modelClass.addProperty({
         name : 'id'
-    })
-    .addDecorator({
+    });
+
+    idProperty.addDecorator({
         name : 'PrimaryGeneratedColumn'
     }).setIsDecoratorFactory(true);
 
+    idProperty.addJsDoc(writer => {
+        writer.writeLine(`@description primary key of model`);
+    });
+
     entities.forEach((entity) => {
-        modelClass.addProperty({
+        const prop = modelClass.addProperty({
             name : entity.Field
-        })
-        .addDecorator({
+        });
+
+        prop.addDecorator({
             name : 'Column' ,
             arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity))
         }).setIsDecoratorFactory(true);
     });
 
-    if (createUpdate && createUpdate.createAt)
-        modelClass.addProperty({name : 'createdAt'})
-            .addDecorator({name : 'CreateDateColumn'}).setIsDecoratorFactory(true);
+    if (createUpdate && createUpdate.createAt) {
+        const prop = modelClass.addProperty({name: 'createdAt'});
+        prop.addDecorator({name: 'CreateDateColumn'}).setIsDecoratorFactory(true);
+        prop.addJsDoc(`@description This column will store a creation date of the inserted object`);
+    }
 
-    if (createUpdate && createUpdate.updateAt)
-        modelClass.addProperty({name : 'updatedAt'})
-            .addDecorator({name : 'UpdateDateColumn'}).setIsDecoratorFactory(true);
+    if (createUpdate && createUpdate.updateAt) {
+        const prop = modelClass.addProperty({name: 'updatedAt'});
+        prop.addDecorator({name: 'UpdateDateColumn'}).setIsDecoratorFactory(true);
+        prop.addJsDoc(`@description This column will store an update date when the entity is updated`);
+    }
 
     file.fixMissingImports();
+
+    return file;
 };

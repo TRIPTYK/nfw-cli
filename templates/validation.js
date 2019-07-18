@@ -41,6 +41,10 @@ module.exports = (path,{entities,options,entityName}) => {
             ]
         });
         variableStatement.setIsExported(true);
+
+        variableStatement.addJsDoc({
+            description : `Get validation for ${entityName}`
+        });
     }
 
     if (options.create) {
@@ -59,6 +63,9 @@ module.exports = (path,{entities,options,entityName}) => {
             ]
         });
         variableStatement.setIsExported(true);
+        variableStatement.addJsDoc({
+            description : `Create validation for ${entityName}`
+        });
     }
 
     if (options.update) {
@@ -78,6 +85,9 @@ module.exports = (path,{entities,options,entityName}) => {
             ]
         });
         variableStatement.setIsExported(true);
+        variableStatement.addJsDoc({
+            description : `Replace validation for ${entityName}`
+        });
 
         const objectsToInsert = {};
 
@@ -99,7 +109,10 @@ module.exports = (path,{entities,options,entityName}) => {
             ]
         });
         variableStatement.setIsExported(true);
+        variableStatement.addJsDoc({
+            description : `Update validation for ${entityName}`
+        });
     }
 
-    file.fixMissingImports();
+    return file;
 };

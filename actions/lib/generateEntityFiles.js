@@ -8,7 +8,7 @@
 
 // node modules
 const FS = require('fs');
-const Util = require('util');
+const ejs = require('ejs');
 const project = require('../../utils/project');
 
 // project modules
@@ -50,42 +50,74 @@ const _write = async (data, crudOptions) => {
     if (data.createUpdate != null && data.createUpdate.createAt) allColumns.push(`'createdAt'`);
     if (data.createUpdate != null && data.createUpdate.updateAt) allColumns.push(`'updatedAt'`);
 
-    controllerTemplateFile(`src/api/controllers/${lowercase}.controller.ts`,{
+    const files = [];
+    const controllerPath = `src/api/controllers/${lowercase}.controller.ts`;
+    const middlewarePath = `src/api/middlewares/${lowercase}.middleware.ts`;
+    const validationPath = `src/api/validations/${lowercase}.validation.ts`;
+    const relationPath = `src/api/enums/relations/${lowercase}.relations.ts`;
+    const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
+    const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
+    const routerPath = `src/api/routes/v1/${lowercase}.route.ts`;
+
+    files.push(controllerTemplateFile(controllerPath,{
         className : `${capitalize}Controller`,
         options : crudOptions,
         entityName : lowercase
-    });
+    }));
 
-    middlewareTemplateFile(`src/api/middlewares/${lowercase}.middleware.ts`,{
+    files.push(middlewareTemplateFile(middlewarePath,{
         className : `${capitalize}Middleware`,
         entityName : lowercase
-    });
+    }));
 
-    relationsTemplateFile(`src/api/enums/relations/${lowercase}.relations.ts`,{
+    files.push(relationsTemplateFile(relationPath,{
         foreignKeys
-    });
+    }));
 
-    repositoryTemplateFile(`src/api/repositories/${lowercase}.repository.ts`,{
+    files.push(repositoryTemplateFile(repositoryPath,{
         className : `${capitalize}Repository`,
         entityName : lowercase
-    });
+    }));
 
-    validationTemplateFile(`src/api/validations/${lowercase}.validation.ts`,{
+    files.push(validationTemplateFile(validationPath,{
         options : crudOptions,
         entityName : lowercase,
         entities : tableColumns
-    });
+    }));
 
-    serializerTemplateFile(`src/api/serializers/${lowercase}.serializer.ts`,{
+    files.push(serializerTemplateFile(serializerPath,{
         className : `${capitalize}Serializer`,
         entityName : lowercase,
         columns : tableColumns
-    });
+    }));
 
-    routeTemplateFile(`src/api/routes/v1/${lowercase}.route.ts`,{
+    files.push(routeTemplateFile(routerPath,{
         options : crudOptions,
         entityName : lowercase
+    }));
+
+    // auto generate imports
+    files.forEach(file => {
+        file.fixMissingImports();
+        Log.success(`Created ${file.getFilePath()}`);
     });
+
+    // Tests are easier to do in EJS template
+    let file = FS.readFileSync(`${__baseDir}/templates/test.ejs`, 'utf-8');
+
+    let output = ejs.compile(file)({
+        entityLowercase: lowercase,
+        entityCapitalize: capitalize,
+        options: crudOptions,
+        tableColumns,
+        allColumns,
+        lowercaseEntity,
+        capitalizeEntity,
+        camelcase : require('camelcase')
+    });
+
+    FS.writeFileSync(`${process.cwd()}/test/${lowercase}.test.ts`,output);
+    Log.success(`Created test/${lowercase}.test.ts`);
 
     await writeToRouter(lowercase);
     await project.save();

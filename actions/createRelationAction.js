@@ -10,22 +10,55 @@ const stringifyObject = require('stringify-object');
 
 // project object
 const project = require('../utils/project');
+const Log = require('../utils/log');
 
 // project modules
 const {modelFileExists, columnExist, relationExist, capitalizeEntity} = require('./lib/utils');
+
+/**
+ * @description add relationship in the serializer of an entity
+ * @param {string} entity
+ * @param {string} column
+ */
+exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
+    const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
+    const serializerClass = serializerFile.getClasses()[0];
+    const constructor = serializerClass.getConstructors()[0];
+    const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
+
+    if (!relationshipsInitializer.getProperty(column)) {
+        relationshipsInitializer.addPropertyAssignment({
+            name: column,
+            initializer: `{type : '${model}'}`
+        });
+    }
+
+    constructor.addStatements(writer => {
+        writer.write(`this.serializer.register("${model}",`).block(() => {
+            writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
+        }).write(");");
+    });
+
+    serializerFile.fixMissingImports();
+    serializerFile.fixUnusedIdentifiers();
+
+    Log.info(`Updated ${serializerFile.getFilePath()}`);
+};
 
 /**
  * @description add relationship in the controller of an entity
  * @param {string} entity
  * @param {string} column
  */
-const _addToRelation = (entity, column , otherModel) => {
+exports.addToRelation = (entity, column , otherModel) => {
     const relationFile = project.getSourceFile(`src/api/enums/relations/${entity}.relations.ts`);
 
     relationFile.getVariableDeclaration('relations').getInitializer().addElement(`'${column}'`);
 
     relationFile.fixMissingImports();
     relationFile.fixUnusedIdentifiers();
+
+    Log.info(`Updated ${relationFile.getFilePath()}`);
 };
 
 /**
@@ -91,16 +124,16 @@ const _Otm = (modelClass, model1 , model2, isFirst, m1Name, m2Name) => {
     let prop;
 
     if (isFirst) {
-        prop = modelClass.addProperty({name: plural(m1Name), type: capitalizeEntity(model2)});
+        prop = modelClass.addProperty({name: plural(m2Name), type: `${capitalizeEntity(model2)}[]`});
         prop.addDecorator({
             name: "OneToMany",
-            arguments: [`type => ${capitalizeEntity(model1)}`, `${model1} => ${model1}.${m2Name}`]
+            arguments: [`type => ${capitalizeEntity(model2)}`, `${model2} => ${model2}.${m1Name}`]
         }).setIsDecoratorFactory(true);
     }else {
-        prop = modelClass.addProperty({name: m1Name, type: capitalizeEntity(model2)});
+        prop = modelClass.addProperty({name: m2Name, type: capitalizeEntity(model2)});
         prop.addDecorator({
             name: "ManyToOne",
-            arguments: [`type => ${capitalizeEntity(model1)}`, `${model1} => ${model1}.${plural(m2Name)}`]
+            arguments: [`type => ${capitalizeEntity(model2)}`, `${model2} => ${model2}.${plural(m1Name)}`]
         }).setIsDecoratorFactory(true);
     }
 
@@ -147,9 +180,8 @@ const _Mto = (modelClass, model1 , model2, isFirst, m1Name, m2Name) => {
  * @param {string} refCol  for Oto only , name of the referenced column in the foreign key (must be primary or unique)
  * @param m1Name
  * @param m2Name
- * @returns {Promise<void>}
  */
-const _addRelation = async (model1, model2, isFirst, relation, name, refCol, m1Name, m2Name) => {
+const _addRelation = (model1, model2, isFirst, relation, name, refCol, m1Name, m2Name) => {
     let addedPropertyName;
 
     let modelFile = project.getSourceFile(`src/api/models/${model1}.model.ts`);
@@ -162,8 +194,10 @@ const _addRelation = async (model1, model2, isFirst, relation, name, refCol, m1N
 
     modelFile.fixMissingImports();
 
-    _addToSerializer(model1, addedPropertyName,model2,m1Name,m2Name);
-    _addToRelation(model1, addedPropertyName,model2);
+    Log.info(`Updated ${modelFile.getFilePath()}`);
+
+    exports.addToSerializer(model1, addedPropertyName,model2,m1Name,m2Name);
+    exports.addToRelation(model1, addedPropertyName,model2);
 };
 
 
@@ -185,10 +219,8 @@ module.exports = async (model1, model2, relation, name, refCol, m1Name, m2Name) 
     if (columnExist(model1, m2Name) || columnExist(model2, m1Name) || relationExist(model1, m2Name) || relationExist(model2, m1Name))
         throw new Error("A Column have a name that conflicts with the creation of the relationship in one or both models \n Please use m1Name and m2Name option");
 
-    await Promise.all([
-        _addRelation(model1, model2, true, relation, name, refCol, m1Name, m2Name),
-        _addRelation(model2, model1, false, relation, name, refCol, m2Name, m1Name)
-    ]);
+    _addRelation(model1, model2, true, relation, name, refCol, m1Name, m2Name);
+    _addRelation(model2, model1, false, relation, name, refCol, m2Name, m1Name);
 
     await project.save();
 };

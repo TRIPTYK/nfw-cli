@@ -16,12 +16,16 @@ module.exports = (path,{className,entityName,columns}) => {
     serializerClass.setIsExported(true);
     serializerClass.setExtends(`BaseSerializer`);
 
-    serializerClass.addProperty({
+    const property = serializerClass.addProperty({
         isStatic : true,
         type : "string[]",
         name : "whitelist",
         initializer : `[${columns.map(column => `'${column.Field}'`)}]`
     }).toggleModifier("public");
+
+    property.addJsDoc(writer => {
+        writer.writeLine(`@description list of fields to be serialized and deserialized`)
+    });
 
     serializerClass.addConstructor({
         parameters : [{ name : 'serializerParams' , initializer : 'new SerializerParams()'}],
@@ -37,6 +41,8 @@ module.exports = (path,{className,entityName,columns}) => {
         `this.setupPagination(data, serializerParams);`,
         `this.serializer.register(this.type, data);`
         ]
-    });
-    file.fixMissingImports();
+    })
+    .addJsDoc(`${entityName} constructor`);
+
+    return file;
 };

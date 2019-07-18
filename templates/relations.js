@@ -17,7 +17,11 @@ module.exports = (path,{}) => {
         ]
     });
 
+    array.addJsDoc(writer => {
+        writer.writeLine(`@description allowed JSON-API includes relations`);
+    });
+
     array.setIsExported(true);
 
-    file.fixMissingImports();
+    return file;
 };

@@ -45,7 +45,7 @@ done();
         let status = res.status | res.statusCode;
         expect(status).to.equal(201);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
+          <%- tableColumns.map(col => `'${camelcase(col.Field)}'`) %>
         );
         id = res.body.data.id;
         done();
@@ -65,7 +65,7 @@ done();
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
+          <%- tableColumns.map(col => `'${camelcase(col.Field)}'`) %>
         );
         done();
       })
@@ -94,7 +94,7 @@ done();
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
+          <%- tableColumns.map(col => `'${camelcase(col.Field)}'`) %>
         );
         done();
       })
@@ -123,7 +123,7 @@ done();
         let status = res.status | res.statusCode;
         expect(status).to.equal(200);
         expect(res.body.data.attributes).to.include.all.keys(
-          <%- tableColumns.map(col => `'${kebabCase(col.Field)}'`) %>
+          <%- tableColumns.map(col => `'${camelcase(col.Field)}'`) %>
         );
         done();
       })
