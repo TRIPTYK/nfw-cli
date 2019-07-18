@@ -2,7 +2,15 @@ const {buildModelColumnArgumentsFromObject} = require("../actions/lib/utils");
 const project = require('../utils/project');
 const stringifyObject = require('stringify-object');
 
-module.exports = (path,{className,entities,createUpdate}) => {
+/**
+ *
+ * @param path
+ * @param className
+ * @param {array} entities
+ * @param createUpdate
+ * @return {SourceFile}
+ */
+module.exports = (path,{className,entities,createUpdate = {}}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -26,6 +34,18 @@ module.exports = (path,{className,entities,createUpdate}) => {
     idProperty.addJsDoc(writer => {
         writer.writeLine(`@description primary key of model`);
     });
+
+    entities = entities.filter(
+        (entity) => {
+            if(entity.Field === "createdAt") {
+                createUpdate['createAt'] = true;
+                return false;
+            }else if (entity.Field === "updatedAt") {
+                createUpdate['updateAt'] = true;
+                return false;
+            }
+            return true;
+        });
 
     entities.forEach((entity) => {
         const prop = modelClass.addProperty({
