@@ -87,6 +87,7 @@ module.exports = async (modelName, crud) => {
                     Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                     process.exit(1);
                 });
+            /**
             if (foreignKeys && foreignKeys.length) {
                 for (let i = 0; i < foreignKeys.length; i++) {
                     let tmpKey = foreignKeys[i];
@@ -96,7 +97,7 @@ module.exports = async (modelName, crud) => {
                         .then(() => Log.success("Relation successfully added !"))
                         .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                 }
-            }
+            }**/
             break;
     }
 

@@ -50,8 +50,8 @@ module.exports = async () => {
             });
         await generateEntityFiles(tables[j][tablesIn], crudOptions, entityModelData);
     }
-    await _BridgingTableHander(Bridgings);
-    await _RelationHandler(foreignConstraint);
+    //await _BridgingTableHander(Bridgings);
+    //await _RelationHandler(foreignConstraint);
 };
 
 /**

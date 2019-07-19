@@ -272,22 +272,28 @@ exports.buildModelColumnArgumentsFromObject = (dbColumnaData) => {
     if (dbColumnaData.Default !== ":no")
         columnArgument['default'] = dbColumnaData.Default;
 
+    if (dbColumnaData.Default === null && dbColumnaData.Null === 'NO')
+        delete columnArgument['default'];
+
     //handle nullable
-    if (dbColumnaData.Key !== 'PRI' && dbColumnaData.Key !== 'UNI')
+    if (dbColumnaData.Key !== 'PRI' && dbColumnaData.Key !== 'UNI') {
         columnArgument['nullable'] = dbColumnaData.Null === 'YES';
-    else if (dbColumnaData.Key === 'UNI')
+    }else if (dbColumnaData.Key === 'UNI')
         columnArgument['unique'] = true;
     else if (dbColumnaData.Key === 'PRI')
         columnArgument['primary'] = true;
 
     //handle length
-    if (dbColumnaData.Type.type === "enum")
-        columnArgument['enum'] = dbColumnaData.Type.length;
+    if (dbColumnaData.Type.type === "enum") {
+        columnArgument['enum'] = dbColumnaData.Type.length.split(',').map(e => e.replace(/'|\\'/g,""));
+        return columnArgument;
+    }
 
     if (dbColumnaData.Type.type === 'decimal') {
         let [precision,scale] = dbColumnaData.Type.length.split(',');
-        columnArgument['precision'] = precision;
-        columnArgument['scale'] = scale;
+        columnArgument['precision'] = parseInt(precision);
+        columnArgument['scale'] = parseInt(scale);
+        return columnArgument;
     }
 
     if (dbColumnaData.Type.length !== undefined && dbColumnaData.Type.length !== '') {

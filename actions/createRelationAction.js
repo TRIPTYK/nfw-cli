@@ -72,10 +72,10 @@ exports.addToRelation = (entity, column , otherModel) => {
  * @return {array} to write in a model for many to many relationship
  */
 const _Mtm = (modelClass, model1 , model2, isFirst, name, m1Name,m2Name) => {
-    const prop = modelClass.addProperty({ name: plural(m1Name), type: capitalizeEntity(model2) });
+    const prop = modelClass.addProperty({ name: plural(m2Name), type: `${capitalizeEntity(model2)}[]` });
     const args = {};
 
-    prop.addDecorator({name : "ManyToMany" , arguments : [`type => ${capitalizeEntity(model2)}`,`${model2} => ${model2}.${ plural(m2Name)}`]}).setIsDecoratorFactory(true);
+    prop.addDecorator({name : "ManyToMany" , arguments : [`type => ${capitalizeEntity(model2)}`,`${model2} => ${model2}.${ plural(m1Name)}`]}).setIsDecoratorFactory(true);
 
     if (name) args['name'] = name;
 
