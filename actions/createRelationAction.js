@@ -32,12 +32,18 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
             initializer: `{type : '${model}'}`
         });
     }
-
-    constructor.addStatements(writer => {
-        writer.write(`this.serializer.register("${model}",`).block(() => {
-            writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
-        }).write(");");
-    });
+    if (constructor.getStructure().statements.findIndex((e) => {
+        if (typeof e === 'string')
+            return e.match(new RegExp(`this.serializer.register.*${model}`)) !== null;
+        else
+            return false;
+    }) === -1) {
+        constructor.addStatements(writer => {
+            writer.write(`this.serializer.register("${model}",`).block(() => {
+                writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
+            }).write(");");
+        });
+    }
 
     serializerFile.fixMissingImports();
     serializerFile.fixUnusedIdentifiers();
