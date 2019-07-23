@@ -364,8 +364,10 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     }
 
     if (dbColumnaData.Type.type === 'enum') {
-        validationArguments['isArray'] = {
-            errorMessage : 'This field must be an array'
+        delete validationArguments['isLength'];
+        validationArguments['isIn'] = {
+            errorMessage : 'This field must be an array',
+            options : dbColumnaData.Type.length.split(',').map(e => e.replace(/'|\\'/g,""))
         };
     }
 

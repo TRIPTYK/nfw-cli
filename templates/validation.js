@@ -9,6 +9,8 @@ module.exports = (path,{entities,options,entityName}) => {
     });
     const entityNameCapitalized = capitalizeEntity(entityName);
 
+    entities = entities.filter(entity => entity.Key !== 'MUL');
+
     if (options.read) {
         let variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,
