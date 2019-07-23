@@ -101,7 +101,8 @@ module.exports = async (entityName, drop) => {
     });
 
     for (let i = 0; i < relations.length; i++)
-        await removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME);
+        await removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME)
+            .catch(() => {}); // not a problem
 
 
     let promises = [  // launch all tasks in async

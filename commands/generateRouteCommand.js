@@ -102,6 +102,7 @@ exports.handler = async (argv) => {
             });
         })
         .catch((error) => {
+            console.log(error)
             Log.error('Failed to generate : ' + error.message);
         });
 

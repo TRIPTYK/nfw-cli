@@ -47,7 +47,7 @@ module.exports = {
                 message: 'Please enter the sub-route path',
                 default: '/',
                 validate : (input) =>{
-                    if (input === "" || input ==='/') return "route path must contains at least one letter";
+                    if (input === "") return "route path must contains at least one letter";
                     else if(input.includes(' ')) return 'route path can\'t contains space';
                     else return true;
                 },

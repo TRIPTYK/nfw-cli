@@ -88,8 +88,8 @@ module.exports = (path,{className,options,entityName}) => {
         relationshipsMethod.addStatements([
             `const {id, relation} = req.params;`,
             ``,
-            `const ${entityName} = await this.repository.createQueryBuilder('user')`,
-            `\t.leftJoinAndSelect(\`user.\${relation}\`, '${entityName}')`,
+            `const ${entityName} = await this.repository.createQueryBuilder('${entityName}')`,
+            `\t.leftJoinAndSelect(\`${entityName}.\${relation}\`, '${entityName}')`,
             `\t.where("${entityName}.id = :id", {id})`,
             `\t.getOne();`,
             `const serializer = new ${entityNameCapitalized}Serializer();`,
