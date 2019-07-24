@@ -15,6 +15,7 @@ const inquirer = require('../utils/inquirer');
 const {lowercaseEntity} = require("../actions/lib/utils");
 const {fileExists} = require('../utils/files');
 const Log = require('../utils/log');
+const project = require('../utils/project');
 
 /**
  * Yargs command
@@ -61,6 +62,7 @@ exports.handler = async (argv) => {
         }
     }
 
+    // const rolesFile = project.getSourceFile('src/api/enums/role.enum.ts'); for later
 
     // ask template routes information
     let continueAsking = true;

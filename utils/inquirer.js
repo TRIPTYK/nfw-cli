@@ -63,7 +63,7 @@ module.exports = {
     /**
      * TODO
      */
-    askRouteData: () => {
+    askRouteData: (choices = null) => {
         const question = [
             {
                 name: 'routeMethod',
@@ -87,7 +87,7 @@ module.exports = {
                 name: 'routeAuthorization',
                 type: 'list',
                 message: 'Route authorization level',
-                choices: ['ADMIN', 'LOGGED_USER', 'GHOST']
+                choices: choices ? choices : ['ADMIN', 'LOGGED_USER', 'GHOST']
             }
         ];
         return inquirer.prompt(question);

@@ -355,6 +355,7 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     }
 
     if (dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type.includes('date')) {
+        delete validationArguments['isLength'];
         validationArguments['custom'] = {
             errorMessage : 'This field is not a valid date',
             options : (date) => {
