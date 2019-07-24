@@ -62,6 +62,8 @@ const removeFromSerializer = (entity, column,model) => {
     if (line !== -1) constructor.removeStatement(line);
     if (relationshipsInitializer.getProperty(column)) relationshipsInitializer.getProperty(column).remove();
 
+    serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(`'${column}'`);
+
     serializerFile.fixMissingImports();
     serializerFile.fixUnusedIdentifiers();
 };
