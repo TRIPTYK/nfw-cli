@@ -65,7 +65,12 @@ const removeFromSerializer = (entity, column,model,isRelation) => {
     if (relationshipsInitializer.getProperty(column)) relationshipsInitializer.getProperty(column).remove();
 
     if (!isRelation) {
-        serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(`'${column}'`);
+        const index =  serializerClass.getStaticProperty('whitelist').getInitializer().getElements().findIndex((value) => {
+            return value.getText() === `'${column}'` || value.getText() === `'${plural(column)}'`;
+        });
+
+        if (index !== -1)
+            serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(index);
     }
 
     serializerFile.fixMissingImports();
