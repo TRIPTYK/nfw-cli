@@ -321,7 +321,12 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt','updatedAt'].includes(dbColumnaData.Field)))
         validationArguments['exists'] = true;
     else
-        validationArguments['optional'] = true;
+        validationArguments['optional'] = {
+            options : [{
+                nullable: true,
+                checkFalsy: true,
+            }]
+        };
 
     if (dbColumnaData.Type.length)
         validationArguments['isLength'] = {
