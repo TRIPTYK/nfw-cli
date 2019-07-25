@@ -24,7 +24,7 @@ const generateDocSpinner = new Spinner('Generating documentation');
  * Yargs command
  * @type {string}
  */
-exports.command = 'generate <modelName> [CRUD]';
+exports.command = 'generate <modelName> [CRUD] [part]';
 
 /**
  * Yargs command aliases
@@ -44,6 +44,7 @@ exports.describe = 'Generate a new model';
  */
 exports.builder = (yargs) => {
     yargs.default('CRUD', 'CRUD');
+    yargs.default('part', null);
 };
 
 /**
@@ -54,6 +55,7 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     const modelName = argv.modelName;
     const crud = argv.CRUD;
+    const part = argv.part;
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
@@ -77,7 +79,7 @@ exports.handler = async (argv) => {
         crudOptions.delete = crud.includes('d');
     }
 
-    await generateAction(modelName, crudOptions);
+    await generateAction(modelName, crudOptions , part);
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();

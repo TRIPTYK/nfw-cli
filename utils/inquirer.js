@@ -285,7 +285,7 @@ module.exports = {
      * @param exist
      */
     askForChoice: (exist) => {
-        let create = ['create an entity', 'create a basic model', 'nothing'];
+        let create = ['create an entity', 'create empty entity', 'nothing'];
         if (exist) create.unshift('create from db');
         const options = [
             {
@@ -680,6 +680,7 @@ module.exports = {
                 type: 'input',
                 name: 'm1Name',
                 message: `What's wich name to you want for ${model1} in the model ?`,
+                default : model1,
                 validate : (input) =>{
                     if (columnExist(model1,input) || relationExist(model1,input)) return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";
@@ -690,6 +691,7 @@ module.exports = {
                 type: 'input',
                 name: 'm2Name',
                 message: `What's wich name to you want for ${model2} in the model ?`,
+                default : model2,
                 validate : (input) =>{
                     if (columnExist(model2,input) || relationExist(model2,input)) return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";

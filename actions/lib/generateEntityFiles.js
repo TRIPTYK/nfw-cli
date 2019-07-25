@@ -29,12 +29,24 @@ const serializerTemplateFile = require(`../../templates/serializer`);
 const validationTemplateFile = require(`../../templates/validation`);
 
 /**
- * Generate files from EJS templates , model generation is handled in another file
- * @param {object} data
+ * Main function
+ * Check entity existence, and write file or not according to the context
+ *
+ * @param {string} modelName
  * @param {object} crudOptions
+ * @param {object|null} data
  * @returns {Promise<void>}
  */
-const _write = async (data, crudOptions) => {
+module.exports = async (modelName, crudOptions, data = null,part) => {
+    if (!modelName.length) {
+        Log.error('Nothing to generate. Please, get entity name parameter.');
+        return;
+    }
+
+    // assign false class properties
+    lowercase = lowercaseEntity(modelName);
+    capitalize = capitalizeEntity(modelName);
+
     let tableColumns, foreignKeys;
     tableColumns = data ? data.columns : [];
     foreignKeys = data ? data.foreignKeys : [];
@@ -59,42 +71,51 @@ const _write = async (data, crudOptions) => {
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
     const routerPath = `src/api/routes/v1/${lowercase}.route.ts`;
 
-    files.push(controllerTemplateFile(controllerPath,{
-        className : `${capitalize}Controller`,
-        options : crudOptions,
-        entityName : lowercase
-    }));
+    if (!part || part === 'controller')
+        files.push(controllerTemplateFile(controllerPath,{
+            className : `${capitalize}Controller`,
+            options : crudOptions,
+            entityName : lowercase
+        }));
 
-    files.push(middlewareTemplateFile(middlewarePath,{
-        className : `${capitalize}Middleware`,
-        entityName : lowercase
-    }));
+    if (!part || part === 'middleware')
+        files.push(middlewareTemplateFile(middlewarePath,{
+            className : `${capitalize}Middleware`,
+            entityName : lowercase
+        }));
 
-    files.push(relationsTemplateFile(relationPath,{
-        foreignKeys
-    }));
+    if (!part || part === 'relation')
+        files.push(relationsTemplateFile(relationPath,{
+            foreignKeys
+        }));
 
-    files.push(repositoryTemplateFile(repositoryPath,{
-        className : `${capitalize}Repository`,
-        entityName : lowercase
-    }));
+    if (!part || part === 'repository')
+        files.push(repositoryTemplateFile(repositoryPath,{
+            className : `${capitalize}Repository`,
+            entityName : lowercase
+        }));
 
-    files.push(validationTemplateFile(validationPath,{
-        options : crudOptions,
-        entityName : lowercase,
-        entities : tableColumns
-    }));
+    if (!part || part === 'validation')
+        files.push(validationTemplateFile(validationPath,{
+            options : crudOptions,
+            entityName : lowercase,
+            entities : tableColumns
+        }));
 
-    files.push(serializerTemplateFile(serializerPath,{
-        className : `${capitalize}Serializer`,
-        entityName : lowercase,
-        columns : tableColumns
-    }));
+    if (!part || part === 'serializer')
+        files.push(serializerTemplateFile(serializerPath,{
+            className : `${capitalize}Serializer`,
+            entityName : lowercase,
+            columns : tableColumns
+        }));
 
-    files.push(routeTemplateFile(routerPath,{
-        options : crudOptions,
-        entityName : lowercase
-    }));
+    if (!part || part === 'route') {
+        files.push(routeTemplateFile(routerPath, {
+            options: crudOptions,
+            entityName: lowercase
+        }));
+        await writeToRouter(lowercase);
+    }
 
     // auto generate imports
     files.forEach(file => {
@@ -102,50 +123,24 @@ const _write = async (data, crudOptions) => {
         Log.success(`Created ${file.getFilePath()}`);
     });
 
-    // Tests are easier to do in EJS template
-    let file = FS.readFileSync(`${__baseDir}/templates/test.ejs`, 'utf-8');
+    if (!part || part === 'test') {
+        // Tests are easier to do in EJS template
+        let file = FS.readFileSync(`${__baseDir}/templates/test.ejs`, 'utf-8');
 
-    let output = ejs.compile(file)({
-        entityLowercase: lowercase,
-        entityCapitalize: capitalize,
-        options: crudOptions,
-        tableColumns,
-        allColumns,
-        lowercaseEntity,
-        capitalizeEntity,
-        camelcase : require('camelcase')
-    });
+        let output = ejs.compile(file)({
+            entityLowercase: lowercase,
+            entityCapitalize: capitalize,
+            options: crudOptions,
+            tableColumns,
+            allColumns,
+            lowercaseEntity,
+            capitalizeEntity,
+            camelcase: require('camelcase')
+        });
 
-    FS.writeFileSync(`${process.cwd()}/test/${lowercase}.test.ts`,output);
-    Log.success(`Created test/${lowercase}.test.ts`);
-
-    await writeToRouter(lowercase);
-    await project.save();
-};
-
-/**
- * Main function
- * Check entity existence, and write file or not according to the context
- *
- * @param {string} modelName
- * @param {object} crudOptions
- * @param {object|null} data
- * @returns {Promise<void>}
- */
-const build = async (modelName, crudOptions, data = null) => {
-    if (!modelName.length) {
-        Log.error('Nothing to generate. Please, get entity name parameter.');
-        return;
+        FS.writeFileSync(`${process.cwd()}/test/${lowercase}.test.ts`, output);
+        Log.success(`Created test/${lowercase}.test.ts`);
     }
 
-    // assign false class properties
-    lowercase = lowercaseEntity(modelName);
-    capitalize = capitalizeEntity(modelName);
-
-    await _write(data, crudOptions);
-
-    Log.success('Generating task done');
+    await project.save();
 };
-
-
-module.exports = build;

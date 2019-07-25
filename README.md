@@ -180,14 +180,15 @@ Command :
  ```
 ##### Aliases
 
-    $ nfw g <modelName> [CRUD]
-    $ nfw gen <modelName> [CRUD]
+    $ nfw g <modelName> [CRUD] [part]
+    $ nfw gen <modelName> [CRUD] [part]
 
 ##### Parameters
 
 * **_modelName_** - Required ! Type: string
 * **_CRUD_** - Optionnal ! Type: string with C, R, U, D letter only
     * Specify the generate function which part of the CRUD it must generate.
+* **_part_** - Optionnal ! Type: string "controller","relations"","repository","test","validation","middleware","route"
 #### Description
 
 Generate a model, a controller, a serializer, ... Ready to use with the API.

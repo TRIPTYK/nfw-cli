@@ -24,9 +24,10 @@ const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
  * Main function
  * @param modelName
  * @param crud
+ * @param part
  * @returns {Promise<void>}
  */
-module.exports = async (modelName, crud) => {
+module.exports = async (modelName, crud , part = null) => {
     modelName = format(modelName);
     const modelExists = await utils.modelFileExists(modelName);
     const sqlConnection =  await getSqlConnectionFromNFW();
@@ -48,22 +49,26 @@ module.exports = async (modelName, crud) => {
 
 
     const data = await inquirer.askForChoice(isExisting);
+
     switch (data.value) {
         case "create an entity":
             entityModelData = await modelSpecs.dbParams(modelName);
-            await modelWriteAction.writeModel(modelName, entityModelData)
-                .catch(e => {
-                    console.log(e);
-                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                    process.exit(1);
-                });
+            if (!part || part === "model")
+                await modelWriteAction.writeModel(modelName, entityModelData)
+                    .catch(e => {
+                        console.log(e);
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                    });
             break;
-        case "create a basic model":
-            await modelWriteAction.basicModel(modelName)
-                .catch(e => {
-                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                    process.exit(1);
-                });
+        case "create empty entity":
+            if (!part || part === "model")
+                await modelWriteAction.basicModel(modelName)
+                    .catch(e => {
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                    });
+
             entityModelData = [];
             entityModelData['columns'] = [];
             entityModelData['foreignKeys'] = [];
@@ -82,18 +87,21 @@ module.exports = async (modelName, crud) => {
                 columns[j].Type = utils.sqlTypeData(columns[j].Type);
             }
             entityModelData = { columns, foreignKeys };
-            await modelWriteAction.writeModel(modelName, entityModelData)
-                .catch(e => {
-                    Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
-                    process.exit(1);
-                });
+
+            if (!part || part === "model") {
+                await modelWriteAction.writeModel(modelName, entityModelData)
+                    .catch(e => {
+                        Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
+                        process.exit(1);
+                    });
+            }
 
             if (foreignKeys && foreignKeys.length) {
                 for (let i = 0; i < foreignKeys.length; i++) {
                     let tmpKey = foreignKeys[i];
                     let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
-                    let {m1Name,m2Name} = await inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME);
-                    await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME,m1Name,m2Name)
+                    let {m1Name, m2Name} = await inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME);
+                    await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
                         .then(() => Log.success("Relation successfully added !"))
                         .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                 }
@@ -101,9 +109,8 @@ module.exports = async (modelName, crud) => {
             break;
     }
 
-    await generateEntityFiles(modelName, crud, entityModelData)
+    await generateEntityFiles(modelName, crud, entityModelData,part)
         .catch(e => {
-            console.log(e);
             Log.error(`Generation failed : ${e}\nExiting ...`);
             process.exit(1);
         });
