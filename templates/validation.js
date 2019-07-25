@@ -9,7 +9,13 @@ module.exports = (path,{entities,options,entityName}) => {
     });
     const entityNameCapitalized = capitalizeEntity(entityName);
 
+    // filter special columns
+    entities = entities.filter(entity => !['createdAt','updatedAt'].includes(entity.Field));
     entities = entities.filter(entity => entity.Key !== 'MUL');
+
+    file.addStatements(writer => writer.writeLine(`import * as Joi from '@hapi/joi';`));
+    file.addStatements(writer => writer.writeLine(`import * as Boom from 'boom';`));
+    file.addStatements(writer => writer.writeLine(`import * as Moment from "moment-timezone";`));
 
     if (options.read) {
         let variableStatement = file.addVariableStatement({
@@ -115,6 +121,8 @@ module.exports = (path,{entities,options,entityName}) => {
             description : `Update validation for ${entityName}`
         });
     }
+
+    file.fixMissingImports();
 
     return file;
 };

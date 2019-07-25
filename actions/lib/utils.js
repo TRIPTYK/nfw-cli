@@ -364,7 +364,7 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
         validationArguments['custom'] = {
             errorMessage : 'This field is not a valid date',
             options : (date) => {
-                return (new Date(date)).getTime() > 0;
+                return Moment(date, true).isValid()
             }
         }
     }

@@ -31,7 +31,7 @@ const removeFromRelationTable = (entity, column) => {
 
     // search by Text value
     const index = relationsArrayDeclaration.getElements().findIndex((value) => {
-        return value.getText() === column;
+        return value.getText() === `'${column}'` || value.getText() === `'${plural(column)}'`;
     });
 
     if (index !== -1)
@@ -45,8 +45,10 @@ const removeFromRelationTable = (entity, column) => {
  *
  * @param entity
  * @param column
+ * @param model
+ * @param isRelation
  */
-const removeFromSerializer = (entity, column,model) => {
+const removeFromSerializer = (entity, column,model,isRelation) => {
     const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
     const serializerClass = serializerFile.getClasses()[0];
     const constructor = serializerClass.getConstructors()[0];
@@ -62,7 +64,9 @@ const removeFromSerializer = (entity, column,model) => {
     if (line !== -1) constructor.removeStatement(line);
     if (relationshipsInitializer.getProperty(column)) relationshipsInitializer.getProperty(column).remove();
 
-    serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(`'${column}'`);
+    if (!isRelation) {
+        serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(`'${column}'`);
+    }
 
     serializerFile.fixMissingImports();
     serializerFile.fixUnusedIdentifiers();
@@ -125,10 +129,10 @@ const removeRelationFromModelFile = (model,column) => {
  */
 module.exports = async (model, column, isRelation,model2=' ') => {
     if (isRelation) {
-        removeFromSerializer(model, column, model2);
         removeFromRelationTable(model, column);
     }
 
+    removeFromSerializer(model, column, model2,isRelation);
     removeRelationFromModelFile(model, column);
 
     if (!isRelation) {

@@ -145,7 +145,7 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
             console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
         });
     }
-    utils.createDataBaseIfNotExists(setupEnv);
+    await utils.createDataBaseIfNotExists(setupEnv);
 };
 
 /**

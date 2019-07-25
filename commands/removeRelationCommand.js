@@ -64,6 +64,7 @@ exports.handler = async (argv) => {
             Log.success(`Relation removed between ${model1} and ${model2}`);
         })
         .catch((e) => {
+            console.log(e)
             Log.error("Cannot remove relation : " + e.message);
         });
 

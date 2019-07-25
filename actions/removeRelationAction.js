@@ -41,12 +41,14 @@ module.exports = async (model1, model2,m1Name,m2Name) => {
     if (mod2plural) m2Name = pluralize.plural(m2Name);
     if (mod1plural) m1Name = pluralize.plural(m1Name);
 
-    await Promise.all([removeFromModel(model1, m2Name, true,model2), removeFromModel(model2, m1Name, true,model1)]).then(async () => {
-        if (mod1plural && mod2plural) await sql.dropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
-        else {
-            const spinner = new Spinner("Generating and executing migration");
-            spinner.start();
-            await migrate(`${model1}-${model2}`)
+    await Promise.all([removeFromModel(model1, m2Name, true,model2), removeFromModel(model2, m1Name, true,model1)]);
+
+    if (mod1plural && mod2plural)
+        await sql.dropBridgingTable(model1, model2).catch((e) => Log.error(e.message));
+    else {
+        const spinner = new Spinner("Generating and executing migration");
+        spinner.start();
+        await migrate(`${model1}-${model2}`)
             .then((generated) => {
                 spinner.stop();
                 const [migrationDir] = generated;
@@ -57,6 +59,5 @@ module.exports = async (model1, model2,m1Name,m2Name) => {
                 spinner.stop();
                 Log.error(e.message);
             });
-        }
-    });
+    }
 };

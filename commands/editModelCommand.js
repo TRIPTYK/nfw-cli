@@ -54,7 +54,7 @@ exports.handler = async (argv) => {
     await commandUtils.checkConnectToDatabase();
 
     if (!utils.modelFileExists(model)) {
-        Log.error("Model should exist in order to edit him :)");
+        Log.error("Model should exist in order to edit him");
         process.exit(0);
     }
 
