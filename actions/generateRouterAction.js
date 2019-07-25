@@ -19,6 +19,7 @@ module.exports = async (entityName, routes) => {
     const methods = [];
     const routerPath = `src/api/routes/v1/${entityName}.route.ts`;
     const controllerPath = `src/api/controllers/${entityName}.controller.ts`;
+    const writtenFiles = [];
 
     routes.forEach((route) => {
         route.methods.forEach((method) => {
@@ -28,16 +29,16 @@ module.exports = async (entityName, routes) => {
         })
     });
 
-    customControllerTemplate(controllerPath,{
+    writtenFiles.push(customControllerTemplate(controllerPath,{
         className : `${capitalizeEntity(entityName)}Controller`,
         methods,
         entityName
-    });
+    }));
 
-    customRouterTemplate(routerPath,{ routes , entityName});
+    writtenFiles.push(customRouterTemplate(routerPath,{ routes , entityName}));
 
     await project.save();
 
     // return written files
-    return [controllerPath, routerPath];
+    return writtenFiles.map((f) => f.getFilePath());
 };
