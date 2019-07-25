@@ -368,7 +368,7 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
         delete validationArguments['isLength'];
         validationArguments['isIn'] = {
             errorMessage : `Must be in these values : ${dbColumnaData.Type.length}`,
-            options : dbColumnaData.Type.length.split(',').map(e => e.replace(/'|\\'/g,""))
+            options : [dbColumnaData.Type.length.split(',').map(e => e.replace(/'|\\'/g,""))]
         };
     }
 
