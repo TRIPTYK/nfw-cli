@@ -16,6 +16,8 @@ module.exports = (path,{className,entityName,columns}) => {
     serializerClass.setIsExported(true);
     serializerClass.setExtends(`BaseSerializer`);
 
+    columns = columns.filter(entity => entity.Key !== 'MUL');
+
     const property = serializerClass.addProperty({
         isStatic : true,
         type : "string[]",
