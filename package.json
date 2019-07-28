@@ -1,5 +1,5 @@
 {
-  "name": "nodeframework",
+  "name": "nfw-cli",
   "version": "1.0.1",
   "description": "Portal to create mvc app from github",
   "main": "index.js",
@@ -8,12 +8,14 @@
     "doc": "jsdoc -c -r conf.json"
   },
   "keywords": [
-    "NodeFrameWork"
+    "NFW",
+    "CLI",
+    "Node"
   ],
   "bin": {
     "nfw": "index.js"
   },
-  "author": "Samuel Antoine",
+  "author": "Triptyk",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",

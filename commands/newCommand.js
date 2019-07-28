@@ -14,8 +14,6 @@ const newAction = require('../actions/newAction');
 const migrateAction = require('../actions/migrateAction');
 const createSuperUserAction = require('../actions/createSuperUserAction');
 const Log = require('../utils/log');
-const commandUtils = require('./commandUtils');
-const {SqlConnection} = require('../database/sqlAdaptator');
 
 /**
  * Yargs command
@@ -56,7 +54,7 @@ exports.builder = (yargs) => {
         default: false
     });
     yargs.option('yarn', {
-        desc: "Set yarn as package manager",
+        desc: "Set yarn as package manager instead of npm",
         type: 'boolean',
         default: false
     });

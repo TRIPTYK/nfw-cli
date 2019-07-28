@@ -7,6 +7,7 @@
 // node modules
 const {plural} = require('pluralize');
 const stringifyObject = require('stringify-object');
+const camelCase = require('camelcase');
 
 // project object
 const project = require('../utils/project');
@@ -25,11 +26,12 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
     const serializerClass = serializerFile.getClasses()[0];
     const constructor = serializerClass.getConstructors()[0];
     const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
+    const serializerType = camelCase(model); // camelCase is the recommended JSON API format
 
     if (!relationshipsInitializer.getProperty(column)) {
         relationshipsInitializer.addPropertyAssignment({
             name: column,
-            initializer: `{type : '${model}'}`
+            initializer: `{type : '${serializerType}'}`
         });
     }
     if (constructor.getStructure().statements.findIndex((e) => {
@@ -39,7 +41,7 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
             return false;
     }) === -1) {
         constructor.addStatements(writer => {
-            writer.write(`this.serializer.register("${model}",`).block(() => {
+            writer.write(`this.serializer.register("${serializerType}",`).block(() => {
                 writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
             }).write(");");
         });
