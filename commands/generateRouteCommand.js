@@ -49,6 +49,7 @@ exports.builder = () => {
  */
 exports.handler = async (argv) => {
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
 
     const routeName = snakeCase(argv.routeName);
     const lowercase = lowercaseEntity(routeName);

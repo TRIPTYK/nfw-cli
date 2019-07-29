@@ -49,6 +49,7 @@ exports.handler = async (argv) => {
     const {modelName} = argv;
 
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
 
     if (argv.DROP) await commandUtils.checkConnectToDatabase();
 

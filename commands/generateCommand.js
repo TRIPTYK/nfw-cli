@@ -58,6 +58,7 @@ exports.handler = async (argv) => {
     const part = argv.part;
 
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
     if (reservedWords.check(modelName, 6)) {

@@ -51,6 +51,7 @@ exports.handler = async (argv) => {
     model= format(model);
     const spinner = new Spinner("Generating and executing migration");
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
     if (!utils.modelFileExists(model)) {

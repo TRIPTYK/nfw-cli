@@ -7,12 +7,13 @@
 // node modules
 const chalk = require('chalk');
 const fs = require('fs');
+const { promisify } = require('util');
 
 // project modules
 const filesHelper = require('../utils/files');
 const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
-const utils = require('../actions/lib/utils');
+const readFilePromise = promisify(fs.readFile);
 
 /**
  * Check if we are in a valid project directory
@@ -61,3 +62,18 @@ exports.getCurrentEnvironment = () => {
 
     return new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`);
 };
+
+/**
+ *
+ * @return {Promise<void>}
+ */
+exports.checkVersion = async () => {
+    let [packageJsonCLI,packageJsonNFW] = await Promise.all(
+        [readFilePromise(__baseDir + "/package.json","utf-8"),readFilePromise(process.cwd() + "/package.json","utf-8")]
+    );
+    packageJsonCLI = JSON.parse(packageJsonCLI);
+    packageJsonNFW = JSON.parse(packageJsonNFW);
+
+    if (packageJsonCLI.version > packageJsonNFW.version)
+        Log.warning("Your version of NFW is for an old verson of NFW-CLI , you may encounter unexpected behavior. Consider upgrading your nfw or downgrade your CLI to " + packageJsonNFW.version);
+}

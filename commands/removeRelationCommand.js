@@ -57,6 +57,7 @@ exports.handler = async (argv) => {
     let m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
     let m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
     await removeRelationAction(model1, model2,m1Name,m2Name)

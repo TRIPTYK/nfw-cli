@@ -71,6 +71,7 @@ exports.handler = async (argv) => {
     let relations=['mtm','mto','otm','oto'];
 
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
     const model1 = format(argv.model1);

@@ -44,6 +44,7 @@ exports.builder = () => {
  */
 exports.handler = async () => {
     commandUtils.validateDirectory();
+    await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
     const {confirmation} = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will override existing models with the same name ! Do you want to continue ?`);
