@@ -1,6 +1,6 @@
 const { capitalizeEntity } = require("../actions/lib/utils");
 const project = require('../utils/project');
-const camelCase = require('camelcase');
+const dashify = require('dashify');
 
 module.exports = (path,{className,entityName,columns}) => {
     const file = project.createSourceFile(path,null,{
@@ -33,7 +33,7 @@ module.exports = (path,{className,entityName,columns}) => {
     serializerClass.addConstructor({
         parameters : [{ name : 'serializerParams' , initializer : 'new SerializerParams()'}],
         statements : [
-        `super('${camelCase(entityName)}');`,
+        `super('${dashify(entityName)}');`,
         writer => {
             writer.write("const data = ").block(() => {
                 writer

@@ -6,6 +6,7 @@
 
 // node modules
 const {plural} = require('pluralize');
+const dashify  = require('dashify');
 
 // project modules
 const {capitalizeEntity, lowercaseEntity} = require('./utils');
@@ -36,7 +37,7 @@ module.exports = async (entityName,pluralizeRoute = true) => {
         `/**`,
         ` * ${capitalize} routes`,
         `**/`,
-        `router.use('/${plural(entityName)}', ${capitalize}Router);`
+        `router.use('/${dashify(plural(entityName))}', ${capitalize}Router);`
     ]);
 
     file.fixMissingImports();

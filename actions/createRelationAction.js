@@ -7,7 +7,7 @@
 // node modules
 const {plural} = require('pluralize');
 const stringifyObject = require('stringify-object');
-const camelCase = require('camelcase');
+const dashify = require('dashify');
 
 // project object
 const project = require('../utils/project');
@@ -26,7 +26,7 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
     const serializerClass = serializerFile.getClasses()[0];
     const constructor = serializerClass.getConstructors()[0];
     const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
-    const serializerType = camelCase(model); // camelCase is the recommended JSON API format
+    const serializerType = dashify(model);
 
     if (!relationshipsInitializer.getProperty(column)) {
         relationshipsInitializer.addPropertyAssignment({
