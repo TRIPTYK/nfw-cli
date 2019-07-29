@@ -1,5 +1,5 @@
 # Welcome to NFW-CLI 👋
-![Version](https://img.shields.io/badge/version-1.0.2-blue.svg?cacheSeconds=2592000)
+![Version](https://img.shields.io/badge/version-0.0.2-blue.svg?cacheSeconds=2592000)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](https://github.com/TRIPTYK/nfw-cli/docs)
 
 > This repository contains a CLI based app that generate a NodeJs API base on [NFW](https://github.com/TRIPTYK/nfw)
