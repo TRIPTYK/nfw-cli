@@ -86,15 +86,7 @@ module.exports = (path,{className,options,entityName}) => {
 
         relationshipsMethod.toggleModifier("public").toggleModifier("async");
         relationshipsMethod.addStatements([
-            `const {id, relation} = req.params;`,
-            ``,
-            `const ${entityName} = await this.repository.createQueryBuilder('${entityName}')`,
-            `\t.leftJoinAndSelect(\`${entityName}.\${relation}\`, '${entityName}')`,
-            `\t.where("${entityName}.id = :id", {id})`,
-            `\t.getOne();`,
-            `const serializer = new ${entityNameCapitalized}Serializer();`,
-            `const relationSchemaData = serializer.getSchemaData().relationships.relation;`,
-            `return {data: serializer.serializeRelationships(relationSchemaData.type, ${entityName})};`
+            `return this.repository.fetchRelationshipsFromRequest(req,new ${entityNameCapitalized}Serializer());`
         ]);
 
         relationshipsMethod.addJsDoc(writer => {
@@ -121,6 +113,22 @@ module.exports = (path,{className,options,entityName}) => {
             writer.writeLine(`@description CREATE ${entityName}`);
             writer.writeLine(`@return {any} result to send to client`);
         });
+
+        const addRelationshipsMethod = controllerClass.addMethod({
+            name : 'addRelationships',
+            parameters : middlewareFunctionParameters
+        });
+
+        addRelationshipsMethod.toggleModifier("public").toggleModifier("async");
+        addRelationshipsMethod.addStatements([
+            `await this.repository.addRelationshipsFromRequest(req);`,
+            `res.sendStatus(HttpStatus.NO_CONTENT).end();`
+        ]);
+
+        addRelationshipsMethod.addJsDoc(writer => {
+            writer.writeLine(`@description Add ${entityName} relationships`);
+            writer.writeLine(`@return`);
+        });
     }
 
     if (options.update) {
@@ -143,6 +151,22 @@ module.exports = (path,{className,options,entityName}) => {
             writer.writeLine(`@throws {Boom.notFound}`);
             writer.writeLine(`@return {any} result to send to client`);
         });
+
+        const updateRelationshipsMethod = controllerClass.addMethod({
+            name : 'updateRelationships',
+            parameters : middlewareFunctionParameters
+        });
+
+        updateRelationshipsMethod.toggleModifier("public").toggleModifier("async");
+        updateRelationshipsMethod.addStatements([
+            `await this.repository.updateRelationshipsFromRequest(req);`,
+            `res.sendStatus(HttpStatus.NO_CONTENT).end();`
+        ]);
+
+        updateRelationshipsMethod.addJsDoc(writer => {
+            writer.writeLine(`@description REPLACE ${entityName} relationships`);
+            writer.writeLine(`@return`);
+        });
     }
 
     if (options.delete) {
@@ -163,6 +187,22 @@ module.exports = (path,{className,options,entityName}) => {
             writer.writeLine(`@description DELETE ${entityName}`);
             writer.writeLine(`@throws {Boom.notFound}`);
             writer.writeLine(`@return {any} result to send to client`);
+        });
+
+        const deleteRelationshipsMethod = controllerClass.addMethod({
+            name : 'fetchRelationships',
+            parameters : middlewareFunctionParameters
+        });
+
+        deleteRelationshipsMethod.toggleModifier("public").toggleModifier("async");
+        deleteRelationshipsMethod.addStatements([
+            `await this.repository.removeRelationshipsFromRequest(req);`,
+            `res.sendStatus(HttpStatus.NO_CONTENT).end();`
+        ]);
+
+        deleteRelationshipsMethod.addJsDoc(writer => {
+            writer.writeLine(`@description DELETE ${entityName} relationships`);
+            writer.writeLine(`@return`);
         });
     }
 

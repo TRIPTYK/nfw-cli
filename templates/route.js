@@ -53,6 +53,9 @@ module.exports = (path,{options,entityName}) => {
             .blankLine()
             .writeLine("router.route('/:id/relationships/:relation')")
             .conditionalWriteLine(options.read,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('fetchRelationships'))`)
+            .conditionalWriteLine(options.create,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('addRelationships'))`)
+            .conditionalWriteLine(options.update,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('updateRelationships'))`)
+            .conditionalWriteLine(options.delete,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('removeRelationships'))`)
             .write(";")
             .blankLine();
     });
