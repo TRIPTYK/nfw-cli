@@ -68,7 +68,8 @@ class SqlConnection
             user: env.TYPEORM_USER,
             password: env.TYPEORM_PWD,
             database: env.TYPEORM_DB,
-            port: env.TYPEORM_PORT
+            port: env.TYPEORM_PORT,
+            multipleStatements : true
         });
 
         const connect = util.promisify(this.db.connect).bind(this.db);
@@ -175,11 +176,12 @@ class SqlConnection
      *
      * @param table
      * @param fields
+     * @param supplement
      * @returns {Promise<void>}
      */
-    async select(table,fields)
+    async select(table,fields,supplement = '')
     {
-        return await this.query(`SELECT ${fields} from  ${table}`);
+        return await this.query(`SELECT ${fields} from  ${table} ${supplement}`);
     }
 
     /**
@@ -245,9 +247,10 @@ class SqlConnection
     /**
      *
      * @param path
+     * @param dumpOptions
      * @returns {Promise<void>}
      */
-    async dumpAll(path)
+    async dumpAll(path,{dumpOptions})
     {
         await mysqldump({
             connection: {
@@ -256,6 +259,7 @@ class SqlConnection
                 password: this.environement.TYPEORM_PWD,
                 database: this.environement.TYPEORM_DB,
             },
+            dump : dumpOptions,
             dumpToFile: path + '.sql',
         });
     }
