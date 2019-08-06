@@ -1,6 +1,6 @@
 # CreateRouter command
 
-- Aliases : **mig** , **M**
+- Aliases : **gr**
 
 ## Arguments
 

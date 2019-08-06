@@ -1,6 +1,6 @@
 # migrate command
 
-- Aliases : **ee** , **editE**
+- Aliases : **mig** , **M**
 
 ## Arguments
 
