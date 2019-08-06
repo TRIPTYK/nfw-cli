@@ -1,4 +1,4 @@
-# CreatedRouter command
+# CreateRouter command
 
 - Aliases : **gr**
 
