@@ -1,5 +1,3 @@
-
-const ejs = require('ejs');
 const Util = require('util');
 const Log = require('../../utils/log');
 const FS = require('fs');
@@ -9,10 +7,10 @@ const stringifyObject = require('stringify-object');
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const { columnExist, lowercaseEntity , buildModelColumnArgumentsFromObject , buildValidationArgumentsFromObject} = require('./utils');
+const {  buildValidationArgumentsFromObject} = require('./utils');
 const project = require('../../utils/project');
 
-const addToValidations = (model,column) =>{
+exports.addToValidations = (model,column) => {
     let file = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
     // all exported const should be validation schema
@@ -33,7 +31,7 @@ const addToValidations = (model,column) =>{
     });
 };
 
-const addToTest = async (model, column) => {
+exports.addToTest = async (model, column) => {
     //Path to .test.js file and read it
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let testFile = await ReadFile(testPath,'utf-8');
@@ -64,33 +62,9 @@ const addToTest = async (model, column) => {
 
 };
 
-const writeSerializer = (model, column) => {
+exports.writeSerializer = (model, column) => {
     const file = project.getSourceFile(`src/api/serializers/${model}.serializer.ts`);
     const serializerClass = file.getClasses()[0];
 
     serializerClass.getStaticProperty('whitelist').getInitializer().addElement(`'${column}'`);
-};
-
-/**
- * @description  Add a column in a model
- * @param {string} model Model name
- * @param data
- */
-module.exports = async (model, data) => {
-    let pathModel = `src/api/models/${lowercaseEntity(model)}.model.ts`;
-    if (data === null) throw  new Error('Column cancelled');
-    if (columnExist(model, data.columns.Field)) throw  new Error('Column already exist');
-
-    let entity = data.columns;
-
-    project.getSourceFile(pathModel).getClasses()[0].addProperty({name : data.columns.Field }).addDecorator({
-        name : 'Column' , arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity))
-    }).setIsDecoratorFactory(true);
-
-    writeSerializer(model, data.columns.Field);
-    addToValidations(model, data.columns);
-    await addToTest(model,data.columns);
-
-    Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
-    await project.save();
 };

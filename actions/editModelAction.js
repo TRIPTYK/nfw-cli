@@ -4,14 +4,17 @@
  * @description Edit a model
  */
 
+// node modules
+const stringifyObject = require('stringify-object');
+
 // project modules
 const removeFromModel = require('./lib/removeFromModel');
 const addInModels = require('./lib/addInModel');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
-const {format} = require('../actions/lib/utils');
+const {format , lowercaseEntity , buildModelColumnArgumentsFromObject , columnExist } = require('../actions/lib/utils');
 const project = require('../utils/project');
-
+const chalk = require('chalk');
 
 /**
  * Main function
@@ -31,16 +34,27 @@ module.exports = async (action, model, column = null) => {
         removeFromModel.removeFromValidation(model, column);
 
         Log.success('Column successfully removed');
-        await project.save();
     }
 
     if (action === 'add') {
         let data = await modelSpecs.newColumn(column);
-        await addInModels(model, data)
-            .then(() =>{
-                Log.success('Column successfully added');
-            });
 
-        await project.save();
+        let pathModel = `src/api/models/${lowercaseEntity(model)}.model.ts`;
+        if (data === null) throw  new Error('Column cancelled');
+        if (columnExist(model, data.columns.Field)) throw  new Error('Column already exist');
+
+        let entity = data.columns;
+
+        project.getSourceFile(pathModel).getClasses()[0].addProperty({name : data.columns.Field }).addDecorator({
+            name : 'Column' , arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity))
+        }).setIsDecoratorFactory(true);
+
+        addInModels.writeSerializer(model, data.columns.Field);
+        addInModels.addToValidations(model, data.columns);
+        await addInModels.addToTest(model,data.columns);
+
+        Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
     }
+
+    await project.save();
 };
