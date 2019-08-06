@@ -5,11 +5,12 @@
  */
 
 // project modules
-const removeColumn = require('./lib/removeFromModel');
+const removeFromModel = require('./lib/removeFromModel');
 const addInModels = require('./lib/addInModel');
 const modelSpecs = require('./lib/modelSpecs');
 const Log = require('../utils/log');
 const {format} = require('../actions/lib/utils');
+const project = require('../utils/project');
 
 
 /**
@@ -22,11 +23,16 @@ const {format} = require('../actions/lib/utils');
 module.exports = async (action, model, column = null) => {
     model = format(model);
 
-    if (action === 'remove')
-        await removeColumn(model, column, false)
-            .then(() => {
-                Log.success('Column successfully removed');
-            });
+    if (action === 'remove') {
+        removeFromModel.removeFromSerializer(model, column, ' ', false);
+        removeFromModel.removeRelationFromModelFile(model, column);
+
+        await removeFromModel.removeFromTest(model, column);
+        removeFromModel.removeFromValidation(model, column);
+
+        Log.success('Column successfully removed');
+        await project.save();
+    }
 
     if (action === 'add') {
         let data = await modelSpecs.newColumn(column);
@@ -34,5 +40,7 @@ module.exports = async (action, model, column = null) => {
             .then(() =>{
                 Log.success('Column successfully added');
             });
+
+        await project.save();
     }
 };

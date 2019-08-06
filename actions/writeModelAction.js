@@ -6,16 +6,8 @@
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-const ejs = require('ejs');
-const Util = require('util');
-const Log = require('../utils/log');
-const FS = require('fs');
-const ReadFile = Util.promisify(FS.readFile);
-const WriteFile = Util.promisify(FS.writeFile);
-const path = require('path');
-const {capitalizeEntity, lowercaseEntity , buildModelColumnArgumentsFromObject , addToConfig} = require('./lib/utils');
+const {capitalizeEntity, lowercaseEntity , addToConfig} = require('./lib/utils');
 const project = require('../utils/project');
-const stringifyObject = require('stringify-object');
 const modelTemplateFile = require(`../templates/model`);
 
 /**
@@ -27,7 +19,6 @@ const modelTemplateFile = require(`../templates/model`);
 exports.writeModel = async (action, data = null) => {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
-    let pathModel = path.resolve(`${process.cwd()}/src/api/models/${lowercase}.model.ts`);
     let {columns, foreignKeys} = data;
 
     /*

@@ -37,9 +37,12 @@ exports.describe = 'add or remove column in an existing model\nAction can be eit
 /**
  * Yargs command builder
  */
-exports.builder = () => {
-
+exports.builder = (yargs) => {
+    yargs.choices('action',['remove','add']);
 };
+
+
+
 
 /**
  * Main function
@@ -103,7 +106,7 @@ exports.handler = async (argv) => {
             .catch((e) => {
                 Log.error('Failed to edit model : ' + e.message)
             })
-    } else Log.info("action must be add or remove");
+    }
 
 
     process.exit(0);

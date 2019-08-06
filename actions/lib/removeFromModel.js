@@ -24,7 +24,7 @@ const project = require('../../utils/project');
  * @param {string} entity
  * @param {string} column relation name
  */
-const removeFromRelationTable = (entity, column) => {
+exports.removeFromRelationTable = (entity, column) => {
     const relationFile = project.getSourceFile(`src/api/enums/relations/${entity}.relations.ts`);
 
     const relationsArrayDeclaration = relationFile.getVariableDeclaration('relations').getInitializer();
@@ -45,10 +45,10 @@ const removeFromRelationTable = (entity, column) => {
  *
  * @param entity
  * @param column
- * @param model
+ * @param otherModel
  * @param isRelation
  */
-const removeFromSerializer = (entity, column,model,isRelation) => {
+exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
     const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
     const serializerClass = serializerFile.getClasses()[0];
     const constructor = serializerClass.getConstructors()[0];
@@ -56,7 +56,7 @@ const removeFromSerializer = (entity, column,model,isRelation) => {
 
     const line = constructor.getStructure().statements.findIndex((e) => {
         if (typeof e === 'string')
-            return e.match(new RegExp(`this.serializer.register.*${model}`)) !== null;
+            return e.match(new RegExp(`this.serializer.register.*${otherModel}`)) !== null;
         else
             return false;
     });
@@ -83,7 +83,7 @@ const removeFromSerializer = (entity, column,model,isRelation) => {
  * @param column
  * @returns {Promise<void>}
  */
-const removeFromTest = async (model, column) => {
+exports.removeFromTest = async (model, column) => {
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let regexRandom = new RegExp(`[\\s]${column}.*?\\),`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
@@ -97,7 +97,7 @@ const removeFromTest = async (model, column) => {
  * @param model
  * @param column
  */
-const removeFromValidation = (model, column) => {
+exports.removeFromValidation = (model, column) => {
     const relationFile = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
     // all exported const should be validation schema
@@ -112,7 +112,7 @@ const removeFromValidation = (model, column) => {
     relationFile.fixUnusedIdentifiers();
 };
 
-const removeRelationFromModelFile = (model,column) => {
+exports.removeRelationFromModelFile = (model,column) => {
     let modelFile = project.getSourceFile(`src/api/models/${model}.model.ts`);
     const modelClass = modelFile.getClasses()[0];
 
@@ -123,28 +123,5 @@ const removeRelationFromModelFile = (model,column) => {
     if (prop) prop.remove();
 
     modelFile.fixUnusedIdentifiers();
-};
-
-/**
- * @description  Remove a column in a model
- * @param {string} model Model name
- * @param {string} column Column name
- * @param isRelation
- * @param model2
- */
-module.exports = async (model, column, isRelation,model2=' ') => {
-    if (isRelation) {
-        removeFromRelationTable(model, column);
-    }
-
-    removeFromSerializer(model, column, model2,isRelation);
-    removeRelationFromModelFile(model, column);
-
-    if (!isRelation) {
-        await removeFromTest(model, column);
-        removeFromValidation(model, column);
-    }
-
-    await project.save();
 };
   

@@ -39,11 +39,24 @@ exports.describe = 'Generate, compile and run the migration';
  * Yargs command builder
  */
 exports.builder = (yargs) => {
+    yargs.check(_validateArgs);
     yargs.option('restore', {
         desc: "Restore migration data at a specific state",
         type: "boolean",
         default: false
     });
+};
+
+/**
+ * 
+ * @param argv
+ * @param options
+ * @return {boolean}
+ */
+const _validateArgs = (argv,options) => {
+    if (!utils.isAlphanumeric(argv.migrateName)) throw new Error("<migrateName> is non alphanumeric");
+    if (reservedWords.check(argv.migrateName, 6)) throw new Error("<migrateName> is a reserved word");
+    return true;
 };
 
 /**
@@ -59,16 +72,6 @@ exports.handler = async (argv) => {
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
-
-    if (!utils.isAlphanumeric(modelName)) {
-      console.log(`Migration name can be only alphanumeric characters`);
-      process.exit(0);
-    }
-
-    if (reservedWords.check(modelName, 6)) {
-        console.log(`${modelName} is a reserved word`);
-        process.exit(0);
-    }
 
     spinner.start();
 

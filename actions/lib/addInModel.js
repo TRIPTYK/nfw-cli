@@ -9,7 +9,7 @@ const stringifyObject = require('stringify-object');
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const { columnExist, lowercaseEntity, buildJoiFromColumn , buildModelColumnArgumentsFromObject , buildValidationArgumentsFromObject} = require('./utils');
+const { columnExist, lowercaseEntity , buildModelColumnArgumentsFromObject , buildValidationArgumentsFromObject} = require('./utils');
 const project = require('../../utils/project');
 
 const addToValidations = (model,column) =>{

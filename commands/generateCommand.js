@@ -53,9 +53,7 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    const modelName = argv.modelName;
-    const crud = argv.CRUD;
-    const part = argv.part;
+    const {modelName,crud,part} = argv;
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();

@@ -73,11 +73,6 @@ exports.handler = async (argv) => {
 
     clearConsole();
 
-    if (name === undefined) {
-        console.log(chalk.red('Please provide a name for your application'));
-        process.exit(0);
-    }
-
     // process cwd is changed in newAction to the new project folder
     await newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn)
         .then(() => {

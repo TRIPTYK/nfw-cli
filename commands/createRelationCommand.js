@@ -33,13 +33,14 @@ exports.aliases = ['ar', 'addR'];
  * Command description
  * @type {string}
  */
-exports.describe = 'Create  relation between two table\n Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)';
+exports.describe = 'Create  relation between two table';
 
 /**
  * Handle and build command options
  * @param yargs
  */
 exports.builder = (yargs) => {
+    yargs.choices('relation',['mtm','mto','otm','oto']);
     yargs.option('name', {
         desc: "Specify the name of foreign key (for Oto) or the name of the bridging table (for Mtm)",
         type: "string",
@@ -68,8 +69,6 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    let relations=['mtm','mto','otm','oto'];
-
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
@@ -80,20 +79,15 @@ exports.handler = async (argv) => {
     const name = argv.name;
     const refCol = argv.refCol;
     let m1Name,m2Name;
-    argv.m1Name ? m1Name = singular(format(argv.m1Name)) : m1Name = model1;
-    argv.m2Name ? m2Name = singular(format(argv.m2Name)) : m2Name = model2;
 
-    if(!relations.includes(relation)){
-        Log.error('Wrong relation');
-        Log.info('Available relation:\n- mtm (ManyToMany)\n- mto (ManyToOne)\n- otm (OneToMany)\n- oto (OneToOne)');
-        process.exit(0)
-    }
+    m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
+    m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
 
     await createRelationAction(model1, model2, relation, name, refCol , m1Name , m2Name)
         .then(async () => {
             Log.success("Relation successfully added !");
             const spinner = new Spinner("Generating and executing migration");
-            spinner.start()
+            spinner.start();
             await migrateAction(`${model1}-${model2}`)
                 .then((generated) => {
                     spinner.stop();
