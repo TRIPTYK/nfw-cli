@@ -5,52 +5,57 @@
  * @module migrateAction
  */
 
+const  {getSqlConnectionFromNFW} = require("../database/sqlAdaptator");
+
 // Node modules
 const util = require('util');
 const fs = require('fs');
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 
-// Project modules
-const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
-
 /**
  * Main function
  * @param modelName
+ * @param restore
  * @returns {Promise<array>}
  */
-module.exports = async (modelName) => {
-    const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
-    const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
-
-    // parse ormconfig.json
+module.exports = async (modelName,restore) => {
     const ormConfig = JSON.parse(fs.readFileSync(`${process.cwd()}/ormconfig.json`, 'utf-8'));
+    const connection = await getSqlConnectionFromNFW();
+    const getMigrationFileNameFromRecord = (record) => record.timestamp + '-' + record.name.replace(record.timestamp.toString(),'');
 
-    // check if field cli exists
-    if (!ormConfig.cli)
-        throw new Error("Please check the cli:migrationDir field in ormconfig.json");
+    if (restore) {
+        const formatMigrationArray = (array) => array.map(table => Object.values(table)[0]);
 
-    const outputPath = ormConfig.cli.migrationsDir;
+        let [revertTo] = await connection.select( 'migration_table',['timestamp', 'name'],`WHERE name LIKE '${modelName}%' ORDER BY timestamp DESC`);
+        const dump = fs.readFileSync(`${ormConfig.cli.migrationsDir}/${getMigrationFileNameFromRecord(revertTo)}.sql`, 'utf-8');
 
-    await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
+        await connection.query("SET FOREIGN_KEY_CHECKS = 0;");
+        const allTables = formatMigrationArray(await connection.getTables()).filter((file) =>  file !== 'migration_table');
+        await Promise.all(allTables.map((table) => connection.query(`TRUNCATE TABLE ${table};`)));
+        await connection.query("SET FOREIGN_KEY_CHECKS = 1;");
+        await connection.query(dump);
+    }else{
+        const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
+        const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
 
-    await exec(`${ts_node} ${typeorm_cli}  migration:run`)
-        .catch(async e => { //Handle delete failed migration
-            let files = fs.readdirSync('./src/migration/');
-            let regex = /[^0-9]+/;
-            let migration = await(await getSqlConnectionFromNFW()).select( 'migration_table',['timestamp', 'name']);
-            let migrationFiles = migration.map(mig => {
-                let migName = regex.exec(mig.name);
-                return `${mig.timestamp}-${migName[0]}.js`;
-            });
+        await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
+        await exec(`${ts_node} ${typeorm_cli} migration:run`);
 
-            files.forEach(file => {
-                if (!migrationFiles.includes(file) && file !== 'dump')
-                    fs.unlinkSync(`./src/migration/${file}`);
-            });
+        let [latest] = await connection.select( 'migration_table',['timestamp', 'name'],'ORDER BY timestamp DESC');
+        const dumpName = `${ormConfig.cli.migrationsDir}/${getMigrationFileNameFromRecord(latest)}`;
 
-            throw new Error(`Failed to execute migration : ${e.message}`); // throw error again
+        await connection.dumpAll(dumpName, {
+            dumpOptions: {
+                schema: false,
+                tables: ['migration_table'],
+                excludeTables: true,
+                data: {
+                    format: false
+                }
+            }
         });
+    }
 
-    return [outputPath]; // return migration output path
+    return [ ormConfig.cli.migrationsDir ]; // return migration output path
 };

@@ -96,12 +96,8 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         env: setupEnv
     };
 
-    await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 4))
+    await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 2))
         .then(() => Log.success("Config file generated successfully"));
-
-    if (process.cwd() !== newPath && newPath !== undefined) {
-        console.log(chalk.bgYellow("\n" + chalk.black('/!\\ Warning /!\\')) + chalk.yellow(" If you want to perform any other nfw commands please go to the generated folder -> ") + chalk.blue(path.resolve(newPath.path, name)));
-    }
 
     if (defaultEnv) {
         const envFilePath = newPath === undefined ? path.resolve(process.cwd(), `${setupEnv}.env`) : path.resolve(newPath.path,  `${setupEnv}.env`);

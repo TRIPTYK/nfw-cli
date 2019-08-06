@@ -4,6 +4,7 @@
  * @author Deflorenne Amaury
  */
 
+
 // Node modules
 const reservedWords = require('reserved-words');
 const {Spinner} = require('clui');
@@ -19,7 +20,7 @@ const utils = require('../actions/lib/utils');
  * Yargs command
  * @type {string}
  */
-exports.command = 'migrate  <migrateName>';
+exports.command = 'migrate <migrateName>';
 
 /**
  * Yargs command aliases
@@ -36,8 +37,12 @@ exports.describe = 'Generate, compile and run the migration';
 /**
  * Yargs command builder
  */
-exports.builder = () => {
-
+exports.builder = (yargs) => {
+    yargs.option('restore', {
+        desc: "Restore migration data at a specific state",
+        type: "boolean",
+        default: false
+    });
 };
 
 /**
@@ -47,13 +52,15 @@ exports.builder = () => {
  */
 exports.handler = async (argv) => {
     const modelName = argv.migrateName;
+    const restore = argv.restore;
+
     const spinner = new Spinner("Generating and executing migration");
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
     if (!utils.isAlphanumeric(modelName)) {
-      console.log(`Migration name can be only alphanumeric caracters`);
+      console.log(`Migration name can be only alphanumeric characters`);
       process.exit(0);
     }
 
@@ -64,7 +71,7 @@ exports.handler = async (argv) => {
 
     spinner.start();
 
-    await migrateAction(modelName)
+    await migrateAction(modelName,restore)
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop(true);
@@ -73,6 +80,7 @@ exports.handler = async (argv) => {
         })
         .catch((e) => {
             spinner.stop(true);
+            console.log(e)
             Log.error(e.message);
         });
 
