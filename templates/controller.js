@@ -93,6 +93,21 @@ module.exports = (path,{className,options,entityName}) => {
             writer.writeLine(`@description Get ${entityName} relationships`);
             writer.writeLine(`@return {array} of relationships id and type`);
         });
+
+        const relatedMethod = controllerClass.addMethod({
+            name : 'fetchRelated',
+            parameters : middlewareFunctionParameters
+        });
+
+        relatedMethod.toggleModifier("public").toggleModifier("async");
+        relatedMethod.addStatements([
+            `return this.repository.fetchRelated(req,new ${entityNameCapitalized}Serializer());`
+        ]);
+
+        relatedMethod.addJsDoc(writer => {
+            writer.writeLine(`@description Get related ${entityName} entities`);
+            writer.writeLine(`@return`);
+        });
     }
 
     if (options.create) {

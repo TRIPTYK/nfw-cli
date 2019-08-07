@@ -51,6 +51,15 @@ module.exports = (path,{options,entityName}) => {
     file.addStatements(writer => {
         writer
             .blankLine()
+            .writeLine("router.route('/:id/:relation')")
+            .conditionalWriteLine(options.read,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('fetchRelated'))`)
+            .write(";")
+            .blankLine();
+    });
+
+    file.addStatements(writer => {
+        writer
+            .blankLine()
             .writeLine("router.route('/:id/relationships/:relation')")
             .conditionalWriteLine(options.read,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('fetchRelationships'))`)
             .conditionalWriteLine(options.create,`\t.get(authorize([ADMIN]), ${entityName}Middleware.handleValidation(relationships), ${entityName}Controller.method('addRelationships'))`)
