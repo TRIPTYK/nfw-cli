@@ -205,7 +205,7 @@ module.exports = (path,{className,options,entityName}) => {
         });
 
         const deleteRelationshipsMethod = controllerClass.addMethod({
-            name : 'fetchRelationships',
+            name : 'removeRelationships',
             parameters : middlewareFunctionParameters
         });
 
