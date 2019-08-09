@@ -354,11 +354,12 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     }
 
     if (dbColumnaData.Type.type === 'int') {
-        if (dbColumnaData.Type.length == 1) {
+        if (dbColumnaData.Type.length != 1) {
             validationArguments['isInt'] = {
                 errorMessage : 'This field must be an integer'
             };
         }else{
+            delete validationArguments['isLength'];
             validationArguments['isBoolean'] = {
                 errorMessage : 'This field must be a boolean'
             };
