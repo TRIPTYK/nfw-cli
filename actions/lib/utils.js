@@ -354,9 +354,15 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     }
 
     if (dbColumnaData.Type.type === 'int') {
-        validationArguments['isInt'] = {
-            errorMessage : 'This field must be an integer'
-        };
+        if (dbColumnaData.Type.length == 1) {
+            validationArguments['isInt'] = {
+                errorMessage : 'This field must be an integer'
+            };
+        }else{
+            validationArguments['isBoolean'] = {
+                errorMessage : 'This field must be a boolean'
+            };
+        }
     }
 
     if (dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type.includes('date')) {
