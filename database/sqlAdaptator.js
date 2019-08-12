@@ -236,6 +236,7 @@ class SqlConnection
                 user: this.environement.TYPEORM_USER,
                 password: this.environement.TYPEORM_PWD,
                 database: this.environement.TYPEORM_DB,
+                port : parseInt(this.environement.TYPEORM_PORT),
             },
             dumpToFile: path + '.sql',
             dump: {
@@ -258,6 +259,7 @@ class SqlConnection
                 user: this.environement.TYPEORM_USER,
                 password: this.environement.TYPEORM_PWD,
                 database: this.environement.TYPEORM_DB,
+                port : parseInt(this.environement.TYPEORM_PORT),
             },
             dump : dumpOptions,
             dumpToFile: path + '.sql',

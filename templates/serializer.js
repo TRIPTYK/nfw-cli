@@ -2,7 +2,7 @@ const { capitalizeEntity } = require("../actions/lib/utils");
 const project = require('../utils/project');
 const dashify = require('dashify');
 
-module.exports = (path,{className,entityName,columns}) => {
+module.exports = (path,{className,entityName}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -17,19 +17,6 @@ module.exports = (path,{className,entityName,columns}) => {
     serializerClass.setIsExported(true);
     serializerClass.setExtends(`BaseSerializer`);
 
-    columns = columns.filter(entity => entity.Key !== 'MUL');
-
-    const property = serializerClass.addProperty({
-        isStatic : true,
-        type : "string[]",
-        name : "whitelist",
-        initializer : `[${columns.map(column => `'${column.Field}'`)}]`
-    }).toggleModifier("public");
-
-    property.addJsDoc(writer => {
-        writer.writeLine(`@description list of fields to be serialized and deserialized`)
-    });
-
     serializerClass.addConstructor({
         parameters : [{ name : 'serializerParams' , initializer : 'new SerializerParams()'}],
         statements : [
@@ -37,7 +24,8 @@ module.exports = (path,{className,entityName,columns}) => {
         writer => {
             writer.write("const data = ").block(() => {
                 writer
-                    .writeLine(`whitelist: ${entityNameCapitalized}Serializer.whitelist,`)
+                    .writeLine(`whitelist: ${entityName}Serialize,`)
+                    .writeLine(`whitelistOnDeserialize : ${entityName}Deserialize,`)
                     .writeLine(`relationships: {}`);
             }).write(";");
         },

@@ -1,10 +1,13 @@
 const project = require('../utils/project');
 const TsMorph = require('ts-morph');
 
-module.exports = (path,{}) => {
+module.exports = (path,{entityName,columns}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
+
+    let foreign = columns.filter(entity => entity.Key === 'MUL');
+    columns = columns.filter(entity => entity.Key !== 'MUL');
 
     const array = file.addVariableStatement({
         declarationKind: TsMorph.VariableDeclarationKind.Const,
@@ -12,7 +15,7 @@ module.exports = (path,{}) => {
             {
                 name: 'relations',
                 type : 'string[]',
-                initializer : `[]`
+                initializer : `[${foreign.map(column => `'${column.Field}'`)}]`
             }
         ]
     });
@@ -22,6 +25,40 @@ module.exports = (path,{}) => {
     });
 
     array.setIsExported(true);
+
+    const serialized = file.addVariableStatement({
+        declarationKind: TsMorph.VariableDeclarationKind.Const,
+        declarations : [
+            {
+                name: `${entityName}Serialize`,
+                type : 'string[]',
+                initializer : `[${columns.map(column => `'${column.Field}'`)}]`
+            }
+        ]
+    });
+
+    serialized.addJsDoc(writer => {
+        writer.writeLine(`@description allowed JSON-API includes relations`);
+    });
+
+    serialized.setIsExported(true);
+
+    const deserialized = file.addVariableStatement({
+        declarationKind: TsMorph.VariableDeclarationKind.Const,
+        declarations : [
+            {
+                name: `${entityName}Deserialize`,
+                type : 'string[]',
+                initializer : `[${columns.map(column => `'${column.Field}'`)}]`
+            }
+        ]
+    });
+
+    deserialized.addJsDoc(writer => {
+        writer.writeLine(`@description allowed JSON-API includes relations`);
+    });
+
+    deserialized.setIsExported(true);
 
     return file;
 };

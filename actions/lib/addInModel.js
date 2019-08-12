@@ -63,8 +63,11 @@ exports.addToTest = async (model, column) => {
 };
 
 exports.writeSerializer = (model, column) => {
-    const file = project.getSourceFile(`src/api/serializers/${model}.serializer.ts`);
-    const serializerClass = file.getClasses()[0];
+    const relationFile = project.getSourceFile(`src/api/enums/json-api/${model}.enum.ts`);
 
-    serializerClass.getStaticProperty('whitelist').getInitializer().addElement(`'${column}'`);
+    relationFile.getVariableDeclaration('serialize').getInitializer().addElement(`'${column}'`);
+    relationFile.getVariableDeclaration('deserialize').getInitializer().addElement(`'${column}'`);
+
+    relationFile.fixMissingImports();
+    relationFile.fixUnusedIdentifiers();
 };

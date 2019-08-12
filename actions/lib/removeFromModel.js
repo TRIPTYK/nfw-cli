@@ -25,7 +25,7 @@ const project = require('../../utils/project');
  * @param {string} column relation name
  */
 exports.removeFromRelationTable = (entity, column) => {
-    const relationFile = project.getSourceFile(`src/api/enums/relations/${entity}.relations.ts`);
+    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.relations.ts`);
 
     const relationsArrayDeclaration = relationFile.getVariableDeclaration('relations').getInitializer();
 
@@ -65,12 +65,28 @@ exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
     if (relationshipsInitializer.getProperty(column)) relationshipsInitializer.getProperty(column).remove();
 
     if (!isRelation) {
-        const index =  serializerClass.getStaticProperty('whitelist').getInitializer().getElements().findIndex((value) => {
+        const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
+
+        const deserializeDeclaration = relationFile.getVariableDeclaration('deserialize').getInitializer();
+
+        // search by Text value
+        let index = deserializeDeclaration.getElements().findIndex((value) => {
             return value.getText() === `'${column}'` || value.getText() === `'${plural(column)}'`;
         });
 
-        if (index !== -1)
-            serializerClass.getStaticProperty('whitelist').getInitializer().removeElement(index);
+        if (index !== -1) deserializeDeclaration.removeElement(index);
+
+        const serializeDeclaration = relationFile.getVariableDeclaration('serialize').getInitializer();
+
+        // search by Text value
+        let index2 = serializeDeclaration.getElements().findIndex((value) => {
+            return value.getText() === `'${column}'` || value.getText() === `'${plural(column)}'`;
+        });
+
+        if (index2 !== -1) serializeDeclaration.removeElement(index);
+
+        relationFile.fixMissingImports();
+        relationFile.fixUnusedIdentifiers();
     }
 
     serializerFile.fixMissingImports();

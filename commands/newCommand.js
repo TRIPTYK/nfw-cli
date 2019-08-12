@@ -8,7 +8,6 @@
 const chalk = require('chalk');
 const clearConsole = require('clear');
 const { Spinner } = require('clui');
-const figlet = require('figlet');
 
 // Project imports
 const newAction = require('../actions/newAction');
@@ -76,7 +75,7 @@ exports.handler = async (argv) => {
 
     console.log(
         chalk.blue(
-            figlet.textSync('NFW', {horizontalLayout: 'full', kerning: "fitted"})
+            'NFW'
         )
     );
 

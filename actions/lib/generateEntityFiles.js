@@ -66,7 +66,7 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
     const controllerPath = `src/api/controllers/${lowercase}.controller.ts`;
     const middlewarePath = `src/api/middlewares/${lowercase}.middleware.ts`;
     const validationPath = `src/api/validations/${lowercase}.validation.ts`;
-    const relationPath = `src/api/enums/relations/${lowercase}.relations.ts`;
+    const relationPath = `src/api/enums/json-api/${lowercase}.enum.ts`;
     const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
     const routerPath = `src/api/routes/v1/${lowercase}.route.ts`;
@@ -86,7 +86,8 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
 
     if (!part || part === 'relation')
         files.push(relationsTemplateFile(relationPath,{
-            foreignKeys
+            entityName : lowercase,
+            columns: tableColumns
         }));
 
     if (!part || part === 'repository')
