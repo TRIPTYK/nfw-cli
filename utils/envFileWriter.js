@@ -2,6 +2,10 @@ const fs = require('fs');
 const dotenv = require('dotenv');
 
 module.exports = class EnvFileWriter {
+    /**
+     *
+     * @param fileName
+     */
     constructor(fileName) {
         this.fileName = fileName;
         try {
@@ -13,34 +17,85 @@ module.exports = class EnvFileWriter {
         }
     }
 
+    /**
+     *
+     * @param node
+     * @return {boolean}
+     */
     nodeExists(node) {
         return this.dotenvContent[node] !== undefined;
     }
 
+    /**
+     *
+     * @param node
+     * @param defaultValue
+     * @return {undefined|*}
+     */
     getNodeValue(node,defaultValue = undefined) {
         if (!this.nodeExists(node) && !defaultValue)
             return defaultValue;
         return this.dotenvContent[node];
     }
 
+    /**
+     *
+     * @return {*}
+     */
     getFileName() {
         return this.fileName;
     }
 
+    /**
+     *
+     * @param node
+     * @param value
+     */
     setNodeValue(node,value) {
         this.dotenvContent[node] = value;
     }
 
+    /**
+     *
+     * @param data
+     */
     write(data) {
+        return fs.writeFile(this.fileName,data);
+    }
+
+    /**
+     *
+     * @param data
+     */
+    writeSync(data) {
         fs.writeFileSync(this.fileName,data);
     }
 
-    save() {
+    /**
+     *
+     * @param line_separator
+     */
+    save(line_separator = '\n') {
         let finalContent = '';
 
         for (let key in this.dotenvContent)
         {
-            finalContent += `${key} = ${this.dotenvContent[key]}\n`;
+            finalContent += `${key} = ${this.dotenvContent[key]}${line_separator}`;
+        }
+
+        fs.writeFile(this.fileName,finalContent);
+    }
+
+    /**
+     *
+     * @param line_separator
+     */
+    saveSync(line_separator = '\n') {
+        let finalContent = '';
+
+        for (let key in this.dotenvContent)
+        {
+            finalContent += `${key} = ${this.dotenvContent[key]}${line_separator}`;
         }
 
         fs.writeFileSync(this.fileName,finalContent);

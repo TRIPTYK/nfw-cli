@@ -71,14 +71,14 @@ exports.handler = async (argv) => {
     const nfwFile = new JsonFileWriter(".nfw");
     const ormconfigFile = new JsonFileWriter(`ormconfig.json`);
     let envFile = dotenv.parse(envFileContent);
-    
+
     ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
     ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
     ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);
     ormconfigFile.setNodeValue("username",envFile.TYPEORM_USER);
     ormconfigFile.setNodeValue("password",envFile.TYPEORM_PWD);
     ormconfigFile.setNodeValue("port",envFile.TYPEORM_PORT);
-    ormconfigFile.save();
+    ormconfigFile.saveSync();
 
     if (nfwFile.nodeExists('dockerContainer')) {
         const containerName = nfwFile.getNodeValue('dockerContainer');

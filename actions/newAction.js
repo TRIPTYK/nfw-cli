@@ -42,12 +42,6 @@ let newPath = undefined;
  *  @returns {Promise<void>}
  */
 module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
-    console.log(
-        chalk.blue(
-            //figlet.textSync('NFW', {horizontalLayout: 'full', kerning: "fitted"})
-        )
-    );
-
     if (pathOption) newPath = await inquirer.askForNewPath();
 
     if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "nfw")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
@@ -100,8 +94,8 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         envFileWriter.setNodeValue("TYPEORM_USER",envVar.TYPEORM_USER);
         envFileWriter.setNodeValue("TYPEORM_PWD",envVar.TYPEORM_PWD);
 
-        jsonFileWriter.save();
-        envFileWriter.save();
+        jsonFileWriter.saveSync();
+        envFileWriter.saveSync();
     }
 
     await utils.createDataBaseIfNotExists(setupEnv);
