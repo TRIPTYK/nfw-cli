@@ -7,6 +7,8 @@
 const dotenv = require('dotenv');
 const fs = require('fs');
 const chalk = require('chalk');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 // node modules
 const inquirer = require("../utils/inquirer");
@@ -17,6 +19,7 @@ const startAction = require('../actions/startAction');
 const migrateAction = require('../actions/migrateAction');
 const {SqlConnection} = require("../database/sqlAdaptator");
 const Log = require('../utils/log');
+const JsonFileWriter = require('../utils/jsonFileWriter');
 
 /**
  * Yargs command
@@ -65,17 +68,26 @@ exports.handler = async (argv) => {
     const monitoringEnabled = argv.monitoring;
 
     const envFileContent = fs.readFileSync(`${environement}.env`);
-    const ormConfigContent = fs.readFileSync(`ormconfig.json`);
-
+    const nfwFile = new JsonFileWriter(".nfw");
+    const ormconfigFile = new JsonFileWriter(`ormconfig.json`);
     let envFile = dotenv.parse(envFileContent);
-    let ormconfigFile = JSON.parse(ormConfigContent);
-    ormconfigFile.name = envFile.TYPEORM_NAME;
-    ormconfigFile.host = envFile.TYPEORM_HOST;
-    ormconfigFile.database = envFile.TYPEORM_DB;
-    ormconfigFile.username = envFile.TYPEORM_USER;
-    ormconfigFile.password = (envFile.TYPEORM_PWD);
-    ormconfigFile.port = parseInt(envFile.TYPEORM_PORT);
-    fs.writeFileSync('ormconfig.json', JSON.stringify(ormconfigFile, null, 2));
+    
+    ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
+    ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
+    ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);
+    ormconfigFile.setNodeValue("username",envFile.TYPEORM_USER);
+    ormconfigFile.setNodeValue("password",envFile.TYPEORM_PWD);
+    ormconfigFile.setNodeValue("port",envFile.TYPEORM_PORT);
+    ormconfigFile.save();
+
+    if (nfwFile.nodeExists('dockerContainer')) {
+        const containerName = nfwFile.getNodeValue('dockerContainer');
+        Log.info("Starting your docker container " + containerName);
+
+        await exec(`docker start ${containerName}`).then(function (data) {
+            console.log(data.stdout);
+        });
+    }
 
     let connected;
     const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
@@ -103,8 +115,8 @@ exports.handler = async (argv) => {
                     Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
                     connected = true;
                 })
-                .catch((e) => {
-                    Log.error(e.message);
+                .catch((err) => {
+                    connected = err;
                 });
         }
     }

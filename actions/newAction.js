@@ -10,7 +10,6 @@ const chalk = require('chalk');
 //const figlet = require('figlet');
 const path = require('path');
 const fs = require('fs');
-const cmdExists = require('command-exists').sync;
 const {Spinner} = require('clui');
 const rimraf = require("rimraf");
 
@@ -20,6 +19,8 @@ const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
 const utils = require('./lib/utils');
+const JsonFileWriter = require('../utils/jsonFileWriter');
+const EnvFileWriter = require('../utils/envFileWriter');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);
@@ -30,9 +31,6 @@ const WriteFile = util.promisify(fs.writeFile);
 // module vars
 const operatingSystem = process.platform;
 let newPath = undefined;
-let dockerFile = undefined;
-let Container_name = undefined;
-let dockerEnv = undefined;
 
 /**
  *  @description Generate a new project
@@ -50,28 +48,11 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
         )
     );
 
-    if (pathOption) {
-        newPath = await inquirer.askForNewPath();
-    }
+    if (pathOption) newPath = await inquirer.askForNewPath();
 
     if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "nfw")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
         console.log(chalk.red('Error :') + `You already have a directory name \"nfw\" or "${name}" !`);
         process.exit(0);
-    }
-    if (docker) {
-        if (!cmdExists('docker')) {
-            console.log(chalk.red('Error: docker is not installed on your device !'));
-            process.exit(0);
-        } else {
-            defaultEnv = true;
-            dockerEnv = await inquirer.askForDockerVars();
-            Container_name = dockerEnv.Container_name;
-            dockerFile = "FROM mysql:5.7 \n" +
-                "SHELL [\"/bin/bash\", \"-c\"] \n" +
-                `ENV MYSQL_ROOT_PASSWORD ${dockerEnv.MYSQL_ROOT_PASSWORD} \n` +
-                `ENV MYSQL_DATABASE ${dockerEnv.MYSQL_DATABASE} \n` +
-                `EXPOSE ${dockerEnv.EXPOSE}`;
-        }
     }
 
     let envVar = undefined;
@@ -93,54 +74,36 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     const config = {
         name: name,
         path: process.cwd(),
-        env: setupEnv
+        env: setupEnv,
+        docker
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 2))
         .then(() => Log.success("Config file generated successfully"));
 
     if (defaultEnv) {
-        const envFilePath = newPath === undefined ? path.resolve(process.cwd(), `${setupEnv}.env`) : path.resolve(newPath.path,  `${setupEnv}.env`);
-        const ormConfigPath = newPath === undefined ? path.resolve(process.cwd(),`ormconfig.json`) : path.resolve(newPath.path, `ormconfig.json`);
-        let envFileContent = await fs.readFileSync(envFilePath).toString();
-        const ormConfigRaw = fs.readFileSync(ormConfigPath);
-        const ormConfig = JSON.parse(ormConfigRaw);
-        const variables = Object.entries(envVar);
-        ormConfig.host = variables[2][1];
-        ormConfig.port = variables[6][1];
-        ormConfig.username = variables[4][1];
-        ormConfig.password = variables[5][1];
-        ormConfig.database = variables[3][1];
-        fs.writeFileSync(ormConfigPath, JSON.stringify(ormConfig, null, '\t'));
-        for (const [k, v] of variables) {
-            let reg = new RegExp(`^(?<key>${k})\\s*=\\s*(?<value>.+)$`, "gm");
-            envFileContent = envFileContent.replace(reg, "$1= " + "'" + v + "'");
-        }
-        fs.writeFileSync(envFilePath, envFileContent)
+        const envFilePath = newPath === undefined ? `${setupEnv}.env` : path.resolve(newPath.path, `${setupEnv}.env`);
+        const ormConfigPath = newPath === undefined ? `ormconfig.json` : path.resolve(newPath.path, `ormconfig.json`);
+
+        const envFileWriter = new EnvFileWriter(envFilePath);
+        const jsonFileWriter = new JsonFileWriter(ormConfigPath);
+
+        jsonFileWriter.setNodeValue("host",envVar.TYPEORM_HOST);
+        jsonFileWriter.setNodeValue("port",envVar.TYPEORM_PORT);
+        jsonFileWriter.setNodeValue("username",envVar.TYPEORM_USER);
+        jsonFileWriter.setNodeValue("password",envVar.TYPEORM_PWD);
+        jsonFileWriter.setNodeValue("database",envVar.TYPEORM_DB);
+
+        envFileWriter.setNodeValue("TYPEORM_HOST",envVar.TYPEORM_HOST);
+        envFileWriter.setNodeValue("TYPEORM_DB",envVar.TYPEORM_DB);
+        envFileWriter.setNodeValue("TYPEORM_PORT",envVar.TYPEORM_PORT);
+        envFileWriter.setNodeValue("TYPEORM_USER",envVar.TYPEORM_USER);
+        envFileWriter.setNodeValue("TYPEORM_PWD",envVar.TYPEORM_PWD);
+
+        jsonFileWriter.save();
+        envFileWriter.save();
     }
 
-    if (docker) {
-        const projectPath = newPath === undefined ? path.resolve(process.cwd(), "Docker") : path.resolve(newPath.path,"Docker");
-        files.createDirectory(projectPath);
-
-        fs.writeFileSync(path.resolve(projectPath, "dockerfile"), dockerFile);
-        exec(`docker build ${projectPath} -t ${Container_name.toLowerCase()}`)
-        .then(()=> {
-            console.log(`Image Build and named: ${Container_name}`);
-        })
-        .catch(() => {
-            Log.error('Cannot Cannot build the image');
-            console.log(`Can't start the container run the command below to see the details \n docker build ${projectPath} -t ${Container_name.toLowerCase()}`)
-        });
-        let DockerRun = await exec(`docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name}`)
-        .then(()=> {
-            console.log(`Container launched and named: ${Container_name}`);
-        })
-        .catch(() => {
-            Log.error('Cannot run docker container : ' + DockerRun.stderr);
-            console.log(`Can't start the container run the command below to see the details \n docker run -p ${dockerEnv.EXPOSE}:${dockerEnv.EXPOSE} -d --name=${Container_name} ${Container_name.toLowerCase()}`)
-        });
-    }
     await utils.createDataBaseIfNotExists(setupEnv);
 };
 
