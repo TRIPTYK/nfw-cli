@@ -20,7 +20,7 @@ const inquirer = require('../utils/inquirer');
 const Log = require('../utils/log');
 const utils = require('./lib/utils');
 const JsonFileWriter = require('json-file-rw');
-const EnvFileWriter = require('../utils/envFileWriter');
+const EnvFileWriter = require('env-file-rw');
 
 // promisified
 const exec = util.promisify(require('child_process').exec);

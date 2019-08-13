@@ -8,7 +8,7 @@
 const installDockerAction = require('../actions/installDockerAction');
 const Log = require('../utils/log');
 const JsonFileWriter = require('json-file-rw');
-const EnvFileWriter = require('../utils/envFileWriter');
+const EnvFileWriter = require('env-file-rw');
 const inquirer = require('../utils/inquirer');
 
 exports.command = 'setupMysql';
