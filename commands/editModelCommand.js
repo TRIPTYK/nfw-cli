@@ -85,6 +85,7 @@ exports.handler = async (argv) => {
                     });
             })
             .catch((e) => {
+                console.log(e)
                 Log.error('Failed to edit model : ' + e.message)
             });
     } else if (action === 'remove' && columnName) {

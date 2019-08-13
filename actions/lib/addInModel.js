@@ -65,8 +65,8 @@ exports.addToTest = async (model, column) => {
 exports.writeSerializer = (model, column) => {
     const relationFile = project.getSourceFile(`src/api/enums/json-api/${model}.enum.ts`);
 
-    relationFile.getVariableDeclaration('serialize').getInitializer().addElement(`'${column}'`);
-    relationFile.getVariableDeclaration('deserialize').getInitializer().addElement(`'${column}'`);
+    relationFile.getVariableDeclaration(`${model}Serialize`).getInitializer().addElement(`'${column}'`);
+    relationFile.getVariableDeclaration(`${model}Deserialize`).getInitializer().addElement(`'${column}'`);
 
     relationFile.fixMissingImports();
     relationFile.fixUnusedIdentifiers();

@@ -25,9 +25,9 @@ const project = require('../../utils/project');
  * @param {string} column relation name
  */
 exports.removeFromRelationTable = (entity, column) => {
-    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.relations.ts`);
+    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enums.ts`);
 
-    const relationsArrayDeclaration = relationFile.getVariableDeclaration('relations').getInitializer();
+    const relationsArrayDeclaration = relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer();
 
     // search by Text value
     const index = relationsArrayDeclaration.getElements().findIndex((value) => {
@@ -67,7 +67,8 @@ exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
     if (!isRelation) {
         const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
-        const deserializeDeclaration = relationFile.getVariableDeclaration('deserialize').getInitializer();
+        const deserializeDeclaration = relationFile.getVariableDeclaration(`${entity}Deserialize`).getInitializer();
+        const serializeDeclaration = relationFile.getVariableDeclaration(`${entity}Serialize`).getInitializer();
 
         // search by Text value
         let index = deserializeDeclaration.getElements().findIndex((value) => {
@@ -75,8 +76,6 @@ exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
         });
 
         if (index !== -1) deserializeDeclaration.removeElement(index);
-
-        const serializeDeclaration = relationFile.getVariableDeclaration('serialize').getInitializer();
 
         // search by Text value
         let index2 = serializeDeclaration.getElements().findIndex((value) => {
