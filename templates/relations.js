@@ -13,7 +13,7 @@ module.exports = (path,{entityName,columns}) => {
         declarationKind: TsMorph.VariableDeclarationKind.Const,
         declarations : [
             {
-                name: 'relations',
+                name: `${entityName}Relations`,
                 type : 'string[]',
                 initializer : `[${foreign.map(column => `'${column.Field}'`)}]`
             }
@@ -38,7 +38,7 @@ module.exports = (path,{entityName,columns}) => {
     });
 
     serialized.addJsDoc(writer => {
-        writer.writeLine(`@description allowed JSON-API includes relations`);
+        writer.writeLine(`@description`);
     });
 
     serialized.setIsExported(true);
@@ -55,7 +55,7 @@ module.exports = (path,{entityName,columns}) => {
     });
 
     deserialized.addJsDoc(writer => {
-        writer.writeLine(`@description allowed JSON-API includes relations`);
+        writer.writeLine(`@description`);
     });
 
     deserialized.setIsExported(true);

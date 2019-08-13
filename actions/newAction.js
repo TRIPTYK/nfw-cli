@@ -111,13 +111,8 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 const _kickStart = async (command, name, newPath) => {
     const kickstart = new Spinner('Generating app ...');
     kickstart.start();
-
     await exec(command.kickstart)
-        .then(() => console.log(chalk.green("Generated successfully, Compiling TypeScript ")));
-
-    await exec(commands.compileTypeScript)
-        .then(() => console.log(chalk.green("Typescript compiled successfully")));
-
+        .then(() => console.log(chalk.green("Generated successfully")));
     kickstart.stop();
 };
 
@@ -128,7 +123,7 @@ const _kickStart = async (command, name, newPath) => {
  */
 const _gitCloneAndRemove = async (name) => {
     Log.success('Cloning repository  ...');
-    const clone = await exec("git clone https://github.com/TRIPTYK/nfw.git");
+    const clone = await exec("git clone https://github.com/TRIPTYK/nfw.git --branch=develop");
 
     if (clone.stderr.length) {
         Log.success('Git repository cloned successfully ....');
