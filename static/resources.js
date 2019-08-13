@@ -17,15 +17,7 @@ exports.items = [
     {template: 'route',  path :'src/api/routes/v1'},
     {template: 'test',  path :'test'},
     {template: 'serializer', path :'src/api/serializers' },
-    {template: 'relations',  path :'src/api/enums/relations'},
+    {template: 'enum',  path :'src/api/enums/json-api'},
     {template: 'middleware',  path :'src/api/middlewares'},
     {template: 'model',  path :'src/api/models'},
-];
-
-/**
- * @description Specific entities that already exists in the boilerplate
- * @type {string[]}
- */
-exports.noGenerate = [
-    'user', 'document', 'refresh_token', 'migration_table'
 ];

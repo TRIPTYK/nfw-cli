@@ -8,13 +8,10 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-//project modules
-const commands = require('../static/commands');
-
 /**
  * Main function
  * @returns {Promise<void | string | Buffer>}
  */
 module.exports = async () => {
-    return await exec(commands.generateDoc);
+    return await exec(`${path.normalize('./node_modules/.bin/typedoc')} --out ./docs --ignoreCompilerErrors`);
 };

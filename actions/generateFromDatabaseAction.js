@@ -12,7 +12,8 @@ const utils = require('./lib/utils');
 const Log = require('../utils/log');
 const { getSqlConnectionFromNFW } = require('../database/sqlAdaptator');
 const createRelation = require('./createRelationAction');
-const {noGenerate} = require('../static/resources');
+
+const noGenerate = ['user', 'document', 'refresh_token', 'migration_table'];
 
 /**
  * Main function
@@ -42,7 +43,7 @@ module.exports = async () => {
         }
         for (let j = 0; j < columns.length; j++) columns[j].Type = utils.sqlTypeData(columns[j].Type);
         for (let j = 0; j < foreignKeys.length; j++) foreignConstraint.push(foreignKeys[j]);
-        if (noGenerate.includes(tables[j][tablesIn])) continue; 
+        if (noGenerate.includes(tables[j][tablesIn])) continue;
         await modelWrite.writeModel(tables[j][tablesIn], entityModelData)
             .catch(e => {
                 Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
