@@ -25,7 +25,7 @@ const project = require('../../utils/project');
  * @param {string} column relation name
  */
 exports.removeFromRelationTable = (entity, column) => {
-    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enums.ts`);
+    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
     const relationsArrayDeclaration = relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer();
 

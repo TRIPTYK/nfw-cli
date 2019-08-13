@@ -59,7 +59,7 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
  * @param {string} column
  */
 exports.addToRelation = (entity, column , otherModel) => {
-    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enums.ts`);
+    const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
     relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer().addElement(`'${column}'`);
 
