@@ -12,11 +12,11 @@ const path = require('path');
 const fs = require('fs');
 const {Spinner} = require('clui');
 const rimraf = require("rimraf");
+const mkdirp = require("mkdirp");
 
 // project modules
 const files = require('../utils/files');
 const inquirer = require('../utils/inquirer');
-const commands = require("../static/commands");
 const Log = require('../utils/log');
 const utils = require('./lib/utils');
 const JsonFileWriter = require('json-file-rw');
@@ -37,11 +37,12 @@ let newPath = undefined;
  *  @param {string} name Project name
  *  @param {boolean} defaultEnv
  *  @param {boolean} pathOption Ask for path
- *  @param {boolean} docker Ask for docker env variables
  *  @param {boolean} yarn Install dependencies with yarn
  *  @returns {Promise<void>}
  */
-module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
+module.exports = async (name, defaultEnv, pathOption, yarn) => {
+    const pckManager = yarn ? 'yarn' : 'npm';
+
     if (pathOption) newPath = await inquirer.askForNewPath();
 
     if (files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, "nfw")) || files.directoryExists(path.resolve(newPath === undefined ? process.cwd() : newPath.path, name))) {
@@ -60,16 +61,28 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
 
     process.chdir(name); // set current directory inside boilerplate
 
-    const kickstartCommand = operatingSystem === 'win32' ? yarn ? commands.getYarnCommandsWindows : commands.getNPMCommandsWindows : yarn ? commands.getYarnCommandsUnix : commands.getNPMCommandsUnix;
-    await _kickStart(kickstartCommand, name, newPath);
+    const kickstart = new Spinner('Generating app ...');
+    kickstart.start();
+
+    mkdirp.sync("./dist/migration/dump");
+    mkdirp.sync("./dist/logs");
+    mkdirp.sync("./dist/uploads/documents/xs");
+    mkdirp.sync("./dist/uploads/documents/xl");
+    mkdirp.sync("./dist/uploads/documents/md");
+
+    await exec(`${pckManager} ${yarn ? 'add' : 'install'} bcrypt --save`)
+        .then(() => console.log(chalk.green("Installed bcrypt successfully")));
+    await exec(`${pckManager} ${yarn ? '' : 'install'}`)
+        .then(() => console.log(chalk.green("Installed packages successfully")));
+
+    kickstart.stop();
 
     const setupEnv = envVar === undefined ? 'development' : envVar.env.toLowerCase();
 
     const config = {
         name: name,
         path: process.cwd(),
-        env: setupEnv,
-        docker
+        env: setupEnv
     };
 
     await WriteFile(`${config.path}/.nfw`, JSON.stringify(config, null, 2))
@@ -99,21 +112,6 @@ module.exports = async (name, defaultEnv, pathOption, docker, yarn) => {
     }
 
     await utils.createDataBaseIfNotExists(setupEnv);
-};
-
-/**
- * Setup project
- * @param {object} command
- * @param {string} name
- * @param {string} newPath
- * @returns {Promise<void>}
- */
-const _kickStart = async (command, name, newPath) => {
-    const kickstart = new Spinner('Generating app ...');
-    kickstart.start();
-    await exec(command.kickstart)
-        .then(() => console.log(chalk.green("Generated successfully")));
-    kickstart.stop();
 };
 
 /**

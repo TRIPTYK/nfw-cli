@@ -48,11 +48,6 @@ exports.builder = (yargs) => {
         type: 'boolean',
         default: false
     });
-    yargs.option('docker', {
-        desc: "Set a mysql container up",
-        type: 'boolean',
-        default: false
-    });
     yargs.option('yarn', {
         desc: "Set yarn as package manager instead of npm",
         type: 'boolean',
@@ -68,7 +63,6 @@ exports.handler = async (argv) => {
     const name = argv._[1];
     const defaultEnv = argv.default;
     const useDifferentPath = argv.path;
-    const setupDocker = argv.docker;
     const useYarn = argv.yarn;
 
     clearConsole();
@@ -80,7 +74,7 @@ exports.handler = async (argv) => {
     );
 
     // process cwd is changed in newAction to the new project folder
-    await newAction(name, !defaultEnv, useDifferentPath, setupDocker, useYarn)
+    await newAction(name, !defaultEnv, useDifferentPath, useYarn)
         .then(() => {
             Log.success("New project generated successfully");
         })
