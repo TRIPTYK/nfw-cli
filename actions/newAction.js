@@ -19,7 +19,7 @@ const inquirer = require('../utils/inquirer');
 const commands = require("../static/commands");
 const Log = require('../utils/log');
 const utils = require('./lib/utils');
-const JsonFileWriter = require('../utils/jsonFileWriter');
+const JsonFileWriter = require('json-file-rw');
 const EnvFileWriter = require('../utils/envFileWriter');
 
 // promisified

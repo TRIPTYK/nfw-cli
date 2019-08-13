@@ -19,7 +19,7 @@ const startAction = require('../actions/startAction');
 const migrateAction = require('../actions/migrateAction');
 const {SqlConnection} = require("../database/sqlAdaptator");
 const Log = require('../utils/log');
-const JsonFileWriter = require('../utils/jsonFileWriter');
+const JsonFileWriter = require('json-file-rw');
 
 /**
  * Yargs command

@@ -7,7 +7,7 @@
  */
 const installDockerAction = require('../actions/installDockerAction');
 const Log = require('../utils/log');
-const JsonFileWriter = require('../utils/jsonFileWriter');
+const JsonFileWriter = require('json-file-rw');
 const EnvFileWriter = require('../utils/envFileWriter');
 const inquirer = require('../utils/inquirer');
 
