@@ -22,7 +22,16 @@ module.exports = class JsonFileWriter {
      * @return {boolean}
      */
     nodeExists(node) {
-        return this.jsonContent[node] !== undefined;
+        const nodes = node.split('.');
+        const last = nodes.pop();
+        let content = this.jsonContent;
+
+        for (const node1 of nodes) {
+            content = content[node1];
+            if (content === undefined) return false;
+        }
+
+        return content[last] !== undefined;
     }
 
     /**
@@ -32,9 +41,20 @@ module.exports = class JsonFileWriter {
      * @return {undefined|*}
      */
     getNodeValue(node,defaultValue = undefined) {
-        if (!this.nodeExists(node) && !defaultValue)
+        const nodes = node.split('.');
+        const last = nodes.pop();
+        let content = this.jsonContent;
+
+        for (const node1 of nodes) {
+            content = content[node1];
+            if (content === undefined) return false;
+        }
+
+        let exists = content[last] !== undefined;
+
+        if (!exists && defaultValue !== undefined)
             return defaultValue;
-        return this.jsonContent[node];
+        return content[last];
     }
 
     /**
@@ -48,10 +68,14 @@ module.exports = class JsonFileWriter {
     /**
      *
      * @param node
-     * @param value
+     * @param {*} value
      */
     setNodeValue(node,value) {
-        this.jsonContent[node] = value;
+        const nodes = node.split('.');
+        const last = nodes.pop();
+        let content = this.jsonContent;
+        for (const node1 of nodes) content = content[node1] === undefined ? content[node1] = {} : content[node1];
+        content[last] = value;
     }
 
     /**

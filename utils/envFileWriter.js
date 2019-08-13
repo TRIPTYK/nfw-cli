@@ -79,9 +79,7 @@ module.exports = class EnvFileWriter {
         let finalContent = '';
 
         for (let key in this.dotenvContent)
-        {
             finalContent += `${key} = ${this.dotenvContent[key]}${line_separator}`;
-        }
 
         fs.writeFile(this.fileName,finalContent);
     }
@@ -94,9 +92,7 @@ module.exports = class EnvFileWriter {
         let finalContent = '';
 
         for (let key in this.dotenvContent)
-        {
             finalContent += `${key} = ${this.dotenvContent[key]}${line_separator}`;
-        }
 
         fs.writeFileSync(this.fileName,finalContent);
     }

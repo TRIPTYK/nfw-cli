@@ -3,10 +3,11 @@
  * @author Samuel Antoine
  */
 const yargs = require('yargs');
-const fs = require('fs');
 
 // base cli dir
 global.__baseDir = __dirname;
+
+
 
 yargs
     .strict()
