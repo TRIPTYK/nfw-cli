@@ -55,6 +55,6 @@ exports.handler = async (argv) => {
         const envFileWriter = new EnvFileWriter(nfwFile.getNodeValue('env','development') + '.env');
         envFileWriter.setNodeValue('TYPEORM_PWD',password);
         envFileWriter.setNodeValue('TYPEORM_PORT',port);
-        envFileWriter.save();
+        envFileWriter.saveSync();
     }
 };

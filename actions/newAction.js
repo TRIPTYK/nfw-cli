@@ -29,7 +29,6 @@ const renameDir = util.promisify(fs.rename);
 const WriteFile = util.promisify(fs.writeFile);
 
 // module vars
-const operatingSystem = process.platform;
 let newPath = undefined;
 
 /**
