@@ -45,7 +45,7 @@ exports.handler = async (argv) => {
 
     const nfwFile = new JsonFileWriter('.nfw');
     nfwFile.setNodeValue('dockerContainer',name);
-    nfwFile.save();
+    nfwFile.saveSync();
 
     Log.success(`Your docker container is running on localhost , port ${port} with mysql version ${vers} and password ${password}`);
 
