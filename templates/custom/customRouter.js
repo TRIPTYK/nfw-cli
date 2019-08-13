@@ -26,7 +26,7 @@ module.exports = (path,{routes,entityName}) => {
 
             route.methods.forEach((method) => {
                 writer.write(`\t.${method.method}(`)
-                    .conditionalWrite(method.authorization !== '',`authorize([${method.authorization}]),`)
+                    .conditionalWrite(method.authorization !== '',`authorize([roles.${method.authorization}]),`)
                     .write(`${entityName}Controller.method('${method.controllerMethod}'))`)
             });
 

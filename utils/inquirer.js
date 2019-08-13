@@ -87,7 +87,7 @@ module.exports = {
                 name: 'routeAuthorization',
                 type: 'list',
                 message: 'Route authorization level',
-                choices: choices ? choices : ['ADMIN', 'LOGGED_USER', 'GHOST']
+                choices: choices ? choices : ['admin', 'user', 'ghost']
             }
         ];
         return inquirer.prompt(question);
