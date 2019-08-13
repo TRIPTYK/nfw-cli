@@ -7,8 +7,6 @@ const yargs = require('yargs');
 // base cli dir
 global.__baseDir = __dirname;
 
-
-
 yargs
     .strict()
     .command(require('./commands/newCommand'))
