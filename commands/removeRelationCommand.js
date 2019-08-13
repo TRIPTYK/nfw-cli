@@ -18,7 +18,7 @@ const migrate = require('../actions/migrateAction');
  * Yargs command
  * @type {string}
  */
-exports.command = 'removeRelation <model1> <model2> <type>';
+exports.command = 'removeRelation <type> <model1> <model2>';
 
 /**
  * Yargs aliases
