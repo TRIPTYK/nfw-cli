@@ -33,7 +33,7 @@
     "ejs": "^2.6.1",
     "env-file-rw": "^0.0.1",
     "inquirer": "^6.2.2",
-    "json-file-rw": "^0.0.2",
+    "json-file-rw": "^0.0.4",
     "jsonfile": "^5.0.0",
     "kebab-case": "^1.0.0",
     "mkdirp": "^0.5.1",

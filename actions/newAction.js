@@ -92,7 +92,8 @@ module.exports = async (name, defaultEnv, pathOption, yarn) => {
         const ormConfigPath = newPath === undefined ? `ormconfig.json` : path.resolve(newPath.path, `ormconfig.json`);
 
         const envFileWriter = new EnvFileWriter(envFilePath);
-        const jsonFileWriter = new JsonFileWriter(ormConfigPath);
+        const jsonFileWriter = new JsonFileWriter();
+        jsonFileWriter.openSync(ormConfigPath);
 
         jsonFileWriter.setNodeValue("host",envVar.TYPEORM_HOST);
         jsonFileWriter.setNodeValue("port",envVar.TYPEORM_PORT);

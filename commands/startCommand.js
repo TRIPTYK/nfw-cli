@@ -68,8 +68,10 @@ exports.handler = async (argv) => {
     const monitoringEnabled = argv.monitoring;
 
     const envFileContent = fs.readFileSync(`${environement}.env`);
-    const nfwFile = new JsonFileWriter(".nfw");
-    const ormconfigFile = new JsonFileWriter(`ormconfig.json`);
+    const nfwFile = new JsonFileWriter();
+    nfwFile.openSync(".nfw");
+    const ormconfigFile = new JsonFileWriter();
+    ormconfigFile.openSync(`ormconfig.json`);
     let envFile = dotenv.parse(envFileContent);
 
     ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);

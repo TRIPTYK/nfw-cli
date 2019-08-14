@@ -43,7 +43,8 @@ exports.handler = async (argv) => {
         process.exit();
     });
 
-    const nfwFile = new JsonFileWriter('.nfw');
+    const nfwFile = new JsonFileWriter();
+    nfwFile.openSync('.nfw');
     nfwFile.setNodeValue('dockerContainer',name);
     nfwFile.saveSync();
 
