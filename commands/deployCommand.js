@@ -7,6 +7,7 @@
 // Project imports
 const commandUtils = require('./commandUtils');
 const deployAction = require('./../actions/deployAction');
+const Log = require('./../utils/log');
 
 /**
  * Yargs command
@@ -45,7 +46,10 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
-    await deployAction(env,mode);
+    await deployAction(env,mode)
+        .catch((e) => {
+            Log.error(e.message);
+        });
 
     process.exit();
 };
