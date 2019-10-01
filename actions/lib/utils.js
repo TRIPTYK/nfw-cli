@@ -322,10 +322,8 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
         validationArguments['exists'] = true;
     else
         validationArguments['optional'] = {
-            options : [{
-                nullable: true,
-                checkFalsy: true,
-            }]
+            nullable: true,
+            checkFalsy: true
         };
 
     if (dbColumnaData.Type.length)
@@ -354,7 +352,7 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
     }
 
     if (dbColumnaData.Type.type === 'int') {
-        if (dbColumnaData.Type.length != 1) {
+        if (dbColumnaData.Type.length !== 1) {
             validationArguments['isInt'] = {
                 errorMessage : 'This field must be an integer'
             };
