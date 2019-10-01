@@ -322,8 +322,10 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
         validationArguments['exists'] = true;
     else
         validationArguments['optional'] = {
-            nullable: true,
-            checkFalsy: true
+            options : {
+                nullable: true,
+                checkFalsy: true
+            }
         };
 
     if (dbColumnaData.Type.length)
