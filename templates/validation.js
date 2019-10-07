@@ -14,7 +14,7 @@ module.exports = (path,{entities,options,entityName}) => {
     entities = entities.filter(entity => entity.Key !== 'MUL');
 
     file.addStatements(writer => writer.writeLine(`import * as Joi from '@hapi/joi';`));
-    file.addStatements(writer => writer.writeLine(`import * as Boom from 'boom';`));
+    file.addStatements(writer => writer.writeLine(`import Boom from '@hapi/boom';`));
     file.addStatements(writer => writer.writeLine(`import * as Moment from "moment-timezone";`));
 
     if (options.read) {

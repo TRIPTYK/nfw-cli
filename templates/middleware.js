@@ -7,7 +7,7 @@ module.exports = (path,{className,entityName}) => {
     });
     const entityNameCapitalized = capitalizeEntity(entityName);
 
-    file.addStatements(writer => writer.writeLine(`import * as Boom from 'boom';`));
+    file.addStatements(writer => writer.writeLine(`import Boom from '@hapi/boom';`));
 
     const middlewareClass = file.addClass({
         name: className

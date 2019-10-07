@@ -10,7 +10,7 @@
 nfw
 ```
 
-## Installation
+## Installation with Yarn
 
 ```sh
 git clone https://github.com/TRIPTYK/nfw-cli.git
@@ -22,6 +22,24 @@ yarn install
 
 ```sh
 yarn link
+```
+
+```sh
+export PATH="$(yarn global bin):$PATH"
+```
+
+## Installation with Npm
+
+```sh
+git clone https://github.com/TRIPTYK/nfw-cli.git
+```
+
+```sh
+npm install
+```
+
+```sh
+npm link
 ```
 
 ## Author
