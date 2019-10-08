@@ -8,6 +8,7 @@
 // Node modules
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const path = require('path');
 
 /**
  * @description Returns how many unit test passed, failed, and which one failed
