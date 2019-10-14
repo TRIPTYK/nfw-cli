@@ -409,3 +409,17 @@ exports.addToConfig = (modelClass) => {
 
     file.fixMissingImports();
 };
+
+/**
+ * Get env files in directory
+ * @param {string} directory
+ * @return {string[]}
+ */
+exports.getEnvFilesNames = (directory = '.') => {
+    let files = FS.readdirSync(directory);
+
+    // select only env files
+    return files
+        .filter((file) => file.includes('.env'))
+        .map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')));
+}

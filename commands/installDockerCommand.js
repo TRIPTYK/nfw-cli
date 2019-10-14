@@ -48,7 +48,7 @@ exports.handler = async (argv) => {
     nfwFile.setNodeValue('dockerContainer',name);
     nfwFile.saveSync();
 
-    Log.success(`Your docker container is running on localhost , port ${port} with mysql version ${vers} and password ${password}`);
+    Log.success(`Your docker container was created on localhost , port ${port} with mysql version ${vers} and password ${password}`);
 
     const {confirmation} = await inquirer.askForConfirmation("Do you want to update your current environment file with these values ?");
 

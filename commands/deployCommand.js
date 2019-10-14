@@ -32,7 +32,11 @@ exports.describe = 'Deploy to distant server using pm2';
  * @param yargs
  */
 exports.builder = (yargs) => {
-
+    yargs.option('createDatabase', {
+        alias: 'db',
+        type: 'boolean',
+        description: 'Create database'
+    })
 };
 
 /**
@@ -41,12 +45,12 @@ exports.builder = (yargs) => {
  * @return {Promise<void>}
  */
 exports.handler = async (argv) => {
-    const {env,mode} = argv;
+    const {env,mode,createDatabase} = argv;
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
-    await deployAction(env,mode)
+    await deployAction(env,mode,createDatabase)
         .catch((e) => {
             Log.error(e.message);
         });

@@ -27,6 +27,7 @@ const exec = util.promisify(require('child_process').exec);
 const rmdir = util.promisify(rimraf);
 const renameDir = util.promisify(fs.rename);
 const WriteFile = util.promisify(fs.writeFile);
+const  {getSqlConnectionFromNFW} = require("../database/sqlAdaptator");
 
 // module vars
 let newPath = undefined;

@@ -253,7 +253,7 @@ class SqlConnection
      */
     async dumpAll(path,{dumpOptions})
     {
-        await mysqldump({
+        const options = {
             connection: {
                 host: this.environement.TYPEORM_HOST,
                 user: this.environement.TYPEORM_USER,
@@ -261,9 +261,14 @@ class SqlConnection
                 database: this.environement.TYPEORM_DB,
                 port : parseInt(this.environement.TYPEORM_PORT),
             },
-            dump : dumpOptions,
-            dumpToFile: path + '.sql',
-        });
+            dump : dumpOptions
+        };
+
+        if (path !== null) {
+            options['dumpToFile'] = path + '.sql';
+        }
+
+        return mysqldump(options);
     }
 }
 

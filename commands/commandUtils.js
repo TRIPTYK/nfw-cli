@@ -77,3 +77,4 @@ exports.checkVersion = async () => {
     if (packageJsonCLI.version > packageJsonNFW.version)
         Log.warning("Your version of NFW is for an old verson of NFW-CLI , you may encounter unexpected behavior. Consider upgrading your nfw or downgrade your CLI to " + packageJsonNFW.version);
 }
+

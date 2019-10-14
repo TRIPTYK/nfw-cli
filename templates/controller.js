@@ -39,7 +39,7 @@ module.exports = (path,{className,options,entityName}) => {
     const middlewareFunctionParameters = [
         { type : 'Request' , name : 'req' },
         { type : 'Response' , name : 'res' },
-        { type : 'Function' , name : 'next' }
+        { type : 'any' , name : 'next' }
     ];
 
     if (options.read) {
@@ -58,7 +58,7 @@ module.exports = (path,{className,options,entityName}) => {
         getMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
             `const ${entityName} = await this.repository.jsonApiFindOne(req,req.params.id,${entityName}Relations);`,
-            `if (!${entityName}) throw Boom.notFound();`,
+            `if (!${entityName}) { throw Boom.notFound(); }`,
             `return new ${entityNameCapitalized}Serializer().serialize(${entityName});`,
         ]);
 
