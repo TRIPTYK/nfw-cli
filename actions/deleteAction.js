@@ -61,27 +61,6 @@ const _unroute = async () => {
 };
 
 /**
- * @description removes Object and import from Typeorm config file
- * @returns {Promise<{fileName: string, type: string}[]>}
- */
-const _unconfig = async () => {
-    const relativePath = 'src/config/typeorm.config.ts';
-    const file = project.getSourceFile(relativePath);
-
-    const entitiesArray = file.getClass('TypeORMConfiguration').getStaticMethod('connect').getVariableDeclaration("entities").getInitializer();
-
-    const index = entitiesArray.getElements().findIndex((value) => {
-        return value.getText() === capitalize;
-    });
-
-    if (index !== -1) entitiesArray.removeElement(index);
-
-    file.fixUnusedIdentifiers();
-
-    return [{type: 'edit', fileName: relativePath}];
-};
-
-/**
  * @description Module export main entry , it deletes generated files
  * @param {string} entityName
  * @param {boolean} drop if true , drop the table in database
@@ -107,8 +86,7 @@ module.exports = async (entityName, drop) => {
 
     let promises = [  // launch all tasks in async
         _deleteTypescriptFiles(),
-        _unroute(),
-        _unconfig(),
+        _unroute()
     ];
 
     let results = await Promise.all(promises);

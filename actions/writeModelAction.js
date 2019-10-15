@@ -6,7 +6,7 @@
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-const {capitalizeEntity, lowercaseEntity , addToConfig} = require('./lib/utils');
+const {capitalizeEntity, lowercaseEntity} = require('./lib/utils');
 const project = require('../utils/project');
 const modelTemplateFile = require(`../templates/model`);
 
@@ -35,8 +35,6 @@ exports.writeModel = async (action, data = null) => {
         createUpdate: data.createUpdate
     });
 
-    addToConfig(capitalize);
-
     await project.save();
 };
 
@@ -56,8 +54,6 @@ exports.basicModel = async (action) => {
             updateAt: true
         }
     });
-
-    addToConfig(capitalize);
 
     await project.save();
 };
