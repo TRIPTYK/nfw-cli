@@ -388,29 +388,6 @@ exports.buildValidationArgumentsFromObject = (dbColumnaData,isUpdate = false) =>
 };
 
 /**
- *
- * @param modelClass
- * @return
- */
-exports.addToConfig = (modelClass) => {
-    const relativePath = 'src/config/typeorm.config.ts';
-    const file = project.getSourceFile(relativePath);
-
-    const entitiesArray = file.getClass('TypeORMConfiguration')
-        .getStaticMethod('connect')
-        .getVariableDeclaration("entities")
-        .getInitializer();
-
-    const index = entitiesArray.getElements().findIndex((value) => {
-        return value.getText() === modelClass;
-    });
-
-    if (index === -1) entitiesArray.addElement(modelClass);
-
-    file.fixMissingImports();
-};
-
-/**
  * Get env files in directory
  * @param {string} directory
  * @return {string[]}
