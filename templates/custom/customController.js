@@ -15,7 +15,7 @@ module.exports = (path,{className,entityName,methods}) => {
 
     file.addImportDeclaration({ moduleSpecifier : "express" , defaultImport : "{Request,Response}"  });
 
-    file.addStatements(writer => writer.writeLine(`import * as Boom from 'boom';`));
+    file.addStatements(writer => writer.writeLine(`import Boom from '@hapi/boom';`));
     file.addStatements(writer => writer.writeLine(`import * as HttpStatus from 'http-status';`));
 
     const controllerClass = file.addClass({
