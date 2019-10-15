@@ -18,9 +18,10 @@ const path = require('path');
  * Main function
  * @param modelName
  * @param restore
+ * @param dump 
  * @returns {Promise<array>}
  */
-module.exports = async (modelName,restore) => {
+module.exports = async (modelName,restore,dump) => {
     const ormConfig = new JsonFileWriter();
     ormConfig.openSync("./ormconfig.json");
     const connection = await getSqlConnectionFromNFW();
@@ -38,13 +39,8 @@ module.exports = async (modelName,restore) => {
         await Promise.all(allTables.map((table) => connection.query(`TRUNCATE TABLE ${table};`)));
         await connection.query("SET FOREIGN_KEY_CHECKS = 1;");
         await connection.query(dump);
-    }else{
-        const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
-        const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
-
-        await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
-        await exec(`${ts_node} ${typeorm_cli} migration:run`);
-
+    }
+    else if(dump){
         let [latest] = await connection.select( 'migration_table',['timestamp', 'name'],'ORDER BY timestamp DESC');
         const dumpName = `${migrationDir}/${getMigrationFileNameFromRecord(latest)}`;
 
@@ -58,6 +54,16 @@ module.exports = async (modelName,restore) => {
                 }
             }
         });
+
+    }
+    else{
+        const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
+        const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
+
+        await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
+        await exec(`${ts_node} ${typeorm_cli} migration:run`);
+
+        
     }
 
     return [ migrationDir ]; // return migration output path

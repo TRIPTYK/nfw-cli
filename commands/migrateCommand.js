@@ -45,6 +45,11 @@ exports.builder = (yargs) => {
         type: "boolean",
         default: false
     });
+    yargs.option('dump',{
+        desc :'dump', 
+        type : "boolean",
+        default : false
+    });
 };
 
 /**
@@ -67,7 +72,7 @@ const _validateArgs = (argv,options) => {
 exports.handler = async (argv) => {
     const modelName = argv.migrateName;
     const restore = argv.restore;
-
+    const dump = argv.dump ;
     const spinner = new Spinner("Generating and executing migration");
 
     commandUtils.validateDirectory();
@@ -75,7 +80,7 @@ exports.handler = async (argv) => {
 
     spinner.start();
 
-    await migrateAction(modelName,restore)
+    await migrateAction(modelName,restore,dump)
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop(true);
