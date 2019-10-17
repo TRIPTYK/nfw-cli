@@ -27,6 +27,7 @@ module.exports = (path,{className,entities,createUpdate = {}}) => {
         name : 'id'
     });
 
+    idProperty.toggleModifier('public');
     idProperty.addDecorator({
         name : 'PrimaryGeneratedColumn'
     }).setIsDecoratorFactory(true);

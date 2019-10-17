@@ -51,7 +51,7 @@ module.exports = async (action, model, column = null) => {
 
         addInModels.writeSerializer(model, data.columns.Field);
         addInModels.addToValidations(model, data.columns);
-        await addInModels.addToTest(model,data.columns);
+        //await addInModels.addToTest(model,data.columns);
 
         Log.info(`Column generated in ${chalk.cyan(`src/api/models/${lowercaseEntity(model)}.model.ts`)}`);
     }

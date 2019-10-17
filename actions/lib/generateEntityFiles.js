@@ -27,6 +27,7 @@ const repositoryTemplateFile = require(`../../templates/repository`);
 const routeTemplateFile = require(`../../templates/route`);
 const serializerTemplateFile = require(`../../templates/serializer`);
 const validationTemplateFile = require(`../../templates/validation`);
+const testTemplateFile = require(`../../templates/test`);
 
 /**
  * Main function
@@ -70,6 +71,7 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
     const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
     const routerPath = `src/api/routes/v1/${lowercase}.route.ts`;
+    const testPath = `test/${lowercase}.test.ts`;
 
     if (!part || part === 'controller')
         files.push(controllerTemplateFile(controllerPath,{
@@ -124,24 +126,10 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
         Log.success(`Created ${file.getFilePath()}`);
     });
 
+    /** 
     if (!part || part === 'test') {
-        // Tests are easier to do in EJS template
-        let file = FS.readFileSync(`${__baseDir}/templates/test.ejs`, 'utf-8');
-
-        let output = ejs.compile(file)({
-            entityLowercase: lowercase,
-            entityCapitalize: capitalize,
-            options: crudOptions,
-            tableColumns,
-            allColumns,
-            lowercaseEntity,
-            capitalizeEntity,
-            camelcase: require('camelcase')
-        });
-
-        FS.writeFileSync(`${process.cwd()}/test/${lowercase}.test.ts`, output);
-        Log.success(`Created test/${lowercase}.test.ts`);
-    }
+        testTemplateFile(testPath);
+    }**/
 
     await project.save();
 };

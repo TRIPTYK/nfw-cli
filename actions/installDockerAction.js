@@ -1,6 +1,7 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const Log = require('../utils/log');
+const { Options,Docker} = require('docker-cli-js');
 
 module.exports = async (name = "mysql_nfw_server",port = "3306",version = "5.7",password = "test123*") => {
     const docker = new Docker();
