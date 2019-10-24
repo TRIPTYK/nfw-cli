@@ -45,6 +45,11 @@ exports.builder = (yargs) => {
         type: "boolean",
         default: false
     });
+    yargs.option('revert', {
+        desc: "Revert migration at a specific state",
+        type: "boolean",
+        default: false
+    });
     yargs.option('dump',{
         desc :'dump', 
         type : "boolean",
@@ -73,6 +78,7 @@ exports.handler = async (argv) => {
     const modelName = argv.migrateName;
     const restore = argv.restore;
     const dump = argv.dump ;
+    const revert = argv.revert;
     const spinner = new Spinner("Generating and executing migration");
 
     commandUtils.validateDirectory();
@@ -80,7 +86,7 @@ exports.handler = async (argv) => {
 
     spinner.start();
 
-    await migrateAction(modelName,restore,dump)
+    await migrateAction(modelName,restore,dump,revert)
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop(true);
