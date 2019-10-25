@@ -76,6 +76,7 @@ class SqlConnection
         await connect();
         this.query = util.promisify(this.db.query).bind(this.db);
     }
+    
 
     /**
      *
@@ -219,7 +220,17 @@ class SqlConnection
         OR TABLE_NAME='${tableName}'
         AND REFERENCED_TABLE_NAME IS NOT NULL;
         `);
-    
+    }
+
+    /**
+     * @description return number table of databse 
+     * @param database
+     */
+    async getTablesCount(database){
+        let result = await this.query(`SELECT count(*) AS TOTALNUMBEROFTABLES 
+        FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = '${database}'`);
+    return result[0].TOTALNUMBEROFTABLES ;
     }
 
     /**

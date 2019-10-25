@@ -40,7 +40,7 @@ exports.command = 'seed';
  * Yargs command description
  * @type {string}
  */
-exports.describe = 'seed a file into database';
+exports.describe = '2 options :  read database and write json file or read json file and write in database';
 
 /**
  *  Yargs command builder
@@ -60,9 +60,6 @@ exports.builder = () => {
  */
 exports.handler = async () => {
     await main();
-    
-
-
 
 }
 
@@ -86,23 +83,14 @@ async function main() {
             await readInquire();
             await howMuchTable();
             await readbdd(seedExtension, pathSeedRead);
-            
+
             break;
         case 'ecriture':
-            await writeInquire();
-            await writeDb(pathSeedWrite, seedExtension, dropData).then(()=>{
-                
-            });
-            break;
-        case 'lecture + ecriture':
-            await readInquire();
-            await readbdd(seedExtension, pathSeedRead);
-            //await console.log("remplissez vos fichier json / excel");
             await writeInquire();
             await writeDb(pathSeedWrite, seedExtension, dropData);
             break;
     }
-    
+
 }
 async function readInquire() {
     await
@@ -142,7 +130,7 @@ async function writeInquire() {
             {
                 type: 'input',
                 message: ' chemin du fichier  ? ',
-                default: 'seedBddAvecDonne',
+                default: 'seed',
                 name: 'path',
             },
         ])
@@ -152,210 +140,206 @@ async function writeInquire() {
             pathSeedWrite = answers.path;
         });
 }
+
+/**
+ * liste toutes les tables de la db 
+ * les push dans un tableau en excluant la tables de migrations
+ */
 async function howMuchTable() {
 
-    for (let i = 0; i < tableTotal; i++) {
-        if (i == 0) {
-            await
-            inquirer
-                .prompt([{
-                    type: 'input',
-                    message: ' combien de table ? ',
-                    default: 1,
-                    name: 'tableTotal',
-                }])
-                .then(answers => {
-                    tableTotal = answers.tableTotal;
-                });
+    const sqlConnection = await getSqlConnectionFromNFW();
+    sqlConnection.connect();
+    let result = await sqlConnection.query(`SHOW TABLES`);
+
+    for (let i = 0; i < result.length; i++) {
+        if (Object.values(result[i])[0] === 'migration_table') {} else {
+            tableArray.push(Object.values(result[i])[0]);
         }
-        await
-        inquirer
-            .prompt([{
-                type: 'input',
-                message: ' table ? ',
-                default: 'user',
-                name: 'tableName',
-            }])
-            .then(answers => {
-                tableArray[i] = answers.tableName;
-            });
     }
+
+
+
 }
 async function writeDb(pathSeedWrite, seedExtension, dropData) {
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
-    let database = sqlConnection.environement.TYPEORM_DB ;
-        console.log(database);
+    let database = sqlConnection.environement.TYPEORM_DB;
 
-        switch (seedExtension) {
-            case 'json':
-                fs.readFile(pathSeedWrite + '.json', (err, data) => {
-                    // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+    switch (seedExtension) {
+        case 'json':
+            fs.readFile(pathSeedWrite + '.json', (err, data) => {
+                // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
 
-                    var obj = JSON.parse(data);
-                    let keyObject = Object.keys(obj);
+                var obj = JSON.parse(data);
+                let keyObject = Object.keys(obj);
 
-                    let tableData;
-                    for (i = 0; i < keyObject.length; i++) {
-                        tableData = obj[keyObject[i]];
-                        let table = keyObject[i];
-                        let sql1 = `TRUNCATE TABLE ${table}`;
-                        if (dropData == true) {
-                            sqlConnection.query(sql1, function (err, results) {
-                                if (err) {
-                                    throw err;
-                                }
-                            })
-
-                        }
-                        for (let j = 0; j < tableData.length; j++) {
-                            let tabProp = Object.keys(tableData[j]);
-                            let dataValues = Object.values(tableData[j]);
-
-                            myQuery = sql.$insert({
-                                $table: table,
-                                $columns: tabProp,
-                                $values: dataValues
-                            });
-
-                            sqlConnection.query(myQuery, function (err, result) {
-                                if (err) throw err;
-                            });
-
-                        }
+                let tableData;
+                for (i = 0; i < keyObject.length; i++) {
+                    tableData = obj[keyObject[i]];
+                    let table = keyObject[i];
+                    let sql1 = `TRUNCATE TABLE ${table}`;
+                    if (dropData == true) {
+                        sqlConnection.query(sql1, function (err, results) {
+                            if (err) {
+                                throw err;
+                            }
+                        })
 
                     }
-                    
-                });
+                    for (let j = 0; j < tableData.length; j++) {
+                        let tabProp = Object.keys(tableData[j]);
+                        let dataValues = Object.values(tableData[j]);
 
-                break;
-            case 'xlsx':
-                let wb = xlsx.readFile(pathSeedWrite + '.xlsx', {
-                    cellDates: true
-                });
-                var result = {};
-                wb.SheetNames.forEach(function (sheetName) {
-                    var roa = xlsx.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
-                    if (roa.length > 0) {
-                        result[sheetName] = roa;
+
+                        myQuery = sql.$insert({
+                            $table: table,
+                            $columns: tabProp,
+                            $values: dataValues
+                        });
+
+                        sqlConnection.query(myQuery, function (err, result) {
+                            if (err) console.log("error in json");
+                        });
                     }
-                });
-                fs.writeFile(pathSeedWrite + '.json', (JSON.stringify(result, null, 4)), function (err) {
-                    if (err) throw err;
-                });
-
-                fs.readFile(pathSeedWrite + '.json', (err, data) => {
-                    // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
-
-                    var obj = JSON.parse(data);
-                    let keyObject = Object.keys(obj);
-
-                    let tableData;
-
-                    for (i = 0; i < keyObject.length; i++) {
-                        tableData = obj[keyObject[i]];
-                        let table = keyObject[i];
-                        let sql1 = `TRUNCATE TABLE ${table}`;
-                        if (dropData == true) {
-                            sqlConnection.query(sql1, function (err, results) {
-                                if (err) {
-                                    throw err;
-                                }
-
-                            })
-                        }
-                        for (let j = 0; j < tableData.length; j++) {
-                            let tabProp = Object.keys(tableData[j]);
-                            let dataValues = Object.values(tableData[j]);
-
-                            myQuery = sql.$insert({
-                                $table: table,
-                                $columns: tabProp,
-                                $values: dataValues
-                            });
-
-                            sqlConnection.query(myQuery, function (err, result) {
-                                if (err) throw err;
-
-
-                            });
-                        }
+                    if (i == keyObject.length - 1) {
+                        return console.log("write done");
                     }
-                    
-                });
-                break;
-        }
-    
+                }
+            });
+
+            break;
+        case 'xlsx':
+            let wb = xlsx.readFile(pathSeedWrite + '.xlsx', {
+                cellDates: true
+            });
+            var result = {};
+            wb.SheetNames.forEach(function (sheetName) {
+                var roa = xlsx.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                if (roa.length > 0) {
+                    result[sheetName] = roa;
+                }
+            });
+            fs.writeFile(pathSeedWrite + '.json', (JSON.stringify(result, null, 4)), function (err) {
+                if (err) throw err;
+            });
+
+            fs.readFile(pathSeedWrite + '.json', (err, data) => {
+                // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+
+                var obj = JSON.parse(data);
+                let keyObject = Object.keys(obj);
+
+                let tableData;
+
+                for (i = 0; i < keyObject.length; i++) {
+                    tableData = obj[keyObject[i]];
+                    let table = keyObject[i];
+                    let sql1 = `TRUNCATE TABLE ${table}`;
+                    if (dropData == true) {
+                        sqlConnection.query(sql1, function (err, results) {
+                            if (err) {
+                                throw err;
+                            }
+
+                        })
+                    }
+                    for (let j = 0; j < tableData.length; j++) {
+                        let tabProp = Object.keys(tableData[j]);
+                        let dataValues = Object.values(tableData[j]);
+
+                        myQuery = sql.$insert({
+                            $table: table,
+                            $columns: tabProp,
+                            $values: dataValues
+                        });
+
+                        sqlConnection.query(myQuery, function (err, result) {
+                            if (err) console.log("error in json");
+                        });
+                    }
+                    if (i == keyObject.length - 1) {
+                        return console.log("write done");
+                    }
+                }
+
+            });
+            break;
+    }
+
 }
 
 async function readbdd(seedExtension, pathSeedRead) {
 
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
-    let database = sqlConnection.environement.TYPEORM_DB ;
+    let database = sqlConnection.environement.TYPEORM_DB;
     let objetDb = {};
     let newWB = xlsx.utils.book_new();
-    
 
-        for (let i = 0; i < tableArray.length; i++) {
-            let tableSql = tableArray[i];
-            //console.log("table sql ? " + tableSql);
-            let sql2 = `SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'${tableSql}' and TABLE_SCHEMA = '${database}'`;
 
-            //let sql2 = `select * from ${tableSql}`;
-            sqlConnection.query(sql2, function (err, results) {
-                console.log(results.length);
+    for (let i = 0; i < tableArray.length; i++) {
+        let tableSql = tableArray[i];
+        //console.log("table sql ? " + tableSql);
+        let sql2 = `SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'${tableSql}' and TABLE_SCHEMA = '${database}'`;
 
-                let jsonOut = [];
+        //let sql2 = `select * from ${tableSql}`;
+        sqlConnection.query(sql2, function (err, results) {
+            let jsonOut = [];
 
-                let keys = {};
-                for (j = 0; j < results.length; j++) {
+            let keys = {};
+            for (j = 0; j < results.length; j++) {
 
-                    // supprime les colonnes inutiles
+                // supprime les colonnes inutiles
 
-                    key = results[j].COLUMN_NAME;
-                    type = results[j].COLUMN_TYPE
-                    keys[key] = '';
-                    delete keys.id;
-                    delete keys.createdAt;
-                    delete keys.updatedAt;
-                    delete keys.deletedAt;
-                    delete keys.avatarId;
+                key = results[j].COLUMN_NAME;
+                type = results[j].COLUMN_TYPE
+                keys[key] = '';
+                delete keys.id;
+                delete keys.createdAt;
+                delete keys.updatedAt;
+                delete keys.deletedAt;
+                delete keys.avatarId;
 
-                }
-                jsonOut.push(keys);
-                console.log(jsonOut);
+            }
+            jsonOut.push(keys);
 
-                objetDb[tableSql] = jsonOut;
-                //console.log(jsonOut);
+            objetDb[tableSql] = jsonOut;
+            //console.log(jsonOut);
 
-                let newWS = xlsx.utils.json_to_sheet(jsonOut);
-                xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
-                switch (seedExtension) {
-                    case 'json':
-                        if (i == tableArray.length - 1) {
-                            objetDb[tableSql] = jsonOut;
-                            objetDb[tableSql] = jsonOut;
-                            fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
-                                if (err) throw err;
-                            });
-                            
-                        }
-                        break;
 
-                    case 'xlsx':
-                        if (i == tableArray.length - 1) {
-                            xlsx.writeFile(newWB,pathSeedRead + ".xlsx");
-                            fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
-                                if (err) throw err;
-                            });
-                            
-                        }
-                        break;
-                }
-            });
-            
+            switch (seedExtension) {
+                case 'json':
+                    if (i == tableArray.length - 1) {
+                        objetDb[tableSql] = jsonOut;
+                        objetDb[tableSql] = jsonOut;
+                        fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
+                            if (err) throw err;
+                        });
+
+
+                    }
+
+                    break;
+
+                case 'xlsx':
+                    let newWS = xlsx.utils.json_to_sheet(jsonOut);
+                    xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
+                    if (i == tableArray.length - 1) {
+                        xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
+                        fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
+                            if (err) throw err;
+                        });
+
+                    }
+
+                    break;
+            }
+        });
+
+        if(i == tableArray.length-1 ){
+            console.log("read done"); 
         }
 
+    }
 
 }
