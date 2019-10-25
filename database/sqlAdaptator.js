@@ -233,6 +233,8 @@ class SqlConnection
     return result[0].TOTALNUMBEROFTABLES ;
     }
 
+    
+
     /**
      *
      * @param path

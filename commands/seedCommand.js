@@ -66,7 +66,6 @@ async function main() {
             type: 'list',
             message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
             name: 'methode',
-            //choices: ['lecture', 'ecriture', 'lecture + ecriture'] buggued lect + ecriture
             choices: ['lecture', 'ecriture']
         }, ])
         .then(answers => {
@@ -151,11 +150,8 @@ async function howMuchTable() {
             tableArray.push(Object.values(result[i])[0]);
         }
     }
-
-
-
 }
-async function query(keyObject, i, sqlConnection, table, tabProp, dataValues) {
+async function query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues) {
     let sqlError = false;
     myQuery = sql.$insert({
         $table: table,
@@ -167,12 +163,12 @@ async function query(keyObject, i, sqlConnection, table, tabProp, dataValues) {
         if (err) {
             sqlError = true;
         }
-        if (i == keyObject.length - 1 && sqlError == false) {
-            Log.success("write done");
-            process.exit(0);
-        }
-        if (i == keyObject.length - 1 && sqlError == true) {
+        if (i == keyObject.length-1 && sqlError == true) {
             Log.error("error in json");
+            
+        }
+        if ( i == keyObject.length-1 && j == tableData.length -1){
+            Log.success("write done");
             process.exit(0);
         }
     });
@@ -192,6 +188,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                 let keyObject = Object.keys(obj);
 
                 let tableData;
+                
                 for (i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
@@ -202,17 +199,12 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                                 throw err;
                             }
                         })
-
                     }
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
-
-                        query(keyObject, i, sqlConnection, table, tabProp, dataValues);
-
+                        query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues)
                     }
-
-
                 }
             });
 
@@ -232,6 +224,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                 if (err) throw err;
             });
 
+
             fs.readFile(pathSeedWrite + '.json', (err, data) => {
                 // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
 
@@ -239,7 +232,6 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                 let keyObject = Object.keys(obj);
 
                 let tableData;
-                let a = keyObject.length;
                 for (i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
@@ -249,31 +241,28 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                             if (err) {
                                 throw err;
                             }
-
                         })
                     }
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
-                        query(keyObject, i, sqlConnection, table, tabProp, dataValues);
-
+                        query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues)
                     }
                 }
-
             });
             break;
     }
 
 }
 
-async function seedWriteFileJson(pathSeedRead,objetDb){
+async function seedWriteFileJson(pathSeedRead, objetDb) {
     await fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
         if (err) throw err;
         Log.success("read done");
         process.exit(0);
     });
 }
-async function seedWriteFileXlsx(newWB,pathSeedRead){
+async function seedWriteFileXlsx(newWB, pathSeedRead) {
     await xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
 }
 async function readbdd(seedExtension, pathSeedRead) {
@@ -320,22 +309,19 @@ async function readbdd(seedExtension, pathSeedRead) {
                     if (i == tableArray.length - 1) {
                         objetDb[tableSql] = jsonOut;
                         objetDb[tableSql] = jsonOut;
-                        
-                        seedWriteFileJson(pathSeedRead,objetDb);
 
+                        seedWriteFileJson(pathSeedRead, objetDb);
                     }
 
                     break;
 
                 case 'xlsx':
-                        
+
                     let newWS = xlsx.utils.json_to_sheet(jsonOut);
                     xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
                     if (i == tableArray.length - 1) {
-                        seedWriteFileXlsx(newWB,pathSeedRead) ;
-                        seedWriteFileJson(pathSeedRead,objetDb);
-                       
-
+                        seedWriteFileXlsx(newWB, pathSeedRead);
+                        seedWriteFileJson(pathSeedRead, objetDb);
                     }
                     break;
             }
