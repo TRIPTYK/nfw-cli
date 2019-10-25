@@ -1,14 +1,10 @@
 // node modules 
 const xlsx = require("xlsx");
 const fs = require('fs');
-const mysql = require('mysql');
 const SQLBuilder = require('json-sql-builder2');
 const sql = new SQLBuilder('MySQL');
 const inquirer = require('inquirer');
-const commandUtils = require('./commandUtils');
 const Log = require('../utils/log');
-const readAction = require('../actions/removeRelationAction');
-
 const {
     getSqlConnectionFromNFW
 } = require('../database/sqlAdaptator');
@@ -19,7 +15,6 @@ let pathSeedRead;
 let pathSeedWrite;
 let seedMethode;
 let tableArray = [];
-let tableTotal = 1;
 // variables
 
 
@@ -160,10 +155,33 @@ async function howMuchTable() {
 
 
 }
+async function query(keyObject, i, sqlConnection, table, tabProp, dataValues) {
+    let sqlError = false;
+    myQuery = sql.$insert({
+        $table: table,
+        $columns: tabProp,
+        $values: dataValues
+    });
+
+    await sqlConnection.query(myQuery, function (err, result) {
+        if (err) {
+            sqlError = true;
+        }
+        if (i == keyObject.length - 1 && sqlError == false) {
+            Log.success("write done");
+            process.exit(0);
+        }
+        if (i == keyObject.length - 1 && sqlError == true) {
+            Log.error("error in json");
+            process.exit(0);
+        }
+    });
+
+}
 async function writeDb(pathSeedWrite, seedExtension, dropData) {
+
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
-    let database = sqlConnection.environement.TYPEORM_DB;
 
     switch (seedExtension) {
         case 'json':
@@ -190,20 +208,11 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
 
+                        query(keyObject, i, sqlConnection, table, tabProp, dataValues);
 
-                        myQuery = sql.$insert({
-                            $table: table,
-                            $columns: tabProp,
-                            $values: dataValues
-                        });
+                    }
 
-                        sqlConnection.query(myQuery, function (err, result) {
-                            if (err) console.log("error in json");
-                        });
-                    }
-                    if (i == keyObject.length - 1) {
-                        return console.log("write done");
-                    }
+
                 }
             });
 
@@ -230,7 +239,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                 let keyObject = Object.keys(obj);
 
                 let tableData;
-
+                let a = keyObject.length;
                 for (i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
@@ -246,19 +255,8 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
+                        query(keyObject, i, sqlConnection, table, tabProp, dataValues);
 
-                        myQuery = sql.$insert({
-                            $table: table,
-                            $columns: tabProp,
-                            $values: dataValues
-                        });
-
-                        sqlConnection.query(myQuery, function (err, result) {
-                            if (err) console.log("error in json");
-                        });
-                    }
-                    if (i == keyObject.length - 1) {
-                        return console.log("write done");
                     }
                 }
 
@@ -268,6 +266,16 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
 
 }
 
+async function seedWriteFileJson(pathSeedRead,objetDb){
+    await fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
+        if (err) throw err;
+        Log.success("read done");
+        process.exit(0);
+    });
+}
+async function seedWriteFileXlsx(newWB,pathSeedRead){
+    await xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
+}
 async function readbdd(seedExtension, pathSeedRead) {
 
     const sqlConnection = await getSqlConnectionFromNFW();
@@ -312,34 +320,26 @@ async function readbdd(seedExtension, pathSeedRead) {
                     if (i == tableArray.length - 1) {
                         objetDb[tableSql] = jsonOut;
                         objetDb[tableSql] = jsonOut;
-                        fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
-                            if (err) throw err;
-                        });
-
+                        
+                        seedWriteFileJson(pathSeedRead,objetDb);
 
                     }
 
                     break;
 
                 case 'xlsx':
+                        
                     let newWS = xlsx.utils.json_to_sheet(jsonOut);
                     xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
                     if (i == tableArray.length - 1) {
-                        xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
-                        fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
-                            if (err) throw err;
-                        });
+                        seedWriteFileXlsx(newWB,pathSeedRead) ;
+                        seedWriteFileJson(pathSeedRead,objetDb);
+                       
 
                     }
-
                     break;
             }
         });
-
-        if(i == tableArray.length-1 ){
-            console.log("read done"); 
-        }
-
     }
 
 }
