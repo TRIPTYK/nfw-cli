@@ -8,7 +8,7 @@ const Log = require('../utils/log');
 const {
     getSqlConnectionFromNFW
 } = require('../database/sqlAdaptator');
-
+const bcrypt = require('bcryptjs');
 let dropData;
 let seedExtension;
 let pathSeedRead;
@@ -151,24 +151,25 @@ async function howMuchTable() {
         }
     }
 }
- function query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues) {
+
+function query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues) {
     myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-        sqlConnection.query(myQuery, function (err) {
-          if (err) {
-              Log.error("Error on your seed");
+    sqlConnection.query(myQuery, function (err) {
+        if (err) {
+            Log.error("Error on your seed");
             process.exit(0);
-            };
-          if(!err && i == keyObject.length-1 && j == tableData.length-1 ){
-              Log.success("write done");
-              process.exit(0);
-          }
-        });
-      
-    
+        };
+        if (!err && i == keyObject.length - 1 && j == tableData.length - 1) {
+            Log.success("write done");
+            process.exit(0);
+        }
+    });
+
+
 
 }
 async function writeDb(pathSeedWrite, seedExtension, dropData) {
@@ -185,7 +186,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                 let keyObject = Object.keys(obj);
 
                 let tableData;
-                
+
                 for (i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
@@ -200,7 +201,13 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
-                        query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues)
+                        for (x = 0; x < tabProp.length; x++) {
+                            if (tabProp[x] == "password") {
+                                let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
+                                dataValues[x] = hash;
+                            }
+                        }
+                        query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
                     }
                 }
             });
@@ -241,9 +248,19 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                         })
                     }
                     for (let j = 0; j < tableData.length; j++) {
+
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
-                        query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues)
+
+
+                        for (x = 0; x < tabProp.length; x++) {
+                            if (tabProp[x] == "password") {
+                                let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
+                                dataValues[x] = hash;
+                            }
+                        }
+
+                        query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
                     }
                 }
             });
@@ -251,6 +268,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
     }
 
 }
+
 
 async function seedWriteFileJson(pathSeedRead, objetDb) {
     await fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
@@ -304,7 +322,6 @@ async function readbdd(seedExtension, pathSeedRead) {
             switch (seedExtension) {
                 case 'json':
                     if (i == tableArray.length - 1) {
-                        objetDb[tableSql] = jsonOut;
                         objetDb[tableSql] = jsonOut;
 
                         seedWriteFileJson(pathSeedRead, objetDb);
