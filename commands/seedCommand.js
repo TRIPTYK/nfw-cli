@@ -151,27 +151,24 @@ async function howMuchTable() {
         }
     }
 }
-async function query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues) {
-    let sqlError = false;
+ function query(tableData,j,keyObject, i, sqlConnection, table, tabProp, dataValues) {
     myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-
-    await sqlConnection.query(myQuery, function (err, result) {
-        if (err) {
-            sqlError = true;
-        }
-        if (i == keyObject.length-1 && sqlError == true) {
-            Log.error("error in json");
-            
-        }
-        if ( i == keyObject.length-1 && j == tableData.length -1){
-            Log.success("write done");
+        sqlConnection.query(myQuery, function (err) {
+          if (err) {
+              Log.error("Error on your seed");
             process.exit(0);
-        }
-    });
+            };
+          if(!err && i == keyObject.length-1 && j == tableData.length-1 ){
+              Log.success("write done");
+              process.exit(0);
+          }
+        });
+      
+    
 
 }
 async function writeDb(pathSeedWrite, seedExtension, dropData) {
