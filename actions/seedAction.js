@@ -20,7 +20,7 @@ let tableArray = [];
 module.exports = async function main() {
     await inquirer.prompt([{
             type: 'list',
-            message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
+            message: ' choissisez la méthode de seed :    ? ',
             name: 'methode',
             choices: ['lecture', 'ecriture']
         }, ])
