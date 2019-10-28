@@ -8,6 +8,7 @@ const Log = require('../utils/log');
 const {
     getSqlConnectionFromNFW
 } = require('../database/sqlAdaptator');
+// variables
 const bcrypt = require('bcryptjs');
 let dropData;
 let seedExtension;
@@ -16,7 +17,11 @@ let pathSeedWrite;
 let seedMethode;
 let tableArray = [];
 
-
+// 1) connexion à la bdd puis requete sql pour les champs colonne / type
+// 2) formatage correcte pour le json + xlsx 
+// 3) écriture du fichier json 
+// 4) écriture xlsx 
+// 5) connection finie
 module.exports = async function main() {
     await inquirer.prompt([{
             type: 'list',
@@ -133,12 +138,24 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
 
+
+     /**
+      * 1ere lecteure avec fs pour s'assurer que le fichier existe
+      * pour le json on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+      * pour l'xlsx on lit le fichier, puis on ajoute les feuilles du fichier dans un objet 
+      * on écrit le tout dans un json 
+      * puis on lit le json et on écrit dans la bdd
+      */
     switch (seedExtension) {
         case 'json':
             fs.readFile(pathSeedWrite + '.json', (err, data) => {
-                // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
-
-                var obj = JSON.parse(data);
+                
+                if (err) {
+                    console.log("il semblerait que votre fichier " +pathSeedWrite+".json n'existe pas" );
+                    process.exit(0) ; 
+                }
+                else {
+                    var obj = JSON.parse(data);
                 let keyObject = Object.keys(obj);
 
                 let tableData;
@@ -166,60 +183,70 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                         query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
                     }
                 }
+
+                }
+                
+                
             });
 
             break;
         case 'xlsx':
-            let wb = xlsx.readFile(pathSeedWrite + '.xlsx', {
-                cellDates: true
-            });
-            var result = {};
-            wb.SheetNames.forEach(function (sheetName) {
-                var roa = xlsx.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
-                if (roa.length > 0) {
-                    result[sheetName] = roa;
-                }
-            });
-            fs.writeFile(pathSeedWrite + '.json', (JSON.stringify(result, null, 4)), function (err) {
-                if (err) throw err;
-            });
-
-
-            fs.readFile(pathSeedWrite + '.json', (err, data) => {
-                // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
-
-                var obj = JSON.parse(data);
-                let keyObject = Object.keys(obj);
-
-                let tableData;
-                for (i = 0; i < keyObject.length; i++) {
-                    tableData = obj[keyObject[i]];
-                    let table = keyObject[i];
-                    let sql1 = `TRUNCATE TABLE ${table}`;
-                    if (dropData == true) {
-                        sqlConnection.query(sql1, function (err, results) {
-                            if (err) {
-                                throw err;
-                            }
-                        })
+            
+                fs.readFile(pathSeedWrite + '.xlsx', (err, data) => {
+                    if (err) {
+                        console.log("il semblerait que votre fichier " +pathSeedWrite+".xlsx n'existe pas" );
+                        process.exit(0) ; 
                     }
-                    for (let j = 0; j < tableData.length; j++) {
-
-                        let tabProp = Object.keys(tableData[j]);
-                        let dataValues = Object.values(tableData[j]);
-
-
-                        for (x = 0; x < tabProp.length; x++) {
-                            if (tabProp[x] == "password") {
-                                let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
-                                dataValues[x] = hash;
+                    else {
+                        let wb = xlsx.readFile(pathSeedWrite + '.xlsx', {
+                            cellDates: true
+                        });
+                        var result = {};
+                        wb.SheetNames.forEach(function (sheetName) {
+                            var roa = xlsx.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                            if (roa.length > 0) {
+                                result[sheetName] = roa;
                             }
-                        }
-
-                        query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
+                        });
+                        fs.writeFile(pathSeedWrite + '.json', (JSON.stringify(result, null, 4)), function (err) {
+                            if (err) throw err;
+                        });
+                        fs.readFile(pathSeedWrite + '.json', (err, data) => {
+                            // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+                            var obj = JSON.parse(data);
+                            let keyObject = Object.keys(obj);
+            
+                            let tableData;
+                            for (i = 0; i < keyObject.length; i++) {
+                                tableData = obj[keyObject[i]];
+                                let table = keyObject[i];
+                                let sql1 = `TRUNCATE TABLE ${table}`;
+                                if (dropData == true) {
+                                    sqlConnection.query(sql1, function (err, results) {
+                                        if (err) {
+                                            throw err;
+                                        }
+                                    })
+                                }
+                                for (let j = 0; j < tableData.length; j++) {
+            
+                                    let tabProp = Object.keys(tableData[j]);
+                                    let dataValues = Object.values(tableData[j]);
+            
+            
+                                    for (x = 0; x < tabProp.length; x++) {
+                                        if (tabProp[x] == "password") {
+                                            let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
+                                            dataValues[x] = hash;
+                                        }
+                                    }
+                                    query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
+                                }
+                            }
+                        });
                     }
-                }
-            });
+                });
+            
             break;
     }
 
@@ -267,13 +294,9 @@ async function readbdd(seedExtension, pathSeedRead) {
                 delete keys.updatedAt;
                 delete keys.deletedAt;
                 delete keys.avatarId;
-
             }
             jsonOut.push(keys);
-
             objetDb[tableSql] = jsonOut;
-            //console.log(jsonOut);
-
 
             switch (seedExtension) {
                 case 'json':
@@ -282,7 +305,6 @@ async function readbdd(seedExtension, pathSeedRead) {
 
                         seedWriteFileJson(pathSeedRead, objetDb);
                     }
-
                     break;
 
                 case 'xlsx':
