@@ -134,16 +134,24 @@ class SqlConnection
      * @param username
      * @returns {Promise<{password: (string|string), login: string}>}
      */
-    async insertAdmin(username)
-    {
-        let password = "";
-        let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (let i = 0; i < 24; i++)
-            password += possible.charAt(Math.floor(Math.random() * possible.length));
+    async insertAdmin({username,mail,role = 'admin',password})
+    {   
+        if (!mail) {
+            mail = `${username}@localhost.com`;
+        }
+
+        if (!password) {
+            password = "";
+            let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (let i = 0; i < 24; i++)
+                password += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
         let hashed = await bcrypt.hash(password, 10);
-        await this.query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${username}@localhost.com','${username}','${username}','{}','admin', '${hashed}')`);
+        await this.query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${mail}','${username}','${username}','{}','${role}', '${hashed}')`);
+        
         return {
-            login: `${username}@localhost.com`,
+            login: mail,
             password
         };
     }
