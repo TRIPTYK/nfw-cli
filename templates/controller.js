@@ -26,15 +26,10 @@ module.exports = (path,{className,options,entityName}) => {
     controllerClass.setExtends('BaseController');
     controllerClass.setIsExported(true);
 
-    controllerClass.addConstructor({
-        statements : `super();`
-    });
-
-    controllerClass.addMethod({
-        name : 'beforeMethod',
-        returnType : 'void',
-        statements : `this.repository = getCustomRepository(${entityNameCapitalized}Repository);`
-    }).toggleModifier("protected");
+    controllerClass.addDecorator({
+        name : "Controller",
+        arguments : [`{repository : ${entityNameCapitalized}Repository}`]
+    }).setIsDecoratorFactory(true);
 
     const middlewareFunctionParameters = [
         { type : 'Request' , name : 'req' },

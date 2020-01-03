@@ -51,7 +51,9 @@ module.exports = async (modelName,restore,dump,isRevert) => {
     const getMigrationFileNameFromRecord = (record) => record.timestamp + '-' + record.name.replace(record.timestamp.toString(),'');
 
     const nfwConfig = new JsonFileWriter(".nfw");
-    ormConfig.setNodeValue("cli.migrationsDir",path.join(ormConfig.getNodeValue("cli.migrationsDir"),nfwConfig.getNodeValue("env","development")));
+    const currentEnv = nfwConfig.getNodeValue("env","development");
+    
+    ormConfig.setNodeValue("cli.migrationsDir",path.join("./src/migration/",currentEnv));
 
     const migrationDir = ormConfig.getNodeValue("cli.migrationsDir");
 

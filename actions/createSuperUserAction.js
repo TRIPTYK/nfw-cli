@@ -19,7 +19,7 @@ module.exports = async ({username,mail,role,password}) => {
     const sqlConnection = await getSqlConnectionFromNFW();
 
     let credentials = await sqlConnection.insertAdmin({username,mail,role,password});
-    const credentialsFileName = `${mail}-credentials.json`;
+    const credentialsFileName = `${credentials.login}-credentials.json`;
     const credentialsTemplate = fs.readFileSync(`${__baseDir}/templates/custom/userCredentials.ejs`,'utf-8');
 
     const compiled = ejs.compile(credentialsTemplate)({

@@ -23,19 +23,6 @@ module.exports = (path,{className,entities,createUpdate = {}}) => {
     modelClass.addDecorator({name : "Entity"}).setIsDecoratorFactory(true);
     modelClass.setIsExported(true);
 
-    const idProperty = modelClass.addProperty({
-        name : 'id'
-    });
-
-    idProperty.toggleModifier('public');
-    idProperty.addDecorator({
-        name : 'PrimaryGeneratedColumn'
-    }).setIsDecoratorFactory(true);
-
-    idProperty.addJsDoc(writer => {
-        writer.writeLine(`@description primary key of model`);
-    });
-
     entities = entities.filter(
         (entity) => {
             if(entity.Field === "createdAt") {

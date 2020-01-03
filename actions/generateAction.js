@@ -111,6 +111,7 @@ module.exports = async (modelName, crud , part = null) => {
 
     await generateEntityFiles(modelName, crud, entityModelData,part)
         .catch(e => {
+            console.log(e);
             Log.error(`Generation failed : ${e}\nExiting ...`);
             process.exit(1);
         });
