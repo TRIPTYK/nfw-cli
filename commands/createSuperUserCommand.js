@@ -62,6 +62,7 @@ exports.handler = async (argv) => {
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
 
+    commandUtils.updateORMConfig();
 
     await createSuperUserAction({username,mail,role,password})
         .then((generated) => {

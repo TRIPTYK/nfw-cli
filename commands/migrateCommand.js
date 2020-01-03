@@ -83,6 +83,8 @@ exports.handler = async (argv) => {
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase();
+  
+    commandUtils.updateORMConfig();
 
     spinner.start();
 
@@ -95,7 +97,6 @@ exports.handler = async (argv) => {
         })
         .catch((e) => {
             spinner.stop(true);
-            console.log(e)
             Log.error(e.message);
         });
 

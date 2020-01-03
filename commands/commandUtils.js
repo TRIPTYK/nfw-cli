@@ -14,6 +14,8 @@ const filesHelper = require('../utils/files');
 const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
 const Log = require('../utils/log');
 const readFilePromise = promisify(fs.readFile);
+const JsonFileWriter = require('json-file-rw');
+const dotenv = require('dotenv');
 
 /**
  * Check if we are in a valid project directory
@@ -36,6 +38,29 @@ exports.checkValidParam = (string) => {
         process.exit();
     }
 };
+
+
+exports.updateORMConfig = (environement = null) => {
+    if (environement === null) {
+        const nfwFile = new JsonFileWriter();
+        nfwFile.openSync(".nfw");
+        environement = nfwFile.getNodeValue("env","development");
+    }
+
+    const envFileContent = fs.readFileSync(`${environement}.env`);
+
+    const ormconfigFile = new JsonFileWriter();
+    ormconfigFile.openSync(`ormconfig.json`);
+    let envFile = dotenv.parse(envFileContent);
+
+    ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
+    ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
+    ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);
+    ormconfigFile.setNodeValue("username",envFile.TYPEORM_USER);
+    ormconfigFile.setNodeValue("password",envFile.TYPEORM_PWD);
+    ormconfigFile.setNodeValue("port",envFile.TYPEORM_PORT);
+    return ormconfigFile.saveSync();
+}
 
 /**
  *

@@ -49,13 +49,19 @@ module.exports = async (modelName,restore,dump,isRevert) => {
     ormConfig.openSync("./ormconfig.json");
     const connection = await getSqlConnectionFromNFW();
     const getMigrationFileNameFromRecord = (record) => record.timestamp + '-' + record.name.replace(record.timestamp.toString(),'');
+
+    const nfwConfig = new JsonFileWriter(".nfw");
+    ormConfig.setNodeValue("cli.migrationsDir",path.join(ormConfig.getNodeValue("cli.migrationsDir"),nfwConfig.getNodeValue("env","development")));
+
     const migrationDir = ormConfig.getNodeValue("cli.migrationsDir");
 
     const migrationConfig = new JsonFileWriter();
-        migrationConfig.openSync('./src/migration/migration.cfg');
-        if (!migrationConfig.fileExists) {
-            migrationConfig.setNodeValue('current','last');
-        }
+    migrationConfig.openSync('./src/migration/migration.cfg');
+    if (!migrationConfig.fileExists) {
+        migrationConfig.setNodeValue('current','last');
+    }
+
+    ormConfig.saveSync();
 
     if (restore) {
         const formatMigrationArray = (array) => array.map(table => Object.values(table)[0]);
