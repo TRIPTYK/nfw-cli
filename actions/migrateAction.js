@@ -12,6 +12,7 @@ const JsonFileWriter = require("json-file-rw");
 const util = require('util');
 const fs = require('fs');
 const chalk = require('chalk');
+const mkdirp = util.promisify(require('mkdirp'));
 const exec = util.promisify(require('child_process').exec);
 const path = require('path');
 const project = require('../utils/project');
@@ -50,10 +51,16 @@ module.exports = async (modelName,restore,dump,isRevert) => {
     const connection = await getSqlConnectionFromNFW();
     const getMigrationFileNameFromRecord = (record) => record.timestamp + '-' + record.name.replace(record.timestamp.toString(),'');
 
-    const nfwConfig = new JsonFileWriter(".nfw");
+    const nfwConfig = new JsonFileWriter();
+    nfwConfig.openSync(".nfw");
     const currentEnv = nfwConfig.getNodeValue("env","development");
+
+    await mkdirp(`src/migration/${currentEnv}/failed`);
     
     ormConfig.setNodeValue("cli.migrationsDir",path.join("./src/migration/",currentEnv));
+    ormConfig.setNodeValue("migrations",[
+        `src/migration/${currentEnv}/*.ts`
+    ]);
 
     const migrationDir = ormConfig.getNodeValue("cli.migrationsDir");
 
@@ -131,27 +138,25 @@ module.exports = async (modelName,restore,dump,isRevert) => {
 
         await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
         
-        const files = fs.readdirSync(migrationDir);
+        const files = fs.readdirSync(migrationDir,{withFileTypes : true}).filter(dirent => !dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+        const recentTimestamp = Math.max.apply(null,files.map((e) => {
+            return parseInt(e.split("-")[0],10);
+        }));
+        
+        const migrationFile = `${recentTimestamp}-${modelName}.ts`;
 
         try {
             await exec(`${ts_node} ${typeorm_cli} migration:run`);
         }catch(e) {
             const obj = _buildErrorObjectFromMessage(e);
+            const backupDir = `src/migration/${currentEnv}/failed`;
 
-            Log.warning("Got some errors in migration , retrying and doing some cleanup ...");
+            Log.warning(`Got some errors in migration , removing and backing up file ${migrationFile} in ${backupDir}`);
             Log.warning(obj.message);
 
-            for (let file of files) {
-                const fileContent = fs.readFileSync(`${migrationDir}/${file}`,'utf-8');
-
-                const fileWithoutLine = fileContent.replace(new RegExp(`.*(${obj.sql
-                    .replace("(","\\(")
-                    .replace(")","\\)")
-                }).*`,'igm'),"\t//$1");
-                fs.writeFileSync(`${migrationDir}/${file}`,fileWithoutLine);
-            }
-
-            await exec(`${ts_node} ${typeorm_cli} migration:run`);
+            fs.renameSync(`src/migration/${currentEnv}/${migrationFile}`,`${backupDir}/${migrationFile}`);
         }
         migrationConfig.setNodeValue('current','last');
         migrationConfig.saveSync();

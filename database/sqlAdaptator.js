@@ -148,7 +148,7 @@ class SqlConnection
         }
 
         let hashed = await bcrypt.hash(password, 10);
-        await this.query(`INSERT INTO user(username, email, firstname, lastname, services, role, password) VALUES('${username}', '${mail}','${username}','${username}','{}','${role}', '${hashed}')`);
+        await this.query(`INSERT INTO user(username, email, firstname, name, services, role, password) VALUES('${username}', '${mail}','${username}','${username}','{}','${role}', '${hashed}')`);
         
         return {
             login: mail,
