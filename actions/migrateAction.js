@@ -56,11 +56,6 @@ module.exports = async (modelName,restore,dump,isRevert) => {
     const currentEnv = nfwConfig.getNodeValue("env","development");
 
     await mkdirp(`src/migration/${currentEnv}/failed`);
-    
-    ormConfig.setNodeValue("cli.migrationsDir",path.join("./src/migration/",currentEnv));
-    ormConfig.setNodeValue("migrations",[
-        `src/migration/${currentEnv}/*.ts`
-    ]);
 
     const migrationDir = ormConfig.getNodeValue("cli.migrationsDir");
 

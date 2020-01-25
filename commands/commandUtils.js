@@ -8,6 +8,9 @@
 const chalk = require('chalk');
 const fs = require('fs');
 const { promisify } = require('util');
+const path = require('path');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 // project modules
 const filesHelper = require('../utils/files');
@@ -39,12 +42,30 @@ exports.checkValidParam = (string) => {
     }
 };
 
+exports.startDockerContainers = async (environement) => {
+    const nfwFile = new JsonFileWriter();
+    nfwFile.openSync(".nfw");
+    const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    if (nfwFile.nodeExists(`${environement}.dockerContainers`)) {
+        const containers = nfwFile.getNodeValue(`${environement}.dockerContainers`);
+
+        for (const container of containers) {
+            Log.info("Starting your docker container " + container);
+
+            exec(`docker start ${container}`);
+        }
+    }
+
+    await snooze(1000);
+}
 
 exports.updateORMConfig = (environement = null) => {
     if (environement === null) {
         const nfwFile = new JsonFileWriter();
         nfwFile.openSync(".nfw");
         environement = nfwFile.getNodeValue("env","development");
+        nfwFile.saveSync();
     }
 
     const envFileContent = fs.readFileSync(`${environement}.env`);
@@ -53,6 +74,11 @@ exports.updateORMConfig = (environement = null) => {
     ormconfigFile.openSync(`ormconfig.json`);
     let envFile = dotenv.parse(envFileContent);
 
+    ormconfigFile.setNodeValue("cli.migrationsDir",path.join("./src/migration/",environement));
+    ormconfigFile.setNodeValue("migrations",[
+        `src/migration/${environement}/*.ts`
+    ]);
+    ormconfigFile.setNodeValue("type",envFile.TYPEORM_TYPE);
     ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
     ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
     ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);

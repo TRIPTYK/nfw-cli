@@ -45,7 +45,9 @@ exports.handler = async (argv) => {
 
     const nfwFile = new JsonFileWriter();
     nfwFile.openSync('.nfw');
-    nfwFile.setNodeValue('dockerContainer',name);
+    const currentEnv = nfwFile.getNodeValue("env","development");
+    const array = nfwFile.getNodeValue(`${currentEnv}.dockerContainers`,[]);
+    array.push(name);
     nfwFile.saveSync();
 
     Log.success(`Your docker container was created on localhost , port ${port} with mysql version ${vers} and password ${password}`);
@@ -53,7 +55,9 @@ exports.handler = async (argv) => {
     const {confirmation} = await inquirer.askForConfirmation("Do you want to update your current environment file with these values ?");
 
     if (confirmation) {
-        const envFileWriter = new EnvFileWriter(nfwFile.getNodeValue('env','development') + '.env');
+        const envFileWriter = new EnvFileWriter(currentEnv + '.env');
+        envFileWriter.setNodeValue('TYPEORM_HOST','localhost');
+        envFileWriter.setNodeValue('TYPEORM_TYPE','mysql');
         envFileWriter.setNodeValue('TYPEORM_PWD',password);
         envFileWriter.setNodeValue('TYPEORM_PORT',port);
         envFileWriter.saveSync();

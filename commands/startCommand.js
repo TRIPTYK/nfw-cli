@@ -3,12 +3,7 @@
  * @description Command module to handle server start and monitoring
  * @author Deflorenne Amaury
  */
-
-const dotenv = require('dotenv');
-const fs = require('fs');
 const chalk = require('chalk');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
 
 // node modules
 const inquirer = require("../utils/inquirer");
@@ -20,8 +15,6 @@ const migrateAction = require('../actions/migrateAction');
 const {SqlConnection} = require("../database/sqlAdaptator");
 const Log = require('../utils/log');
 const JsonFileWriter = require('json-file-rw');
-
-const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Yargs command
@@ -48,8 +41,7 @@ exports.describe = 'Start the api server';
 exports.builder = (yargs) => {
     yargs.option('env', {
         desc: "Specify the environement type",
-        type: "string",
-        default: "development"
+        type: "string"
     });
     yargs.option('monitoring', {
         desc: "Launch monitoring websockets server",
@@ -66,24 +58,18 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     commandUtils.validateDirectory();
 
-    const environement = argv.env;
+    let environement = argv.env;
     const monitoringEnabled = argv.monitoring;
 
     const nfwFile = new JsonFileWriter();
     nfwFile.openSync(".nfw");
 
-    commandUtils.updateORMConfig(environement);
-
-    if (nfwFile.nodeExists('dockerContainer')) {
-        const containerName = nfwFile.getNodeValue('dockerContainer');
-        Log.info("Starting your docker container " + containerName);
-
-        await exec(`docker start ${containerName}`).then(function (data) {
-            console.log(data.stdout);
-        });
-
-        await snooze(1000);
+    if (environement === undefined) {
+        environement = nfwFile.getNodeValue("env","development");
     }
+
+    commandUtils.updateORMConfig(environement);
+    await commandUtils.startDockerContainers(environement);
 
     let connected;
     const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
@@ -96,7 +82,12 @@ exports.handler = async (argv) => {
         connected = e;
         let clonedEnv = { ... currentEnv };
         delete clonedEnv.TYPEORM_DB;
-        await sqlConnection.connect(clonedEnv);
+        await sqlConnection.connect(clonedEnv)
+            .catch((e) => {
+                Log.error("Failed to pre-connect to database : " + e.message);
+                Log.info(`Please check your ${environement} configuration and if your server is running`);
+                process.exit(1);
+            });
 
         if (e.code === 'ER_BAD_DB_ERROR') {
             const dbName = currentEnv.TYPEORM_DB;
