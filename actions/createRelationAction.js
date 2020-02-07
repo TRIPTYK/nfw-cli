@@ -61,6 +61,11 @@ exports.addToSerializer = (entity, column,model,m1Name,m2Name) => {
 exports.addToRelation = (entity, column , otherModel) => {
     const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
+    if (!relationFile) {
+        Log.info("Cannot find relation enum file , skiping ...");
+        return;
+    }
+
     relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer().addElement(`'${column}'`);
 
     relationFile.fixMissingImports();

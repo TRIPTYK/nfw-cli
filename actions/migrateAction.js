@@ -13,7 +13,8 @@ const util = require('util');
 const fs = require('fs');
 const chalk = require('chalk');
 const mkdirp = util.promisify(require('mkdirp'));
-const exec = util.promisify(require('child_process').exec);
+const child_process = require('child_process');
+const exec = util.promisify(child_process.exec);
 const path = require('path');
 const project = require('../utils/project');
 const Log = require('../utils/log');
@@ -131,7 +132,7 @@ module.exports = async (modelName,restore,dump,isRevert) => {
         const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
         const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');   
 
-        await exec(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`);
+        child_process.spawnSync(`${ts_node} ${typeorm_cli} migration:generate -n ${modelName}`, { stdio : 'inherit',shell: true });
         
         const files = fs.readdirSync(migrationDir,{withFileTypes : true}).filter(dirent => !dirent.isDirectory())
         .map(dirent => dirent.name);
@@ -143,7 +144,7 @@ module.exports = async (modelName,restore,dump,isRevert) => {
         const migrationFile = `${recentTimestamp}-${modelName}.ts`;
 
         try {
-            await exec(`${ts_node} ${typeorm_cli} migration:run`);
+            child_process.spawnSync(`${ts_node} ${typeorm_cli} migration:run`,{ stdio : 'inherit',shell: true});
         }catch(e) {
             const obj = _buildErrorObjectFromMessage(e);
             const backupDir = `src/migration/${currentEnv}/failed`;
