@@ -18,6 +18,9 @@
   "author": "Triptyk",
   "license": "ISC",
   "dependencies": {
+    "@types/clear": "^0.1.0",
+    "@types/clui": "^0.3.0",
+    "@types/yargs": "^15.0.3",
     "bcryptjs": "^2.4.3",
     "camelcase": "^5.3.1",
     "chalk": "^2.4.2",
