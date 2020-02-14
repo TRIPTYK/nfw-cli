@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module sqlAdapatator
  * @description Fetch data from an sql database
@@ -40,25 +41,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // project modules
-var mysql = require('mysql');
-var util = require('util');
-var mysqldump = require('mysqldump');
-var bcrypt = require('bcryptjs');
-var singular = require('pluralize').singular;
-var dotenv = require('dotenv');
-var fs = require('fs');
+//import mysql = require('mysql');
+var util = require("util");
+var mysqldump_1 = require("mysqldump");
+var bcrypt = require("bcryptjs");
+var pluralize_1 = require("pluralize");
+var dotenv = require("dotenv");
+var fs = require("fs");
+var promisemysql = require("promise-mysql");
 // project imports
-var utils = require('../actions/lib/utils');
+var utils = require("../actions/lib/utils");
 var DatabaseEnv = /** @class */ (function () {
-    /**
-     *
-     * @param {string} path
-     */
     function DatabaseEnv(path) {
-        if (typeof path === "string")
+        dotenv.config();
+        if (typeof path === "string") {
             this.loadFromFile(path);
+        }
         if (typeof path === "object")
             this.envVariables = path;
     }
@@ -70,52 +70,42 @@ var DatabaseEnv = /** @class */ (function () {
     };
     return DatabaseEnv;
 }());
+exports.DatabaseEnv = DatabaseEnv;
 var SqlConnection = /** @class */ (function () {
-    /**
-     *
-     * @param {DatabaseEnv} env
-     */
     function SqlConnection(env) {
         if (env === void 0) { env = null; }
         if (env)
             this.environement = env.getEnvironment();
     }
-    /**
-     *
-     * @param {DatabaseEnv} env
-     */
     SqlConnection.prototype.connect = function (env) {
         if (env === void 0) { env = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var connect;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, connect;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (!env)
+                        if (!env) {
                             env = this.environement;
-                        this.db = mysql.createConnection({
-                            host: env.TYPEORM_HOST,
-                            user: env.TYPEORM_USER,
-                            password: env.TYPEORM_PWD,
-                            database: env.TYPEORM_DB,
-                            port: env.TYPEORM_PORT,
-                            multipleStatements: true
-                        });
-                        connect = util.promisify(this.db.connect).bind(this.db);
-                        return [4 /*yield*/, connect()];
+                        }
+                        _a = this;
+                        return [4 /*yield*/, promisemysql.createConnection({
+                                host: env.TYPEORM_HOST,
+                                user: env.TYPEORM_USER,
+                                password: env.TYPEORM_PWD,
+                                database: env.TYPEORM_DB,
+                                port: env.TYPEORM_PORT,
+                                multipleStatements: true
+                            })];
                     case 1:
-                        _a.sent();
-                        this.query = util.promisify(this.db.query).bind(this.db);
+                        _a.db = _b.sent();
+                        connect = util.promisify(this.connect).bind(this.db);
+                        //await connect;
+                        this.db.query = util.promisify(this.db.query).bind(this.db);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<{foreignKeys: *, columns: *}>}
-     */
     SqlConnection.prototype.getTableInfo = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             var p_columns, p_foreignKeys, _a, columns, foreignKeys;
@@ -132,21 +122,15 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @param model1
-     * @param model2
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.dropBridgingTable = function (model1, model2) {
         return __awaiter(this, void 0, void 0, function () {
             var result, i, _a, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        model1 = singular(model1);
-                        model2 = singular(model2);
-                        return [4 /*yield*/, this.query("SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS \n            WHERE CONSTRAINT_SCHEMA = '" + this.environement.TYPEORM_DB + "' \n            AND (REFERENCED_TABLE_NAME ='" + model1 + "' \n            OR REFERENCED_TABLE_NAME='" + model2 + "');\n        ")];
+                        model1 = pluralize_1.singular(model1);
+                        model2 = pluralize_1.singular(model2);
+                        return [4 /*yield*/, this.db.query("SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS \n            WHERE CONSTRAINT_SCHEMA = '" + this.environement.TYPEORM_DB + "' \n            AND (REFERENCED_TABLE_NAME ='" + model1 + "' \n            OR REFERENCED_TABLE_NAME='" + model2 + "');\n        ")];
                     case 1:
                         result = _c.sent();
                         i = 0;
@@ -169,41 +153,27 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.getTables = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SHOW TABLES")];
+                    case 0: return [4 /*yield*/, this.db.query("SHOW TABLES")];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.getForeignKeys = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='" + this.environement.TYPEORM_DB + "' AND TABLE_NAME='" + tableName + "';")];
+                    case 0: return [4 /*yield*/, this.db.query("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='" + this.environement.TYPEORM_DB + "' AND TABLE_NAME='" + tableName + "';")];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
     ;
-    /**
-     *
-     * @param username
-     * @returns {Promise<{password: (string|string), login: string}>}
-     */
     SqlConnection.prototype.insertAdmin = function (_a) {
         var username = _a.username, mail = _a.mail, _b = _a.role, role = _b === void 0 ? 'admin' : _b, password = _a.password;
         return __awaiter(this, void 0, void 0, function () {
@@ -223,7 +193,7 @@ var SqlConnection = /** @class */ (function () {
                         return [4 /*yield*/, bcrypt.hash(password, 10)];
                     case 1:
                         hashed = _c.sent();
-                        return [4 /*yield*/, this.query("INSERT INTO user(username, email, firstname, lastname, role, password) VALUES('" + username + "', '" + mail + "','" + username + "','" + username + "','" + role + "', '" + hashed + "')")];
+                        return [4 /*yield*/, this.db.query("INSERT INTO user(username, email, firstname, lastname, role, password) VALUES('" + username + "', '" + mail + "','" + username + "','" + username + "','" + role + "', '" + hashed + "')")];
                     case 2:
                         _c.sent();
                         return [2 /*return*/, {
@@ -234,17 +204,12 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<boolean>}
-     */
     SqlConnection.prototype.tableExists = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             var result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("\n            SELECT COUNT(*) as 'count'\n            FROM information_schema.tables\n            WHERE table_schema = '" + this.environement.TYPEORM_DB + "'\n            AND table_name = '" + tableName + "';\n        ").catch(function () { return [{ count: false }]; })];
+                    case 0: return [4 /*yield*/, this.db.query("\n            SELECT COUNT(*) as 'count'\n            FROM information_schema.tables\n            WHERE table_schema = '" + this.environement.TYPEORM_DB + "'\n            AND table_name = '" + tableName + "';\n        ").catch(function () { return [{ count: false }]; })];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, result[0].count > 0];
@@ -252,94 +217,65 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.getColumns = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SHOW COLUMNS FROM " + tableName + " ;")];
+                    case 0: return [4 /*yield*/, this.db.query("SHOW COLUMNS FROM " + tableName + " ;")];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     *
-     * @param table
-     * @param fields
-     * @param supplement
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.select = function (table, fields, supplement) {
         if (supplement === void 0) { supplement = ''; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SELECT " + fields + " from  " + table + " " + supplement)];
+                    case 0: return [4 /*yield*/, this.db.query("SELECT " + fields + " from  " + table + " " + supplement)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     *
-     * @param databaseName
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.createDatabase = function (databaseName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("CREATE DATABASE IF NOT EXISTS " + databaseName)];
+                    case 0: return [4 /*yield*/, this.db.query("CREATE DATABASE IF NOT EXISTS " + databaseName)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.dropTable = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("DROP TABLE " + tableName + ";")];
+                    case 0: return [4 /*yield*/, this.db.query("DROP TABLE " + tableName + ";")];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     * @description Delete all foreignKeys that point to a specific table
-     * @returns {Promise<void>}
-     * @param tableName
-     */
+    //description: Delete all foreignKeys that point to a specific table
     SqlConnection.prototype.getForeignKeysRelatedTo = function (tableName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SELECT REFERENCED_TABLE_NAME,TABLE_NAME \n        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \n        WHERE REFERENCED_TABLE_SCHEMA='" + this.environement.TYPEORM_DB + "' \n        AND REFERENCED_TABLE_NAME='" + tableName + "'\n        OR TABLE_NAME='" + tableName + "'\n        AND REFERENCED_TABLE_NAME IS NOT NULL;\n        ")];
+                    case 0: return [4 /*yield*/, this.db.query("SELECT REFERENCED_TABLE_NAME,TABLE_NAME \n        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE \n        WHERE REFERENCED_TABLE_SCHEMA='" + this.environement.TYPEORM_DB + "' \n        AND REFERENCED_TABLE_NAME='" + tableName + "'\n        OR TABLE_NAME='" + tableName + "'\n        AND REFERENCED_TABLE_NAME IS NOT NULL;\n        ")];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    /**
-     * @description return number table of databse
-     * @param database
-     */
+    //description: return number table of databse 
     SqlConnection.prototype.getTablesCount = function (database) {
         return __awaiter(this, void 0, void 0, function () {
             var result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.query("SELECT count(*) AS TOTALNUMBEROFTABLES \n        FROM INFORMATION_SCHEMA.TABLES \n        WHERE TABLE_SCHEMA = '" + database + "'")];
+                    case 0: return [4 /*yield*/, this.db.query("SELECT count(*) AS TOTALNUMBEROFTABLES \n        FROM INFORMATION_SCHEMA.TABLES \n        WHERE TABLE_SCHEMA = '" + database + "'")];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, result[0].TOTALNUMBEROFTABLES];
@@ -347,17 +283,11 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @param path
-     * @param table
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.dumpTable = function (path, table) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, mysqldump({
+                    case 0: return [4 /*yield*/, mysqldump_1.default({
                             connection: {
                                 host: this.environement.TYPEORM_HOST,
                                 user: this.environement.TYPEORM_USER,
@@ -377,12 +307,6 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
-    /**
-     *
-     * @param path
-     * @param dumpOptions
-     * @returns {Promise<void>}
-     */
     SqlConnection.prototype.dumpAll = function (path, _a) {
         var dumpOptions = _a.dumpOptions;
         return __awaiter(this, void 0, void 0, function () {
@@ -401,28 +325,33 @@ var SqlConnection = /** @class */ (function () {
                 if (path !== null) {
                     options['dumpToFile'] = path + '.sql';
                 }
-                return [2 /*return*/, mysqldump(options)];
+                return [2 /*return*/, mysqldump_1.default(options)];
             });
         });
     };
     return SqlConnection;
 }());
-exports.DatabaseEnv = DatabaseEnv;
 exports.SqlConnection = SqlConnection;
-exports.getSqlConnectionFromNFW = function () { return __awaiter(_this, void 0, void 0, function () {
-    var nfwFile, nfwEnv, connection;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                nfwFile = fs.readFileSync('.nfw', 'utf-8');
-                nfwEnv = JSON.parse(nfwFile).env;
-                if (!nfwEnv)
-                    nfwEnv = 'development';
-                connection = new SqlConnection(new DatabaseEnv(nfwEnv.toLowerCase() + ".env"));
-                return [4 /*yield*/, connection.connect()];
-            case 1:
-                _a.sent();
-                return [2 /*return*/, connection];
-        }
+//exports.DatabaseEnv = DatabaseEnv;
+//exports.SqlConnection = SqlConnection;
+function getSqlConnectionFromNFW() {
+    return __awaiter(this, void 0, void 0, function () {
+        var nfwFile, nfwEnv, connection;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    nfwFile = fs.readFileSync('.nfw', 'utf-8');
+                    nfwEnv = JSON.parse(nfwFile).env;
+                    if (!nfwEnv)
+                        nfwEnv = 'development';
+                    connection = new SqlConnection(new DatabaseEnv(nfwEnv.toLowerCase() + ".env"));
+                    return [4 /*yield*/, connection.connect()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, connection];
+            }
+        });
     });
-}); };
+}
+exports.getSqlConnectionFromNFW = getSqlConnectionFromNFW;
+;

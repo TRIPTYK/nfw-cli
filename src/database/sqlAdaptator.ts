@@ -6,32 +6,34 @@
  */
 
 // project modules
-const mysql = require('mysql');
-const util = require('util');
-const mysqldump = require('mysqldump');
-const bcrypt = require('bcryptjs');
-const {singular} = require('pluralize');
-const dotenv = require('dotenv');
-const fs = require('fs');
+//import mysql = require('mysql');
+import util = require('util');
+import mysqldump from 'mysqldump';
+import bcrypt = require('bcryptjs');
+import {singular} from 'pluralize';
+import dotenv = require('dotenv');
+import fs = require('fs');
+import * as promisemysql from 'promise-mysql';
 
 // project imports
-const utils = require('../actions/lib/utils');
+import utils = require('../actions/lib/utils');
 
-class DatabaseEnv
+export class DatabaseEnv
 {
-    /**
-     *
-     * @param {string} path
-     */
-    constructor(path)
+
+    envVariables: any;
+
+    constructor(path: string | object)
     {
-        if (typeof path === "string")
+        dotenv.config();
+        if (typeof path === "string"){
             this.loadFromFile(path);
+        }
         if (typeof path === "object")
             this.envVariables = path;
     }
 
-    loadFromFile(path)
+    loadFromFile(path: string)
     {
         this.envVariables = dotenv.config({path: path}).parsed;
     }
@@ -42,28 +44,27 @@ class DatabaseEnv
     }
 }
 
-class SqlConnection
+export class SqlConnection
 {
-    /**
-     *
-     * @param {DatabaseEnv} env
-     */
-    constructor(env = null)
+
+    environement: any;
+
+    db: promisemysql.Connection;
+
+    constructor(env: DatabaseEnv = null)
     {
         if (env)
             this.environement = env.getEnvironment();
     }
 
-    /**
-     *
-     * @param {DatabaseEnv} env
-     */
-    async connect(env = null)
+    async connect(env: {[key:string] : any} = null): Promise<void>
     {
-        if (!env)
-            env = this.environement;
 
-        this.db = mysql.createConnection({
+        if (!env){
+            env = this.environement;
+        }
+
+        this.db = await promisemysql.createConnection({
             host: env.TYPEORM_HOST,
             user: env.TYPEORM_USER,
             password: env.TYPEORM_PWD,
@@ -72,18 +73,13 @@ class SqlConnection
             multipleStatements : true
         });
 
-        const connect = util.promisify(this.db.connect).bind(this.db);
-        await connect();
-        this.query = util.promisify(this.db.query).bind(this.db);
+        const connect = util.promisify(this.connect).bind(this.db);
+        //await connect;
+        this.db.query = util.promisify(this.db.query).bind(this.db);
+        
     }
-    
 
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<{foreignKeys: *, columns: *}>}
-     */
-    async getTableInfo(tableName)
+    async getTableInfo(tableName: string): Promise<{foreignKeys: any, columns: any}>
     {
         let p_columns = this.getColumns(tableName);
         let p_foreignKeys = this.getForeignKeys(tableName);
@@ -91,50 +87,30 @@ class SqlConnection
         return {columns, foreignKeys};
     }
 
-    /**
-     *
-     * @param model1
-     * @param model2
-     * @returns {Promise<void>}
-     */
-    async dropBridgingTable(model1,model2)
+    async dropBridgingTable(model1: string,model2: string): Promise<any>
     {
         model1 = singular(model1);
         model2 = singular(model2);
-        let result = await this.query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
+        let result = await this.db.query(`SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS 
             WHERE CONSTRAINT_SCHEMA = '${this.environement.TYPEORM_DB}' 
             AND (REFERENCED_TABLE_NAME ='${model1}' 
             OR REFERENCED_TABLE_NAME='${model2}');
-        `);
+        `) 
         for(let i=0 ; i<result.length ; i++)
             if(utils.isBridgindTable(await module.exports.getTableInfo(result[i].TABLE_NAME)))
                 await module.exports.dropTable(result[i].TABLE_NAME);
     }
 
-    /**
-     *
-     * @returns {Promise<void>}
-     */
-    async getTables()
+    async getTables(): Promise<any>
     {
-        return await this.query(`SHOW TABLES`);
+        return await this.db.query(`SHOW TABLES`);
     }
 
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
-    async getForeignKeys(tableName) {
-        return await this.query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${this.environement.TYPEORM_DB}' AND TABLE_NAME='${tableName}';`);
+    async getForeignKeys(tableName: string): Promise<any> {
+        return await this.db.query(`SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA='${this.environement.TYPEORM_DB}' AND TABLE_NAME='${tableName}';`);
     };
 
-    /**
-     *
-     * @param username
-     * @returns {Promise<{password: (string|string), login: string}>}
-     */
-    async insertAdmin({username,mail,role = 'admin',password})
+    async insertAdmin({username, mail, role = 'admin', password}): Promise<{login: string, password: (string|string)}>
     {   
         if (!mail) {
             mail = `${username}@localhost.com`;
@@ -148,7 +124,7 @@ class SqlConnection
         }
 
         let hashed = await bcrypt.hash(password, 10);
-        await this.query(`INSERT INTO user(username, email, firstname, lastname, role, password) VALUES('${username}', '${mail}','${username}','${username}','${role}', '${hashed}')`);
+        await this.db.query(`INSERT INTO user(username, email, firstname, lastname, role, password) VALUES('${username}', '${mail}','${username}','${username}','${role}', '${hashed}')`);
         
         return {
             login: mail,
@@ -156,13 +132,8 @@ class SqlConnection
         };
     }
 
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<boolean>}
-     */
-    async tableExists(tableName) {
-        let result = await this.query(`
+    async tableExists(tableName: string): Promise<boolean> {
+        let result = await this.db.query(`
             SELECT COUNT(*) as 'count'
             FROM information_schema.tables
             WHERE table_schema = '${this.environement.TYPEORM_DB}'
@@ -171,57 +142,30 @@ class SqlConnection
         return result[0].count > 0;
     }
 
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
-    async getColumns(tableName)
+    async getColumns(tableName:string): Promise<any>
     {
-        return await this.query(`SHOW COLUMNS FROM ${tableName} ;`);
+        return await this.db.query(`SHOW COLUMNS FROM ${tableName} ;`);
     }
 
-    /**
-     *
-     * @param table
-     * @param fields
-     * @param supplement
-     * @returns {Promise<void>}
-     */
-    async select(table,fields,supplement = '')
+    async select(table: string,fields: string[],supplement = ''): Promise<any>
     {
-        return await this.query(`SELECT ${fields} from  ${table} ${supplement}`);
+        return await this.db.query(`SELECT ${fields} from  ${table} ${supplement}`);
     }
 
-    /**
-     *
-     * @param databaseName
-     * @returns {Promise<void>}
-     */
-    async createDatabase(databaseName)
+    async createDatabase(databaseName: string): Promise<any>
     {
-        return await this.query(`CREATE DATABASE IF NOT EXISTS ${databaseName}`);
+        return await this.db.query(`CREATE DATABASE IF NOT EXISTS ${databaseName}`);
     }
 
- 
-
-    /**
-     *
-     * @param tableName
-     * @returns {Promise<void>}
-     */
-    async dropTable(tableName)
+    async dropTable(tableName: string): Promise<any>
     {
-        return await this.query(`DROP TABLE ${tableName};`);
+        return await this.db.query(`DROP TABLE ${tableName};`);
     }
 
-    /**
-     * @description Delete all foreignKeys that point to a specific table
-     * @returns {Promise<void>}
-     * @param tableName
-     */
-    async getForeignKeysRelatedTo (tableName){
-        return await this.query(`SELECT REFERENCED_TABLE_NAME,TABLE_NAME 
+    //description: Delete all foreignKeys that point to a specific table
+    async getForeignKeysRelatedTo (tableName: string): Promise<any>
+    {
+        return await this.db.query(`SELECT REFERENCED_TABLE_NAME,TABLE_NAME 
         FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
         WHERE REFERENCED_TABLE_SCHEMA='${this.environement.TYPEORM_DB}' 
         AND REFERENCED_TABLE_NAME='${tableName}'
@@ -230,26 +174,15 @@ class SqlConnection
         `);
     }
 
-    /**
-     * @description return number table of databse 
-     * @param database
-     */
-    async getTablesCount(database){
-        let result = await this.query(`SELECT count(*) AS TOTALNUMBEROFTABLES 
+    //description: return number table of databse 
+    async getTablesCount(database: string){
+        let result = await this.db.query(`SELECT count(*) AS TOTALNUMBEROFTABLES 
         FROM INFORMATION_SCHEMA.TABLES 
         WHERE TABLE_SCHEMA = '${database}'`);
     return result[0].TOTALNUMBEROFTABLES ;
     }
 
-    
-
-    /**
-     *
-     * @param path
-     * @param table
-     * @returns {Promise<void>}
-     */
-    async dumpTable(path,table)
+    async dumpTable(path: string | object,table: string): Promise<void>
     {
         await mysqldump({
             connection: {
@@ -266,13 +199,7 @@ class SqlConnection
         });
     }
 
-    /**
-     *
-     * @param path
-     * @param dumpOptions
-     * @returns {Promise<void>}
-     */
-    async dumpAll(path,{dumpOptions})
+    async dumpAll(path: string | object,{dumpOptions}): Promise<any>
     {
         const options = {
             connection: {
@@ -293,10 +220,11 @@ class SqlConnection
     }
 }
 
-exports.DatabaseEnv = DatabaseEnv;
-exports.SqlConnection = SqlConnection;
+//exports.DatabaseEnv = DatabaseEnv;
+//exports.SqlConnection = SqlConnection;
 
-exports.getSqlConnectionFromNFW = async () => {
+export async function getSqlConnectionFromNFW () {
+
     const nfwFile = fs.readFileSync('.nfw','utf-8');
     let nfwEnv = JSON.parse(nfwFile).env;
 

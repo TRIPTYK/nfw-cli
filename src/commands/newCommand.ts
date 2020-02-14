@@ -5,39 +5,31 @@
  */
 
 // Node modules
-const chalk = require('chalk');
-const clearConsole = require('clear');
-const { Spinner } = require('clui');
+import chalk from 'chalk';
+import clearConsole = require('clear');
+import { Spinner } from 'clui';
 
 // Project imports
-const newAction = require('../actions/newAction');
-const migrateAction = require('../actions/migrateAction');
-const createSuperUserAction = require('../actions/createSuperUserAction');
-const Log = require('../utils/log');
+import newAction = require('../actions/newAction');
+import migrateAction = require('../actions/migrateAction');
+import createSuperUserAction = require('../actions/createSuperUserAction');
+import Log = require('../utils/log');
+import yargs = require('yargs');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'new';
+//yargs comand
+export const command: string = 'new <name>';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['n'];
+//yargs command aliases
+export const aliases: string[] = ['n'];
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generate a new project';
+//yargs command desc
+export const describe: string = 'Generate a new project';
 
 /**
  * Yargs command builder
  * @param yargs
  */
-exports.builder = (yargs) => {
+export function builder (yargs) {
     yargs.option('default', {
         desc: "Generate a project with default env variables",
         type: "boolean",
@@ -59,8 +51,8 @@ exports.builder = (yargs) => {
  * Main function
  * @param argv
  */
-exports.handler = async (argv) => {
-    const name = argv._[1];
+export async function handler (argv: any){
+    const name = argv.name;
     const defaultEnv = argv.default;
     const useDifferentPath = argv.path;
     const useYarn = argv.yarn;
@@ -74,11 +66,12 @@ exports.handler = async (argv) => {
     );
 
     // process cwd is changed in newAction to the new project folder
-    await newAction(name, !defaultEnv, useDifferentPath, useYarn)
+    await new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).Main()
         .then(() => {
             Log.success("New project generated successfully");
         })
         .catch((e) => {
+            console.log(e);
             Log.error("Error when generating new project : " + e.message);
             process.exit();
         });
@@ -86,8 +79,8 @@ exports.handler = async (argv) => {
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();
 
-    await migrateAction("init_project")
-        .then((generated) => {
+    await new migrateAction.MigrateActionClass("init_project").Main()
+        .then((generated: any) => {
             const [migrationDir] = generated;
             Log.success(`Executed migration successfully`);
             Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
@@ -98,8 +91,8 @@ exports.handler = async (argv) => {
 
     migrationSpinner.stop();
 
-    await createSuperUserAction("admin")
-        .then((generated) => {
+    await new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+        .then((generated: any) => {
             const [ filePath ] = generated;
 
             Log.info(`Created ${filePath}`);

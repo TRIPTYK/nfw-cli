@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module createSuperAction
  * @description creates a super user
@@ -39,37 +40,52 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var fs = require('fs');
-var ejs = require('ejs');
-var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnectionFromNFW;
+var fs = require("fs");
+var ejs = require("ejs");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 /**
  * Main function
  * @param username
  * @returns {Promise<string[]>}
  */
-module.exports = function (_a) {
-    var username = _a.username, mail = _a.mail, role = _a.role, password = _a.password;
-    return __awaiter(_this, void 0, void 0, function () {
-        var sqlConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, getSqlConnectionFromNFW()];
-                case 1:
-                    sqlConnection = _b.sent();
-                    return [4 /*yield*/, sqlConnection.insertAdmin({ username: username, mail: mail, role: role, password: password })];
-                case 2:
-                    credentials = _b.sent();
-                    credentialsFileName = credentials.login + "-credentials.json";
-                    credentialsTemplate = fs.readFileSync(__baseDir + "/templates/custom/userCredentials.ejs", 'utf-8');
-                    compiled = ejs.compile(credentialsTemplate)({
-                        login: credentials.login,
-                        password: credentials.password
-                    });
-                    fs.writeFileSync(credentialsFileName, compiled);
-                    return [2 /*return*/, [credentialsFileName]];
-            }
+var CreateSuperUSerActionClass = /** @class */ (function () {
+    function CreateSuperUSerActionClass(username, mail, role, password) {
+        this.username = username;
+        this.mail = mail;
+        this.role = role;
+        this.password = password;
+    }
+    CreateSuperUSerActionClass.prototype.Main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var sqlConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 1:
+                        sqlConnection = _a.sent();
+                        return [4 /*yield*/, sqlConnection.insertAdmin({
+                                username: this.username,
+                                mail: this.mail,
+                                role: this.role,
+                                password: this.password
+                            })];
+                    case 2:
+                        credentials = _a.sent();
+                        credentialsFileName = credentials.login + "-credentials.json";
+                        credentialsTemplate = fs.readFileSync(__baseDir + "/src/templates/custom/userCredentials.ejs", 'utf-8');
+                        compiled = ejs.compile(credentialsTemplate)({
+                            login: credentials.login,
+                            password: credentials.password
+                        });
+                        fs.writeFileSync(credentialsFileName, compiled);
+                        return [2 /*return*/, [credentialsFileName]];
+                }
+            });
         });
-    });
-};
+    };
+    return CreateSuperUSerActionClass;
+}());
+exports.CreateSuperUSerActionClass = CreateSuperUSerActionClass;
+;

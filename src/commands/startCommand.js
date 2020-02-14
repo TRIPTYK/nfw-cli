@@ -71,20 +71,27 @@ exports.handler = async (argv) => {
     const sqlConnection = new SqlConnection();
 
     try {
+        console.log('TEST 4');
         await sqlConnection.connect(currentEnv);
+        console.log('TEST 10');
+
         connected = true;
     } catch (e) {
+        console.log('TEST 5');
         connected = e;
         let clonedEnv = { ... currentEnv };
+        
         delete clonedEnv.TYPEORM_DB;
-        await sqlConnection.connect(clonedEnv)
-            .catch((e) => {
-                Log.error("Failed to pre-connect to database : " + e.message);
-                Log.info(`Please check your ${environement} configuration and if your server is running`);
-                process.exit(1);
-            });
+
+        await sqlConnection.connect(clonedEnv).catch((e) => {
+            console.log('TEST 6');
+            Log.error("Failed to pre-connect to database : " + e.message);
+            Log.info(`Please check your ${environement} configuration and if your server is running`);
+            process.exit(1);
+        });
 
         if (e.code === 'ER_BAD_DB_ERROR') {
+            console.log('TEST3: ')
             const dbName = currentEnv.TYPEORM_DB;
             const confirmation = (await inquirer.askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
@@ -92,19 +99,23 @@ exports.handler = async (argv) => {
 
             await migrateAction(`create-db-${dbName}`)
                 .then((generated) => {
+                    console.log('TEST 7');
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);
                     Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
                     connected = true;
                 })
                 .catch((err) => {
+                    console.log('TEST 8');
                     connected = err;
                 });
         }
     }
 
-    if (connected === true)
+    if (connected === true){
         startAction(environement, monitoringEnabled);
+    }
+        
     else
         Log.error(`Server can't start because database connection failed : ${connected.message}`);
 };
