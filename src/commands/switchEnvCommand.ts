@@ -5,36 +5,24 @@
  */
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const Log = require('../utils/log');
-const Utils = require('../actions/lib/utils');
+import commandUtils = require('./commandUtils');
+import Log = require('../utils/log');
+import Utils = require('../actions/lib/utils');
 
 // node modules
-const JsonFileWriter = require('json-file-rw');
+import JsonFileWriter = require('json-file-rw');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'switchEnv <env>';
+//Yargs command
+export const command: string = 'switchEnv <env>';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['se'];
+//Yargs command aliases
+export const aliases: string[] = ['se'];
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Switch .nfw current env';
+//Yargs command description
+export const describe: string = 'Switch .nfw current env';
 
-/**
- * Yargs command builder
- * @param {yargs} yargs
- */
-exports.builder = (yargs) => {
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.positional('env', {
         type: 'string',
         description: 'Environnement to switch'
@@ -46,7 +34,8 @@ exports.builder = (yargs) => {
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = async (argv) => {
+export async function handler (argv: any): Promise<void> {
+
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 

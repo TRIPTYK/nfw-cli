@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module switchEnv
  * @description Switch env in nfw file
@@ -39,63 +40,57 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
-var commandUtils = require('./commandUtils');
-var Log = require('../utils/log');
-var Utils = require('../actions/lib/utils');
+var commandUtils = require("./commandUtils");
+var Log = require("../utils/log");
+var Utils = require("../actions/lib/utils");
 // node modules
-var JsonFileWriter = require('json-file-rw');
-/**
- * Yargs command
- * @type {string}
- */
+var JsonFileWriter = require("json-file-rw");
+//Yargs command
 exports.command = 'switchEnv <env>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['se'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Switch .nfw current env';
-/**
- * Yargs command builder
- * @param {yargs} yargs
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.positional('env', {
         type: 'string',
         description: 'Environnement to switch'
     });
-};
+}
+exports.builder = builder;
+;
 /**
  * Main function
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var env, nfwFile;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                env = argv.env;
-                if (!Utils.getEnvFilesNames().includes(env)) {
-                    Log.error("This env does not exists");
-                    process.exit(0);
-                }
-                nfwFile = new JsonFileWriter();
-                nfwFile.openSync('.nfw');
-                nfwFile.setNodeValue('env', env);
-                nfwFile.saveSync();
-                process.exit();
-                return [2 /*return*/];
-        }
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var env, nfwFile;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    env = argv.env;
+                    if (!Utils.getEnvFilesNames().includes(env)) {
+                        Log.error("This env does not exists");
+                        process.exit(0);
+                    }
+                    nfwFile = new JsonFileWriter();
+                    nfwFile.openSync('.nfw');
+                    nfwFile.setNodeValue('env', env);
+                    nfwFile.saveSync();
+                    process.exit();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;
