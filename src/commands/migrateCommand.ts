@@ -7,7 +7,7 @@
 
 // Node modules
 import reservedWords = require('reserved-words');
-import {Spinner} from 'clui';
+import { Spinner } from 'clui';
 import chalk from 'chalk';
 
 

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module utils
  * @description utilities for project
@@ -52,21 +53,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var FS = require('fs');
-var readline = require('readline');
-var snake = require('to-snake-case');
-var removeAccent = require('remove-accents');
-var reservedWords = require('reserved-words');
-var project = require('../../utils/project');
-var _a = require('../../database/sqlAdaptator'), SqlConnection = _a.SqlConnection, DatabaseEnv = _a.DatabaseEnv;
-/**
- * @description : Count the lines of a file
- * @param {string} path File path
- * @returns {Promise<number>}
- */
-exports.countLines = function (path) {
+var FS = require("fs");
+var readline = require("readline");
+var snake = require("to-snake-case");
+var removeAccent = require("remove-accents");
+var reservedWords = require("reserved-words");
+var project = require("../../utils/project");
+var sqlAdaptator_1 = require("../../database/sqlAdaptator");
+//description : Count the lines of a file
+function countLines(path) {
     var count = 0;
     return new Promise(function (resolve, reject) {
         try {
@@ -85,13 +82,11 @@ exports.countLines = function (path) {
             reject(e.message);
         }
     });
-};
-/**
- * @description prompt a question and wait for a response
- * @param {string} question
- * @returns {Promise<string>}
- */
-exports.prompt = function (question) {
+}
+exports.countLines = countLines;
+;
+//description : prompt a question and wait for a response
+function prompt(question) {
     var rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -102,76 +97,60 @@ exports.prompt = function (question) {
             rl.close();
         });
     });
-};
-/**
- * @description Check if import is present in string
- * @param {string} string
- * @param {string} importName import name
- * @returns {boolean}
- */
-exports.isImportPresent = function (string, importName) {
+}
+exports.prompt = prompt;
+;
+//description : Check if import is present in string
+function isImportPresent(string, importName) {
     var match = string.match(new RegExp("import\\s+{.*" + importName + "\\b.*}.*;", 'gm'));
     return match !== null;
-};
-/**
- * @description replace text to the first empty line of string
- * @param {string} string
- * @param {string} by text to replace by
- * @returns {string}
- */
-exports.writeToFirstEmptyLine = function (string, by) {
+}
+exports.isImportPresent = isImportPresent;
+;
+//description : replace text to the first empty line of string
+function writeToFirstEmptyLine(string, by) {
     if (by === void 0) { by = ""; }
     return string.replace(/^\s*$/m, by);
-};
-/**
- * @description remove blank lines from text
- * @param {string} string
- * @returns {string}
- */
-exports.removeEmptyLines = function (string) { return string.replace(/\n?^\s*$/gm, ""); };
-/**
- * @description check if model file exists in projet
- * @param {string} entity
- * @returns {boolean}
- */
-exports.modelFileExists = function (entity) { return exports.fileExists(process.cwd() + "/src/api/models/" + exports.lowercaseEntity(entity) + ".model.ts"); };
-/**
- * @description capitalize first letter of String
- * @param {string} entity
- * @returns {string}
- */
-exports.capitalizeEntity = function (entity) { return entity[0].toUpperCase() + entity.substr(1); };
-/**
- * @description lowercase first letter of string
- * @param {string} entity
- * @returns {string}
- */
-exports.lowercaseEntity = function (entity) { return entity[0].toLowerCase() + entity.substr(1); };
-/**
- * @description transform an sql type string to an object with type and length
- * @param {string} type
- * @returns {object}
- */
-exports.sqlTypeData = function (type) { return /(?<type>\w+)(?:\((?<length>.+)\))?/.exec(type).groups; };
-/**
- * @description check if file exists
- * @param {string} filePath
- * @returns {boolean}
- */
-exports.fileExists = function (filePath) {
+}
+exports.writeToFirstEmptyLine = writeToFirstEmptyLine;
+//description : remove blank lines from text
+function removeEmptyLines(string) {
+    return string.replace(/\n?^\s*$/gm, "");
+}
+exports.removeEmptyLines = removeEmptyLines;
+//description : check if model file exists in projet
+function modelFileExists(entity) {
+    return exports.fileExists(process.cwd() + "/src/api/models/" + exports.lowercaseEntity(entity) + ".model.ts");
+}
+exports.modelFileExists = modelFileExists;
+//description : capitalize first letter of String
+function capitalizeEntity(entity) {
+    return entity[0].toUpperCase() + entity.substr(1);
+}
+exports.capitalizeEntity = capitalizeEntity;
+//description : lowercase first letter of string
+function lowercaseEntity(entity) {
+    return entity[0].toLowerCase() + entity.substr(1);
+}
+exports.lowercaseEntity = lowercaseEntity;
+//description : transform an sql type string to an object with type and length
+function sqlTypeData(type) {
+    return /(?<type>\w+)(?:\((?<length>.+)\))?/.exec(type).groups;
+}
+exports.sqlTypeData = sqlTypeData;
+//description : check if file exists
+function fileExists(filePath) {
     try {
         return FS.statSync(filePath).isFile();
     }
     catch (err) {
         return false;
     }
-};
-/**
- * @description Create a validation to a generated model
- * @param {column} column Column name
- * @returns {object}
- */
-exports.buildJoiFromColumn = function (column) {
+}
+exports.fileExists = fileExists;
+;
+//description : Create a validation to a generated model
+function buildJoiFromColumn(column) {
     var _a = column.Type, length = _a.length, type = _a.type;
     var joiObject = {
         name: column.Field,
@@ -193,36 +172,28 @@ exports.buildJoiFromColumn = function (column) {
             joiObject.specificType = "integer";
     }
     return joiObject;
-};
-/**
- * @description Check if a table is a bridging table in a many to many relationship
- * @returns {boolean}
- * @param {string} entity
- */
-exports.isBridgindTable = function (entity) {
+}
+exports.buildJoiFromColumn = buildJoiFromColumn;
+;
+//description Check if a table is a bridging table in a many to many relationship
+function isBridgindTable(entity) {
     var columns = entity.columns, foreignKeys = entity.foreignKeys;
     columns = columns.filter(function (column) {
         return foreignKeys.find(function (elem) { return elem.COLUMN_NAME === column.Field; }) === undefined;
     });
     return columns.length === 0;
-};
-/**
- * @description Check if a column exist in a database table
- * @param {string} model Model name
- * @param {string} column Column name
- * @returns {boolean}
- */
-exports.columnExist = function (model, column) {
+}
+exports.isBridgindTable = isBridgindTable;
+;
+//description Check if a column exist in a database table
+function columnExist(model, column) {
     var modelClass = project.getSourceFile("src/api/models/" + module.exports.lowercaseEntity(model) + ".model.ts").getClasses()[0];
     return modelClass.getInstanceProperty(column) !== undefined;
-};
-/**
- * Check if relation exists in model
- * @param {string} model
- * @param {string} column
- * @returns {boolean}
- */
-exports.relationExist = function (model, column) {
+}
+exports.columnExist = columnExist;
+;
+//Description : Check if relation exists in model
+function relationExist(model, column) {
     var modelClass = project.getSourceFile("src/api/models/" + module.exports.lowercaseEntity(model) + ".model.ts").getClasses()[0];
     var relProp = modelClass.getInstanceMember(column);
     if (relProp) {
@@ -231,75 +202,67 @@ exports.relationExist = function (model, column) {
         });
     }
     return false;
-};
-/**
- * Sanitize string : removes accents and transform to snake_case
- * @param name
- * @returns {String}
- */
-exports.format = function (name) {
+}
+exports.relationExist = relationExist;
+;
+//Description : Sanitize string : removes accents and transform to snake_case
+function format(name) {
     return snake(removeAccent(name));
-};
-/**
- *
- * @param string
- * @returns {Promise<Response | undefined> | *}
- */
-exports.isAlphanumeric = function (string) {
+}
+exports.format = format;
+;
+function isAlphanumeric(string) {
     return string.match(/(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/);
-};
-/**
- *
- * @param string
- * @returns {Promise<Response | undefined> | *}
- */
-exports.isValidVarname = function (string) {
+}
+exports.isAlphanumeric = isAlphanumeric;
+;
+function isValidVarname(string) {
     return string.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/);
-};
-/**
- *
- * @param string
- * @returns {boolean}
- */
-exports.isValidParam = function (string) { return !exports.isValidVarname(string) || !reservedWords.check(string, 6); };
-exports.createDataBaseIfNotExists = function (setupEnv) { return __awaiter(_this, void 0, void 0, function () {
-    var env, sqlConnection, currentEnvData, e_1, clonedEnv;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                env = new DatabaseEnv(setupEnv + ".env");
-                sqlConnection = new SqlConnection();
-                currentEnvData = env.getEnvironment();
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 8]);
-                return [4 /*yield*/, sqlConnection.connect(env.getEnvironment())];
-            case 2:
-                _a.sent();
-                return [3 /*break*/, 8];
-            case 3:
-                e_1 = _a.sent();
-                clonedEnv = __assign({}, currentEnvData);
-                delete clonedEnv.TYPEORM_DB;
-                return [4 /*yield*/, sqlConnection.connect(clonedEnv)];
-            case 4:
-                _a.sent();
-                if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 6];
-                return [4 /*yield*/, sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB)];
-            case 5:
-                _a.sent();
-                return [3 /*break*/, 7];
-            case 6: throw new Error("Unhandled database connection error (" + e_1.code + ") : exiting ...");
-            case 7: return [3 /*break*/, 8];
-            case 8: return [2 /*return*/];
-        }
+}
+exports.isValidVarname = isValidVarname;
+;
+function isValidParam(string) {
+    return !exports.isValidVarname(string) || !reservedWords.check(string, 6);
+}
+exports.isValidParam = isValidParam;
+function createDataBaseIfNotExists(setupEnv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var env, sqlConnection, currentEnvData, e_1, clonedEnv;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    env = new sqlAdaptator_1.DatabaseEnv(setupEnv + ".env");
+                    sqlConnection = new sqlAdaptator_1.SqlConnection();
+                    currentEnvData = env.getEnvironment();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 8]);
+                    return [4 /*yield*/, sqlConnection.connect(env.getEnvironment())];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 8];
+                case 3:
+                    e_1 = _a.sent();
+                    clonedEnv = __assign({}, currentEnvData);
+                    delete clonedEnv.TYPEORM_DB;
+                    return [4 /*yield*/, sqlConnection.connect(clonedEnv)];
+                case 4:
+                    _a.sent();
+                    if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 6];
+                    return [4 /*yield*/, sqlConnection.createDatabase(env.getEnvironment().TYPEORM_DB)];
+                case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6: throw new Error("Unhandled database connection error (" + e_1.code + ") : exiting ...");
+                case 7: return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
+            }
+        });
     });
-}); };
-/**
- *
- * @param dbColumnaData object
- */
-exports.buildModelColumnArgumentsFromObject = function (dbColumnaData) {
+}
+exports.createDataBaseIfNotExists = createDataBaseIfNotExists;
+;
+function buildModelColumnArgumentsFromObject(dbColumnaData) {
     var columnArgument = {};
     columnArgument['type'] = dbColumnaData.Type.type;
     //handle default
@@ -336,13 +299,10 @@ exports.buildModelColumnArgumentsFromObject = function (dbColumnaData) {
             columnArgument['length'] = length_1;
     }
     return columnArgument;
-};
-/**
- *
- * @param dbColumnaData object
- * @param isUpdate
- */
-exports.buildValidationArgumentsFromObject = function (dbColumnaData, isUpdate) {
+}
+exports.buildModelColumnArgumentsFromObject = buildModelColumnArgumentsFromObject;
+;
+function buildValidationArgumentsFromObject(dbColumnaData, isUpdate) {
     if (isUpdate === void 0) { isUpdate = false; }
     var validationArguments = {};
     if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt', 'updatedAt'].includes(dbColumnaData.Field)))
@@ -393,6 +353,7 @@ exports.buildValidationArgumentsFromObject = function (dbColumnaData, isUpdate) 
         validationArguments['custom'] = {
             errorMessage: 'This field is not a valid date',
             options: function (date) {
+                // @ts-ignore
                 return Moment(date, true).isValid();
             }
         };
@@ -405,17 +366,16 @@ exports.buildValidationArgumentsFromObject = function (dbColumnaData, isUpdate) 
         };
     }
     return validationArguments;
-};
-/**
- * Get env files in directory
- * @param {string} directory
- * @return {string[]}
- */
-exports.getEnvFilesNames = function (directory) {
+}
+exports.buildValidationArgumentsFromObject = buildValidationArgumentsFromObject;
+;
+//Description : Get env files in directory
+function getEnvFilesNames(directory) {
     if (directory === void 0) { directory = '.'; }
     var files = FS.readdirSync(directory);
     // select only env files
     return files
         .filter(function (file) { return file.includes('.env'); })
         .map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
-};
+}
+exports.getEnvFilesNames = getEnvFilesNames;
