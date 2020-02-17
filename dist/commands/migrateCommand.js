@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module migrateCommmand
  * @description Command module to execute migration of a model
@@ -39,35 +40,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var reservedWords = require('reserved-words');
-var Spinner = require('clui').Spinner;
-var chalk = require('chalk');
+var reservedWords = require("reserved-words");
+var clui_1 = require("clui");
+var chalk_1 = require("chalk");
 // Project imports
-var commandUtils = require('./commandUtils');
-var Log = require('../utils/log');
-var migrateAction = require('../actions/migrateAction');
-var utils = require('../actions/lib/utils');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var Log = require("../utils/log");
+var migrateAction = require("../actions/migrateAction");
+var utils = require("../actions/lib/utils");
+//Yargs command
 exports.command = 'migrate <migrateName>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ["mig", "M"];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Generate, compile and run the migration';
-/**
- * Yargs command builder
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.check(_validateArgs);
     yargs.option('restore', {
         desc: "Restore migration data at a specific state",
@@ -84,7 +74,9 @@ exports.builder = function (yargs) {
         type: "boolean",
         default: false
     });
-};
+}
+exports.builder = builder;
+;
 /**
  *
  * @param argv
@@ -98,42 +90,42 @@ var _validateArgs = function (argv, options) {
         throw new Error("<migrateName> is a reserved word");
     return true;
 };
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var modelName, restore, dump, revert, spinner;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                modelName = argv.migrateName;
-                restore = argv.restore;
-                dump = argv.dump;
-                revert = argv.revert;
-                spinner = new Spinner("Generating and executing migration");
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 1:
-                _a.sent();
-                commandUtils.updateORMConfig();
-                spinner.start();
-                return [4 /*yield*/, migrateAction(modelName, restore, dump, revert)
-                        .then(function (generated) {
-                        var migrationDir = generated[0];
-                        spinner.stop(true);
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk.cyan(migrationDir));
-                    })
-                        .catch(function (e) {
-                        spinner.stop(true);
-                        Log.error(e.message);
-                    })];
-            case 2:
-                _a.sent();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+//Main function
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var modelName, restore, dump, revert, spinner;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    modelName = argv.migrateName;
+                    restore = argv.restore;
+                    dump = argv.dump;
+                    revert = argv.revert;
+                    spinner = new clui_1.Spinner("Generating and executing migration");
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 1:
+                    _a.sent();
+                    commandUtils.updateORMConfig();
+                    spinner.start();
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName, restore, dump, revert).Main()
+                            .then(function (generated) {
+                            var migrationDir = generated[0];
+                            spinner.stop();
+                            Log.success("Executed migration successfully");
+                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        })
+                            .catch(function (e) {
+                            spinner.stop();
+                            Log.error(e.message);
+                        })];
+                case 2:
+                    _a.sent();
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

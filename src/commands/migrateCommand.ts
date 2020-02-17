@@ -6,39 +6,29 @@
 
 
 // Node modules
-const reservedWords = require('reserved-words');
-const {Spinner} = require('clui');
-const chalk = require('chalk');
+import reservedWords = require('reserved-words');
+import {Spinner} from 'clui';
+import chalk from 'chalk';
 
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const Log = require('../utils/log');
-const migrateAction = require('../actions/migrateAction');
-const utils = require('../actions/lib/utils');
+import commandUtils = require('./commandUtils');
+import Log = require('../utils/log');
+import migrateAction = require('../actions/migrateAction');
+import utils = require('../actions/lib/utils');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'migrate <migrateName>';
+//Yargs command
+export const command: string = 'migrate <migrateName>';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ["mig", "M"];
+//Yargs command aliases
+export const aliases: string[] = ["mig", "M"];
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generate, compile and run the migration';
+//Yargs command description
+export const describe: string = 'Generate, compile and run the migration';
 
-/**
- * Yargs command builder
- */
-exports.builder = (yargs) => {
+
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.check(_validateArgs);
     yargs.option('restore', {
         desc: "Restore migration data at a specific state",
@@ -63,18 +53,14 @@ exports.builder = (yargs) => {
  * @param options
  * @return {boolean}
  */
-const _validateArgs = (argv,options) => {
+const _validateArgs = (argv: any, options: boolean): boolean => {
     if (!utils.isAlphanumeric(argv.migrateName)) throw new Error("<migrateName> is non alphanumeric");
     if (reservedWords.check(argv.migrateName, 6)) throw new Error("<migrateName> is a reserved word");
     return true;
 };
 
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = async (argv) => {
+//Main function
+export async function handler (argv: any): Promise<void> {
     const modelName = argv.migrateName;
     const restore = argv.restore;
     const dump = argv.dump ;
@@ -88,15 +74,15 @@ exports.handler = async (argv) => {
 
     spinner.start();
 
-    await migrateAction(modelName,restore,dump,revert)
+    await new migrateAction.MigrateActionClass(modelName,restore,dump,revert).Main()
         .then((generated) => {
             const [migrationDir] = generated;
-            spinner.stop(true);
+            spinner.stop();
             Log.success(`Executed migration successfully`);
             Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
         })
         .catch((e) => {
-            spinner.stop(true);
+            spinner.stop();
             Log.error(e.message);
         });
 
