@@ -45,11 +45,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
 var ejs = require("ejs");
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
-/**
- * Main function
- * @param username
- * @returns {Promise<string[]>}
- */
 var CreateSuperUSerActionClass = /** @class */ (function () {
     function CreateSuperUSerActionClass(username, mail, role, password) {
         this.username = username;
@@ -57,6 +52,7 @@ var CreateSuperUSerActionClass = /** @class */ (function () {
         this.role = role;
         this.password = password;
     }
+    //description: create super user
     CreateSuperUSerActionClass.prototype.Main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var sqlConnection, credentials, credentialsFileName, credentialsTemplate, compiled;

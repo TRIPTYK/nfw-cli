@@ -56,10 +56,7 @@ exports.command = 'new <name>';
 exports.aliases = ['n'];
 //yargs command desc
 exports.describe = 'Generate a new project';
-/**
- * Yargs command builder
- * @param yargs
- */
+//Yargs command builder
 function builder(yargs) {
     yargs.option('default', {
         desc: "Generate a project with default env variables",
@@ -79,10 +76,7 @@ function builder(yargs) {
 }
 exports.builder = builder;
 ;
-/**
- * Main function
- * @param argv
- */
+//Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
         var name, defaultEnv, useDifferentPath, useYarn, migrationSpinner;

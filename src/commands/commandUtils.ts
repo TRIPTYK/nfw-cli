@@ -5,44 +5,37 @@
  */
 
 // node modules
-const chalk = require('chalk');
-const fs = require('fs');
-const { promisify } = require('util');
-const path = require('path');
-const util = require('util');
+import chalk from 'chalk';
+import fs = require('fs');
+import { promisify } from 'util';
+import path = require('path');
+import util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 // project modules
-const filesHelper = require('../utils/files');
-const { SqlConnection , DatabaseEnv } = require('../database/sqlAdaptator');
-const Log = require('../utils/log');
+import filesHelper = require('../utils/files');
+import { SqlConnection , DatabaseEnv } from '../database/sqlAdaptator';
+import Log = require('../utils/log');
 const readFilePromise = promisify(fs.readFile);
-const JsonFileWriter = require('json-file-rw');
-const dotenv = require('dotenv');
+import JsonFileWriter = require('json-file-rw');
+import dotenv = require('dotenv');
 
-/**
- * Check if we are in a valid project directory
- * @return {void}
- */
-exports.validateDirectory = () => {
+//Check if we are in a valid project directory
+export function validateDirectory(): void {
     if (!filesHelper.isProjectDirectory()) {
         console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
         process.exit(0);
     }
 };
 
-/**
- *
- * @param string
- */
-exports.checkValidParam = (string) => {
-    if (!util.isValidParam(string)) {
+export function checkValidParam (string: string) {
+    if (!util.isString(string)) {
         Log.error(`'${string}' must be alphanumeric and not beginning by a number`);
         process.exit();
     }
 };
 
-exports.startDockerContainers = async (environement) => {
+export async function startDockerContainers (environement: string) {
     const nfwFile = new JsonFileWriter();
     nfwFile.openSync(".nfw");
     const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -60,7 +53,7 @@ exports.startDockerContainers = async (environement) => {
     await snooze(1000);
 }
 
-exports.updateORMConfig = (environement = null) => {
+export function updateORMConfig (environement = null) {
     if (environement === null) {
         const nfwFile = new JsonFileWriter();
         nfwFile.openSync(".nfw");
@@ -88,11 +81,7 @@ exports.updateORMConfig = (environement = null) => {
     return ormconfigFile.saveSync();
 }
 
-/**
- *
- * @returns {Promise<void>}
- */
-exports.checkConnectToDatabase = async () => {
+export async function checkConnectToDatabase (): Promise<void> {
     try {
         await new SqlConnection(exports.getCurrentEnvironment()).connect();
     }catch(e) {
@@ -105,7 +94,7 @@ exports.checkConnectToDatabase = async () => {
  *
  * @returns {DatabaseEnv}
  */
-exports.getCurrentEnvironment = () => {
+export function getCurrentEnvironment (): DatabaseEnv {
     const nfwFile = fs.readFileSync('.nfw','utf-8');
     let nfwEnv = JSON.parse(nfwFile).env;
 
@@ -118,8 +107,8 @@ exports.getCurrentEnvironment = () => {
  *
  * @return {Promise<void>}
  */
-exports.checkVersion = async () => {
-    let [packageJsonCLI,packageJsonNFW] = await Promise.all(
+export async function checkVersion (): Promise<void> {
+    let [packageJsonCLI,packageJsonNFW]: any = await Promise.all(
         [readFilePromise(__baseDir + "/package.json","utf-8"),readFilePromise(process.cwd() + "/package.json","utf-8")]
     );
     packageJsonCLI = JSON.parse(packageJsonCLI);

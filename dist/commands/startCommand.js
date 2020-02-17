@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -45,129 +46,112 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module startCommand
  * @description Command module to handle server start and monitoring
  * @author Deflorenne Amaury
  */
-var chalk = require('chalk');
+var chalk_1 = require("chalk");
 // node modules
 var inquirer = require("../utils/inquirer");
 // Project imports
-var commandUtils = require('./commandUtils');
-var startAction = require('../actions/startAction');
-var migrateAction = require('../actions/migrateAction');
-var SqlConnection = require("../database/sqlAdaptator").SqlConnection;
-var Log = require('../utils/log');
-var JsonFileWriter = require('json-file-rw');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var startAction = require("../actions/startAction");
+var migrateAction = require("../actions/migrateAction");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var Log = require("../utils/log");
+var JsonFileWriter = require("json-file-rw");
+//Yargs command
 exports.command = 'start';
-/**
- * Yargs command aliases
- * @type {Array}
- */
+//Yargs command aliases
 exports.aliases = [];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Start the api server';
-/**
- * Yargs command builder
- * @param yargs
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.option('env', {
         desc: "Specify the environement type",
         type: "string"
     });
-};
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var environement, monitoringEnabled, nfwFile, connected, currentEnv, sqlConnection, e_1, clonedEnv, dbName, confirmation;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                environement = argv.env;
-                monitoringEnabled = argv.monitoring;
-                nfwFile = new JsonFileWriter();
-                nfwFile.openSync(".nfw");
-                if (environement === undefined) {
-                    environement = nfwFile.getNodeValue("env", "development");
-                }
-                commandUtils.updateORMConfig(environement);
-                return [4 /*yield*/, commandUtils.startDockerContainers(environement)];
-            case 1:
-                _a.sent();
-                currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
-                sqlConnection = new SqlConnection();
-                _a.label = 2;
-            case 2:
-                _a.trys.push([2, 4, , 11]);
-                console.log('TEST 4');
-                return [4 /*yield*/, sqlConnection.connect(currentEnv)];
-            case 3:
-                _a.sent();
-                console.log('TEST 10');
-                connected = true;
-                return [3 /*break*/, 11];
-            case 4:
-                e_1 = _a.sent();
-                console.log('TEST 5');
-                connected = e_1;
-                clonedEnv = __assign({}, currentEnv);
-                delete clonedEnv.TYPEORM_DB;
-                return [4 /*yield*/, sqlConnection.connect(clonedEnv).catch(function (e) {
-                        console.log('TEST 6');
-                        Log.error("Failed to pre-connect to database : " + e.message);
-                        Log.info("Please check your " + environement + " configuration and if your server is running");
-                        process.exit(1);
-                    })];
-            case 5:
-                _a.sent();
-                if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 10];
-                console.log('TEST3: ');
-                dbName = currentEnv.TYPEORM_DB;
-                return [4 /*yield*/, inquirer.askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
-            case 6:
-                confirmation = (_a.sent()).confirmation;
-                if (!confirmation) return [3 /*break*/, 8];
-                return [4 /*yield*/, sqlConnection.createDatabase(dbName)];
-            case 7:
-                _a.sent();
-                _a.label = 8;
-            case 8: return [4 /*yield*/, migrateAction("create-db-" + dbName)
-                    .then(function (generated) {
-                    console.log('TEST 7');
-                    var migrationDir = generated[0];
-                    Log.success("Executed migration successfully");
-                    Log.info("Generated in " + chalk.cyan(migrationDir));
+}
+exports.builder = builder;
+;
+//Main function
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var environement, monitoringEnabled, nfwFile, connected, currentEnv, sqlConnection, e_1, clonedEnv, dbName, confirmation;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    environement = argv.env;
+                    monitoringEnabled = argv.monitoring;
+                    nfwFile = new JsonFileWriter();
+                    nfwFile.openSync(".nfw");
+                    if (environement === undefined) {
+                        environement = nfwFile.getNodeValue("env", "development");
+                    }
+                    commandUtils.updateORMConfig(environement);
+                    return [4 /*yield*/, commandUtils.startDockerContainers(environement)];
+                case 1:
+                    _a.sent();
+                    currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
+                    sqlConnection = new sqlAdaptator_1.SqlConnection();
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 4, , 11]);
+                    return [4 /*yield*/, sqlConnection.connect(currentEnv)];
+                case 3:
+                    _a.sent();
                     connected = true;
-                })
-                    .catch(function (err) {
-                    console.log('TEST 8');
-                    connected = err;
-                })];
-            case 9:
-                _a.sent();
-                _a.label = 10;
-            case 10: return [3 /*break*/, 11];
-            case 11:
-                if (connected === true) {
-                    startAction(environement, monitoringEnabled);
-                }
-                else
-                    Log.error("Server can't start because database connection failed : " + connected.message);
-                return [2 /*return*/];
-        }
+                    return [3 /*break*/, 11];
+                case 4:
+                    e_1 = _a.sent();
+                    connected = e_1;
+                    clonedEnv = __assign({}, currentEnv);
+                    delete clonedEnv.TYPEORM_DB;
+                    return [4 /*yield*/, sqlConnection.connect(clonedEnv).catch(function (e) {
+                            Log.error("Failed to pre-connect to database : " + e.message);
+                            Log.info("Please check your " + environement + " configuration and if your server is running");
+                            process.exit(1);
+                        })];
+                case 5:
+                    _a.sent();
+                    if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 10];
+                    dbName = currentEnv.TYPEORM_DB;
+                    return [4 /*yield*/, inquirer.askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
+                case 6:
+                    confirmation = (_a.sent()).confirmation;
+                    if (!confirmation) return [3 /*break*/, 8];
+                    return [4 /*yield*/, sqlConnection.createDatabase(dbName)];
+                case 7:
+                    _a.sent();
+                    _a.label = 8;
+                case 8: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).Main()
+                        .then(function (generated) {
+                        var migrationDir = generated[0];
+                        Log.success("Executed migration successfully");
+                        Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        connected = true;
+                    })
+                        .catch(function (err) {
+                        connected = err;
+                    })];
+                case 9:
+                    _a.sent();
+                    _a.label = 10;
+                case 10: return [3 /*break*/, 11];
+                case 11:
+                    if (connected === true) {
+                        new startAction.StartActionClass(environement, monitoringEnabled).Main();
+                    }
+                    else
+                        Log.error("Server can't start because database connection failed : " + connected.message);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

@@ -25,11 +25,9 @@ export const aliases: string[] = ['n'];
 //yargs command desc
 export const describe: string = 'Generate a new project';
 
-/**
- * Yargs command builder
- * @param yargs
- */
-export function builder (yargs) {
+
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.option('default', {
         desc: "Generate a project with default env variables",
         type: "boolean",
@@ -47,10 +45,8 @@ export function builder (yargs) {
     });
 };
 
-/**
- * Main function
- * @param argv
- */
+
+//Main function
 export async function handler (argv: any){
     const name = argv.name;
     const defaultEnv = argv.default;

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module commandUtils
  * @description Functions to help in command modules
@@ -39,65 +40,65 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var chalk = require('chalk');
-var fs = require('fs');
-var promisify = require('util').promisify;
-var path = require('path');
-var util = require('util');
+var chalk_1 = require("chalk");
+var fs = require("fs");
+var util_1 = require("util");
+var path = require("path");
+var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 // project modules
-var filesHelper = require('../utils/files');
-var _a = require('../database/sqlAdaptator'), SqlConnection = _a.SqlConnection, DatabaseEnv = _a.DatabaseEnv;
-var Log = require('../utils/log');
-var readFilePromise = promisify(fs.readFile);
-var JsonFileWriter = require('json-file-rw');
-var dotenv = require('dotenv');
-/**
- * Check if we are in a valid project directory
- * @return {void}
- */
-exports.validateDirectory = function () {
+var filesHelper = require("../utils/files");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var Log = require("../utils/log");
+var readFilePromise = util_1.promisify(fs.readFile);
+var JsonFileWriter = require("json-file-rw");
+var dotenv = require("dotenv");
+//Check if we are in a valid project directory
+function validateDirectory() {
     if (!filesHelper.isProjectDirectory()) {
-        console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
+        console.log(chalk_1.default.bgRed(chalk_1.default.black('ERROR ! : You are not in a project directory')));
         process.exit(0);
     }
-};
-/**
- *
- * @param string
- */
-exports.checkValidParam = function (string) {
-    if (!util.isValidParam(string)) {
+}
+exports.validateDirectory = validateDirectory;
+;
+function checkValidParamk(string) {
+    if (!util.isString(string)) {
         Log.error("'" + string + "' must be alphanumeric and not beginning by a number");
         process.exit();
     }
-};
-exports.startDockerContainers = function (environement) { return __awaiter(_this, void 0, void 0, function () {
-    var nfwFile, snooze, containers, _i, containers_1, container;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                nfwFile = new JsonFileWriter();
-                nfwFile.openSync(".nfw");
-                snooze = function (ms) { return new Promise(function (resolve) { return setTimeout(resolve, ms); }); };
-                if (nfwFile.nodeExists(environement + ".dockerContainers")) {
-                    containers = nfwFile.getNodeValue(environement + ".dockerContainers");
-                    for (_i = 0, containers_1 = containers; _i < containers_1.length; _i++) {
-                        container = containers_1[_i];
-                        Log.info("Starting your docker container " + container);
-                        exec("docker start " + container);
+}
+exports.checkValidParamk = checkValidParamk;
+;
+function startDockerContainers(environement) {
+    return __awaiter(this, void 0, void 0, function () {
+        var nfwFile, snooze, containers, _i, containers_1, container;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    nfwFile = new JsonFileWriter();
+                    nfwFile.openSync(".nfw");
+                    snooze = function (ms) { return new Promise(function (resolve) { return setTimeout(resolve, ms); }); };
+                    if (nfwFile.nodeExists(environement + ".dockerContainers")) {
+                        containers = nfwFile.getNodeValue(environement + ".dockerContainers");
+                        for (_i = 0, containers_1 = containers; _i < containers_1.length; _i++) {
+                            container = containers_1[_i];
+                            Log.info("Starting your docker container " + container);
+                            exec("docker start " + container);
+                        }
                     }
-                }
-                return [4 /*yield*/, snooze(1000)];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
+                    return [4 /*yield*/, snooze(1000)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
-exports.updateORMConfig = function (environement) {
+}
+exports.startDockerContainers = startDockerContainers;
+function updateORMConfig(environement) {
     if (environement === void 0) { environement = null; }
     if (environement === null) {
         var nfwFile = new JsonFileWriter();
@@ -121,57 +122,63 @@ exports.updateORMConfig = function (environement) {
     ormconfigFile.setNodeValue("password", envFile.TYPEORM_PWD);
     ormconfigFile.setNodeValue("port", envFile.TYPEORM_PORT);
     return ormconfigFile.saveSync();
-};
-/**
- *
- * @returns {Promise<void>}
- */
-exports.checkConnectToDatabase = function () { return __awaiter(_this, void 0, void 0, function () {
-    var e_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, new SqlConnection(exports.getCurrentEnvironment()).connect()];
-            case 1:
-                _a.sent();
-                return [3 /*break*/, 3];
-            case 2:
-                e_1 = _a.sent();
-                Log.error("Can't connect to database : " + e_1.message);
-                process.exit();
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
-        }
+}
+exports.updateORMConfig = updateORMConfig;
+function checkConnectToDatabase() {
+    return __awaiter(this, void 0, void 0, function () {
+        var e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, new sqlAdaptator_1.SqlConnection(exports.getCurrentEnvironment()).connect()];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_1 = _a.sent();
+                    Log.error("Can't connect to database : " + e_1.message);
+                    process.exit();
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.checkConnectToDatabase = checkConnectToDatabase;
+;
 /**
  *
  * @returns {DatabaseEnv}
  */
-exports.getCurrentEnvironment = function () {
+function getCurrentEnvironment() {
     var nfwFile = fs.readFileSync('.nfw', 'utf-8');
     var nfwEnv = JSON.parse(nfwFile).env;
     if (!nfwEnv)
         nfwEnv = 'development';
-    return new DatabaseEnv(nfwEnv.toLowerCase() + ".env");
-};
+    return new sqlAdaptator_1.DatabaseEnv(nfwEnv.toLowerCase() + ".env");
+}
+exports.getCurrentEnvironment = getCurrentEnvironment;
+;
 /**
  *
  * @return {Promise<void>}
  */
-exports.checkVersion = function () { return __awaiter(_this, void 0, void 0, function () {
-    var _a, packageJsonCLI, packageJsonNFW;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0: return [4 /*yield*/, Promise.all([readFilePromise(__baseDir + "/package.json", "utf-8"), readFilePromise(process.cwd() + "/package.json", "utf-8")])];
-            case 1:
-                _a = _b.sent(), packageJsonCLI = _a[0], packageJsonNFW = _a[1];
-                packageJsonCLI = JSON.parse(packageJsonCLI);
-                packageJsonNFW = JSON.parse(packageJsonNFW);
-                if (packageJsonCLI.version > packageJsonNFW.version)
-                    Log.warning("Your version of NFW is for an old verson of NFW-CLI , you may encounter unexpected behavior. Consider upgrading your nfw or downgrade your CLI to " + packageJsonNFW.version);
-                return [2 /*return*/];
-        }
+function checkVersion() {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, packageJsonCLI, packageJsonNFW;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, Promise.all([readFilePromise(__baseDir + "/package.json", "utf-8"), readFilePromise(process.cwd() + "/package.json", "utf-8")])];
+                case 1:
+                    _a = _b.sent(), packageJsonCLI = _a[0], packageJsonNFW = _a[1];
+                    packageJsonCLI = JSON.parse(packageJsonCLI);
+                    packageJsonNFW = JSON.parse(packageJsonNFW);
+                    if (packageJsonCLI.version > packageJsonNFW.version)
+                        Log.warning("Your version of NFW is for an old verson of NFW-CLI , you may encounter unexpected behavior. Consider upgrading your nfw or downgrade your CLI to " + packageJsonNFW.version);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.checkVersion = checkVersion;

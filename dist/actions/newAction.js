@@ -64,14 +64,6 @@ var renameDir = util.promisify(fs.rename);
 var WriteFile = util.promisify(fs.writeFile);
 // module vars
 var newPath = undefined;
-/*
- *  @description Generate a new project
- *  @param {string} name Project name
- *  @param {boolean} defaultEnv
- *  @param {boolean} pathOption Ask for path
- *  @param {boolean} yarn Install dependencies with yarn
- *  @returns {Promise<void>}
- */
 var NewActionClass = /** @class */ (function () {
     function NewActionClass(name, defaultenv, pathoption, yarn) {
         this.name = name;
@@ -79,6 +71,7 @@ var NewActionClass = /** @class */ (function () {
         this.pathOption = pathoption;
         this.yarn = yarn;
     }
+    //description: Generate a new project
     NewActionClass.prototype.Main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var pckManager, envVar, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;

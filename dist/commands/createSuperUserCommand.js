@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module createSuperUserCommand
  * @description Creates a super user in the boilerplate database
@@ -39,32 +40,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 //Node modules imports
-var chalk = require('chalk');
+var chalk_1 = require("chalk");
 // Project imports
-var commandUtils = require('./commandUtils');
-var Log = require('../utils/log');
-var createSuperUserAction = require('../actions/createSuperUserAction');
-/**
- * Yargs command syntax
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var Log = require("../utils/log");
+var createSuperUserAction = require("../actions/createSuperUserAction");
+//Yargs command syntax
 exports.command = 'createUser <username>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['cu'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Create a Super User and save the credentials in a file';
-/**
- *  Yargs command builder
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.option('mail', {
         alias: 'e',
         type: 'string',
@@ -80,13 +70,11 @@ exports.builder = function (yargs) {
         type: 'string',
         description: 'Password of the user'
     });
-};
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
+}
+exports.builder = builder;
+;
+//Main function
+exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, function () {
     var username, mail, role, password;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -97,12 +85,12 @@ exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, func
             case 1:
                 _a.sent();
                 commandUtils.updateORMConfig();
-                return [4 /*yield*/, createSuperUserAction({ username: username, mail: mail, role: role, password: password })
+                return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(username, mail, role, password).Main()
                         .then(function (generated) {
                         var filePath = generated[0];
                         Log.info("Created " + filePath);
-                        console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :')) +
-                            ("\nYou have generated a " + role + " user named " + chalk.red(username) + " for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password"));
+                        console.log(chalk_1.default.bgYellow(chalk_1.default.black('/!\\ WARNING /!\\ :')) +
+                            ("\nYou have generated a " + role + " user named " + chalk_1.default.red(username) + " for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password"));
                     })
                         .catch(function (e) {
                         Log.error("Failed to create super user : " + e.message);

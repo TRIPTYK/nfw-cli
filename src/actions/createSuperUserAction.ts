@@ -10,11 +10,7 @@ import * as ejs from 'ejs';
 
 import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
 
-/**
- * Main function
- * @param username
- * @returns {Promise<string[]>}
- */
+
 export class CreateSuperUSerActionClass {
 
     username: string;
@@ -29,6 +25,7 @@ export class CreateSuperUSerActionClass {
         this.password = password;
     }
 
+    //description: create super user
     async Main(){
 
         const sqlConnection = await getSqlConnectionFromNFW();

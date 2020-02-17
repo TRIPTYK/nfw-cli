@@ -32,15 +32,6 @@ import {getSqlConnectionFromNFW} from "../database/sqlAdaptator";
 // module vars
 let newPath = undefined;
 
-/*
- *  @description Generate a new project
- *  @param {string} name Project name
- *  @param {boolean} defaultEnv
- *  @param {boolean} pathOption Ask for path
- *  @param {boolean} yarn Install dependencies with yarn
- *  @returns {Promise<void>}
- */
-
 
 export class NewActionClass {
     
@@ -56,6 +47,7 @@ export class NewActionClass {
         this.yarn = yarn;
     }
 
+    //description: Generate a new project
     async Main(){
 
         const pckManager = this.yarn ? 'yarn' : 'npm';

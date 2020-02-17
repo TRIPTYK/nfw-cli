@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module startAction
  * @description start server and monitoring , also watch typescript files
@@ -39,39 +40,44 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var spawn = require('cross-spawn');
-var path = require('path');
-var chalk = require('chalk');
-/**
- * Main function
- * @param {string} environment
- * @param {boolean} monitoringEnabled
- * @returns {Promise<void>}
- */
-module.exports = function (environment, monitoringEnabled) { return __awaiter(_this, void 0, void 0, function () {
-    var monitoring, executed;
-    return __generator(this, function (_a) {
-        if (monitoringEnabled) {
-            monitoring = spawn("node", ["" + path.resolve('monitoring', 'app.js')]);
-            monitoring.stdout.on('data', function (chunk) {
-                console.log("Monitoring: " + chunk);
+var spawn = require("cross-spawn");
+var path = require("path");
+var chalk_1 = require("chalk");
+var StartActionClass = /** @class */ (function () {
+    function StartActionClass(environment, monitoringEnabled) {
+        this.environment = environment;
+        this.monitoringEnabled = monitoringEnabled;
+    }
+    //Main function
+    StartActionClass.prototype.Main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var monitoring, executed;
+            return __generator(this, function (_a) {
+                if (this.monitoringEnabled) {
+                    monitoring = spawn("node", ["" + path.resolve('monitoring', 'app.js')]);
+                    monitoring.stdout.on('data', function (chunk) {
+                        console.log("Monitoring: " + chunk);
+                    });
+                    monitoring.stderr.on('data', function (chunk) {
+                        console.log("Monitoring error : " + chunk);
+                    });
+                }
+                executed = spawn("" + path.resolve(__baseDir, 'node_modules', '.bin', 'ts-node-dev'), ["--respawn", "--transpileOnly", "./src/app.bootstrap.ts", "--env", "" + this.environment]);
+                executed.stderr.on('data', function (chunk) {
+                    console.log(chunk.toString());
+                });
+                executed.stdout.on('data', function (chunk) {
+                    console.log(chunk.toString());
+                });
+                executed.on('close', function (code) {
+                    console.log(chalk_1.default.red("Process exited with code " + code));
+                });
+                return [2 /*return*/];
             });
-            monitoring.stderr.on('data', function (chunk) {
-                console.log("Monitoring error : " + chunk);
-            });
-        }
-        executed = spawn("" + path.resolve(global.__baseDir, 'node_modules', '.bin', 'ts-node-dev'), ["--respawn", "--transpileOnly", "./src/app.bootstrap.ts", "--env", "" + environment]);
-        executed.stderr.on('data', function (chunk) {
-            console.log(chunk.toString());
         });
-        executed.stdout.on('data', function (chunk) {
-            console.log(chunk.toString());
-        });
-        executed.on('close', function (code) {
-            console.log(chalk.red("Process exited with code " + code));
-        });
-        return [2 /*return*/];
-    });
-}); };
+    };
+    return StartActionClass;
+}());
+exports.StartActionClass = StartActionClass;
