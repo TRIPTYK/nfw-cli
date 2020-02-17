@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module editEnvCommand
  * @description Command module to handle environment file editing
@@ -39,65 +40,55 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var fs = require('fs');
-var dotenv = require('dotenv');
-var chalk = require('chalk');
+var fs = require("fs");
+var dotenv = require("dotenv");
 // Project modules
-var inquirer = require('../utils/inquirer');
-var commandUtils = require('./commandUtils');
-var editEnvAction = require('../actions/editEnvAction');
-var Log = require('../utils/log');
-/**
- * Yargs command
- * @type {string}
- */
+var inquirer = require("../utils/inquirer");
+var commandUtils = require("./commandUtils");
+var editEnvAction = require("../actions/editEnvAction");
+var Log = require("../utils/log");
+//Yargs command
 exports.command = 'editENV';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ["ee", "editE"];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Ask a series of questions to edit the environement files';
-/**
- * Yargs command builder
- */
-exports.builder = function () {
-};
-/**
- * Main function
- * @return {Promise<void>}
- */
-exports.handler = function () { return __awaiter(_this, void 0, void 0, function () {
-    var files, envFiles, env, envFileName, chosenOne;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                files = fs.readdirSync('./');
-                envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
-                return [4 /*yield*/, inquirer.choseEnvFile(envFiles)];
-            case 1:
-                env = (_a.sent()).env;
-                envFileName = env + ".env";
-                chosenOne = dotenv.parse(fs.readFileSync(envFileName));
-                return [4 /*yield*/, editEnvAction(env, chosenOne)
-                        .catch(function (e) {
-                        Log.error("Cannot edit " + envFileName + " : " + e.message);
-                    })
-                        .then(function (written) {
-                        var confFile = written[0];
-                        Log.success("Edited environment successfully");
-                        Log.info("Updated " + confFile);
-                    })];
-            case 2:
-                _a.sent();
-                return [2 /*return*/];
-        }
+//Yargs command builder
+function builder() { }
+exports.builder = builder;
+;
+//Main function
+function handler() {
+    return __awaiter(this, void 0, void 0, function () {
+        var files, envFiles, env, envFileName, chosenOne;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    files = fs.readdirSync('./');
+                    envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
+                    return [4 /*yield*/, inquirer.choseEnvFile(envFiles)];
+                case 1:
+                    env = (_a.sent()).env;
+                    envFileName = env + ".env";
+                    chosenOne = dotenv.parse(fs.readFileSync(envFileName));
+                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).Main()
+                            .then(function (written) {
+                            var confFile = written[0];
+                            Log.success("Edited environment successfully");
+                            Log.info("Updated " + confFile);
+                        })
+                            .catch(function (e) {
+                            Log.error("Cannot edit " + envFileName + " : " + e.message);
+                        })];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module editEnvAction
  * @author Samuel Antoine
@@ -39,53 +40,58 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var fs = require('fs');
+var fs = require("fs");
 // Project modules
-var inquirer = require('../utils/inquirer');
-/**
- * Main function
- * @param env
- * @param chosenOne
- * @returns {Promise<string[]>} Written files
- */
-module.exports = function (env, chosenOne) { return __awaiter(_this, void 0, void 0, function () {
-    var response, envString, reg, output, writeFileName;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, inquirer.editEnvFile(chosenOne)];
-            case 1:
-                response = _a.sent();
-                response.NODE_ENV = env;
-                response.API_VERSION = "v1";
-                response.PORT = parseInt(response.PORT);
-                response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES);
-                response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS);
-                response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD);
-                response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL);
-                if (response.HTTPS_IS_ACTIVE === false) {
-                    response.HTTPS_IS_ACTIVE = 0;
+var inquirer = require("../utils/inquirer");
+var EditEnvActionClass = /** @class */ (function () {
+    function EditEnvActionClass(env, chosenOne) {
+        this.env = env;
+        this.chosenOne = chosenOne;
+    }
+    //Main function
+    EditEnvActionClass.prototype.Main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, envString, reg, output, writeFileName;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, inquirer.editEnvFile(this.chosenOne)];
+                    case 1:
+                        response = _a.sent();
+                        response.NODE_ENV = this.env;
+                        response.API_VERSION = "v1";
+                        response.PORT = parseInt(response.PORT);
+                        response.JWT_EXPIRATION_MINUTES = parseInt(response.JWT_EXPIRATION_MINUTES);
+                        response.JIMP_SIZE_XS = parseInt(response.JIMP_SIZE_XS);
+                        response.JIMP_SIZE_MD = parseInt(response.JIMP_SIZE_MD);
+                        response.JIMP_SIZE_XL = parseInt(response.JIMP_SIZE_XL);
+                        if (response.HTTPS_IS_ACTIVE === false) {
+                            response.HTTPS_IS_ACTIVE = 0;
+                        }
+                        else {
+                            response.HTTPS_IS_ACTIVE = 1;
+                        }
+                        if (response.JIMP_IS_ACTIVE === false) {
+                            response.JIMP_IS_ACTIVE = 0;
+                        }
+                        else {
+                            response.JIMP_IS_ACTIVE = 1;
+                        }
+                        envString = JSON.stringify(response, null, '\n');
+                        reg = /"(.*)":\s*(".*"|\d+)/gm;
+                        output = envString
+                            .replace(reg, "$1 = $2")
+                            .replace('{', "")
+                            .replace('}', '')
+                            .replace(/(,)(?!.*,)/gm, "");
+                        writeFileName = this.env + ".env";
+                        fs.writeFileSync(writeFileName, output);
+                        return [2 /*return*/, [writeFileName]];
                 }
-                else {
-                    response.HTTPS_IS_ACTIVE = 1;
-                }
-                if (response.JIMP_IS_ACTIVE === false) {
-                    response.JIMP_IS_ACTIVE = 0;
-                }
-                else {
-                    response.JIMP_IS_ACTIVE = 1;
-                }
-                envString = JSON.stringify(response, null, '\n');
-                reg = /"(.*)":\s*(".*"|\d+)/gm;
-                output = envString
-                    .replace(reg, "$1 = $2")
-                    .replace('{', "")
-                    .replace('}', '')
-                    .replace(/(,)(?!.*,)/gm, "");
-                writeFileName = env + ".env";
-                fs.writeFileSync(writeFileName, output);
-                return [2 /*return*/, [writeFileName]];
-        }
-    });
-}); };
+            });
+        });
+    };
+    return EditEnvActionClass;
+}());
+exports.EditEnvActionClass = EditEnvActionClass;

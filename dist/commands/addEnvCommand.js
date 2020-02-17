@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module addEnvCommand
  * @description  Command module for creating a new environment file
@@ -39,61 +40,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var fs = require('fs');
-var dotenv = require('dotenv');
-var chalk = require('chalk');
+var fs = require("fs");
+var dotenv = require("dotenv");
+var chalk_1 = require("chalk");
 // Project modules
-var editEnvAction = require('../actions/editEnvAction');
-var commandUtils = require('./commandUtils');
-var Log = require('../utils/log');
-/**
- * Yargs command syntax
- * @type {string}
- */
+var editEnvAction = require("../actions/editEnvAction");
+var commandUtils = require("./commandUtils");
+var Log = require("../utils/log");
+//Yargs command syntax
 exports.command = 'addENV <env>';
-/**
- * Yargs command alias
- * @type {string[]}
- */
+//Yargs command alias
 exports.aliases = ["ae", "addE"];
-/**
- * Command description
- * @type {string}
- */
+//Command description
 exports.describe = 'Generate a new environement based on asked question';
-/**
- * Yargs builder
- */
-exports.builder = function () {
-};
-/**
- * @description Main command handler
- * @param argv
- * @returns {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var env, chosenOne;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                env = argv.env;
-                commandUtils.validateDirectory();
-                console.log(chalk.blue('The default choices are based on the default environement setting -> developement.env'));
-                chosenOne = dotenv.parse(fs.readFileSync("development.env"));
-                return [4 /*yield*/, editEnvAction(env, chosenOne)
-                        .then(function (written) {
-                        var envFile = written[0];
-                        Log.success("New environment generated successfully");
-                        Log.info("Created " + chalk.cyan(envFile));
-                    })
-                        .catch(function (e) {
-                        Log.error("Failed to generate new environment : " + e.message);
-                    })];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
+//Yargs builder
+function builder() { }
+exports.builder = builder;
+;
+//description : Main command handler
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var env, chosenOne;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    env = argv.env;
+                    commandUtils.validateDirectory();
+                    console.log(chalk_1.default.blue('The default choices are based on the default environement setting -> developement.env'));
+                    chosenOne = dotenv.parse(fs.readFileSync("development.env"));
+                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).Main()
+                            .then(function (written) {
+                            var envFile = written[0];
+                            Log.success("New environment generated successfully");
+                            Log.info("Created " + chalk_1.default.cyan(envFile));
+                        })
+                            .catch(function (e) {
+                            Log.error("Failed to generate new environment : " + e.message);
+                        })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;
