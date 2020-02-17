@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,57 +35,64 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var util = require('util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var util = require("util");
 var exec = util.promisify(require('child_process').exec);
-var Log = require('../utils/log');
-var _a = require('docker-cli-js'), Options = _a.Options, Docker = _a.Docker;
-module.exports = function (name, port, version, password) {
-    if (name === void 0) { name = "mysql_nfw_server"; }
-    if (port === void 0) { port = "3306"; }
-    if (version === void 0) { version = "5.7"; }
-    if (password === void 0) { password = "test123*"; }
-    return __awaiter(_this, void 0, void 0, function () {
-        var docker, data, portString, found, _i, _a, d;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    docker = new Docker();
-                    return [4 /*yield*/, exec("docker ps")
-                            .catch(function (e) {
-                            throw new Error('Cannot find or read docker file , please verify if docker is installed properly or that you have sufficient privileges.');
-                        })];
-                case 1:
-                    data = _b.sent();
-                    return [4 /*yield*/, docker.command("ps -a")];
-                case 2:
-                    data = _b.sent();
-                    portString = "0.0.0.0:" + port + "->" + port + "/tcp, 33060/tcp";
-                    found = data.containerList.find(function (d) {
-                        return d.names === name;
-                    });
-                    if (found) {
-                        throw new Error("Container " + found.names + " already exists, please use --name to change container name");
-                    }
-                    for (_i = 0, _a = data.containerList; _i < _a.length; _i++) {
-                        d = _a[_i];
-                        if (d.status.includes("Up") && d.ports === portString) {
-                            Log.warning("Container " + d.names + " is configured with this port and is running");
+var Log = require("../utils/log");
+var docker_cli_js_1 = require("docker-cli-js");
+var InstallDockerActionAclass = /** @class */ (function () {
+    function InstallDockerActionAclass(name, port, version, password) {
+        this.name = name;
+        this.port = port;
+        this.version = version;
+        this.password = password;
+    }
+    InstallDockerActionAclass.prototype.Main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var docker, data, portString, found, _i, _a, d;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        docker = new docker_cli_js_1.Docker();
+                        return [4 /*yield*/, exec("docker ps")
+                                .catch(function (e) {
+                                throw new Error('Cannot find or read docker file , please verify if docker is installed properly or that you have sufficient privileges.');
+                            })];
+                    case 1:
+                        data = _b.sent();
+                        return [4 /*yield*/, docker.command("ps -a")];
+                    case 2:
+                        data = _b.sent();
+                        portString = "0.0.0.0:" + this.port + "->" + this.port + "/tcp, 33060/tcp";
+                        found = data.containerList.find(function (d) {
+                            return d.names === _this.name;
+                        });
+                        if (found) {
+                            throw new Error("Container " + found.names + " already exists, please use --name to change container name");
                         }
-                        else {
-                            Log.info("Container " + d.names + " is configured with this port but is not running");
+                        for (_i = 0, _a = data.containerList; _i < _a.length; _i++) {
+                            d = _a[_i];
+                            if (d.status.includes("Up") && d.ports === portString) {
+                                Log.warning("Container " + d.names + " is configured with this port and is running");
+                            }
+                            else {
+                                Log.info("Container " + d.names + " is configured with this port but is not running");
+                            }
                         }
-                    }
-                    return [4 /*yield*/, exec("docker pull mysql:" + version)];
-                case 3:
-                    data = _b.sent();
-                    console.log(data.stdout);
-                    return [4 /*yield*/, exec("docker create --name " + name + " -p " + port + ":3306 -e MYSQL_ROOT_PASSWORD=" + password + " mysql:" + version)];
-                case 4:
-                    data = _b.sent();
-                    console.log(data.stdout);
-                    return [2 /*return*/];
-            }
+                        return [4 /*yield*/, exec("docker pull mysql:" + this.version)];
+                    case 3:
+                        data = _b.sent();
+                        console.log(data.stdout);
+                        return [4 /*yield*/, exec("docker create --name " + this.name + " -p " + this.port + ":3306 -e MYSQL_ROOT_PASSWORD=" + this.password + " mysql:" + this.version)];
+                    case 4:
+                        data = _b.sent();
+                        console.log(data.stdout);
+                        return [2 /*return*/];
+                }
+            });
         });
-    });
-};
+    };
+    return InstallDockerActionAclass;
+}());
+exports.InstallDockerActionAclass = InstallDockerActionAclass;

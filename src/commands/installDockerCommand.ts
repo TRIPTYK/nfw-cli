@@ -5,18 +5,17 @@
 /**
  * project imports
  */
-const installDockerAction = require('../actions/installDockerAction');
-const Log = require('../utils/log');
-const JsonFileWriter = require('json-file-rw');
-const EnvFileWriter = require('env-file-rw');
-const inquirer = require('../utils/inquirer');
+import installDockerAction = require('../actions/installDockerAction');
+import Log = require('../utils/log');
+import JsonFileWriter = require('json-file-rw');
+import EnvFileWriter = require('env-file-rw');
+import inquirer = require('../utils/inquirer');
 
-exports.command = 'setupMysql';
-exports.aliases = ['smysql'];
+export const command: string = 'setupMysql';
+export const aliases: string[] = ['smysql'];
+export const describe: string = 'desc';
 
-exports.describe = 'desc';
-
-exports.builder = (yargs) => {
+export function builder (yargs: any) {
     yargs.option('name',{
         type : "string",
         default : "nfw_server_docker"
@@ -35,12 +34,13 @@ exports.builder = (yargs) => {
     });
 };
 
-exports.handler = async (argv) => {
+export async function handler (argv: any) {
     const {name,port,vers,password} = argv;
 
-    await installDockerAction(name,port,vers,password).catch((e) => {
-        Log.error(e.message);
-        process.exit();
+    await new installDockerAction.InstallDockerActionAclass(name,port,vers,password).Main()
+        .catch((e) => {
+            Log.error(e.message);
+            process.exit();
     });
 
     const nfwFile = new JsonFileWriter();

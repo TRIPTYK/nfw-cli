@@ -1,3 +1,4 @@
+"use strict";
 /**
  * node modules imports
  */
@@ -37,19 +38,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * project imports
  */
-var installDockerAction = require('../actions/installDockerAction');
-var Log = require('../utils/log');
-var JsonFileWriter = require('json-file-rw');
-var EnvFileWriter = require('env-file-rw');
-var inquirer = require('../utils/inquirer');
+var installDockerAction = require("../actions/installDockerAction");
+var Log = require("../utils/log");
+var JsonFileWriter = require("json-file-rw");
+var EnvFileWriter = require("env-file-rw");
+var inquirer = require("../utils/inquirer");
 exports.command = 'setupMysql';
 exports.aliases = ['smysql'];
 exports.describe = 'desc';
-exports.builder = function (yargs) {
+function builder(yargs) {
     yargs.option('name', {
         type: "string",
         default: "nfw_server_docker"
@@ -66,38 +67,45 @@ exports.builder = function (yargs) {
         type: "string",
         default: "test123*"
     });
-};
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var name, port, vers, password, nfwFile, currentEnv, array, confirmation, envFileWriter;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                name = argv.name, port = argv.port, vers = argv.vers, password = argv.password;
-                return [4 /*yield*/, installDockerAction(name, port, vers, password).catch(function (e) {
-                        Log.error(e.message);
-                        process.exit();
-                    })];
-            case 1:
-                _a.sent();
-                nfwFile = new JsonFileWriter();
-                nfwFile.openSync('.nfw');
-                currentEnv = nfwFile.getNodeValue("env", "development");
-                array = nfwFile.getNodeValue(currentEnv + ".dockerContainers", []);
-                array.push(name);
-                nfwFile.saveSync();
-                Log.success("Your docker container was created on localhost , port " + port + " with mysql version " + vers + " and password " + password);
-                return [4 /*yield*/, inquirer.askForConfirmation("Do you want to update your current environment file with these values ?")];
-            case 2:
-                confirmation = (_a.sent()).confirmation;
-                if (confirmation) {
-                    envFileWriter = new EnvFileWriter(currentEnv + '.env');
-                    envFileWriter.setNodeValue('TYPEORM_HOST', 'localhost');
-                    envFileWriter.setNodeValue('TYPEORM_TYPE', 'mysql');
-                    envFileWriter.setNodeValue('TYPEORM_PWD', password);
-                    envFileWriter.setNodeValue('TYPEORM_PORT', port);
-                    envFileWriter.saveSync();
-                }
-                return [2 /*return*/];
-        }
+}
+exports.builder = builder;
+;
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var name, port, vers, password, nfwFile, currentEnv, array, confirmation, envFileWriter;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    name = argv.name, port = argv.port, vers = argv.vers, password = argv.password;
+                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(name, port, vers, password).Main()
+                            .catch(function (e) {
+                            Log.error(e.message);
+                            process.exit();
+                        })];
+                case 1:
+                    _a.sent();
+                    nfwFile = new JsonFileWriter();
+                    nfwFile.openSync('.nfw');
+                    currentEnv = nfwFile.getNodeValue("env", "development");
+                    array = nfwFile.getNodeValue(currentEnv + ".dockerContainers", []);
+                    array.push(name);
+                    nfwFile.saveSync();
+                    Log.success("Your docker container was created on localhost , port " + port + " with mysql version " + vers + " and password " + password);
+                    return [4 /*yield*/, inquirer.askForConfirmation("Do you want to update your current environment file with these values ?")];
+                case 2:
+                    confirmation = (_a.sent()).confirmation;
+                    if (confirmation) {
+                        envFileWriter = new EnvFileWriter(currentEnv + '.env');
+                        envFileWriter.setNodeValue('TYPEORM_HOST', 'localhost');
+                        envFileWriter.setNodeValue('TYPEORM_TYPE', 'mysql');
+                        envFileWriter.setNodeValue('TYPEORM_PWD', password);
+                        envFileWriter.setNodeValue('TYPEORM_PORT', port);
+                        envFileWriter.saveSync();
+                    }
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;
