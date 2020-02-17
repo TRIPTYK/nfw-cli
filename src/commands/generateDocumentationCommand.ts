@@ -5,36 +5,26 @@
  */
 
 // Node modules imports
-const {Spinner} = require('clui');
+import {Spinner} from 'clui';
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const generateDocumentationAction = require('../actions/generateDocumentationAction');
-const Log = require('../utils/log');
+import commandUtils = require('./commandUtils');
+import generateDocumentationAction = require('../actions/generateDocumentationAction');
+import Log = require('../utils/log');
 
 const generateDocSpinner = new Spinner('Generating documentation');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'generateDoc';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['doc', 'genDoc'];
+//Yargs command
+export const command: string = 'generateDoc';
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generates the typedoc for the current project';
+//Yargs command aliases
+export const aliases: string[] = ['doc', 'genDoc'];
 
-/**
- * Yargs command builder
- */
+//Yargs command description
+export const describe: string = 'Generates the typedoc for the current project';
+
+//Yargs command builder
 exports.builder = () => {
 };
 
@@ -42,12 +32,12 @@ exports.builder = () => {
  * Main function
  * @return {Promise<void>}
  */
-exports.handler = async () => {
+export async function handler (): Promise<void> {
     commandUtils.validateDirectory();
 
     generateDocSpinner.start();
 
-    await generateDocumentationAction()
+    await new generateDocumentationAction.GenerateDocumentationActionClass().Main()
         .then(() => {
             Log.success('Typedoc generated successfully');
         })

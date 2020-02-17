@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateDocumentationCommand
  * @description Command module to handle generating project documentation
@@ -39,55 +40,48 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules imports
-var Spinner = require('clui').Spinner;
+var clui_1 = require("clui");
 // Project imports
-var commandUtils = require('./commandUtils');
-var generateDocumentationAction = require('../actions/generateDocumentationAction');
-var Log = require('../utils/log');
-var generateDocSpinner = new Spinner('Generating documentation');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var generateDocumentationAction = require("../actions/generateDocumentationAction");
+var Log = require("../utils/log");
+var generateDocSpinner = new clui_1.Spinner('Generating documentation');
+//Yargs command
 exports.command = 'generateDoc';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['doc', 'genDoc'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Generates the typedoc for the current project';
-/**
- * Yargs command builder
- */
+//Yargs command builder
 exports.builder = function () {
 };
 /**
  * Main function
  * @return {Promise<void>}
  */
-exports.handler = function () { return __awaiter(_this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                generateDocSpinner.start();
-                return [4 /*yield*/, generateDocumentationAction()
-                        .then(function () {
-                        Log.success('Typedoc generated successfully');
-                    })
-                        .catch(function (e) {
-                        Log.error('Typedoc failed to generate : ' + e.message);
-                    })];
-            case 1:
-                _a.sent();
-                generateDocSpinner.stop();
-                return [2 /*return*/];
-        }
+function handler() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    generateDocSpinner.start();
+                    return [4 /*yield*/, new generateDocumentationAction.GenerateDocumentationActionClass().Main()
+                            .then(function () {
+                            Log.success('Typedoc generated successfully');
+                        })
+                            .catch(function (e) {
+                            Log.error('Typedoc failed to generate : ' + e.message);
+                        })];
+                case 1:
+                    _a.sent();
+                    generateDocSpinner.stop();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

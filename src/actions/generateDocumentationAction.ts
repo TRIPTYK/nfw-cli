@@ -5,14 +5,18 @@
  */
 
 // node modules
-const util = require('util');
+import util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const path = require('path');
+import path = require('path');
 
 /**
  * Main function
  * @returns {Promise<void | string | Buffer>}
  */
-module.exports = async () => {
-    return await exec(`${path.normalize('./node_modules/.bin/typedoc')} --out ./docs --ignoreCompilerErrors`);
-};
+
+export class GenerateDocumentationActionClass{
+
+    async Main(){
+        return await exec(`${path.normalize('./node_modules/.bin/typedoc')} --out ./docs --ignoreCompilerErrors`);
+    }
+}
