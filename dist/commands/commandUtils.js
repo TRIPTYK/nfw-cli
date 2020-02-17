@@ -64,13 +64,13 @@ function validateDirectory() {
 }
 exports.validateDirectory = validateDirectory;
 ;
-function checkValidParamk(string) {
+function checkValidParam(string) {
     if (!util.isString(string)) {
         Log.error("'" + string + "' must be alphanumeric and not beginning by a number");
         process.exit();
     }
 }
-exports.checkValidParamk = checkValidParamk;
+exports.checkValidParam = checkValidParam;
 ;
 function startDockerContainers(environement) {
     return __awaiter(this, void 0, void 0, function () {

@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,98 +35,93 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module initCommand
  * @description Command module to create a database, execute migration and create a super user
  * @author Antoine Samuel
  */
 // Project imports
-var commandUtils = require('../commands/commandUtils');
-var Log = require('../utils/log');
-var actionUtils = require('../actions/lib/utils');
-var migrateAction = require('../actions/migrateAction');
-var createSuperUserAction = require('../actions/createSuperUserAction');
+var commandUtils = require("../commands/commandUtils");
+var Log = require("../utils/log");
+var actionUtils = require("../actions/lib/utils");
+var migrateAction = require("../actions/migrateAction");
+var createSuperUserAction = require("../actions/createSuperUserAction");
 //Node_modules import
-var fs = require('fs');
-var chalk = require('chalk');
-var Spinner = require('clui').Spinner;
-/**
- * Yargs command
- * @type {string}
- */
+var fs = require("fs");
+var chalk_1 = require("chalk");
+var clui_1 = require("clui");
+//Yargs command
 exports.command = 'initialize';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['init'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Create a database if not existing, add tables and creates a super user';
-/**
- * Yargs command builder
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.option('env', {
         desc: "Allow user to chose which environement to use",
         type: "string",
         default: 'development'
     });
-};
+}
+exports.builder = builder;
+;
 /**
  * Main function
  * @return {void}
  */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var files, envFiles, spinner;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                files = fs.readdirSync('./');
-                envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
-                if (!envFiles.includes(argv.env)) {
-                    Log.error("Error: " + argv.env + " is not found, available environment are : " + envFiles);
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var files, envFiles, spinner;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    files = fs.readdirSync('./');
+                    envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
+                    if (!envFiles.includes(argv.env)) {
+                        Log.error("Error: " + argv.env + " is not found, available environment are : " + envFiles);
+                        process.exit(0);
+                    }
+                    return [4 /*yield*/, actionUtils.createDataBaseIfNotExists(argv.env)];
+                case 1:
+                    _a.sent();
+                    spinner = new clui_1.Spinner("Generating and executing migration");
+                    spinner.start();
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init").Main()
+                            .then(function (generated) {
+                            var migrationDir = generated[0];
+                            spinner.stop();
+                            Log.success("Executed migration successfully");
+                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        })
+                            .catch(function (e) {
+                            spinner.stop();
+                            Log.error(e.message);
+                        })];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+                            .then(function (generated) {
+                            var filePath = generated[0];
+                            Log.info("Created " + filePath);
+                            console.log(chalk_1.default.bgYellow(chalk_1.default.black('/!\\ WARNING /!\\ :')) +
+                                ("\nYou have generated a Super User named " + chalk_1.default.red("admin") + " for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password"));
+                        })
+                            .catch(function (e) {
+                            Log.error("Failed to create super user : " + e.message);
+                        })];
+                case 4:
+                    _a.sent();
                     process.exit(0);
-                }
-                return [4 /*yield*/, actionUtils.createDataBaseIfNotExists(argv.env)];
-            case 1:
-                _a.sent();
-                spinner = new Spinner("Generating and executing migration");
-                spinner.start();
-                return [4 /*yield*/, migrateAction("init")
-                        .then(function (generated) {
-                        var migrationDir = generated[0];
-                        spinner.stop(true);
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk.cyan(migrationDir));
-                    })
-                        .catch(function (e) {
-                        spinner.stop(true);
-                        Log.error(e.message);
-                    })];
-            case 2:
-                _a.sent();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 3:
-                _a.sent();
-                return [4 /*yield*/, createSuperUserAction("admin")
-                        .then(function (generated) {
-                        var filePath = generated[0];
-                        Log.info("Created " + filePath);
-                        console.log(chalk.bgYellow(chalk.black('/!\\ WARNING /!\\ :')) +
-                            ("\nYou have generated a Super User named " + chalk.red("admin") + " for your API, the credentials are written in the file named \"credentials.json\" located int he root folder, please modify the password as soon as possible, we are not responsible if someone finds it, it is your responsibility to change this password to your own password"));
-                    })
-                        .catch(function (e) {
-                        Log.error("Failed to create super user : " + e.message);
-                    })];
-            case 4:
-                _a.sent();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

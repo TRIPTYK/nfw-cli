@@ -4,37 +4,28 @@
  * @author Antoine Samuel
  */
 // Project imports
-const commandUtils = require('../commands/commandUtils');
-const Log = require('../utils/log');
-const actionUtils = require('../actions/lib/utils');
-const migrateAction = require('../actions/migrateAction');
-const createSuperUserAction = require('../actions/createSuperUserAction');
+import commandUtils = require('../commands/commandUtils');
+import Log = require('../utils/log');
+import actionUtils = require('../actions/lib/utils');
+import migrateAction = require('../actions/migrateAction');
+import createSuperUserAction = require('../actions/createSuperUserAction');
+
 //Node_modules import
-const fs = require('fs');
-const chalk = require('chalk');
-const {Spinner} = require('clui');
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'initialize';
+import fs = require('fs');
+import chalk from 'chalk';
+import {Spinner} from 'clui';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['init'];
+//Yargs command
+export const command: string = 'initialize';
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Create a database if not existing, add tables and creates a super user';
+ //Yargs command aliases
+export const aliases: string[] = ['init'];
 
-/**
- * Yargs command builder
- */
-exports.builder = (yargs) => {
+//Yargs command description
+export const describe: string = 'Create a database if not existing, add tables and creates a super user';
+
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.option('env', {
         desc: "Allow user to chose which environement to use",
         type: "string",
@@ -46,7 +37,7 @@ exports.builder = (yargs) => {
  * Main function
  * @return {void}
  */
-exports.handler = async(argv) => {
+export async function handler (argv: any): Promise<void> {
     commandUtils.validateDirectory();
 
     let files = fs.readdirSync('./');
@@ -61,21 +52,21 @@ exports.handler = async(argv) => {
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await migrateAction("init")
+    await new migrateAction.MigrateActionClass("init").Main()
         .then((generated) => {
             const [migrationDir] = generated;
-            spinner.stop(true);
+            spinner.stop();
             Log.success(`Executed migration successfully`);
             Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
         })
         .catch((e) => {
-            spinner.stop(true);
+            spinner.stop();
             Log.error(e.message);
         });
     await commandUtils.checkConnectToDatabase();
 
 
-    await createSuperUserAction("admin")
+    await new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
         .then((generated) => {
             const [ filePath ] = generated;
 
