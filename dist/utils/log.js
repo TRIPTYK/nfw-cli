@@ -1,15 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module log
  * @description Shortcut module to log colorful text messages
  * @author Deflorenne Amaury
  */
-var colors = require('colors/safe');
+var colors = require("colors/safe");
 /**
  *
  * @param {string} fileInfo.fileName File
  * @param {string} fileInfo.type 'add','edit','delete'
  */
-exports.logModification = function (fileInfo) {
+function logModification(fileInfo) {
     var typeString = 'add';
     if (fileInfo.type === 'add')
         typeString = 'Created';
@@ -18,39 +20,36 @@ exports.logModification = function (fileInfo) {
     if (fileInfo.type === 'delete')
         typeString = 'Deleted';
     exports.info(typeString + " " + fileInfo.fileName);
-};
-/**
- * Text with a red cross
- * @param {string} text Log text
- */
-exports.error = function (text) {
+}
+exports.logModification = logModification;
+;
+//Text with a red cross
+function error(text) {
     console.log(colors.red('x') + " " + text);
-};
-/**
- * Text with a warning symbol
- * @param {string} text Log text
- */
-exports.warning = function (text) {
+}
+exports.error = error;
+;
+//Text with a warning symbol
+function warning(text) {
     console.log(colors.yellow('!') + " " + text);
-};
-/**
- * Text with a success symbol
- * @param {string} text Log text
- */
-exports.success = function (text) {
+}
+exports.warning = warning;
+;
+//Text with a success symbol
+function success(text) {
     console.log(colors.green('v') + " " + text);
-};
-/**
- * Text with rainbow text before
- * @param {string} preText Rainbow-color text
- */
-exports.rainbow = function (preText) {
+}
+exports.success = success;
+;
+//Text with rainbow text before
+function rainbow(preText, text) {
     console.log(colors.rainbow(preText) + " " + text);
-};
-/**
- * Text with an info symbol
- * @param {string} text Log text
- */
-exports.info = function (text) {
+}
+exports.rainbow = rainbow;
+;
+//Text with an info symbol
+function info(text) {
     console.log(colors.blue('i') + " " + text);
-};
+}
+exports.info = info;
+;

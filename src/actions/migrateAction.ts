@@ -20,7 +20,7 @@ import project = require('../utils/project');
 import Log = require('../utils/log');
 import * as promisemysql from 'promise-mysql';
 
-const _buildErrorObjectFromMessage = (e) => {
+const _buildErrorObjectFromMessage = (e: Error) => {
     const msgReg = /^\s*(\w+):\s*([ -+|\--z]*),?/gm;
     let m;
     let errObj = <any>{};
