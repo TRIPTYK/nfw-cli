@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module startUnitTestsAction
  * @description Starts mocha unit tests
@@ -40,25 +41,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
-var util = require('util');
+var util = require("util");
 var exec = util.promisify(require('child_process').exec);
-var path = require('path');
-/**
- * @description Returns how many unit test passed, failed, and which one failed
- * @returns {Array.string}
- */
-module.exports = function () { return __awaiter(_this, void 0, void 0, function () {
-    var stdout;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, exec(path.normalize('./node_modules/.bin/mocha') + " --require ts-node/register/transpile-only ./test/*.ts --reporter spec --timeout 10000 --colors --exit")
-                    .catch(function (e) { return e; })];
-            case 1:
-                stdout = (_a.sent()).stdout;
-                console.log(stdout);
-                return [2 /*return*/];
-        }
+var path = require("path");
+//description : Returns how many unit test passed, failed, and which one failed
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var stdout;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, exec(path.normalize('./node_modules/.bin/mocha') + " --require ts-node/register/transpile-only ./test/*.ts --reporter spec --timeout 10000 --colors --exit")
+                        .catch(function (e) { return e; })];
+                case 1:
+                    stdout = (_a.sent()).stdout;
+                    console.log(stdout);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.main = main;
+;

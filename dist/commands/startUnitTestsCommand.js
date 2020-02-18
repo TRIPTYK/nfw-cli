@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module startUnitTestsCommand
  * @description Command module to handle unit test execution
@@ -50,133 +51,121 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node mosules
-var JsonFileWriter = require('json-file-rw');
-var util = require('util');
+var JsonFileWriter = require("json-file-rw");
+var util = require("util");
 var exec = util.promisify(require('child_process').exec);
-var fs = require('fs');
-var dotenv = require('dotenv');
+var fs = require("fs");
+var dotenv = require("dotenv");
+var chalk_1 = require("chalk");
 // Project imports
-var commandUtils = require('./commandUtils');
-var Spinner = require('clui').Spinner;
-var startUnitTestsAction = require('../actions/startUnitTestsAction');
-var Log = require('../utils/log');
-var migrateAction = require('../actions/migrateAction');
-var SqlConnection = require("../database/sqlAdaptator").SqlConnection;
+var commandUtils = require("./commandUtils");
+var clui_1 = require("clui");
+var startUnitTestsAction = require("../actions/startUnitTestsAction");
+var Log = require("../utils/log");
+var migrateAction = require("../actions/migrateAction");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var inquirer = require("../utils/inquirer");
-/**
- * Yargs command
- * @type {string}
- */
+//Yargs command
 exports.command = 'test';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['t'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Executes unit tests';
-/**
- * Yargs command builder
- * @param yargs
- */
-exports.builder = function (yargs) {
-};
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, sqlConnection, e_1, clonedEnv, dbName, confirmation;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                status = new Spinner('Executing unit tests, please wait ...');
-                status.start();
-                commandUtils.validateDirectory();
-                envFileContent = fs.readFileSync("test.env");
-                ormconfigFile = new JsonFileWriter();
-                ormconfigFile.openSync("ormconfig.json");
-                envFile = dotenv.parse(envFileContent);
-                ormconfigFile.setNodeValue("name", envFile.TYPEORM_NAME);
-                ormconfigFile.setNodeValue("host", envFile.TYPEORM_HOST);
-                ormconfigFile.setNodeValue("database", envFile.TYPEORM_DB);
-                ormconfigFile.setNodeValue("username", envFile.TYPEORM_USER);
-                ormconfigFile.setNodeValue("password", envFile.TYPEORM_PWD);
-                ormconfigFile.setNodeValue("port", envFile.TYPEORM_PORT);
-                ormconfigFile.saveSync();
-                nfwFile = new JsonFileWriter();
-                nfwFile.openSync(".nfw");
-                if (!nfwFile.nodeExists('dockerContainer')) return [3 /*break*/, 2];
-                containerName = nfwFile.getNodeValue('dockerContainer');
-                Log.info("Starting your docker container " + containerName);
-                return [4 /*yield*/, exec("docker start " + containerName).then(function (data) {
-                        console.log(data.stdout);
-                    })];
-            case 1:
-                _a.sent();
-                _a.label = 2;
-            case 2:
-                currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
-                sqlConnection = new SqlConnection();
-                _a.label = 3;
-            case 3:
-                _a.trys.push([3, 5, , 12]);
-                return [4 /*yield*/, sqlConnection.connect(currentEnv)];
-            case 4:
-                _a.sent();
-                connected = true;
-                return [3 /*break*/, 12];
-            case 5:
-                e_1 = _a.sent();
-                connected = e_1;
-                clonedEnv = __assign({}, currentEnv);
-                delete clonedEnv.TYPEORM_DB;
-                return [4 /*yield*/, sqlConnection.connect(clonedEnv)];
-            case 6:
-                _a.sent();
-                if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 11];
-                dbName = currentEnv.TYPEORM_DB;
-                return [4 /*yield*/, inquirer.askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
-            case 7:
-                confirmation = (_a.sent()).confirmation;
-                if (!confirmation) return [3 /*break*/, 9];
-                return [4 /*yield*/, sqlConnection.createDatabase(dbName)];
-            case 8:
-                _a.sent();
-                _a.label = 9;
-            case 9: return [4 /*yield*/, migrateAction("create-db-" + dbName)
-                    .then(function (generated) {
-                    var migrationDir = generated[0];
-                    Log.success("Executed migration successfully");
-                    Log.info("Generated in " + chalk.cyan(migrationDir));
+//Yargs command builder
+exports.builder = function (yargs) { };
+//Main function
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, sqlConnection, e_1, clonedEnv, dbName, confirmation;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    status = new clui_1.Spinner('Executing unit tests, please wait ...');
+                    status.start();
+                    commandUtils.validateDirectory();
+                    envFileContent = fs.readFileSync("test.env");
+                    ormconfigFile = new JsonFileWriter();
+                    ormconfigFile.openSync("ormconfig.json");
+                    envFile = dotenv.parse(envFileContent);
+                    ormconfigFile.setNodeValue("name", envFile.TYPEORM_NAME);
+                    ormconfigFile.setNodeValue("host", envFile.TYPEORM_HOST);
+                    ormconfigFile.setNodeValue("database", envFile.TYPEORM_DB);
+                    ormconfigFile.setNodeValue("username", envFile.TYPEORM_USER);
+                    ormconfigFile.setNodeValue("password", envFile.TYPEORM_PWD);
+                    ormconfigFile.setNodeValue("port", envFile.TYPEORM_PORT);
+                    ormconfigFile.saveSync();
+                    nfwFile = new JsonFileWriter();
+                    nfwFile.openSync(".nfw");
+                    if (!nfwFile.nodeExists('dockerContainer')) return [3 /*break*/, 2];
+                    containerName = nfwFile.getNodeValue('dockerContainer');
+                    Log.info("Starting your docker container " + containerName);
+                    return [4 /*yield*/, exec("docker start " + containerName).then(function (data) {
+                            console.log(data.stdout);
+                        })];
+                case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2:
+                    currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
+                    sqlConnection = new sqlAdaptator_1.SqlConnection();
+                    _a.label = 3;
+                case 3:
+                    _a.trys.push([3, 5, , 12]);
+                    return [4 /*yield*/, sqlConnection.connect(currentEnv)];
+                case 4:
+                    _a.sent();
                     connected = true;
-                })
-                    .catch(function (err) {
-                    connected = err;
-                })];
-            case 10:
-                _a.sent();
-                _a.label = 11;
-            case 11: return [3 /*break*/, 12];
-            case 12:
-                if (!(connected === true)) return [3 /*break*/, 14];
-                return [4 /*yield*/, startUnitTestsAction()];
-            case 13:
-                _a.sent();
-                return [3 /*break*/, 15];
-            case 14:
-                Log.error("Server can't start because database connection failed : " + connected.message);
-                _a.label = 15;
-            case 15:
-                status.stop();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+                    return [3 /*break*/, 12];
+                case 5:
+                    e_1 = _a.sent();
+                    connected = e_1;
+                    clonedEnv = __assign({}, currentEnv);
+                    delete clonedEnv.TYPEORM_DB;
+                    return [4 /*yield*/, sqlConnection.connect(clonedEnv)];
+                case 6:
+                    _a.sent();
+                    if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 11];
+                    dbName = currentEnv.TYPEORM_DB;
+                    return [4 /*yield*/, new inquirer.Inquirer().askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
+                case 7:
+                    confirmation = (_a.sent()).confirmation;
+                    if (!confirmation) return [3 /*break*/, 9];
+                    return [4 /*yield*/, sqlConnection.createDatabase(dbName)];
+                case 8:
+                    _a.sent();
+                    _a.label = 9;
+                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).Main()
+                        .then(function (generated) {
+                        var migrationDir = generated[0];
+                        Log.success("Executed migration successfully");
+                        Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        connected = true;
+                    })
+                        .catch(function (err) {
+                        connected = err;
+                    })];
+                case 10:
+                    _a.sent();
+                    _a.label = 11;
+                case 11: return [3 /*break*/, 12];
+                case 12:
+                    if (!(connected === true)) return [3 /*break*/, 14];
+                    return [4 /*yield*/, startUnitTestsAction.main()];
+                case 13:
+                    _a.sent();
+                    return [3 /*break*/, 15];
+                case 14:
+                    Log.error("Server can't start because database connection failed : " + connected.message);
+                    _a.label = 15;
+                case 15:
+                    status.stop();
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

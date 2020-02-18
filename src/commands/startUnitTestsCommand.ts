@@ -5,53 +5,38 @@
  */
 
 // node mosules
-const JsonFileWriter = require('json-file-rw');
-const util = require('util');
+import JsonFileWriter = require('json-file-rw');
+import util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const fs = require('fs');
-const dotenv = require('dotenv');
+import fs = require('fs');
+import dotenv = require('dotenv');
+import chalk from 'chalk';
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const {Spinner} = require('clui');
-const startUnitTestsAction = require('../actions/startUnitTestsAction');
-const Log = require('../utils/log');
-const migrateAction = require('../actions/migrateAction');
-const {SqlConnection} = require("../database/sqlAdaptator");
-const inquirer = require("../utils/inquirer");
+import commandUtils = require('./commandUtils');
+import {Spinner} from 'clui';
+import startUnitTestsAction = require('../actions/startUnitTestsAction');
+import Log = require('../utils/log');
+import migrateAction = require('../actions/migrateAction');
+import {SqlConnection} from "../database/sqlAdaptator";
+import inquirer = require("../utils/inquirer");
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'test';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['t'];
+//Yargs command
+export const command: string = 'test';
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Executes unit tests';
+//Yargs command aliases
+export const aliases: string[] = ['t'];
 
-/**
- * Yargs command builder
- * @param yargs
- */
-exports.builder = (yargs) => {
+//Yargs command description
+export const describe: string = 'Executes unit tests';
 
-};
+//Yargs command builder
+exports.builder = (yargs: any) => {};
 
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = async (argv) => {
+
+//Main function
+export async function handler (argv: any): Promise<void> {
     const status = new Spinner('Executing unit tests, please wait ...');
     status.start();
 
@@ -97,11 +82,11 @@ exports.handler = async (argv) => {
 
         if (e.code === 'ER_BAD_DB_ERROR') {
             const dbName = currentEnv.TYPEORM_DB;
-            const confirmation = (await inquirer.askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
+            const confirmation = (await new inquirer.Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
             if (confirmation) await sqlConnection.createDatabase(dbName);
 
-            await migrateAction(`create-db-${dbName}`)
+            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).Main()
                 .then((generated) => {
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);
@@ -115,7 +100,7 @@ exports.handler = async (argv) => {
     }
 
     if (connected === true)
-        await startUnitTestsAction();
+        await startUnitTestsAction.main();
     else
         Log.error(`Server can't start because database connection failed : ${connected.message}`);
 
