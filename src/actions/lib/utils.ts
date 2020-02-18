@@ -21,7 +21,9 @@ import { ColumnList } from 'mysqldump';
 
 //description : Count the lines of a file
 export function countLines (path: string): Promise<number> {
+
     let count = 0;
+    
     return new Promise((resolve, reject) => {
         try {
             FS.createReadStream(path)
@@ -41,6 +43,7 @@ export function countLines (path: string): Promise<number> {
 
 //description : prompt a question and wait for a response
 export function prompt (question: string): Promise<string>{
+
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -56,42 +59,51 @@ export function prompt (question: string): Promise<string>{
 
 //description : Check if import is present in string
 export function isImportPresent (string: string, importName: string): boolean {
+
     let match = string.match(new RegExp(`import\\s+{.*${importName}\\b.*}.*;`, 'gm'));
+
     return match !== null;
 };
 
  //description : replace text to the first empty line of string
 export function writeToFirstEmptyLine (string: string, by = ""): string {
+
     return string.replace(/^\s*$/m, by);
 } 
 
 //description : remove blank lines from text
 export function removeEmptyLines (string: string): string {
+
     return string.replace(/\n?^\s*$/gm, "");
 } 
 
 //description : check if model file exists in projet
 export function modelFileExists (entity: string): boolean {
+
     return exports.fileExists(`${process.cwd()}/src/api/models/${exports.lowercaseEntity(entity)}.model.ts`);
 }
 
 //description : capitalize first letter of String
 export function capitalizeEntity (entity: string): string{
+
     return entity[0].toUpperCase() + entity.substr(1);
 }
 
 //description : lowercase first letter of string
 export function lowercaseEntity (entity: string): string{
+
     return entity[0].toLowerCase() + entity.substr(1);
 } 
 
 //description : transform an sql type string to an object with type and length
 export function sqlTypeData (type:string): object {
+
     return /(?<type>\w+)(?:\((?<length>.+)\))?/.exec(type).groups;
 } 
 
 //description : check if file exists
 export function fileExists (filePath: string): boolean {
+
     try {
         return FS.statSync(filePath).isFile();
     } catch (err) {
@@ -101,6 +113,7 @@ export function fileExists (filePath: string): boolean {
 
 //description : Create a validation to a generated model
 export function buildJoiFromColumn (column: any): object {
+
     let {length, type} = column.Type;
     let joiObject = {
         name: column.Field,
@@ -131,21 +144,26 @@ export function buildJoiFromColumn (column: any): object {
 
 //description Check if a table is a bridging table in a many to many relationship
 export function isBridgindTable (entity: any): boolean {
+
     let {columns, foreignKeys} = entity;
     columns = columns.filter((column: any) => {
         return foreignKeys.find((elem: any) => elem.COLUMN_NAME === column.Field) === undefined;
     });
+
     return columns.length === 0;
 };
 
 //description Check if a column exist in a database table
 export function columnExist (model: string, column: string): boolean {
+
     let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
+    
     return modelClass.getInstanceProperty(column) !== undefined;
 };
 
 //Description : Check if relation exists in model
 export function relationExist (model: string, column: string): boolean {
+
     let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
     const relProp = modelClass.getInstanceMember(column);
 
@@ -160,25 +178,31 @@ export function relationExist (model: string, column: string): boolean {
 
 //Description : Sanitize string : removes accents and transform to snake_case
 export function format (name: string): string{
+
     return snake(removeAccent(name));
 };
 
 export function isAlphanumeric (string: string): string[]{
+
     return string.match(/(?:^|(?<= ))[a-zA-Z0-9]+(?= |$)/);
 };
 
 export function isValidVarname (string: string): string[]{
+
     return string.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/);
 };
 
 export function isValidParam (string: string): boolean {
+
     return !exports.isValidVarname(string) || !reservedWords.check(string, 6);
 } 
 
 export async function createDataBaseIfNotExists (setupEnv: DatabaseEnv) {
+
     const env = new DatabaseEnv(`${setupEnv}.env`);
     const sqlConnection = new SqlConnection();
     const currentEnvData = env.getEnvironment();
+
     try {
         await sqlConnection.connect(env.getEnvironment());
     } catch (e) {
@@ -195,6 +219,7 @@ export async function createDataBaseIfNotExists (setupEnv: DatabaseEnv) {
 };
 
 export function buildModelColumnArgumentsFromObject (dbColumnaData: any) {
+
     const columnArgument = {};
 
     columnArgument['type'] = dbColumnaData.Type.type;
@@ -242,6 +267,7 @@ export function buildModelColumnArgumentsFromObject (dbColumnaData: any) {
 };
 
 export function buildValidationArgumentsFromObject (dbColumnaData: any,isUpdate = false) {
+
     const validationArguments = {};
 
     if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt','updatedAt'].includes(dbColumnaData.Field)))
@@ -316,6 +342,7 @@ export function buildValidationArgumentsFromObject (dbColumnaData: any,isUpdate 
 
 //Description : Get env files in directory
 export function getEnvFilesNames (directory: string = '.'): string[] {
+
     let files = FS.readdirSync(directory);
 
     // select only env files

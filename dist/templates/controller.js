@@ -1,5 +1,7 @@
-var capitalizeEntity = require("../actions/lib/utils").capitalizeEntity;
-var project = require('../utils/project');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = require("../actions/lib/utils");
+var project = require("../utils/project");
 /**
  *
  * @param path
@@ -7,19 +9,19 @@ var project = require('../utils/project');
  * @param options
  * @param entityName
  */
-module.exports = function (path, _a) {
+function Main(path, _a) {
     var className = _a.className, options = _a.options, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = capitalizeEntity(entityName);
+    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
     file.addImportDeclaration({ moduleSpecifier: "express", defaultImport: "{Request,Response}" });
     file.addStatements(function (writer) { return writer.writeLine("import Boom from '@hapi/boom';"); });
     file.addStatements(function (writer) { return writer.writeLine("import * as HttpStatus from 'http-status';"); });
     var controllerClass = file.addClass({
         name: className
     });
-    controllerClass.setExtends('BaseController');
+    //controllerClass.setExtends('BaseController');
     controllerClass.setIsExported(true);
     controllerClass.addDecorator({
         name: "Controller",
@@ -178,4 +180,6 @@ module.exports = function (path, _a) {
         });
     }
     return file;
-};
+}
+exports.Main = Main;
+;

@@ -1,13 +1,7 @@
 import { capitalizeEntity } from "../../actions/lib/utils";
 import project = require('../../utils/project');
 
-/**
- *
- * @param path
- * @param className
- * @param {array} methods
- * @param entityName
- */
+
 export function Main (path: string,{className,entityName,methods}) {
 
     const file = project.createSourceFile(path,null,{
@@ -23,12 +17,14 @@ export function Main (path: string,{className,entityName,methods}) {
         name: className
     });
 
-    controllerClass.setExtends('BaseController');
+    //controllerClass.setExtends('BaseController');
     controllerClass.setIsExported(true);
 
+    
     controllerClass.addConstructor({
-        statements : `super();`
+        //statements : `super();`
     });
+    
 
     controllerClass.addMethod({
         name : 'beforeMethod',

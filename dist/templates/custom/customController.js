@@ -1,13 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var project = require("../../utils/project");
-/**
- *
- * @param path
- * @param className
- * @param {array} methods
- * @param entityName
- */
 function Main(path, _a) {
     var className = _a.className, entityName = _a.entityName, methods = _a.methods;
     var file = project.createSourceFile(path, null, {
@@ -19,10 +12,10 @@ function Main(path, _a) {
     var controllerClass = file.addClass({
         name: className
     });
-    controllerClass.setExtends('BaseController');
+    //controllerClass.setExtends('BaseController');
     controllerClass.setIsExported(true);
     controllerClass.addConstructor({
-        statements: "super();"
+    //statements : `super();`
     });
     controllerClass.addMethod({
         name: 'beforeMethod',

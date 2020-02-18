@@ -1,5 +1,5 @@
-const { capitalizeEntity } = require("../actions/lib/utils");
-const project = require('../utils/project');
+import { capitalizeEntity } from "../actions/lib/utils";
+import project = require('../utils/project');
 
 /**
  *
@@ -8,7 +8,7 @@ const project = require('../utils/project');
  * @param options
  * @param entityName
  */
-module.exports = (path,{className,options,entityName}) => {
+export function  Main (path: string, {className,options,entityName}) {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -23,7 +23,7 @@ module.exports = (path,{className,options,entityName}) => {
         name: className
     });
 
-    controllerClass.setExtends('BaseController');
+    //controllerClass.setExtends('BaseController');
     controllerClass.setIsExported(true);
 
     controllerClass.addDecorator({

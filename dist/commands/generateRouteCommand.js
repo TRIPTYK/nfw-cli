@@ -61,11 +61,7 @@ exports.describe = 'Generate a router with associated controller methods without
 function builder() { }
 exports.builder = builder;
 ;
-/**
- * Main function
- * @param argv
- * @returns {Promise<void>}
- */
+//Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
         var routeName, lowercase, controllerPath, confirmation, continueAsking, routes, routePath, routeMethods, continueAskingMethods, _a, routeMethod, controllerMethod, routeAuthorization;

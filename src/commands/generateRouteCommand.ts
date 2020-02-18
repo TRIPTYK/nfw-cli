@@ -30,12 +30,8 @@ export const describe: string = 'Generate a router with associated controller me
 //Yargs command builder
 export function builder() {};
 
-/**
- * Main function
- * @param argv
- * @returns {Promise<void>}
- */
-export async function handler (argv: any) {
+//Main function
+export async function handler (argv: any): Promise<void> {
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
