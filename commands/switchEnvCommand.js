@@ -62,5 +62,7 @@ exports.handler = async (argv) => {
     nfwFile.setNodeValue('env',env);
     nfwFile.saveSync();
 
+    commandUtils.updateORMConfig(env);
+
     process.exit();
 };
