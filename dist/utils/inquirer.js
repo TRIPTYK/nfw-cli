@@ -1,18 +1,22 @@
+"use strict";
 /**
  * @author Samuel Antoine
  * @module inquirer
  * @description Module to store inquirer questions
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var inquirer = require('inquirer');
+var inquirer = require("inquirer");
 // project modules
-var files = require('./files');
-var _a = require('../actions/lib/utils'), columnExist = _a.columnExist, relationExist = _a.relationExist, format = _a.format;
-module.exports = {
+var files = require("./files");
+var utils_1 = require("../actions/lib/utils");
+var Inquirer = /** @class */ (function () {
+    function Inquirer() {
+    }
     /**
      * TODO
      */
-    askForNewPath: function () {
+    Inquirer.prototype.askForNewPath = function () {
         var question = {
             name: 'path',
             type: 'input',
@@ -33,11 +37,11 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * Ask route path
      */
-    askRoutePath: function () {
+    Inquirer.prototype.askRoutePath = function () {
         var question = {
             name: 'routePath',
             type: 'input',
@@ -59,11 +63,11 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      */
-    askRouteData: function (choices) {
+    Inquirer.prototype.askRouteData = function (choices) {
         if (choices === void 0) { choices = null; }
         var question = [
             {
@@ -96,11 +100,11 @@ module.exports = {
             }
         ];
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      */
-    enumQuestion: function () {
+    Inquirer.prototype.enumQuestion = function () {
         var question = {
             type: 'input',
             name: 'enum',
@@ -113,24 +117,24 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      * @param q
      */
-    askForConfirmation: function (q) {
+    Inquirer.prototype.askForConfirmation = function (q) {
         var question = {
             type: 'confirm',
             name: 'confirmation',
             message: q
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      * @param type
      */
-    lengthQuestion: function (type) {
+    Inquirer.prototype.lengthQuestion = function (type) {
         var question = {
             type: 'input',
             name: 'enum',
@@ -148,12 +152,12 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      * @param columnWritten
      */
-    questionColumnName: function (columnWritten) {
+    Inquirer.prototype.questionColumnName = function (columnWritten) {
         var questionsParams = [
             {
                 type: 'input',
@@ -171,15 +175,15 @@ module.exports = {
                     else
                         return true;
                 },
-                filter: function (data) { return format(data); }
+                filter: function (data) { return utils_1.format(data); }
             }
         ];
         return inquirer.prompt(questionsParams);
-    },
+    };
     /**
      * TODO
      */
-    questionColumnKey: function () {
+    Inquirer.prototype.questionColumnKey = function () {
         var questionsParams = [
             {
                 type: 'list',
@@ -200,11 +204,11 @@ module.exports = {
             }
         ];
         return inquirer.prompt(questionsParams);
-    },
+    };
     /**
      * TODO
      */
-    questionUnique: function () {
+    Inquirer.prototype.questionUnique = function () {
         var questionsParams = [
             {
                 type: 'confirm',
@@ -220,13 +224,13 @@ module.exports = {
             }
         ];
         return inquirer.prompt(questionsParams);
-    },
+    };
     /**
      * TODO
      * @param type
      * @param enumArray
      */
-    questionDefault: function (type, enumArray) {
+    Inquirer.prototype.questionDefault = function (type, enumArray) {
         var questionType;
         type === 'enum' ? questionType = 'list' : questionType = 'input';
         enumArray = enumArray.split(',');
@@ -291,13 +295,13 @@ module.exports = {
             },
         ];
         return inquirer.prompt(questionsParams);
-    },
+    };
     /**
      * TODO
      */
-    questionType: function (key) {
+    Inquirer.prototype.questionType = function (key) {
         console.log(key);
-        typeList = ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column'];
+        var typeList = ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column'];
         if (key === 'PRI' || key === 'UNI')
             typeList = typeList.filter(function (type) { return !type.match(/text|blob|json/); });
         var questionsParams = [
@@ -315,12 +319,12 @@ module.exports = {
             },
         ];
         return inquirer.prompt(questionsParams);
-    },
+    };
     /**
      * TODO
      * @param exist
      */
-    askForChoice: function (exist) {
+    Inquirer.prototype.askForChoice = function (exist) {
         var create = ['create an entity', 'create empty entity', 'nothing'];
         if (exist)
             create.unshift('create from db');
@@ -334,12 +338,12 @@ module.exports = {
             }
         ];
         return inquirer.prompt(options);
-    },
+    };
     /**
      * TODO
      * @param tmpKey
      */
-    askForeignKeyRelation: function (tmpKey) {
+    Inquirer.prototype.askForeignKeyRelation = function (tmpKey) {
         var question = [
             {
                 type: 'list',
@@ -353,15 +357,17 @@ module.exports = {
                         return 'otm';
                     if (data === 'ManyToOne')
                         return 'mto';
+                    else
+                        return '';
                 }
             }
         ];
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      */
-    askForEnvVariable: function () {
+    Inquirer.prototype.askForEnvVariable = function () {
         var envQuestion = [
             {
                 type: 'list',
@@ -395,7 +401,7 @@ module.exports = {
                 name: 'TYPEORM_DB',
                 message: 'Database name ?',
                 default: "nfw",
-                filter: function (data) { return format(data); }
+                filter: function (data) { return utils_1.format(data); }
             },
             {
                 type: 'input',
@@ -424,11 +430,11 @@ module.exports = {
             },
         ];
         return inquirer.prompt(envQuestion);
-    },
+    };
     /**
      * TODO
      */
-    askForCreateUpdate: function () {
+    Inquirer.prototype.askForCreateUpdate = function () {
         var question = [{
                 type: 'confirm',
                 name: 'createAt',
@@ -441,11 +447,11 @@ module.exports = {
                 default: true
             }];
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      */
-    askForDockerVars: function () {
+    Inquirer.prototype.askForDockerVars = function () {
         var dockerQuestion = [
             {
                 type: 'input',
@@ -481,12 +487,12 @@ module.exports = {
             }
         ];
         return inquirer.prompt(dockerQuestion);
-    },
+    };
     /**
      * TODO
      * @param envFiles
      */
-    choseEnvFile: function (envFiles) {
+    Inquirer.prototype.choseEnvFile = function (envFiles) {
         var question = {
             type: "list",
             name: "env",
@@ -494,12 +500,12 @@ module.exports = {
             choices: envFiles,
         };
         return inquirer.prompt(question);
-    },
+    };
     /**
      * TODO
      * @param envData
      */
-    editEnvFile: function (envData) {
+    Inquirer.prototype.editEnvFile = function (envData) {
         var questions = [
             {
                 type: "input",
@@ -598,7 +604,7 @@ module.exports = {
                 name: 'TYPEORM_DB',
                 message: 'Database name ?',
                 default: envData.TYPEORM_DB,
-                filter: function (data) { return format(data); }
+                filter: function (data) { return utils_1.format(data); }
             },
             {
                 type: 'input',
@@ -714,8 +720,8 @@ module.exports = {
             },
         ];
         return inquirer.prompt(questions);
-    },
-    questionM1M2: function (model1, model2) {
+    };
+    Inquirer.prototype.questionM1M2 = function (model1, model2) {
         var questionsM1M2 = [
             {
                 type: 'input',
@@ -723,7 +729,7 @@ module.exports = {
                 message: "What's wich name to you want for " + model1 + " in the model ?",
                 default: model1,
                 validate: function (input) {
-                    if (columnExist(model1, input) || relationExist(model1, input))
+                    if (utils_1.columnExist(model1, input) || utils_1.relationExist(model1, input))
                         return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/))
                         return "Name contain fordibben charachter";
@@ -737,7 +743,7 @@ module.exports = {
                 message: "What's wich name to you want for " + model2 + " in the model ?",
                 default: model2,
                 validate: function (input) {
-                    if (columnExist(model2, input) || relationExist(model2, input))
+                    if (utils_1.columnExist(model2, input) || utils_1.relationExist(model2, input))
                         return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/))
                         return "Name contain fordibben charachter";
@@ -747,5 +753,8 @@ module.exports = {
             }
         ];
         return inquirer.prompt(questionsM1M2);
-    },
-};
+    };
+    return Inquirer;
+}());
+exports.Inquirer = Inquirer;
+;

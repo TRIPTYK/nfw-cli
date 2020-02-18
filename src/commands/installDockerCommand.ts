@@ -52,7 +52,7 @@ export async function handler (argv: any) {
 
     Log.success(`Your docker container was created on localhost , port ${port} with mysql version ${vers} and password ${password}`);
 
-    const {confirmation} = await inquirer.askForConfirmation("Do you want to update your current environment file with these values ?");
+    const {confirmation} = await new inquirer.Inquirer().askForConfirmation("Do you want to update your current environment file with these values ?");
 
     if (confirmation) {
         const envFileWriter = new EnvFileWriter(currentEnv + '.env');

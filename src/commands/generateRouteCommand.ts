@@ -11,7 +11,7 @@ import chalk from 'chalk';
 // Project imports
 import commandUtils = require('./commandUtils');
 import generateRouterAction = require('../actions/generateRouterAction');
-import inquirer = require('../utils/inquirer');
+import {Inquirer} from '../utils/inquirer';
 import {lowercaseEntity} from "../actions/lib/utils";
 import {fileExists} from '../utils/files';
 import Log = require('../utils/log');
@@ -39,6 +39,7 @@ export async function handler (argv: any): Promise<void> {
     const routeName = snakeCase(argv.routeName);
     const lowercase = lowercaseEntity(routeName);
     const controllerPath = `/src/api/controllers/${lowercase}.controller.ts`;
+    const inquirer = new Inquirer();
 
     if (fileExists(process.cwd() + controllerPath)) {
         let {confirmation} = await inquirer.askForConfirmation(`${controllerPath} already exists , do you want to override ?`);

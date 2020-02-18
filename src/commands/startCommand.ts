@@ -77,7 +77,7 @@ export async function handler (argv: any): Promise<void> {
         if (e.code === 'ER_BAD_DB_ERROR') {
             
             const dbName = currentEnv.TYPEORM_DB;
-            const confirmation = (await inquirer.askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
+            const confirmation = (await new inquirer.Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
             if (confirmation) await sqlConnection.createDatabase(dbName);
 

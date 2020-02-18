@@ -52,7 +52,7 @@ var rimraf = require("rimraf");
 var mkdirp = require("mkdirp");
 // project modules
 var files = require("../utils/files");
-var inquirer = require("../utils/inquirer");
+var inquirer_1 = require("../utils/inquirer");
 var Log = require("../utils/log");
 var utils = require("./lib/utils");
 var JsonFileWriter = require("json-file-rw");
@@ -74,11 +74,12 @@ var NewActionClass = /** @class */ (function () {
     //description: Generate a new project
     NewActionClass.prototype.Main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var pckManager, envVar, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
+            var pckManager, inquirer, envVar, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         pckManager = this.yarn ? 'yarn' : 'npm';
+                        inquirer = new inquirer_1.Inquirer();
                         if (!this.pathOption) return [3 /*break*/, 2];
                         return [4 /*yield*/, inquirer.askForNewPath()];
                     case 1:

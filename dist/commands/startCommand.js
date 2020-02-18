@@ -120,7 +120,7 @@ function handler(argv) {
                     _a.sent();
                     if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 10];
                     dbName = currentEnv.TYPEORM_DB;
-                    return [4 /*yield*/, inquirer.askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
+                    return [4 /*yield*/, new inquirer.Inquirer().askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
                 case 6:
                     confirmation = (_a.sent()).confirmation;
                     if (!confirmation) return [3 /*break*/, 8];

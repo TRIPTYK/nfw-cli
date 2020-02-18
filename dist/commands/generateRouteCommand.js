@@ -47,7 +47,7 @@ var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
 var generateRouterAction = require("../actions/generateRouterAction");
-var inquirer = require("../utils/inquirer");
+var inquirer_1 = require("../utils/inquirer");
 var utils_1 = require("../actions/lib/utils");
 var files_1 = require("../utils/files");
 var Log = require("../utils/log");
@@ -64,7 +64,7 @@ exports.builder = builder;
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var routeName, lowercase, controllerPath, confirmation, continueAsking, routes, routePath, routeMethods, continueAskingMethods, _a, routeMethod, controllerMethod, routeAuthorization;
+        var routeName, lowercase, controllerPath, inquirer, confirmation, continueAsking, routes, routePath, routeMethods, continueAskingMethods, _a, routeMethod, controllerMethod, routeAuthorization;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -75,6 +75,7 @@ function handler(argv) {
                     routeName = snakeCase(argv.routeName);
                     lowercase = utils_1.lowercaseEntity(routeName);
                     controllerPath = "/src/api/controllers/" + lowercase + ".controller.ts";
+                    inquirer = new inquirer_1.Inquirer();
                     if (!files_1.fileExists(process.cwd() + controllerPath)) return [3 /*break*/, 3];
                     return [4 /*yield*/, inquirer.askForConfirmation(controllerPath + " already exists , do you want to override ?")];
                 case 2:

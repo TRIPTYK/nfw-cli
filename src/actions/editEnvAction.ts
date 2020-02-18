@@ -24,7 +24,7 @@ export class EditEnvActionClass {
 
     //Main function
     async Main(): Promise<string[]> {
-        let response = await inquirer.editEnvFile(this.chosenOne);
+        let response = await new inquirer.Inquirer().editEnvFile(this.chosenOne);
 
         response.NODE_ENV = this.env;
         response.API_VERSION = "v1";

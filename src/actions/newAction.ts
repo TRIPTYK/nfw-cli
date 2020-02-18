@@ -16,7 +16,7 @@ import mkdirp = require("mkdirp");
 
 // project modules
 import files = require('../utils/files');
-import inquirer = require('../utils/inquirer');
+import {Inquirer} from '../utils/inquirer';
 import Log = require('../utils/log');
 import utils = require('./lib/utils');
 import JsonFileWriter = require('json-file-rw');
@@ -51,6 +51,7 @@ export class NewActionClass {
     async Main(){
 
         const pckManager = this.yarn ? 'yarn' : 'npm';
+        const inquirer = new Inquirer();
 
         if (this.pathOption) newPath = await inquirer.askForNewPath();
     

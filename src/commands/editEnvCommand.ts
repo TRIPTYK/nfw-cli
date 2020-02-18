@@ -37,7 +37,7 @@ export async function handler (): Promise<void> {
     // select only env files
     let envFiles = files.filter((file) => file.includes('.env')).map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')));
 
-    let {env} = await inquirer.choseEnvFile(envFiles);
+    let {env} = await new inquirer.Inquirer().choseEnvFile(envFiles);
     const envFileName = `${env}.env`;
     let chosenOne = dotenv.parse(fs.readFileSync(envFileName));
 

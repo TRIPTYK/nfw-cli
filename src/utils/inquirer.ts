@@ -5,19 +5,21 @@
  */
 
 // node modules
-const inquirer = require('inquirer');
+import inquirer = require('inquirer');
 
 // project modules
-const files = require('./files');
-const {columnExist,relationExist,format} = require('../actions/lib/utils');
+import files = require('./files');
+import {columnExist,relationExist,format} from '../actions/lib/utils';
+import { DatabaseEnv } from '../database/sqlAdaptator';
+import { DotenvParseOptions, DotenvConfigOutput, DotenvParseOutput } from 'dotenv/types';
 
-module.exports = {
+export class Inquirer {
 
     /**
      * TODO
      */
-    askForNewPath: () => {
-        const question = {
+    askForNewPath () {
+        const question: inquirer.InputQuestion = {
             name: 'path',
             type: 'input',
             message: "Please enter a path :",
@@ -34,37 +36,37 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * Ask route path
      */
-    askRoutePath: () => {
-        const question =
+    askRoutePath () {
+        const question: inquirer.InputQuestion =
             {
                 name: 'routePath',
                 type: 'input',
                 message: 'Please enter the sub-route path',
                 default: '/',
-                validate : (input) =>{
+                validate : (input: string) =>{
                     if (input === "") return "route path must contains at least one letter";
                     else if(input.includes(' ')) return 'route path can\'t contains space';
                     else return true;
                 },
-                filter : (input) =>{
+                filter : (input: string) =>{
                     if(input[0] !== '/') return `/${input}`;
                     else return input;
                 }
             }
         ;
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      */
-    askRouteData: (choices = null) => {
-        const question = [
+    askRouteData (choices = null) {
+        const question: inquirer.InputQuestion = [
             {
                 name: 'routeMethod',
                 type: 'list',
@@ -91,13 +93,13 @@ module.exports = {
             }
         ];
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      */
-    enumQuestion: () => {
-        const question = {
+    enumQuestion () {
+        const question: inquirer.InputQuestion = {
             type: 'input',
             name: 'enum',
             message: 'Plz enter a value for the enum array',
@@ -107,27 +109,27 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      * @param q
      */
-    askForConfirmation: (q) => {
-        const question = {
+    askForConfirmation (q: string) {
+        const question: inquirer.ConfirmQuestion = {
             type: 'confirm',
             name: 'confirmation',
             message: q
         };
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      * @param type
      */
-    lengthQuestion: (type) => {
-        const question = {
+    lengthQuestion (type: string) {
+        const question: inquirer.InputQuestion = {
             type: 'input',
             name: 'enum',
             message: 'what\'s the data length ?',
@@ -141,14 +143,14 @@ module.exports = {
             }
         };
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      * @param columnWritten
      */
-    questionColumnName: (columnWritten) => {
-        const questionsParams = [
+    questionColumnName (columnWritten: string) {
+        const questionsParams: inquirer.InputQuestion = [
             {
                 type: 'input',
                 name: 'columnName',
@@ -163,13 +165,13 @@ module.exports = {
                 filter: data => format(data)
             }];
         return inquirer.prompt(questionsParams);
-    },
+    }
 
     /**
      * TODO
      */
-    questionColumnKey: () => {
-        const questionsParams = [
+    questionColumnKey () {
+        const questionsParams: inquirer.InputQuestion = [
             {
                 type: 'list',
                 name: 'constraintValue',
@@ -186,13 +188,13 @@ module.exports = {
         ];
         return inquirer.prompt(questionsParams);
 
-    },
+    }
 
     /**
      * TODO
      */
-    questionUnique: () => {
-        const questionsParams = [
+    questionUnique () {
+        const questionsParams: inquirer.InputQuestion = [
             {
                 type: 'confirm',
                 name: 'uniqueValue',
@@ -205,31 +207,31 @@ module.exports = {
             }
         ];
         return inquirer.prompt(questionsParams);
-    },
+    }
 
     /**
      * TODO
      * @param type
      * @param enumArray
      */
-    questionDefault: (type, enumArray) => {
-        let questionType;
+    questionDefault (type: string, enumArray: any) {
+        let questionType: string;
         type ==='enum' ? questionType = 'list' : questionType = 'input';
         enumArray = enumArray.split(',');
         enumArray = enumArray.map((elem) => elem.replace(/'/g,''));
         if (Array.isArray(enumArray)) enumArray.push('Cancel current column');
-        const questionsParams = [
+        const questionsParams: inquirer.InputQuestion = [
             {
                 type: questionType,
                 name: 'defaultValue',
                 choices: enumArray,
                 message: "What's the column default value ?(type :no if you don't want a default)",
                 default: "null",
-                filter: (data) => {
+                filter: (data: string) => {
                     if (data === 'Cancel current column') return ':exit';
                     else return data
                 },
-                validate: (data) => {
+                validate: (data: any) => {
                     let numberType = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double'];
                     if (data === ':no') return true;
                     if (data === ':exit') return true;
@@ -257,16 +259,16 @@ module.exports = {
                 }
             },];
         return inquirer.prompt(questionsParams);
-    },
+    }
 
     /**
      * TODO
      */
-    questionType: (key) => {
+    questionType (key: string) {
         console.log(key);
-        typeList = ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column']
+        let typeList = ['char', 'varchar', 'datetime', 'date', 'time', 'timestamp', 'year', 'tinyint', 'smallint', 'mediumint', 'int', 'bigint', 'float', 'double', 'binary', 'varbinary', 'decimal', 'tinytext', 'mediumtext', 'text', 'enum', 'json', 'tinyblob', 'mediumblob', 'blob', 'longblob', 'Cancel current column']
         if(key === 'PRI' || key === 'UNI') typeList = typeList.filter(type => !type.match(/text|blob|json/))
-        const questionsParams = [
+        const questionsParams: inquirer.InputQuestion = [
             {
                 type: 'list',
                 name: 'type',
@@ -278,13 +280,13 @@ module.exports = {
                 }
             },];
         return inquirer.prompt(questionsParams);
-    },
+    }
 
     /**
      * TODO
      * @param exist
      */
-    askForChoice: (exist) => {
+    askForChoice (exist: boolean) {
         let create = ['create an entity', 'create empty entity', 'nothing'];
         if (exist) create.unshift('create from db');
         const options = [
@@ -297,34 +299,35 @@ module.exports = {
             }
         ];
         return inquirer.prompt(options);
-    },
+    }
 
     /**
      * TODO
      * @param tmpKey
      */
-    askForeignKeyRelation: (tmpKey) => {
-        const question = [
+    askForeignKeyRelation (tmpKey: any) {
+        const question: inquirer.InputQuestion = [
             {
                 type: 'list',
                 name: 'response',
                 message: `A relationship has been detected with table ${tmpKey.REFERENCED_TABLE_NAME} with the key ${tmpKey.TABLE_NAME}.${tmpKey.COLUMN_NAME} to ${tmpKey.REFERENCED_TABLE_NAME}.${tmpKey.REFERENCED_COLUMN_NAME}\nWhat kind of relationship is this ?`,
                 choices: ['OneToOne', 'ManyToOne', 'OneToMany'],
-                filter: (data) => {
+                filter: (data: string) => {
                     if (data === 'OneToOne') return 'oto';
                     if (data === 'OneToMany') return 'otm';
                     if (data === 'ManyToOne') return 'mto';
+                    else return '';
                 }
             }
         ];
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      */
-    askForEnvVariable: () => {
-        const envQuestion = [
+    askForEnvVariable () {
+        const envQuestion: inquirer.InputQuestion = [
             {
                 type: 'list',
                 name: "env",
@@ -337,7 +340,7 @@ module.exports = {
                 name: 'PORT',
                 message: 'Which port will the app use ?',
                 default: 8001,
-                validate: (data) => {
+                validate: (data: string) => {
                     if ((/^[0-9]+$/).test(data)) {
                         return true;
                     } else {
@@ -374,7 +377,7 @@ module.exports = {
                 name: 'TYPEORM_PORT',
                 message: 'Database port ?',
                 default: 3306,
-                validate: (data) => {
+                validate: (data: string) => {
                     if ((/^[0-9]+$/).test(data)) {
                         return true;
                     } else {
@@ -384,13 +387,13 @@ module.exports = {
             },
         ];
         return inquirer.prompt(envQuestion);
-    },
+    }
 
     /**
      * TODO
      */
-    askForCreateUpdate: () => {
-        const question = [{
+    askForCreateUpdate () {
+        const question: inquirer.InputQuestion = [{
             type: 'confirm',
             name: 'createAt',
             message: 'Do you want to add a createAt Column ?',
@@ -403,13 +406,13 @@ module.exports = {
         }];
 
         return inquirer.prompt(question)
-    },
+    }
 
     /**
      * TODO
      */
-    askForDockerVars: () => {
-        const dockerQuestion = [
+    askForDockerVars () {
+        const dockerQuestion: inquirer.InputQuestion = [
             {
                 type: 'input',
                 name: 'EXPOSE',
@@ -443,28 +446,28 @@ module.exports = {
             }
         ];
         return inquirer.prompt(dockerQuestion);
-    },
+    }
 
     /**
      * TODO
      * @param envFiles
      */
-    choseEnvFile: (envFiles) => {
-        const question = {
+    choseEnvFile (envFiles: any) {
+        const question: inquirer.ListQuestion = {
             type: "list",
             name: "env",
             message: "Which environement would you like to edit ?",
             choices: envFiles,
         };
         return inquirer.prompt(question);
-    },
+    }
 
     /**
      * TODO
      * @param envData
      */
-    editEnvFile: (envData) => {
-        const questions = [
+    editEnvFile (envData: DotenvParseOutput) {
+        const questions: inquirer.InputQuestion = [
             {
                 type: "input",
                 name: "PORT",
@@ -673,15 +676,16 @@ module.exports = {
 
         ];
         return inquirer.prompt(questions);
-    },    
-    questionM1M2: (model1,model2) => {
-        const questionsM1M2 = [
+    }
+
+    questionM1M2 (model1: any,model2: any) {
+        const questionsM1M2: inquirer.InputQuestion = [
             {
                 type: 'input',
                 name: 'm1Name',
                 message: `What's wich name to you want for ${model1} in the model ?`,
                 default : model1,
-                validate : (input) =>{
+                validate : (input: string) =>{
                     if (columnExist(model1,input) || relationExist(model1,input)) return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";
                     else return true;
@@ -692,14 +696,12 @@ module.exports = {
                 name: 'm2Name',
                 message: `What's wich name to you want for ${model2} in the model ?`,
                 default : model2,
-                validate : (input) =>{
+                validate : (input: string) =>{
                     if (columnExist(model2,input) || relationExist(model2,input)) return 'Name may create a conflict. please choose another one';
                     else if (!input.match(/^[a-zA-Z]\w{0,30}$/)) return "Name contain fordibben charachter";
                     else return true;
                 }
             }];
         return inquirer.prompt(questionsM1M2);
-    },
-
-    
+    }
 };

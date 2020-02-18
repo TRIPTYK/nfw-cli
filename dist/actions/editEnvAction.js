@@ -56,7 +56,7 @@ var EditEnvActionClass = /** @class */ (function () {
             var response, envString, reg, output, writeFileName;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, inquirer.editEnvFile(this.chosenOne)];
+                    case 0: return [4 /*yield*/, new inquirer.Inquirer().editEnvFile(this.chosenOne)];
                     case 1:
                         response = _a.sent();
                         response.NODE_ENV = this.env;

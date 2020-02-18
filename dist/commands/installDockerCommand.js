@@ -91,7 +91,7 @@ function handler(argv) {
                     array.push(name);
                     nfwFile.saveSync();
                     Log.success("Your docker container was created on localhost , port " + port + " with mysql version " + vers + " and password " + password);
-                    return [4 /*yield*/, inquirer.askForConfirmation("Do you want to update your current environment file with these values ?")];
+                    return [4 /*yield*/, new inquirer.Inquirer().askForConfirmation("Do you want to update your current environment file with these values ?")];
                 case 2:
                     confirmation = (_a.sent()).confirmation;
                     if (confirmation) {

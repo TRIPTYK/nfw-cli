@@ -69,7 +69,7 @@ function handler() {
                     commandUtils.validateDirectory();
                     files = fs.readdirSync('./');
                     envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
-                    return [4 /*yield*/, inquirer.choseEnvFile(envFiles)];
+                    return [4 /*yield*/, new inquirer.Inquirer().choseEnvFile(envFiles)];
                 case 1:
                     env = (_a.sent()).env;
                     envFileName = env + ".env";
