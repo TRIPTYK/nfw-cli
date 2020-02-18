@@ -5,49 +5,38 @@
  */
 
 // Node modules imports
-const snakeCase = require('to-snake-case');
-const chalk = require('chalk');
+import snakeCase = require('to-snake-case');
+import chalk from 'chalk';
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const generateRouterAction = require('../actions/generateRouterAction');
-const inquirer = require('../utils/inquirer');
-const {lowercaseEntity} = require("../actions/lib/utils");
-const {fileExists} = require('../utils/files');
-const Log = require('../utils/log');
-const project = require('../utils/project');
+import commandUtils = require('./commandUtils');
+import generateRouterAction = require('../actions/generateRouterAction');
+import inquirer = require('../utils/inquirer');
+import {lowercaseEntity} from "../actions/lib/utils";
+import {fileExists} from '../utils/files';
+import Log = require('../utils/log');
+import project = require('../utils/project');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'createRouter <routeName>';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['gr'];
+//Yargs command
+export const command: string = 'createRouter <routeName>';
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generate a router with associated controller methods without model';
+//Yargs command aliases
+export const aliases: string[] = ['gr'];
 
-/**
- * Yargs command builder
- */
-exports.builder = () => {
+//Yargs command description
+export const describe: string = 'Generate a router with associated controller methods without model';
 
-};
+//Yargs command builder
+export function builder() {};
 
 /**
  * Main function
  * @param argv
  * @returns {Promise<void>}
  */
-exports.handler = async (argv) => {
+export async function handler (argv: any) {
+
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
@@ -98,7 +87,7 @@ exports.handler = async (argv) => {
         continueAsking = (await inquirer.askForConfirmation('Do you want to add a new route ?')).confirmation;
     }
 
-    await generateRouterAction(lowercase, routes)
+    await new generateRouterAction.GenerateRouterActionClass(lowercase, routes).Main()
         .then((writtenPaths) => {
             writtenPaths.forEach((path) => {
                 Log.info(`Created ${chalk.cyan(path)}`);

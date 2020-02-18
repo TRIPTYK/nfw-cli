@@ -1,5 +1,6 @@
-var capitalizeEntity = require("../../actions/lib/utils").capitalizeEntity;
-var project = require('../../utils/project');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var project = require("../../utils/project");
 /**
  *
  * @param path
@@ -7,7 +8,7 @@ var project = require('../../utils/project');
  * @param {array} methods
  * @param entityName
  */
-module.exports = function (path, _a) {
+function Main(path, _a) {
     var className = _a.className, entityName = _a.entityName, methods = _a.methods;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -45,4 +46,6 @@ module.exports = function (path, _a) {
     });
     file.fixMissingImports();
     return file;
-};
+}
+exports.Main = Main;
+;

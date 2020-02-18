@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @author Deflorenne Amaury
  * @description Generates a custom router and controller
@@ -39,9 +40,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var project = require('../utils/project');
-var capitalizeEntity = require('../actions/lib/utils').capitalizeEntity;
+Object.defineProperty(exports, "__esModule", { value: true });
+var project = require("../utils/project");
+var utils_1 = require("../actions/lib/utils");
 var customRouterTemplate = require("../templates/custom/customRouter");
 var customControllerTemplate = require("../templates/custom/customController");
 /**
@@ -50,33 +51,43 @@ var customControllerTemplate = require("../templates/custom/customController");
  * @param routes
  * @returns {Promise<string[]>} Generated files
  */
-module.exports = function (entityName, routes) { return __awaiter(_this, void 0, void 0, function () {
-    var methods, routerPath, controllerPath, writtenFiles;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                methods = [];
-                routerPath = "src/api/routes/v1/" + entityName + ".route.ts";
-                controllerPath = "src/api/controllers/" + entityName + ".controller.ts";
-                writtenFiles = [];
-                routes.forEach(function (route) {
-                    route.methods.forEach(function (method) {
-                        methods.push({
-                            name: method.controllerMethod
+var GenerateRouterActionClass = /** @class */ (function () {
+    function GenerateRouterActionClass(entityName, routes) {
+        this.entityName = entityName;
+        this.routes = routes;
+    }
+    GenerateRouterActionClass.prototype.Main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var methods, routerPath, controllerPath, writtenFiles;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        methods = [];
+                        routerPath = "src/api/routes/v1/" + this.entityName + ".route.ts";
+                        controllerPath = "src/api/controllers/" + this.entityName + ".controller.ts";
+                        writtenFiles = [];
+                        this.routes.forEach(function (route) {
+                            route.methods.forEach(function (method) {
+                                methods.push({
+                                    name: method.controllerMethod
+                                });
+                            });
                         });
-                    });
-                });
-                writtenFiles.push(customControllerTemplate(controllerPath, {
-                    className: capitalizeEntity(entityName) + "Controller",
-                    methods: methods,
-                    entityName: entityName
-                }));
-                writtenFiles.push(customRouterTemplate(routerPath, { routes: routes, entityName: entityName }));
-                return [4 /*yield*/, project.save()];
-            case 1:
-                _a.sent();
-                // return written files
-                return [2 /*return*/, writtenFiles.map(function (f) { return f.getFilePath(); })];
-        }
-    });
-}); };
+                        writtenFiles.push(customControllerTemplate.Main(controllerPath, {
+                            className: utils_1.capitalizeEntity(this.entityName) + "Controller",
+                            methods: methods,
+                            entityName: this.entityName
+                        }));
+                        writtenFiles.push(customRouterTemplate.Main(routerPath, { routes: this.routes, entityName: this.entityName }));
+                        return [4 /*yield*/, project.save()];
+                    case 1:
+                        _a.sent();
+                        // return written files
+                        return [2 /*return*/, writtenFiles.map(function (f) { return f.getFilePath(); })];
+                }
+            });
+        });
+    };
+    return GenerateRouterActionClass;
+}());
+exports.GenerateRouterActionClass = GenerateRouterActionClass;

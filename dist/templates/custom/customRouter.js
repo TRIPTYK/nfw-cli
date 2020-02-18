@@ -1,12 +1,14 @@
-var project = require('../../utils/project');
-var TsMorph = require('ts-morph');
-var capitalizeEntity = require("../../actions/lib/utils").capitalizeEntity;
-module.exports = function (path, _a) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var project = require("../../utils/project");
+var TsMorph = require("ts-morph");
+var utils_1 = require("../../actions/lib/utils");
+function Main(path, _a) {
     var routes = _a.routes, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = capitalizeEntity(entityName);
+    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
     file.addVariableStatement({
         declarationKind: TsMorph.VariableDeclarationKind.Const,
         declarations: [{ initializer: 'Router()', name: 'router' }]
@@ -32,4 +34,6 @@ module.exports = function (path, _a) {
     file.addStatements('export { router }');
     file.fixMissingImports();
     return file;
-};
+}
+exports.Main = Main;
+;

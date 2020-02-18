@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateRouteCommand
  * @description Command module to handle route with controller generation
@@ -39,115 +40,108 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules imports
-var snakeCase = require('to-snake-case');
-var chalk = require('chalk');
+var snakeCase = require("to-snake-case");
+var chalk_1 = require("chalk");
 // Project imports
-var commandUtils = require('./commandUtils');
-var generateRouterAction = require('../actions/generateRouterAction');
-var inquirer = require('../utils/inquirer');
-var lowercaseEntity = require("../actions/lib/utils").lowercaseEntity;
-var fileExists = require('../utils/files').fileExists;
-var Log = require('../utils/log');
-var project = require('../utils/project');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var generateRouterAction = require("../actions/generateRouterAction");
+var inquirer = require("../utils/inquirer");
+var utils_1 = require("../actions/lib/utils");
+var files_1 = require("../utils/files");
+var Log = require("../utils/log");
+//Yargs command
 exports.command = 'createRouter <routeName>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['gr'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Generate a router with associated controller methods without model';
-/**
- * Yargs command builder
- */
-exports.builder = function () {
-};
+//Yargs command builder
+function builder() { }
+exports.builder = builder;
+;
 /**
  * Main function
  * @param argv
  * @returns {Promise<void>}
  */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var routeName, lowercase, controllerPath, confirmation, continueAsking, routes, routePath, routeMethods, continueAskingMethods, _a, routeMethod, controllerMethod, routeAuthorization;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _b.sent();
-                routeName = snakeCase(argv.routeName);
-                lowercase = lowercaseEntity(routeName);
-                controllerPath = "/src/api/controllers/" + lowercase + ".controller.ts";
-                if (!fileExists(process.cwd() + controllerPath)) return [3 /*break*/, 3];
-                return [4 /*yield*/, inquirer.askForConfirmation(controllerPath + " already exists , do you want to override ?")];
-            case 2:
-                confirmation = (_b.sent()).confirmation;
-                if (!confirmation) {
-                    process.exit();
-                }
-                _b.label = 3;
-            case 3:
-                continueAsking = true;
-                routes = [];
-                Log.info("Base route will be : /api/v1/" + routeName);
-                _b.label = 4;
-            case 4:
-                if (!continueAsking) return [3 /*break*/, 11];
-                return [4 /*yield*/, inquirer.askRoutePath()];
-            case 5:
-                routePath = (_b.sent()).routePath;
-                routeMethods = [];
-                continueAskingMethods = true;
-                _b.label = 6;
-            case 6:
-                if (!continueAskingMethods) return [3 /*break*/, 9];
-                return [4 /*yield*/, inquirer.askRouteData()];
-            case 7:
-                _a = _b.sent(), routeMethod = _a.routeMethod, controllerMethod = _a.controllerMethod, routeAuthorization = _a.routeAuthorization;
-                if (routeAuthorization === 'GHOST')
-                    routeAuthorization = null; //quick fix because GHOST is by default
-                routeMethods.push({
-                    method: routeMethod,
-                    authorization: routeAuthorization,
-                    controllerMethod: controllerMethod
-                });
-                return [4 /*yield*/, inquirer.askForConfirmation("Do you want to add a new method to route /api/v1/" + routeName + routePath + " ?")];
-            case 8:
-                continueAskingMethods = (_b.sent()).confirmation;
-                return [3 /*break*/, 6];
-            case 9:
-                routes.push({
-                    path: routePath,
-                    methods: routeMethods
-                });
-                return [4 /*yield*/, inquirer.askForConfirmation('Do you want to add a new route ?')];
-            case 10:
-                continueAsking = (_b.sent()).confirmation;
-                return [3 /*break*/, 4];
-            case 11: return [4 /*yield*/, generateRouterAction(lowercase, routes)
-                    .then(function (writtenPaths) {
-                    writtenPaths.forEach(function (path) {
-                        Log.info("Created " + chalk.cyan(path));
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var routeName, lowercase, controllerPath, confirmation, continueAsking, routes, routePath, routeMethods, continueAskingMethods, _a, routeMethod, controllerMethod, routeAuthorization;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _b.sent();
+                    routeName = snakeCase(argv.routeName);
+                    lowercase = utils_1.lowercaseEntity(routeName);
+                    controllerPath = "/src/api/controllers/" + lowercase + ".controller.ts";
+                    if (!files_1.fileExists(process.cwd() + controllerPath)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, inquirer.askForConfirmation(controllerPath + " already exists , do you want to override ?")];
+                case 2:
+                    confirmation = (_b.sent()).confirmation;
+                    if (!confirmation) {
+                        process.exit();
+                    }
+                    _b.label = 3;
+                case 3:
+                    continueAsking = true;
+                    routes = [];
+                    Log.info("Base route will be : /api/v1/" + routeName);
+                    _b.label = 4;
+                case 4:
+                    if (!continueAsking) return [3 /*break*/, 11];
+                    return [4 /*yield*/, inquirer.askRoutePath()];
+                case 5:
+                    routePath = (_b.sent()).routePath;
+                    routeMethods = [];
+                    continueAskingMethods = true;
+                    _b.label = 6;
+                case 6:
+                    if (!continueAskingMethods) return [3 /*break*/, 9];
+                    return [4 /*yield*/, inquirer.askRouteData()];
+                case 7:
+                    _a = _b.sent(), routeMethod = _a.routeMethod, controllerMethod = _a.controllerMethod, routeAuthorization = _a.routeAuthorization;
+                    if (routeAuthorization === 'GHOST')
+                        routeAuthorization = null; //quick fix because GHOST is by default
+                    routeMethods.push({
+                        method: routeMethod,
+                        authorization: routeAuthorization,
+                        controllerMethod: controllerMethod
                     });
-                })
-                    .catch(function (error) {
-                    console.log(error);
-                    Log.error('Failed to generate : ' + error.message);
-                })];
-            case 12:
-                _b.sent();
-                process.exit();
-                return [2 /*return*/];
-        }
+                    return [4 /*yield*/, inquirer.askForConfirmation("Do you want to add a new method to route /api/v1/" + routeName + routePath + " ?")];
+                case 8:
+                    continueAskingMethods = (_b.sent()).confirmation;
+                    return [3 /*break*/, 6];
+                case 9:
+                    routes.push({
+                        path: routePath,
+                        methods: routeMethods
+                    });
+                    return [4 /*yield*/, inquirer.askForConfirmation('Do you want to add a new route ?')];
+                case 10:
+                    continueAsking = (_b.sent()).confirmation;
+                    return [3 /*break*/, 4];
+                case 11: return [4 /*yield*/, new generateRouterAction.GenerateRouterActionClass(lowercase, routes).Main()
+                        .then(function (writtenPaths) {
+                        writtenPaths.forEach(function (path) {
+                            Log.info("Created " + chalk_1.default.cyan(path));
+                        });
+                    })
+                        .catch(function (error) {
+                        console.log(error);
+                        Log.error('Failed to generate : ' + error.message);
+                    })];
+                case 12:
+                    _b.sent();
+                    process.exit();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;
