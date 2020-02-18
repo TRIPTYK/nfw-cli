@@ -1,15 +1,13 @@
 // node modules 
-const xlsx = require("xlsx");
-const fs = require('fs');
-const SQLBuilder = require('json-sql-builder2');
+import xlsx = require("xlsx");
+import fs = require('fs');
+import SQLBuilder = require('json-sql-builder2');
 const sql = new SQLBuilder('MySQL');
-const inquirer = require('inquirer');
-const Log = require('../utils/log');
-const {
-    getSqlConnectionFromNFW
-} = require('../database/sqlAdaptator');
+import inquirer = require('inquirer');
+import Log = require('../utils/log');
+import { getSqlConnectionFromNFW, SqlConnection } from '../database/sqlAdaptator';
 // variables
-const bcrypt = require('bcryptjs');
+import bcrypt = require('bcryptjs');
 let dropData;
 let seedExtension;
 let pathSeedRead;
@@ -22,7 +20,7 @@ let tableArray = [];
 // 3) écriture du fichier json 
 // 4) écriture xlsx 
 // 5) connection finie
-module.exports = async function main() {
+export async function main() {
     await inquirer.prompt([{
             type: 'list',
             message: ' choissisez la méthode de seed :    ? ',
@@ -104,7 +102,7 @@ async function howMuchTable() {
 
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
-    let result = await sqlConnection.query(`SHOW TABLES`);
+    let result = await sqlConnection.db.query(`SHOW TABLES`);
 
     for (let i = 0; i < result.length; i++) {
         if (Object.values(result[i])[0] === 'migration_table') {} else {
@@ -113,13 +111,13 @@ async function howMuchTable() {
     }
 }
 
-function query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues) {
-    myQuery = sql.$insert({
+function query(tableData: string, j: number, keyObject: string[], i: number, sqlConnection: SqlConnection, table: any, tabProp: any, dataValues: any) {
+    const myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-    sqlConnection.query(myQuery, function (err) {
+    sqlConnection.db.query(myQuery, function (err) {
         if (err) {
             Log.error("Error on your seed");
             process.exit(0);
@@ -133,7 +131,7 @@ function query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataVa
 
 
 }
-async function writeDb(pathSeedWrite, seedExtension, dropData) {
+async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: boolean) {
 
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
@@ -155,17 +153,17 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                     process.exit(0) ; 
                 }
                 else {
-                    var obj = JSON.parse(data);
+                    var obj = JSON.parse(data.toString());
                 let keyObject = Object.keys(obj);
 
                 let tableData;
 
-                for (i = 0; i < keyObject.length; i++) {
+                for (let i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
                     let sql1 = `TRUNCATE TABLE ${table}`;
                     if (dropData == true) {
-                        sqlConnection.query(sql1, function (err, results) {
+                        sqlConnection.db.query(sql1, function (err, results) {
                             if (err) {
                                 throw err;
                             }
@@ -174,7 +172,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
                         let dataValues = Object.values(tableData[j]);
-                        for (x = 0; x < tabProp.length; x++) {
+                        for (let x = 0; x < tabProp.length; x++) {
                             if (tabProp[x] == "password") {
                                 let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
                                 dataValues[x] = hash;
@@ -203,7 +201,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                         });
                         var result = {};
                         wb.SheetNames.forEach(function (sheetName) {
-                            var roa = xlsx.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                            var roa = xlsx.utils.sheet_to_json(wb.Sheets[sheetName]);
                             if (roa.length > 0) {
                                 result[sheetName] = roa;
                             }
@@ -213,16 +211,16 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                         });
                         fs.readFile(pathSeedWrite + '.json', (err, data) => {
                             // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
-                            var obj = JSON.parse(data);
+                            var obj = JSON.parse(data.toString());
                             let keyObject = Object.keys(obj);
             
                             let tableData;
-                            for (i = 0; i < keyObject.length; i++) {
+                            for (let i = 0; i < keyObject.length; i++) {
                                 tableData = obj[keyObject[i]];
                                 let table = keyObject[i];
                                 let sql1 = `TRUNCATE TABLE ${table}`;
                                 if (dropData == true) {
-                                    sqlConnection.query(sql1, function (err, results) {
+                                    sqlConnection.db.query(sql1, function (err, results) {
                                         if (err) {
                                             throw err;
                                         }
@@ -234,7 +232,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
                                     let dataValues = Object.values(tableData[j]);
             
             
-                                    for (x = 0; x < tabProp.length; x++) {
+                                    for (let x = 0; x < tabProp.length; x++) {
                                         if (tabProp[x] == "password") {
                                             let hash = bcrypt.hashSync(dataValues[x].toString(), 10);
                                             dataValues[x] = hash;
@@ -253,7 +251,7 @@ async function writeDb(pathSeedWrite, seedExtension, dropData) {
 }
 
 
-async function seedWriteFileJson(pathSeedRead, objetDb) {
+async function seedWriteFileJson(pathSeedRead: string, objetDb) {
     await fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
         if (err) throw err;
         Log.success("read done");
@@ -263,7 +261,7 @@ async function seedWriteFileJson(pathSeedRead, objetDb) {
 async function seedWriteFileXlsx(newWB, pathSeedRead) {
     await xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
 }
-async function readbdd(seedExtension, pathSeedRead) {
+async function readbdd(seedExtension: string, pathSeedRead: string) {
 
     const sqlConnection = await getSqlConnectionFromNFW();
     sqlConnection.connect();
@@ -278,16 +276,23 @@ async function readbdd(seedExtension, pathSeedRead) {
         let sql2 = `SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'${tableSql}' and TABLE_SCHEMA = '${database}'`;
 
         //let sql2 = `select * from ${tableSql}`;
-        sqlConnection.query(sql2, function (err, results) {
+        sqlConnection.db.query(sql2, function (err, results) {
             let jsonOut = [];
 
-            let keys = {};
-            for (j = 0; j < results.length; j++) {
+            let keys: {id: number, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number} = {
+                id: null,
+                createdAt: '',
+                updatedAt: '',
+                deletedAt: '',
+                avatarId: null
+            };
+
+            for (let j = 0; j < results.length; j++) {
 
                 // supprime les colonnes inutiles
 
-                key = results[j].COLUMN_NAME;
-                type = results[j].COLUMN_TYPE
+                let key = results[j].COLUMN_NAME;
+                let type = results[j].COLUMN_TYPE
                 keys[key] = '';
                 delete keys.id;
                 delete keys.createdAt;
@@ -295,6 +300,7 @@ async function readbdd(seedExtension, pathSeedRead) {
                 delete keys.deletedAt;
                 delete keys.avatarId;
             }
+
             jsonOut.push(keys);
             objetDb[tableSql] = jsonOut;
 

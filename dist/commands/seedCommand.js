@@ -1,3 +1,4 @@
+"use strict";
 // node modules 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -35,33 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var main = require('../actions/seedAction');
-/**
- * Yargs command syntax
- * @type {string}
- */
+Object.defineProperty(exports, "__esModule", { value: true });
+var seedAction_1 = require("../actions/seedAction");
+//Yargs command syntax
 exports.command = 'seed';
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'read database and write json/xlsx file or read json/xlsx file and write in database';
 /**
  *  Yargs command builder
  */
-/**
- * Main function
- *
- * @return {Promise<void>}
- */
-exports.handler = function () { return __awaiter(_this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, main()];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
+//main function
+function handler() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, seedAction_1.main()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;

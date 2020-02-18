@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,16 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules 
 var xlsx = require("xlsx");
-var fs = require('fs');
-var SQLBuilder = require('json-sql-builder2');
+var fs = require("fs");
+var SQLBuilder = require("json-sql-builder2");
 var sql = new SQLBuilder('MySQL');
-var inquirer = require('inquirer');
-var Log = require('../utils/log');
-var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnectionFromNFW;
+var inquirer = require("inquirer");
+var Log = require("../utils/log");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 // variables
-var bcrypt = require('bcryptjs');
+var bcrypt = require("bcryptjs");
 var dropData;
 var seedExtension;
 var pathSeedRead;
@@ -55,7 +57,7 @@ var tableArray = [];
 // 3) écriture du fichier json 
 // 4) écriture xlsx 
 // 5) connection finie
-module.exports = function main() {
+function main() {
     return __awaiter(this, void 0, void 0, function () {
         var _a;
         return __generator(this, function (_b) {
@@ -98,7 +100,8 @@ module.exports = function main() {
             }
         });
     });
-};
+}
+exports.main = main;
 function readInquire() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -173,11 +176,11 @@ function howMuchTable() {
         var sqlConnection, result, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
                 case 1:
                     sqlConnection = _a.sent();
                     sqlConnection.connect();
-                    return [4 /*yield*/, sqlConnection.query("SHOW TABLES")];
+                    return [4 /*yield*/, sqlConnection.db.query("SHOW TABLES")];
                 case 2:
                     result = _a.sent();
                     for (i = 0; i < result.length; i++) {
@@ -192,12 +195,12 @@ function howMuchTable() {
     });
 }
 function query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues) {
-    myQuery = sql.$insert({
+    var myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-    sqlConnection.query(myQuery, function (err) {
+    sqlConnection.db.query(myQuery, function (err) {
         if (err) {
             Log.error("Error on your seed");
             process.exit(0);
@@ -214,7 +217,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
         var sqlConnection;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
                 case 1:
                     sqlConnection = _a.sent();
                     sqlConnection.connect();
@@ -233,15 +236,15 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                     process.exit(0);
                                 }
                                 else {
-                                    var obj = JSON.parse(data);
+                                    var obj = JSON.parse(data.toString());
                                     var keyObject = Object.keys(obj);
                                     var tableData = void 0;
-                                    for (i = 0; i < keyObject.length; i++) {
+                                    for (var i = 0; i < keyObject.length; i++) {
                                         tableData = obj[keyObject[i]];
                                         var table = keyObject[i];
                                         var sql1 = "TRUNCATE TABLE " + table;
                                         if (dropData == true) {
-                                            sqlConnection.query(sql1, function (err, results) {
+                                            sqlConnection.db.query(sql1, function (err, results) {
                                                 if (err) {
                                                     throw err;
                                                 }
@@ -250,7 +253,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                         for (var j = 0; j < tableData.length; j++) {
                                             var tabProp = Object.keys(tableData[j]);
                                             var dataValues = Object.values(tableData[j]);
-                                            for (x = 0; x < tabProp.length; x++) {
+                                            for (var x = 0; x < tabProp.length; x++) {
                                                 if (tabProp[x] == "password") {
                                                     var hash = bcrypt.hashSync(dataValues[x].toString(), 10);
                                                     dataValues[x] = hash;
@@ -274,7 +277,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                     });
                                     var result = {};
                                     wb_1.SheetNames.forEach(function (sheetName) {
-                                        var roa = xlsx.utils.sheet_to_row_object_array(wb_1.Sheets[sheetName]);
+                                        var roa = xlsx.utils.sheet_to_json(wb_1.Sheets[sheetName]);
                                         if (roa.length > 0) {
                                             result[sheetName] = roa;
                                         }
@@ -285,15 +288,15 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                     });
                                     fs.readFile(pathSeedWrite + '.json', function (err, data) {
                                         // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
-                                        var obj = JSON.parse(data);
+                                        var obj = JSON.parse(data.toString());
                                         var keyObject = Object.keys(obj);
                                         var tableData;
-                                        for (i = 0; i < keyObject.length; i++) {
+                                        for (var i = 0; i < keyObject.length; i++) {
                                             tableData = obj[keyObject[i]];
                                             var table = keyObject[i];
                                             var sql1 = "TRUNCATE TABLE " + table;
                                             if (dropData == true) {
-                                                sqlConnection.query(sql1, function (err, results) {
+                                                sqlConnection.db.query(sql1, function (err, results) {
                                                     if (err) {
                                                         throw err;
                                                     }
@@ -302,7 +305,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                             for (var j = 0; j < tableData.length; j++) {
                                                 var tabProp = Object.keys(tableData[j]);
                                                 var dataValues = Object.values(tableData[j]);
-                                                for (x = 0; x < tabProp.length; x++) {
+                                                for (var x = 0; x < tabProp.length; x++) {
                                                     if (tabProp[x] == "password") {
                                                         var hash = bcrypt.hashSync(dataValues[x].toString(), 10);
                                                         dataValues[x] = hash;
@@ -355,7 +358,7 @@ function readbdd(seedExtension, pathSeedRead) {
         var sqlConnection, database, objetDb, newWB, _loop_1, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
                 case 1:
                     sqlConnection = _a.sent();
                     sqlConnection.connect();
@@ -367,13 +370,19 @@ function readbdd(seedExtension, pathSeedRead) {
                         //console.log("table sql ? " + tableSql);
                         var sql2 = "SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'" + tableSql + "' and TABLE_SCHEMA = '" + database + "'";
                         //let sql2 = `select * from ${tableSql}`;
-                        sqlConnection.query(sql2, function (err, results) {
+                        sqlConnection.db.query(sql2, function (err, results) {
                             var jsonOut = [];
-                            var keys = {};
-                            for (j = 0; j < results.length; j++) {
+                            var keys = {
+                                id: null,
+                                createdAt: '',
+                                updatedAt: '',
+                                deletedAt: '',
+                                avatarId: null
+                            };
+                            for (var j = 0; j < results.length; j++) {
                                 // supprime les colonnes inutiles
-                                key = results[j].COLUMN_NAME;
-                                type = results[j].COLUMN_TYPE;
+                                var key = results[j].COLUMN_NAME;
+                                var type = results[j].COLUMN_TYPE;
                                 keys[key] = '';
                                 delete keys.id;
                                 delete keys.createdAt;
