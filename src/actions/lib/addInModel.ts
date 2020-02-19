@@ -1,22 +1,22 @@
-const Util = require('util');
-const Log = require('../../utils/log');
-const FS = require('fs');
-const chalk = require('chalk');
-const kebab = require('dashify');
-const stringifyObject = require('stringify-object');
+import Util = require('util');
+import Log = require('../../utils/log');
+import FS = require('fs');
+import chalk from 'chalk';
+import kebab = require('dashify');
+import stringifyObject = require('stringify-object');
 
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
-const {  buildValidationArgumentsFromObject} = require('./utils');
-const project = require('../../utils/project');
+import {  buildValidationArgumentsFromObject} from './utils';
+import project = require('../../utils/project');
 
-exports.addToValidations = (model,column) => {
+export function addToValidations (model: string, column: any) {
     let file = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
     // all exported const should be validation schema
     const validationDeclarations = file.getVariableDeclarations().filter((v) => v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword());
 
-    validationDeclarations.forEach((declaration) => {
+    validationDeclarations.forEach((declaration:  any) => {
         if (declaration.getName().includes('update'))
             declaration.getInitializer().addPropertyAssignment({
                 name: column.Field,
@@ -31,7 +31,7 @@ exports.addToValidations = (model,column) => {
     });
 };
 
-exports.addToTest = async (model, column) => {
+export async function addToTest (model: string, column: any) {
     //Path to .test.js file and read it
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let testFile = await ReadFile(testPath,'utf-8');
@@ -62,8 +62,8 @@ exports.addToTest = async (model, column) => {
 
 };
 
-exports.writeSerializer = (model, column) => {
-    const relationFile = project.getSourceFile(`src/api/enums/json-api/${model}.enum.ts`);
+export function writeSerializer (model: string, column: any) {
+    const relationFile: any = project.getSourceFile(`src/api/enums/json-api/${model}.enum.ts`);
 
     relationFile.getVariableDeclaration(`${model}Serialize`).getInitializer().addElement(`'${column}'`);
     relationFile.getVariableDeclaration(`${model}Deserialize`).getInitializer().addElement(`'${column}'`);

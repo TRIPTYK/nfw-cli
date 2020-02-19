@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/dashify": "^1.0.0",
     "@types/ejs": "^3.0.0",
     "@types/inquirer": "^6.5.0",
     "@types/mkdirp": "^1.0.0",

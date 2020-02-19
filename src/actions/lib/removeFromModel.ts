@@ -88,7 +88,7 @@ export function removeFromSerializer (entity: string, column: string, otherModel
     serializerFile.fixUnusedIdentifiers();
 };
 
-export async function removeFromTest (model, column: string): Promise<void> {
+export async function removeFromTest (model: string, column: string): Promise<void> {
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let regexRandom = new RegExp(`[\\s]${column}.*?\\),`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
@@ -102,7 +102,7 @@ export async function removeFromTest (model, column: string): Promise<void> {
  * @param model
  * @param column
  */
-export function removeFromValidation (model, column: string) {
+export function removeFromValidation (model: string, column: string) {
     const relationFile = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
     // all exported const should be validation schema

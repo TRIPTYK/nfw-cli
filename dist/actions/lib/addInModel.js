@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,18 +35,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var Util = require('util');
-var Log = require('../../utils/log');
-var FS = require('fs');
-var chalk = require('chalk');
-var kebab = require('dashify');
-var stringifyObject = require('stringify-object');
+Object.defineProperty(exports, "__esModule", { value: true });
+var Util = require("util");
+var Log = require("../../utils/log");
+var FS = require("fs");
+var chalk_1 = require("chalk");
+var kebab = require("dashify");
+var stringifyObject = require("stringify-object");
 var ReadFile = Util.promisify(FS.readFile);
 var WriteFile = Util.promisify(FS.writeFile);
-var buildValidationArgumentsFromObject = require('./utils').buildValidationArgumentsFromObject;
-var project = require('../../utils/project');
-exports.addToValidations = function (model, column) {
+var utils_1 = require("./utils");
+var project = require("../../utils/project");
+function addToValidations(model, column) {
     var file = project.getSourceFile("src/api/validations/" + model + ".validation.ts");
     // all exported const should be validation schema
     var validationDeclarations = file.getVariableDeclarations().filter(function (v) { return v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword(); });
@@ -53,53 +54,61 @@ exports.addToValidations = function (model, column) {
         if (declaration.getName().includes('update'))
             declaration.getInitializer().addPropertyAssignment({
                 name: column.Field,
-                initializer: stringifyObject(buildValidationArgumentsFromObject(column, true))
+                initializer: stringifyObject(utils_1.buildValidationArgumentsFromObject(column, true))
             });
         if (declaration.getName().includes('create') || declaration.getName().includes('replace'))
             declaration.getInitializer().addPropertyAssignment({
                 name: column.Field,
-                initializer: stringifyObject(buildValidationArgumentsFromObject(column))
+                initializer: stringifyObject(utils_1.buildValidationArgumentsFromObject(column))
             });
     });
-};
-exports.addToTest = function (model, column) { return __awaiter(_this, void 0, void 0, function () {
-    var testPath, testFile, rgxRandomType, toPutRandType, rgxList, regexMatch, toPutInList, regexRandom, regexArray;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                testPath = process.cwd() + "/test/" + model + ".test.ts";
-                return [4 /*yield*/, ReadFile(testPath, 'utf-8')];
-            case 1:
-                testFile = _a.sent();
-                rgxRandomType = new RegExp("(.send\\({[\\s\\S]*?)()(})", 'gm');
-                if (column.Type.length === undefined)
-                    column.Type.length = '';
-                if (column.Type.type === 'enum')
-                    column.Type.length = "[" + column.Type.length + "]";
-                toPutRandType = "       " + column.Field + " : fixtures.random" + column.Type.type + "(" + column.Type.length + "),";
-                rgxList = new RegExp("(expect\\(res.body[\\s\\S]*?')([\\s\\n\\r])", 'gm');
-                regexMatch = testFile.match(rgxList);
-                if (regexMatch[2].includes('\''))
-                    toPutInList = ",'" + kebab(column.Field) + "'\n";
-                else
-                    toPutInList = "" + kebab(column.Field);
-                regexRandom = new RegExp("[\\s]" + column.Field + ".*?,", 'gm');
-                regexArray = new RegExp(",'" + column.Field + "'|'" + column.Field + "',|'" + column.Field + "'", 'gm');
-                if (!testFile.match(regexRandom))
-                    testFile = testFile.replace(rgxRandomType, "$1" + toPutRandType + "\n$3");
-                if (!testFile.match(regexArray))
-                    testFile = testFile.replace(rgxList, "$1" + toPutInList);
-                return [4 /*yield*/, WriteFile(testPath, testFile).then(function () { return Log.info(chalk.cyan("test/" + model + ".test.ts") + " updated"); })];
-            case 2:
-                _a.sent();
-                return [2 /*return*/];
-        }
+}
+exports.addToValidations = addToValidations;
+;
+function addToTest(model, column) {
+    return __awaiter(this, void 0, void 0, function () {
+        var testPath, testFile, rgxRandomType, toPutRandType, rgxList, regexMatch, toPutInList, regexRandom, regexArray;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    testPath = process.cwd() + "/test/" + model + ".test.ts";
+                    return [4 /*yield*/, ReadFile(testPath, 'utf-8')];
+                case 1:
+                    testFile = _a.sent();
+                    rgxRandomType = new RegExp("(.send\\({[\\s\\S]*?)()(})", 'gm');
+                    if (column.Type.length === undefined)
+                        column.Type.length = '';
+                    if (column.Type.type === 'enum')
+                        column.Type.length = "[" + column.Type.length + "]";
+                    toPutRandType = "       " + column.Field + " : fixtures.random" + column.Type.type + "(" + column.Type.length + "),";
+                    rgxList = new RegExp("(expect\\(res.body[\\s\\S]*?')([\\s\\n\\r])", 'gm');
+                    regexMatch = testFile.match(rgxList);
+                    if (regexMatch[2].includes('\''))
+                        toPutInList = ",'" + kebab(column.Field) + "'\n";
+                    else
+                        toPutInList = "" + kebab(column.Field);
+                    regexRandom = new RegExp("[\\s]" + column.Field + ".*?,", 'gm');
+                    regexArray = new RegExp(",'" + column.Field + "'|'" + column.Field + "',|'" + column.Field + "'", 'gm');
+                    if (!testFile.match(regexRandom))
+                        testFile = testFile.replace(rgxRandomType, "$1" + toPutRandType + "\n$3");
+                    if (!testFile.match(regexArray))
+                        testFile = testFile.replace(rgxList, "$1" + toPutInList);
+                    return [4 /*yield*/, WriteFile(testPath, testFile).then(function () { return Log.info(chalk_1.default.cyan("test/" + model + ".test.ts") + " updated"); })];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
-exports.writeSerializer = function (model, column) {
+}
+exports.addToTest = addToTest;
+;
+function writeSerializer(model, column) {
     var relationFile = project.getSourceFile("src/api/enums/json-api/" + model + ".enum.ts");
     relationFile.getVariableDeclaration(model + "Serialize").getInitializer().addElement("'" + column + "'");
     relationFile.getVariableDeclaration(model + "Deserialize").getInitializer().addElement("'" + column + "'");
     relationFile.fixMissingImports();
     relationFile.fixUnusedIdentifiers();
-};
+}
+exports.writeSerializer = writeSerializer;
+;

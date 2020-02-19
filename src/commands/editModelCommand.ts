@@ -5,51 +5,37 @@
  */
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const utils = require('../actions/lib/utils');
-const editModelAction = require('../actions/editModelAction');
-const Log = require('../utils/log');
-const migrate = require('../actions/migrateAction');
-const {columnExist,format} = require('../actions/lib/utils')
+import commandUtils = require('./commandUtils');
+import utils = require('../actions/lib/utils');
+import editModelAction = require('../actions/editModelAction');
+import Log = require('../utils/log');
+import migrate = require('../actions/migrateAction');
+import {columnExist,format} from '../actions/lib/utils';
 
 //Node Modules
-const {Spinner} = require('clui');
-const chalk = require('chalk');
+import {Spinner} from 'clui';
+import chalk from 'chalk';
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'editModel <model> <action> [columnName]';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ["em", "edit"];
+//Yargs command
+export const command: string = 'editModel <model> <action> [columnName]';
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'add or remove column in an existing model\nAction can be either add or remove\ncolumnName is required only for the remove action.';
+//Yargs command aliases
+export const aliases: string[] = ["em", "edit"];
 
-/**
- * Yargs command builder
- */
-exports.builder = (yargs) => {
+//Yargs command description
+export const describe: string = 'add or remove column in an existing model\nAction can be either add or remove\ncolumnName is required only for the remove action.';
+
+
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.choices('action',['remove','add']);
 };
 
 
+//Main function
+export async function handler (argv: any): Promise<void> {
 
-
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = async (argv) => {
     let {model, columnName, action} = argv;
     model= format(model);
     const spinner = new Spinner("Generating and executing migration");
@@ -69,18 +55,18 @@ exports.handler = async (argv) => {
             Log.error('column already exist');
             process.exit(0);
         }
-        await editModelAction('add', model,columnName)
+        await new editModelAction.EditModelClass('add', model,columnName).main()
             .then(async () =>{
                 spinner.start();
-                await migrate(`remove-${columnName}-from-${model}`)
+                await new migrate.MigrateActionClass(`remove-${columnName}-from-${model}`).main()
                     .then((generated) => {
                         const [migrationDir] = generated;
-                        spinner.stop(true);
+                        spinner.stop();
                         Log.success(`Executed migration successfully`);
                         Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
                     })
                     .catch((e) => {
-                        spinner.stop(true);
+                        spinner.stop();
                         Log.error(e.message);
                     });
             })
@@ -89,18 +75,18 @@ exports.handler = async (argv) => {
                 Log.error('Failed to edit model : ' + e.message)
             });
     } else if (action === 'remove' && columnName) {
-        await editModelAction('remove', model, columnName)
+        await new editModelAction.EditModelClass('remove', model, columnName).main()
             .then(async () => {
                 spinner.start();
-                await migrate(`remove-${columnName}-from-${model}`)
+                await new migrate.MigrateActionClass(`remove-${columnName}-from-${model}`).main()
                     .then((generated) => {
                         const [migrationDir] = generated;
-                        spinner.stop(true);
+                        spinner.stop();
                         Log.success(`Executed migration successfully`);
                         Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
                     })
                     .catch((e) => {
-                        spinner.stop(true);
+                        spinner.stop();
                         Log.error(e.message);
                     });
             })
