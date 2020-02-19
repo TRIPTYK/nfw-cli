@@ -1,4 +1,4 @@
-const tsMorph = require("ts-morph");
+import tsMorph = require("ts-morph");
 
 let isInitialised = false;
 const project = new tsMorph.Project({
@@ -9,7 +9,7 @@ const project = new tsMorph.Project({
  * @return Project
  * @description Singleton like method
  */
-module.exports = (() => {
+export = (() => {
     if (!isInitialised) {
         project.addExistingSourceFiles(["src/**/*.ts","test/**/*.ts"]);
         isInitialised = true;

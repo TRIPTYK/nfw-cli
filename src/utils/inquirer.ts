@@ -8,7 +8,7 @@
 import inquirer = require('inquirer');
 
 // project modules
-import files = require('./files');
+import {Files} from './files';
 import {columnExist,relationExist,format} from '../actions/lib/utils';
 import { DatabaseEnv } from '../database/sqlAdaptator';
 import { DotenvParseOptions, DotenvConfigOutput, DotenvParseOutput } from 'dotenv/types';
@@ -19,6 +19,7 @@ export class Inquirer {
      * TODO
      */
     askForNewPath () {
+        const files = new Files();
         const question: inquirer.InputQuestion = {
             name: 'path',
             type: 'input',

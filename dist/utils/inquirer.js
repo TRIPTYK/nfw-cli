@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
 var inquirer = require("inquirer");
 // project modules
-var files = require("./files");
+var files_1 = require("./files");
 var utils_1 = require("../actions/lib/utils");
 var Inquirer = /** @class */ (function () {
     function Inquirer() {
@@ -17,6 +17,7 @@ var Inquirer = /** @class */ (function () {
      * TODO
      */
     Inquirer.prototype.askForNewPath = function () {
+        var files = new files_1.Files();
         var question = {
             name: 'path',
             type: 'input',

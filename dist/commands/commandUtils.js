@@ -49,7 +49,7 @@ var path = require("path");
 var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 // project modules
-var filesHelper = require("../utils/files");
+var files_1 = require("../utils/files");
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var Log = require("../utils/log");
 var readFilePromise = util_1.promisify(fs.readFile);
@@ -57,6 +57,7 @@ var JsonFileWriter = require("json-file-rw");
 var dotenv = require("dotenv");
 //Check if we are in a valid project directory
 function validateDirectory() {
+    var filesHelper = new files_1.Files();
     if (!filesHelper.isProjectDirectory()) {
         console.log(chalk_1.default.bgRed(chalk_1.default.black('ERROR ! : You are not in a project directory')));
         process.exit(0);

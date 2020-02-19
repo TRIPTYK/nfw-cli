@@ -13,7 +13,7 @@ import util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 // project modules
-import filesHelper = require('../utils/files');
+import {Files} from '../utils/files';
 import { SqlConnection , DatabaseEnv } from '../database/sqlAdaptator';
 import Log = require('../utils/log');
 const readFilePromise = promisify(fs.readFile);
@@ -22,6 +22,7 @@ import dotenv = require('dotenv');
 
 //Check if we are in a valid project directory
 export function validateDirectory(): void {
+    const filesHelper = new Files();
     if (!filesHelper.isProjectDirectory()) {
         console.log(chalk.bgRed(chalk.black('ERROR ! : You are not in a project directory')));
         process.exit(0);

@@ -15,7 +15,7 @@ import rimraf = require("rimraf");
 import mkdirp = require("mkdirp");
 
 // project modules
-import files = require('../utils/files');
+import {Files} from '../utils/files';
 import {Inquirer} from '../utils/inquirer';
 import Log = require('../utils/log');
 import utils = require('./lib/utils');
@@ -52,6 +52,7 @@ export class NewActionClass {
 
         const pckManager = this.yarn ? 'yarn' : 'npm';
         const inquirer = new Inquirer();
+        const files = new Files();
 
         if (this.pathOption) newPath = await inquirer.askForNewPath();
     

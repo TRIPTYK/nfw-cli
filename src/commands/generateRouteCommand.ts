@@ -13,7 +13,7 @@ import commandUtils = require('./commandUtils');
 import generateRouterAction = require('../actions/generateRouterAction');
 import {Inquirer} from '../utils/inquirer';
 import {lowercaseEntity} from "../actions/lib/utils";
-import {fileExists} from '../utils/files';
+import {Files} from '../utils/files';
 import Log = require('../utils/log');
 import project = require('../utils/project');
 
@@ -40,8 +40,9 @@ export async function handler (argv: any): Promise<void> {
     const lowercase = lowercaseEntity(routeName);
     const controllerPath = `/src/api/controllers/${lowercase}.controller.ts`;
     const inquirer = new Inquirer();
+    const file = new Files();
 
-    if (fileExists(process.cwd() + controllerPath)) {
+    if (file.fileExists(process.cwd() + controllerPath)) {
         let {confirmation} = await inquirer.askForConfirmation(`${controllerPath} already exists , do you want to override ?`);
 
         if (!confirmation) {
