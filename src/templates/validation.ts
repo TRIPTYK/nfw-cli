@@ -1,9 +1,9 @@
-const project = require('../utils/project');
-const TsMorph = require('ts-morph');
-const stringifyObject = require('stringify-object');
-const { buildValidationArgumentsFromObject , capitalizeEntity } = require("../actions/lib/utils");
+import project = require('../utils/project');
+import TsMorph = require('ts-morph');
+import stringifyObject = require('stringify-object');
+import { buildValidationArgumentsFromObject , capitalizeEntity } from "../actions/lib/utils";
 
-module.exports = (path,{entities,options,entityName}) => {
+export = (path: string,{entities,options,entityName}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -58,7 +58,7 @@ module.exports = (path,{entities,options,entityName}) => {
     if (options.create) {
         const objectsToInsert = {};
 
-        for (entity of entities) objectsToInsert[entity.Field] = buildValidationArgumentsFromObject(entity);
+        for (let entity of entities) objectsToInsert[entity.Field] = buildValidationArgumentsFromObject(entity);
 
         let variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,
@@ -99,7 +99,7 @@ module.exports = (path,{entities,options,entityName}) => {
 
         const objectsToInsert = {};
 
-        for (entity of entities) objectsToInsert[entity.Field] = buildValidationArgumentsFromObject(entity,true);
+        for (let entity of entities) objectsToInsert[entity.Field] = buildValidationArgumentsFromObject(entity,true);
 
         variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,

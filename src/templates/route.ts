@@ -1,8 +1,8 @@
-const project = require('../utils/project');
-const TsMorph = require('ts-morph');
-const { capitalizeEntity } = require("../actions/lib/utils");
+import project = require('../utils/project');
+import TsMorph = require('ts-morph');
+import { capitalizeEntity } from "../actions/lib/utils";
 
-module.exports = (path,{options,entityName}) => {
+export = (path,{options,entityName}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });

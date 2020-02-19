@@ -1,8 +1,8 @@
-const { capitalizeEntity } = require("../actions/lib/utils");
-const project = require('../utils/project');
-const dashify = require('dashify');
+import { capitalizeEntity } from "../actions/lib/utils";
+import project = require('../utils/project');
+import dashify = require('dashify');
 
-module.exports = (path) => {
+export = (path: string) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });

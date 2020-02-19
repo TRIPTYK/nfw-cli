@@ -1,13 +1,14 @@
-var project = require('../utils/project');
-var TsMorph = require('ts-morph');
-var stringifyObject = require('stringify-object');
-var _a = require("../actions/lib/utils"), buildValidationArgumentsFromObject = _a.buildValidationArgumentsFromObject, capitalizeEntity = _a.capitalizeEntity;
+"use strict";
+var project = require("../utils/project");
+var TsMorph = require("ts-morph");
+var stringifyObject = require("stringify-object");
+var utils_1 = require("../actions/lib/utils");
 module.exports = function (path, _a) {
     var entities = _a.entities, options = _a.options, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = capitalizeEntity(entityName);
+    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
     // filter special columns
     entities = entities.filter(function (entity) { return !['createdAt', 'updatedAt'].includes(entity.Field); });
     entities = entities.filter(function (entity) { return entity.Key !== 'MUL'; });
@@ -50,8 +51,8 @@ module.exports = function (path, _a) {
     if (options.create) {
         var objectsToInsert = {};
         for (var _i = 0, entities_1 = entities; _i < entities_1.length; _i++) {
-            entity = entities_1[_i];
-            objectsToInsert[entity.Field] = buildValidationArgumentsFromObject(entity);
+            var entity = entities_1[_i];
+            objectsToInsert[entity.Field] = utils_1.buildValidationArgumentsFromObject(entity);
         }
         var variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,
@@ -90,8 +91,8 @@ module.exports = function (path, _a) {
         });
         var objectsToInsert_1 = {};
         for (var _b = 0, entities_2 = entities; _b < entities_2.length; _b++) {
-            entity = entities_2[_b];
-            objectsToInsert_1[entity.Field] = buildValidationArgumentsFromObject(entity, true);
+            var entity = entities_2[_b];
+            objectsToInsert_1[entity.Field] = utils_1.buildValidationArgumentsFromObject(entity, true);
         }
         variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,

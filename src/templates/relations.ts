@@ -1,7 +1,7 @@
-const project = require('../utils/project');
-const TsMorph = require('ts-morph');
+import project = require('../utils/project');
+import TsMorph = require('ts-morph');
 
-module.exports = (path,{entityName,columns}) => {
+export = function (path: string,{entityName,columns}) {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });

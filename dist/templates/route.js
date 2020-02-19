@@ -1,12 +1,13 @@
-var project = require('../utils/project');
-var TsMorph = require('ts-morph');
-var capitalizeEntity = require("../actions/lib/utils").capitalizeEntity;
+"use strict";
+var project = require("../utils/project");
+var TsMorph = require("ts-morph");
+var utils_1 = require("../actions/lib/utils");
 module.exports = function (path, _a) {
     var options = _a.options, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = capitalizeEntity(entityName);
+    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
     file.addStatements("import * as Validation from \"../../validations/" + entityName + ".validation\";");
     file.addVariableStatement({
         declarationKind: TsMorph.VariableDeclarationKind.Const,

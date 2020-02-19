@@ -1,6 +1,5 @@
-var capitalizeEntity = require("../actions/lib/utils").capitalizeEntity;
-var project = require('../utils/project');
-var dashify = require('dashify');
+"use strict";
+var project = require("../utils/project");
 module.exports = function (path) {
     var file = project.createSourceFile(path, null, {
         overwrite: true

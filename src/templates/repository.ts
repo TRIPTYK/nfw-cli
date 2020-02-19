@@ -1,7 +1,7 @@
-const { capitalizeEntity } = require("../actions/lib/utils");
-const project = require('../utils/project');
+import { capitalizeEntity } from "../actions/lib/utils";
+import project = require('../utils/project');
 
-module.exports = (path,{className,entityName}) => {
+export = (path,{className,entityName}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -18,7 +18,7 @@ module.exports = (path,{className,entityName}) => {
 
     repoClass.addDecorator({
         name : 'EntityRepository',
-        arguments : entityNameCapitalized
+        arguments : entityNameCapitalized as any
     }).setIsDecoratorFactory(true);
 
     repoClass.addConstructor({

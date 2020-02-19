@@ -1,5 +1,6 @@
-var project = require('../utils/project');
-var TsMorph = require('ts-morph');
+"use strict";
+var project = require("../utils/project");
+var TsMorph = require("ts-morph");
 module.exports = function (path, _a) {
     var entityName = _a.entityName, columns = _a.columns;
     var file = project.createSourceFile(path, null, {
