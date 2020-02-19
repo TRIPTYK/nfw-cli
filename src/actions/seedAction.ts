@@ -276,10 +276,10 @@ async function readbdd(seedExtension: string, pathSeedRead: string) {
         let sql2 = `SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'${tableSql}' and TABLE_SCHEMA = '${database}'`;
 
         //let sql2 = `select * from ${tableSql}`;
-        sqlConnection.db.query(sql2, function (err, results) {
+        sqlConnection.db.query(sql2, function (err, results: any) {
             let jsonOut = [];
 
-            let keys: {id: number, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number} = {
+            let keys: {id: number | string, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number | string} = {
                 id: null,
                 createdAt: '',
                 updatedAt: '',

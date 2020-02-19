@@ -23,7 +23,7 @@ export class DatabaseEnv
 
     envVariables: any;
 
-    constructor(path: string | object)
+    constructor(path?: string | object)
     {
         dotenv.config();
         if (typeof path === "string"){

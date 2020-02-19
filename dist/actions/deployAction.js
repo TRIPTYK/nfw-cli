@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,83 +35,88 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var spawn = require('cross-spawn');
-var util = require('util');
-var path = require('path');
+var spawn = require("cross-spawn");
+var util = require("util");
+var path = require("path");
 var exec = util.promisify(require('child_process').exec);
-var fs = require('fs');
+var fs = require("fs");
 // project modules
-var _a = require('../database/sqlAdaptator'), DatabaseEnv = _a.DatabaseEnv, getSqlConnectionFromNFW = _a.getSqlConnectionFromNFW;
-var Log = require('../utils/log');
-/**
- *
- * @param env
- * @param mode
- * @returns {Promise<void>}
- */
-module.exports = function (env, mode, deployDB) { return __awaiter(_this, void 0, void 0, function () {
-    var loadedEnv, deploy, stdout, connection, dumpFile;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                loadedEnv = new DatabaseEnv();
-                loadedEnv.loadFromFile(env + '.env');
-                deploy = require(process.cwd() + "/ecosystem.config").deploy;
-                if (!deploy.hasOwnProperty(env)) {
-                    throw new Error(env + " environment does not exists");
-                }
-                return [4 /*yield*/, exec(path.resolve("./node_modules/.bin/pm2 -v"))];
-            case 1:
-                stdout = (_a.sent()).stdout;
-                Log.info("PM2 local version is " + stdout);
-                if (!deployDB) return [3 /*break*/, 5];
-                Log.info("connecting to DB ...");
-                return [4 /*yield*/, getSqlConnectionFromNFW()];
-            case 2:
-                connection = _a.sent();
-                Log.success('Connected');
-                Log.info("Creating dump ...");
-                return [4 /*yield*/, connection.dumpAll('tmpdb', {
-                        dumpOptions: {
-                            schema: {
-                                table: {
-                                    dropIfExist: false
-                                }
-                            },
-                            tables: ['migration_table'],
-                            excludeTables: true,
-                            data: false
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var Log = require("../utils/log");
+var DeployActionClass = /** @class */ (function () {
+    function DeployActionClass(env, mode, deployDB) {
+        this.env = env;
+        this.mode = mode;
+        this.deployDB = deployDB;
+    }
+    DeployActionClass.prototype.main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var loadedEnv, deploy, stdout, connection, dumpFile;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        loadedEnv = new sqlAdaptator_1.DatabaseEnv();
+                        loadedEnv.loadFromFile(this.env + '.env');
+                        deploy = require(process.cwd() + "/ecosystem.config").deploy;
+                        if (!deploy.hasOwnProperty(this.env)) {
+                            throw new Error(this.env + " environment does not exists");
                         }
-                    })];
-            case 3:
-                _a.sent();
-                Log.success('Done');
-                dumpFile = fs.readFileSync('tmpdb.sql', 'utf-8');
-                Log.info("Creating database on remote host ...");
-                return [4 /*yield*/, connection.query(dumpFile)];
-            case 4:
-                _a.sent();
-                Log.success('Done');
-                Log.info("Cleaning up temp files ...");
-                fs.unlinkSync('tmpdb.sql');
-                _a.label = 5;
-            case 5:
-                if (mode === 'setup') {
-                    spawn.sync("./node_modules/.bin/pm2 deploy " + env + " setup", [], { stdio: 'inherit', shell: true });
+                        return [4 /*yield*/, exec(path.resolve("./node_modules/.bin/pm2 -v"))];
+                    case 1:
+                        stdout = (_a.sent()).stdout;
+                        Log.info("PM2 local version is " + stdout);
+                        if (!this.deployDB) return [3 /*break*/, 5];
+                        Log.info("connecting to DB ...");
+                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 2:
+                        connection = _a.sent();
+                        Log.success('Connected');
+                        Log.info("Creating dump ...");
+                        return [4 /*yield*/, connection.dumpAll('tmpdb', {
+                                dumpOptions: {
+                                    schema: {
+                                        table: {
+                                            dropIfExist: false
+                                        }
+                                    },
+                                    tables: ['migration_table'],
+                                    excludeTables: true,
+                                    data: false
+                                }
+                            })];
+                    case 3:
+                        _a.sent();
+                        Log.success('Done');
+                        dumpFile = fs.readFileSync('tmpdb.sql', 'utf-8');
+                        Log.info("Creating database on remote host ...");
+                        return [4 /*yield*/, connection.db.query(dumpFile)];
+                    case 4:
+                        _a.sent();
+                        Log.success('Done');
+                        Log.info("Cleaning up temp files ...");
+                        fs.unlinkSync('tmpdb.sql');
+                        _a.label = 5;
+                    case 5:
+                        if (this.mode === 'setup') {
+                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " setup", [], { stdio: 'inherit', shell: true });
+                        }
+                        else if (this.mode === 'update') {
+                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " update", [], { stdio: 'inherit', shell: true });
+                        }
+                        else if (this.mode === 'revert') {
+                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " revert 1", [], { stdio: 'inherit', shell: true });
+                        }
+                        else {
+                            Log.warning("No action specified");
+                            process.exit(0);
+                        }
+                        return [2 /*return*/];
                 }
-                else if (mode === 'update') {
-                    spawn.sync("./node_modules/.bin/pm2 deploy " + env + " update", [], { stdio: 'inherit', shell: true });
-                }
-                else if (mode === 'revert') {
-                    spawn.sync("./node_modules/.bin/pm2 deploy " + env + " revert 1", [], { stdio: 'inherit', shell: true });
-                }
-                else {
-                    Log.warning("No action specified");
-                    process.exit(0);
-                }
-                return [2 /*return*/];
-        }
-    });
-}); };
+            });
+        });
+    };
+    return DeployActionClass;
+}());
+exports.DeployActionClass = DeployActionClass;
