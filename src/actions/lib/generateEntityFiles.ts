@@ -7,27 +7,27 @@
  */
 
 // node modules
-const FS = require('fs');
-const ejs = require('ejs');
-const project = require('../../utils/project');
+import FS = require('fs');
+import ejs = require('ejs');
+import project = require('../../utils/project');
 
 // project modules
-const Log = require('../../utils/log');
-const writeToRouter = require('./routerWrite');
-const {capitalizeEntity, lowercaseEntity} = require('./utils');
+import Log = require('../../utils/log');
+import writeToRouter = require('./routerWrite');
+import {capitalizeEntity, lowercaseEntity} from './utils';
 
 // false class properties
 let capitalize;
 let lowercase;
 
-const controllerTemplateFile = require(`../../templates/controller`);
-const middlewareTemplateFile = require(`../../templates/middleware`);
-const relationsTemplateFile = require(`../../templates/relations`);
-const repositoryTemplateFile = require(`../../templates/repository`);
-const routeTemplateFile = require(`../../templates/route`);
-const serializerTemplateFile = require(`../../templates/serializer`);
-const validationTemplateFile = require(`../../templates/validation`);
-const testTemplateFile = require(`../../templates/test`);
+import controllerTemplateFile = require('../../templates/controller');
+import middlewareTemplateFile = require('../../templates/middleware');
+import relationsTemplateFile = require('../../templates/relations');
+import repositoryTemplateFile = require('../../templates/repository');
+import routeTemplateFile = require('../../templates/route');
+import serializerTemplateFile = require('../../templates/serializer');
+import validationTemplateFile = require('../../templates/validation');
+import testTemplateFile = require('../../templates/test');
 
 /**
  * Main function
@@ -38,7 +38,8 @@ const testTemplateFile = require(`../../templates/test`);
  * @param {object|null} data
  * @returns {Promise<void>}
  */
-module.exports = async (modelName, crudOptions, data = null,part) => {
+export async function main (modelName: string, crudOptions: object, data = null, part: string): Promise<void> {
+
     if (!modelName.length) {
         Log.error('Nothing to generate. Please, get entity name parameter.');
         return;
@@ -74,14 +75,14 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
     const testPath = `test/${lowercase}.test.ts`;
 
     if (!part || part === 'controller')
-        files.push(controllerTemplateFile(controllerPath,{
+        files.push(controllerTemplateFile.main(controllerPath,{
             className : `${capitalize}Controller`,
             options : crudOptions,
             entityName : lowercase
         }));
 
     if (!part || part === 'middleware')
-        files.push(middlewareTemplateFile(middlewarePath,{
+        files.push(middlewareTemplateFile.main(middlewarePath,{
             className : `${capitalize}Middleware`,
             entityName : lowercase
         }));
@@ -109,7 +110,7 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
         files.push(serializerTemplateFile(serializerPath,{
             className : `${capitalize}Serializer`,
             entityName : lowercase,
-            columns : tableColumns
+            //columns : tableColumns
         }));
 
     if (!part || part === 'route') {
@@ -117,7 +118,7 @@ module.exports = async (modelName, crudOptions, data = null,part) => {
             options: crudOptions,
             entityName: lowercase
         }));
-        await writeToRouter(lowercase);
+        await writeToRouter.main(lowercase);
     }
 
     // auto generate imports

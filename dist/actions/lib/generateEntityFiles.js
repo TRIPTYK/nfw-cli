@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateEntityFiles
  * @description Generate entity files except model
@@ -41,15 +42,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-// node modules
-var FS = require('fs');
-var ejs = require('ejs');
-var project = require('../../utils/project');
+Object.defineProperty(exports, "__esModule", { value: true });
+var project = require("../../utils/project");
 // project modules
-var Log = require('../../utils/log');
-var writeToRouter = require('./routerWrite');
-var _a = require('./utils'), capitalizeEntity = _a.capitalizeEntity, lowercaseEntity = _a.lowercaseEntity;
+var Log = require("../../utils/log");
+var writeToRouter = require("./routerWrite");
+var utils_1 = require("./utils");
 // false class properties
 var capitalize;
 var lowercase;
@@ -60,7 +58,6 @@ var repositoryTemplateFile = require("../../templates/repository");
 var routeTemplateFile = require("../../templates/route");
 var serializerTemplateFile = require("../../templates/serializer");
 var validationTemplateFile = require("../../templates/validation");
-var testTemplateFile = require("../../templates/test");
 /**
  * Main function
  * Check entity existence, and write file or not according to the context
@@ -70,9 +67,9 @@ var testTemplateFile = require("../../templates/test");
  * @param {object|null} data
  * @returns {Promise<void>}
  */
-module.exports = function (modelName, crudOptions, data, part) {
+function main(modelName, crudOptions, data, part) {
     if (data === void 0) { data = null; }
-    return __awaiter(_this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var tableColumns, foreignKeys, index, allColumns, files, controllerPath, middlewarePath, validationPath, relationPath, repositoryPath, serializerPath, routerPath, testPath;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -82,8 +79,8 @@ module.exports = function (modelName, crudOptions, data, part) {
                         return [2 /*return*/];
                     }
                     // assign false class properties
-                    lowercase = lowercaseEntity(modelName);
-                    capitalize = capitalizeEntity(modelName);
+                    lowercase = utils_1.lowercaseEntity(modelName);
+                    capitalize = utils_1.capitalizeEntity(modelName);
                     tableColumns = data ? data.columns : [];
                     foreignKeys = data ? data.foreignKeys : [];
                     index = tableColumns.findIndex(function (el) { return el.Field === 'id'; });
@@ -107,13 +104,13 @@ module.exports = function (modelName, crudOptions, data, part) {
                     routerPath = "src/api/routes/v1/" + lowercase + ".route.ts";
                     testPath = "test/" + lowercase + ".test.ts";
                     if (!part || part === 'controller')
-                        files.push(controllerTemplateFile(controllerPath, {
+                        files.push(controllerTemplateFile.main(controllerPath, {
                             className: capitalize + "Controller",
                             options: crudOptions,
                             entityName: lowercase
                         }));
                     if (!part || part === 'middleware')
-                        files.push(middlewareTemplateFile(middlewarePath, {
+                        files.push(middlewareTemplateFile.main(middlewarePath, {
                             className: capitalize + "Middleware",
                             entityName: lowercase
                         }));
@@ -137,14 +134,13 @@ module.exports = function (modelName, crudOptions, data, part) {
                         files.push(serializerTemplateFile(serializerPath, {
                             className: capitalize + "Serializer",
                             entityName: lowercase,
-                            columns: tableColumns
                         }));
                     if (!(!part || part === 'route')) return [3 /*break*/, 2];
                     files.push(routeTemplateFile(routerPath, {
                         options: crudOptions,
                         entityName: lowercase
                     }));
-                    return [4 /*yield*/, writeToRouter(lowercase)];
+                    return [4 /*yield*/, writeToRouter.main(lowercase)];
                 case 1:
                     _a.sent();
                     _a.label = 2;
@@ -169,4 +165,6 @@ module.exports = function (modelName, crudOptions, data, part) {
             }
         });
     });
-};
+}
+exports.main = main;
+;

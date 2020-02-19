@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateAction
  * @description Generate a Typeorm entity from questions
@@ -39,20 +40,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var Spinner = require('clui').Spinner;
-var chalk = require('chalk');
+var clui_1 = require("clui");
+var chalk_1 = require("chalk");
 // project modules
-var modelWriteAction = require('./writeModelAction');
-var utils = require('./lib/utils');
-var inquirer = require('../utils/inquirer');
-var createRelationAction = require('./createRelationAction');
-var modelSpecs = require('./lib/modelSpecs');
-var generateEntityFiles = require('./lib/generateEntityFiles');
-var Log = require('../utils/log');
-var format = require('../actions/lib/utils').format;
-var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnectionFromNFW;
+var modelWriteAction = require("./writeModelAction");
+var utils = require("./lib/utils");
+var inquirer_1 = require("../utils/inquirer");
+var createRelationAction = require("./createRelationAction");
+var modelSpecs = require("./lib/modelSpecs");
+var generateEntityFiles = require("./lib/generateEntityFiles");
+var Log = require("../utils/log");
+var utils_1 = require("../actions/lib/utils");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 /**
  * Main function
  * @param modelName
@@ -60,146 +61,155 @@ var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnecti
  * @param part
  * @returns {Promise<void>}
  */
-module.exports = function (modelName, crud, part) {
-    if (part === void 0) { part = null; }
-    return __awaiter(_this, void 0, void 0, function () {
-        var modelExists, sqlConnection, confirmation, spinner, isExisting, entityModelData, data, _a, _b, columns, foreignKeys, j, _loop_1, i;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    modelName = format(modelName);
-                    return [4 /*yield*/, utils.modelFileExists(modelName)];
-                case 1:
-                    modelExists = _c.sent();
-                    return [4 /*yield*/, getSqlConnectionFromNFW()];
-                case 2:
-                    sqlConnection = _c.sent();
-                    if (!modelExists) return [3 /*break*/, 4];
-                    return [4 /*yield*/, inquirer.askForConfirmation(chalk.magenta(modelName) + " already exists, will you overwrite it ?")];
-                case 3:
-                    confirmation = (_c.sent()).confirmation;
-                    if (!confirmation) {
-                        Log.error('/!\\ Process Aborted /!\\');
+var GenerateActionClass = /** @class */ (function () {
+    function GenerateActionClass(modelName, crud, part) {
+        this.modelName = modelName;
+        this.crud = crud;
+        this.part = part;
+    }
+    GenerateActionClass.prototype.main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var modelExists, sqlConnection, inquirer, confirmation, spinner, isExisting, entityModelData, data, _a, _b, columns, foreignKeys, j, _loop_1, i;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        this.modelName = utils_1.format(this.modelName);
+                        return [4 /*yield*/, utils.modelFileExists(this.modelName)];
+                    case 1:
+                        modelExists = _c.sent();
+                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 2:
+                        sqlConnection = _c.sent();
+                        inquirer = new inquirer_1.Inquirer();
+                        if (!modelExists) return [3 /*break*/, 4];
+                        return [4 /*yield*/, inquirer.askForConfirmation(chalk_1.default.magenta(this.modelName) + " already exists, will you overwrite it ?")];
+                    case 3:
+                        confirmation = (_c.sent()).confirmation;
+                        if (!confirmation) {
+                            Log.error('/!\\ Process Aborted /!\\');
+                            process.exit(0);
+                        }
+                        _c.label = 4;
+                    case 4:
+                        spinner = new clui_1.Spinner("Checking for existing entities ....");
+                        spinner.start();
+                        return [4 /*yield*/, sqlConnection.tableExists(this.modelName)];
+                    case 5:
+                        isExisting = _c.sent();
+                        spinner.stop();
+                        entityModelData = null;
+                        return [4 /*yield*/, inquirer.askForChoice(isExisting)];
+                    case 6:
+                        data = _c.sent();
+                        _a = data.value;
+                        switch (_a) {
+                            case "create an entity": return [3 /*break*/, 7];
+                            case "create empty entity": return [3 /*break*/, 11];
+                            case "nothing": return [3 /*break*/, 14];
+                            case 'create from db': return [3 /*break*/, 15];
+                        }
+                        return [3 /*break*/, 23];
+                    case 7: return [4 /*yield*/, modelSpecs.dbParams(this.modelName)];
+                    case 8:
+                        entityModelData = _c.sent();
+                        if (!(!this.part || this.part === "model")) return [3 /*break*/, 10];
+                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData)
+                                .catch(function (e) {
+                                console.log(e);
+                                Log.error("Failed to generate model : " + e.message + "\nExiting ...");
+                                process.exit(1);
+                            })];
+                    case 9:
+                        _c.sent();
+                        _c.label = 10;
+                    case 10: return [3 /*break*/, 23];
+                    case 11:
+                        if (!(!this.part || this.part === "model")) return [3 /*break*/, 13];
+                        return [4 /*yield*/, modelWriteAction.basicModel(this.modelName)
+                                .catch(function (e) {
+                                Log.error("Failed to generate model : " + e.message + "\nExiting ...");
+                                process.exit(1);
+                            })];
+                    case 12:
+                        _c.sent();
+                        _c.label = 13;
+                    case 13:
+                        entityModelData = [];
+                        entityModelData['columns'] = [];
+                        entityModelData['foreignKeys'] = [];
+                        entityModelData['createUpdate'] = {
+                            createAt: true,
+                            updateAt: true
+                        };
+                        return [3 /*break*/, 23];
+                    case 14:
+                        console.log(chalk_1.default.bgRed(chalk_1.default.black(" /!\\ Process aborted /!\\")));
                         process.exit(0);
-                    }
-                    _c.label = 4;
-                case 4:
-                    spinner = new Spinner("Checking for existing entities ....");
-                    spinner.start();
-                    return [4 /*yield*/, sqlConnection.tableExists(modelName)];
-                case 5:
-                    isExisting = _c.sent();
-                    spinner.stop();
-                    entityModelData = null;
-                    return [4 /*yield*/, inquirer.askForChoice(isExisting)];
-                case 6:
-                    data = _c.sent();
-                    _a = data.value;
-                    switch (_a) {
-                        case "create an entity": return [3 /*break*/, 7];
-                        case "create empty entity": return [3 /*break*/, 11];
-                        case "nothing": return [3 /*break*/, 14];
-                        case 'create from db': return [3 /*break*/, 15];
-                    }
-                    return [3 /*break*/, 23];
-                case 7: return [4 /*yield*/, modelSpecs.dbParams(modelName)];
-                case 8:
-                    entityModelData = _c.sent();
-                    if (!(!part || part === "model")) return [3 /*break*/, 10];
-                    return [4 /*yield*/, modelWriteAction.writeModel(modelName, entityModelData)
+                        return [3 /*break*/, 23];
+                    case 15: return [4 /*yield*/, sqlConnection.getTableInfo(this.modelName)];
+                    case 16:
+                        _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
+                        for (j = 0; j < columns.length; j++) {
+                            columns[j].Type = utils.sqlTypeData(columns[j].Type);
+                        }
+                        entityModelData = { columns: columns, foreignKeys: foreignKeys };
+                        if (!(!this.part || this.part === "model")) return [3 /*break*/, 18];
+                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData)
+                                .catch(function (e) {
+                                Log.error("Failed to generate model : " + e.message + "\nExiting ...");
+                                process.exit(1);
+                            })];
+                    case 17:
+                        _c.sent();
+                        _c.label = 18;
+                    case 18:
+                        if (!(foreignKeys && foreignKeys.length)) return [3 /*break*/, 22];
+                        _loop_1 = function (i) {
+                            var tmpKey, response, _a, m1Name, m2Name;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        tmpKey = foreignKeys[i];
+                                        return [4 /*yield*/, inquirer.askForeignKeyRelation(tmpKey)];
+                                    case 1:
+                                        response = (_b.sent()).response;
+                                        return [4 /*yield*/, inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME)];
+                                    case 2:
+                                        _a = _b.sent(), m1Name = _a.m1Name, m2Name = _a.m2Name;
+                                        return [4 /*yield*/, createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                                                .then(function () { return Log.success("Relation successfully added !"); })
+                                                .catch(function (err) { return Log.error(err.message + "\nFix the issue then run nfw " + response + " " + tmpKey.TABLE_NAME + " " + tmpKey.REFERENCED_TABLE_NAME); })];
+                                    case 3:
+                                        _b.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        };
+                        i = 0;
+                        _c.label = 19;
+                    case 19:
+                        if (!(i < foreignKeys.length)) return [3 /*break*/, 22];
+                        return [5 /*yield**/, _loop_1(i)];
+                    case 20:
+                        _c.sent();
+                        _c.label = 21;
+                    case 21:
+                        i++;
+                        return [3 /*break*/, 19];
+                    case 22: return [3 /*break*/, 23];
+                    case 23: return [4 /*yield*/, generateEntityFiles.main(this.modelName, this.crud, entityModelData, this.part)
                             .catch(function (e) {
                             console.log(e);
-                            Log.error("Failed to generate model : " + e.message + "\nExiting ...");
+                            Log.error("Generation failed : " + e + "\nExiting ...");
                             process.exit(1);
                         })];
-                case 9:
-                    _c.sent();
-                    _c.label = 10;
-                case 10: return [3 /*break*/, 23];
-                case 11:
-                    if (!(!part || part === "model")) return [3 /*break*/, 13];
-                    return [4 /*yield*/, modelWriteAction.basicModel(modelName)
-                            .catch(function (e) {
-                            Log.error("Failed to generate model : " + e.message + "\nExiting ...");
-                            process.exit(1);
-                        })];
-                case 12:
-                    _c.sent();
-                    _c.label = 13;
-                case 13:
-                    entityModelData = [];
-                    entityModelData['columns'] = [];
-                    entityModelData['foreignKeys'] = [];
-                    entityModelData['createUpdate'] = {
-                        createAt: true,
-                        updateAt: true
-                    };
-                    return [3 /*break*/, 23];
-                case 14:
-                    console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
-                    process.exit(0);
-                    return [3 /*break*/, 23];
-                case 15: return [4 /*yield*/, sqlConnection.getTableInfo(modelName)];
-                case 16:
-                    _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
-                    for (j = 0; j < columns.length; j++) {
-                        columns[j].Type = utils.sqlTypeData(columns[j].Type);
-                    }
-                    entityModelData = { columns: columns, foreignKeys: foreignKeys };
-                    if (!(!part || part === "model")) return [3 /*break*/, 18];
-                    return [4 /*yield*/, modelWriteAction.writeModel(modelName, entityModelData)
-                            .catch(function (e) {
-                            Log.error("Failed to generate model : " + e.message + "\nExiting ...");
-                            process.exit(1);
-                        })];
-                case 17:
-                    _c.sent();
-                    _c.label = 18;
-                case 18:
-                    if (!(foreignKeys && foreignKeys.length)) return [3 /*break*/, 22];
-                    _loop_1 = function (i) {
-                        var tmpKey, response, _a, m1Name, m2Name;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0:
-                                    tmpKey = foreignKeys[i];
-                                    return [4 /*yield*/, inquirer.askForeignKeyRelation(tmpKey)];
-                                case 1:
-                                    response = (_b.sent()).response;
-                                    return [4 /*yield*/, inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME)];
-                                case 2:
-                                    _a = _b.sent(), m1Name = _a.m1Name, m2Name = _a.m2Name;
-                                    return [4 /*yield*/, createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
-                                            .then(function () { return Log.success("Relation successfully added !"); })
-                                            .catch(function (err) { return Log.error(err.message + "\nFix the issue then run nfw " + response + " " + tmpKey.TABLE_NAME + " " + tmpKey.REFERENCED_TABLE_NAME); })];
-                                case 3:
-                                    _b.sent();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
-                    i = 0;
-                    _c.label = 19;
-                case 19:
-                    if (!(i < foreignKeys.length)) return [3 /*break*/, 22];
-                    return [5 /*yield**/, _loop_1(i)];
-                case 20:
-                    _c.sent();
-                    _c.label = 21;
-                case 21:
-                    i++;
-                    return [3 /*break*/, 19];
-                case 22: return [3 /*break*/, 23];
-                case 23: return [4 /*yield*/, generateEntityFiles(modelName, crud, entityModelData, part)
-                        .catch(function (e) {
-                        console.log(e);
-                        Log.error("Generation failed : " + e + "\nExiting ...");
-                        process.exit(1);
-                    })];
-                case 24:
-                    _c.sent();
-                    return [2 /*return*/];
-            }
+                    case 24:
+                        _c.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-    });
-};
+    };
+    return GenerateActionClass;
+}());
+exports.GenerateActionClass = GenerateActionClass;

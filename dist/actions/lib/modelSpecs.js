@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @author Verliefden Romain
  * @module modelSpecs
@@ -39,26 +40,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var colors = require('colors/safe');
+var colors = require("colors/safe");
 //project modules
-var inquirer = require('../../utils/inquirer');
-var Log = require('../../utils/log');
+var inquirer_1 = require("../../utils/inquirer");
+var Log = require("../../utils/log");
 var columnWritten = [];
 /**
  * @description Ask every questions about the column
  * @returns {Promise<null|Array>}
  */
-exports.newColumn = function (columnName) {
+function newColumn(columnName) {
     if (columnName === void 0) { columnName = null; }
-    return __awaiter(_this, void 0, void 0, function () {
-        var length, def, uni, paramsTemp, paramsArray, length_enum, arrayDone, name_1, constraintValue, uniqueValue, type, enumTemp, confirm_1, more, defaultValue, lastConfirm;
+    return __awaiter(this, void 0, void 0, function () {
+        var length, def, uni, paramsTemp, paramsArray, length_enum, arrayDone, inquirer, name_1, constraintValue, uniqueValue, type, enumTemp, confirm_1, more, defaultValue, lastConfirm;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     Log.info('You can cancel the column at anytime if you write :exit  in an input or choose cancel current column in a choice.');
                     length = '', paramsArray = [], arrayDone = false;
+                    inquirer = new inquirer_1.Inquirer();
                     if (!!columnName) return [3 /*break*/, 2];
                     return [4 /*yield*/, inquirer.questionColumnName(columnWritten)];
                 case 1:
@@ -153,7 +155,9 @@ exports.newColumn = function (columnName) {
             }
         });
     });
-};
+}
+exports.newColumn = newColumn;
+;
 // TODO : move to resources
 var needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint', 'char', 'binary', 'varbinary', 'decimal'];
 /**
@@ -162,40 +166,45 @@ var needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint'
  * @param entity
  * @returns {Promise<Array>}
  */
-exports.dbParams = function (entity) { return __awaiter(_this, void 0, void 0, function () {
-    var isDoneColumn, paramsArray, _a, _b, data, confirmation;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                isDoneColumn = false, paramsArray = [];
-                paramsArray['columns'] = [];
-                paramsArray['foreignKeys'] = [];
-                console.log(colors.green("Let's create a table for " + entity));
-                console.log(colors.green('/!\\ id is added by default .'));
-                _a = paramsArray;
-                _b = 'createUpdate';
-                return [4 /*yield*/, inquirer.askForCreateUpdate()];
-            case 1:
-                _a[_b] = _c.sent();
-                _c.label = 2;
-            case 2:
-                if (!!isDoneColumn) return [3 /*break*/, 5];
-                return [4 /*yield*/, module.exports.newColumn().catch(function (e) { return console.log(e.message); })];
-            case 3:
-                data = _c.sent();
-                //add value to array that will be returned if value is not null
-                if (data != null && data.columns !== undefined)
-                    paramsArray['columns'].push(data.columns);
-                if (data != null && data.foreignKeys !== undefined)
-                    paramsArray['foreignKeys'].push(data.foreignKeys);
-                console.clear();
-                return [4 /*yield*/, inquirer.askForConfirmation("Want to add more column ? ")];
-            case 4:
-                confirmation = (_c.sent()).confirmation;
-                if (!confirmation)
-                    isDoneColumn = true;
-                return [3 /*break*/, 2];
-            case 5: return [2 /*return*/, paramsArray];
-        }
+function dbParams(entity) {
+    return __awaiter(this, void 0, void 0, function () {
+        var isDoneColumn, paramsArray, inquirer, _a, _b, data, confirmation;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    isDoneColumn = false, paramsArray = [];
+                    inquirer = new inquirer_1.Inquirer();
+                    paramsArray['columns'] = [];
+                    paramsArray['foreignKeys'] = [];
+                    console.log(colors.green("Let's create a table for " + entity));
+                    console.log(colors.green('/!\\ id is added by default .'));
+                    _a = paramsArray;
+                    _b = 'createUpdate';
+                    return [4 /*yield*/, inquirer.askForCreateUpdate()];
+                case 1:
+                    _a[_b] = _c.sent();
+                    _c.label = 2;
+                case 2:
+                    if (!!isDoneColumn) return [3 /*break*/, 5];
+                    return [4 /*yield*/, module.exports.newColumn().catch(function (e) { return console.log(e.message); })];
+                case 3:
+                    data = _c.sent();
+                    //add value to array that will be returned if value is not null
+                    if (data != null && data.columns !== undefined)
+                        paramsArray['columns'].push(data.columns);
+                    if (data != null && data.foreignKeys !== undefined)
+                        paramsArray['foreignKeys'].push(data.foreignKeys);
+                    console.clear();
+                    return [4 /*yield*/, inquirer.askForConfirmation("Want to add more column ? ")];
+                case 4:
+                    confirmation = (_c.sent()).confirmation;
+                    if (!confirmation)
+                        isDoneColumn = true;
+                    return [3 /*break*/, 2];
+                case 5: return [2 /*return*/, paramsArray];
+            }
+        });
     });
-}); };
+}
+exports.dbParams = dbParams;
+;

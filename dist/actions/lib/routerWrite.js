@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module routerWrite
  * @description Append router link to router index.ts
@@ -39,42 +40,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-// node modules
-var plural = require('pluralize').plural;
-var dashify = require('dashify');
-// project modules
-var _a = require('./utils'), capitalizeEntity = _a.capitalizeEntity, lowercaseEntity = _a.lowercaseEntity;
-var project = require('../../utils/project');
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Main function
  * @param {string} entityName
  * @param pluralizeRoute
  * @returns {Promise<void>}
  */
-module.exports = function (entityName, pluralizeRoute) {
+function main(entityName, pluralizeRoute) {
     if (pluralizeRoute === void 0) { pluralizeRoute = true; }
-    return __awaiter(_this, void 0, void 0, function () {
-        var lowercase, capitalize, file, importDeclaration;
+    return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            lowercase = lowercaseEntity(entityName);
-            capitalize = capitalizeEntity(entityName);
-            file = project.getSourceFile("src/api/routes/v1/index.ts");
-            importDeclaration = file.getImportDeclaration(function (i) { return i.getModuleSpecifier().getLiteralValue().includes(lowercase + ".route"); });
-            if (importDeclaration !== undefined)
-                return [2 /*return*/];
-            file.addImportDeclaration({
-                moduleSpecifier: "./" + lowercase + ".route",
-                defaultImport: "{router as " + capitalize + "Router}"
-            });
-            file.addStatements([
-                "/**",
-                " * " + capitalize + " routes",
-                "**/",
-                "router.use('/" + dashify(plural(entityName)) + "', " + capitalize + "Router);"
-            ]);
-            file.fixMissingImports();
             return [2 /*return*/];
         });
     });
-};
+}
+exports.main = main;
+;

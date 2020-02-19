@@ -115,7 +115,7 @@ export class Inquirer {
      * TODO
      * @param q
      */
-    askForConfirmation (q: string) {
+    askForConfirmation (q: string = '') {
         const question: inquirer.ConfirmQuestion = {
             type: 'confirm',
             name: 'confirmation',
@@ -149,7 +149,7 @@ export class Inquirer {
      * TODO
      * @param columnWritten
      */
-    questionColumnName (columnWritten: string) {
+    questionColumnName (columnWritten: any) {
         const questionsParams: inquirer.InputQuestion = [
             {
                 type: 'input',

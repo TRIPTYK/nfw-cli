@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module writeModelAction
  * @author Verliefden Romain
@@ -43,8 +44,8 @@ var _this = this;
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-var _a = require('./lib/utils'), capitalizeEntity = _a.capitalizeEntity, lowercaseEntity = _a.lowercaseEntity;
-var project = require('../utils/project');
+var utils_1 = require("./lib/utils");
+var project = require("../utils/project");
 var modelTemplateFile = require("../templates/model");
 /**
  * @param {string} action Model name
@@ -52,15 +53,15 @@ var modelTemplateFile = require("../templates/model");
  * @description write a typeorm model from an array of info about an entity
  * @returns {Promise<void>}
  */
-exports.writeModel = function (action, data) {
+function writeModel(action, data) {
     if (data === void 0) { data = null; }
-    return __awaiter(_this, void 0, void 0, function () {
+    return __awaiter(this, void 0, void 0, function () {
         var lowercase, capitalize, columns, foreignKeys;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    lowercase = lowercaseEntity(action);
-                    capitalize = capitalizeEntity(lowercase);
+                    lowercase = utils_1.lowercaseEntity(action);
+                    capitalize = utils_1.capitalizeEntity(lowercase);
                     columns = data.columns, foreignKeys = data.foreignKeys;
                     /*
                          filter the foreign keys from columns , they are not needed anymore
@@ -69,7 +70,7 @@ exports.writeModel = function (action, data) {
                     columns = columns.filter(function (column) {
                         return foreignKeys.find(function (elem) { return elem.COLUMN_NAME === column.Field; }) === undefined;
                     }).filter(function (col) { return col.Field !== "id"; });
-                    modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
+                    modelTemplateFile.main("src/api/models/" + lowercase + ".model.ts", {
                         entities: columns,
                         className: capitalize,
                         createUpdate: data.createUpdate
@@ -81,30 +82,36 @@ exports.writeModel = function (action, data) {
             }
         });
     });
-};
+}
+exports.writeModel = writeModel;
+;
 /**
  *  @description creates a basic model , with no entites , imports or foreign keys
  *  @param {string} action
  */
-exports.basicModel = function (action) { return __awaiter(_this, void 0, void 0, function () {
-    var lowercase, capitalize;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                lowercase = lowercaseEntity(action);
-                capitalize = capitalizeEntity(lowercase);
-                modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
-                    entities: [],
-                    className: capitalize + "Model",
-                    createUpdate: {
-                        createAt: true,
-                        updateAt: true
-                    }
-                });
-                return [4 /*yield*/, project.save()];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
+function basicModel(action) {
+    return __awaiter(this, void 0, void 0, function () {
+        var lowercase, capitalize;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    lowercase = utils_1.lowercaseEntity(action);
+                    capitalize = utils_1.capitalizeEntity(lowercase);
+                    modelTemplateFile.main("src/api/models/" + lowercase + ".model.ts", {
+                        entities: [],
+                        className: capitalize + "Model",
+                        createUpdate: {
+                            createAt: true,
+                            updateAt: true
+                        }
+                    });
+                    return [4 /*yield*/, project.save()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.basicModel = basicModel;
+;

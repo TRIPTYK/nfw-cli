@@ -123,6 +123,7 @@ var Inquirer = /** @class */ (function () {
      * @param q
      */
     Inquirer.prototype.askForConfirmation = function (q) {
+        if (q === void 0) { q = ''; }
         var question = {
             type: 'confirm',
             name: 'confirmation',

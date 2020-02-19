@@ -5,20 +5,17 @@
  */
 
 // node modules
-const {plural} = require('pluralize');
-const dashify  = require('dashify');
+import {plural} from 'pluralize';
+import dashify  = require('dashify');
 
 // project modules
-const {capitalizeEntity, lowercaseEntity} = require('./utils');
-const project = require('../../utils/project');
+import {capitalizeEntity, lowercaseEntity} from  './utils';
+import project = require('../../utils/project');
 
-/**
- * Main function
- * @param {string} entityName
- * @param pluralizeRoute
- * @returns {Promise<void>}
- */
-module.exports = async (entityName,pluralizeRoute = true) => {
+
+export async function main (entityName: string, pluralizeRoute = true): Promise<void> {
+
+    /*
     const lowercase = lowercaseEntity(entityName);
     const capitalize = capitalizeEntity(entityName);
 
@@ -33,12 +30,6 @@ module.exports = async (entityName,pluralizeRoute = true) => {
          defaultImport : `{router as ${capitalize}Router}`
     });
 
-    file.addStatements([
-        `/**`,
-        ` * ${capitalize} routes`,
-        `**/`,
-        `router.use('/${dashify(plural(entityName))}', ${capitalize}Router);`
-    ]);
-
     file.fixMissingImports();
+    */
 };

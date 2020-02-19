@@ -6,9 +6,9 @@
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-const {capitalizeEntity, lowercaseEntity} = require('./lib/utils');
-const project = require('../utils/project');
-const modelTemplateFile = require(`../templates/model`);
+import {capitalizeEntity, lowercaseEntity} from './lib/utils';
+import project = require('../utils/project');
+import modelTemplateFile = require('../templates/model');
 
 /**
  * @param {string} action Model name
@@ -16,7 +16,7 @@ const modelTemplateFile = require(`../templates/model`);
  * @description write a typeorm model from an array of info about an entity
  * @returns {Promise<void>}
  */
-exports.writeModel = async (action, data = null) => {
+export async function writeModel (action, data = null) {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
     let {columns, foreignKeys} = data;
@@ -29,7 +29,7 @@ exports.writeModel = async (action, data = null) => {
         return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
     }).filter(col => col.Field !== "id");
 
-    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
+    modelTemplateFile.main(`src/api/models/${lowercase}.model.ts`,{
         entities : columns,
         className : capitalize,
         createUpdate: data.createUpdate
@@ -42,11 +42,11 @@ exports.writeModel = async (action, data = null) => {
  *  @description creates a basic model , with no entites , imports or foreign keys
  *  @param {string} action
  */
-exports.basicModel = async (action) => {
+export async function basicModel (action) {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
 
-    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
+    modelTemplateFile.main(`src/api/models/${lowercase}.model.ts`,{
         entities : [],
         className : `${capitalize}Model`,
         createUpdate : {

@@ -5,11 +5,11 @@
  */
 
 // node modules
-const colors = require('colors/safe');
+import colors = require('colors/safe');
 
 //project modules
-const inquirer = require('../../utils/inquirer');
-const Log = require('../../utils/log');
+import {Inquirer} from '../../utils/inquirer';
+import Log = require('../../utils/log');
 
 let columnWritten = [];
 
@@ -17,10 +17,12 @@ let columnWritten = [];
  * @description Ask every questions about the column
  * @returns {Promise<null|Array>}
  */
-exports.newColumn = async (columnName=null) => {
+export async function newColumn (columnName=null): Promise<null | string[]> {
+
     Log.info('You can cancel the column at anytime if you write :exit  in an input or choose cancel current column in a choice.')
     //if any answer of the question is :exit , cancel current column
     let length = '', def, uni, paramsTemp, paramsArray = [], length_enum, arrayDone = false;
+    const inquirer = new Inquirer();
     if(!columnName) {
         let name = await inquirer.questionColumnName(columnWritten);
         columnName = name.columnName;  
@@ -28,6 +30,7 @@ exports.newColumn = async (columnName=null) => {
     if (columnName === ':exit') return null;
     let {constraintValue} = await inquirer.questionColumnKey();
     if (constraintValue === ':exit') return null;
+    
     //if there's no constraint, ask if value should be unique or not.because primary/unique key must be unique anyway
     if (constraintValue === 'no constraint') {
         let {uniqueValue} = await inquirer.questionUnique();
@@ -35,6 +38,7 @@ exports.newColumn = async (columnName=null) => {
     } else uni = true;
     let {type} = await inquirer.questionType(constraintValue);
     if (type === ':exit') return null;
+    
     //if type need a length/width or is enum and need an array . Ask the user
     if (needLength.includes(type)) {
         length_enum = await inquirer.lengthQuestion(type);
@@ -52,6 +56,7 @@ exports.newColumn = async (columnName=null) => {
         }
         length = length.substr(0, length.length - 1);
     }
+    
     //certain type can't have a default + unique and primary don't have a default.
     if (constraintValue !== 'no constraint' || type.includes('blob') || type.includes('json') || type.includes('text')) def = ':no';
     else {
@@ -60,6 +65,7 @@ exports.newColumn = async (columnName=null) => {
     }
     if (def === ':exit') return null;
     console.clear();
+    
     //Same format as the one send by mysql with a describe query
     paramsTemp = {
         Field: columnName,
@@ -69,6 +75,7 @@ exports.newColumn = async (columnName=null) => {
         Default: def
     };
     console.log(paramsTemp);
+    
     //ask for a confirmation then add the column and the name to an array with already added column
     let lastConfirm = await inquirer.askForConfirmation();
     if (lastConfirm.confirmation) {
@@ -87,16 +94,22 @@ const needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigin
  * @param entity
  * @returns {Promise<Array>}
  */
-exports.dbParams = async (entity) => {
+export async function dbParams (entity: any): Promise<string[]> {
+
     let isDoneColumn = false, paramsArray = [];
+    const inquirer = new Inquirer();
+
     paramsArray['columns'] = [];
     paramsArray['foreignKeys'] = [];
     console.log(colors.green(`Let's create a table for ${entity}`));
     console.log(colors.green('/!\\ id is added by default .'));
     paramsArray['createUpdate'] = await inquirer.askForCreateUpdate();
+
     while (!isDoneColumn) {
+
         //ask the user the column to add to his entity until user is done
         let data = await module.exports.newColumn().catch(e => console.log(e.message));
+        
         //add value to array that will be returned if value is not null
         if (data != null && data.columns !== undefined) paramsArray['columns'].push(data.columns);
         if (data != null && data.foreignKeys !== undefined) paramsArray['foreignKeys'].push(data.foreignKeys);
@@ -104,5 +117,6 @@ exports.dbParams = async (entity) => {
         let {confirmation} = await inquirer.askForConfirmation("Want to add more column ? ");
         if (!confirmation) isDoneColumn = true;
     }
+
     return paramsArray;
 };

@@ -19,6 +19,7 @@ export class InstallDockerActionAclass {
     }
 
     async main() {
+        
         const docker = new Docker();
 
         let data = await exec("docker ps")

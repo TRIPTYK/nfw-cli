@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateCommand
  * @description Command module to handle dynamic entity files generation for the boilerplate
@@ -39,106 +40,96 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules imports
-var reservedWords = require('reserved-words');
-var Spinner = require('clui').Spinner;
-var chalk = require('chalk');
+var reservedWords = require("reserved-words");
+var clui_1 = require("clui");
+var chalk_1 = require("chalk");
 // Project imports
-var commandUtils = require('./commandUtils');
-var generateAction = require('../actions/generateAction');
-var migrateAction = require('../actions/migrateAction');
-var generateDocAction = require('../actions/generateDocumentationAction');
-var Log = require('../utils/log');
-var generateDocSpinner = new Spinner('Generating documentation');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var generateAction = require("../actions/generateAction");
+var migrateAction = require("../actions/migrateAction");
+var generateDocAction = require("../actions/generateDocumentationAction");
+var Log = require("../utils/log");
+var generateDocSpinner = new clui_1.Spinner('Generating documentation');
+//Yargs command
 exports.command = 'generate <modelName> [CRUD] [part]';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['gen', 'g'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Generate a new model';
-/**
- * Yargs command builder
- * @param yargs
- */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.default('CRUD', 'CRUD');
     yargs.default('part', null);
-};
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var modelName, crud, part, crudOptions, spinner;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                modelName = argv.modelName, crud = argv.crud, part = argv.part;
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 2:
-                _a.sent();
-                if (reservedWords.check(modelName, 6)) {
-                    console.log("modelName is a reserved word");
-                    process.exit(0);
-                }
-                crudOptions = {
-                    create: true,
-                    read: true,
-                    update: true,
-                    delete: true
-                };
-                if ((/^[crud]{1,4}$/).test(crud)) {
-                    crudOptions.create = crud.includes('c');
-                    crudOptions.read = crud.includes('r');
-                    crudOptions.update = crud.includes('u');
-                    crudOptions.delete = crud.includes('d');
-                }
-                return [4 /*yield*/, generateAction(modelName, crudOptions, part)];
-            case 3:
-                _a.sent();
-                spinner = new Spinner("Generating and executing migration");
-                spinner.start();
-                return [4 /*yield*/, migrateAction(modelName)
-                        .then(function (generated) {
-                        var migrationDir = generated[0];
-                        spinner.stop();
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk.cyan(migrationDir));
-                    })
-                        .catch(function (e) {
-                        Log.error(e.message);
-                        process.exit();
-                    })];
-            case 4:
-                _a.sent();
-                generateDocSpinner.start();
-                return [4 /*yield*/, generateDocAction()
-                        .then(function () {
-                        Log.success('Typedoc generated successfully');
-                    })
-                        .catch(function (e) {
-                        Log.error('Typedoc failed to generate : ' + e.message);
-                    })];
-            case 5:
-                _a.sent();
-                generateDocSpinner.stop();
-                process.exit();
-                return [2 /*return*/];
-        }
+}
+exports.builder = builder;
+;
+//Main function 
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var modelName, crud, part, crudOptions, spinner;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    modelName = argv.modelName, crud = argv.crud, part = argv.part;
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 2:
+                    _a.sent();
+                    if (reservedWords.check(modelName, 6)) {
+                        console.log("modelName is a reserved word");
+                        process.exit(0);
+                    }
+                    crudOptions = {
+                        create: true,
+                        read: true,
+                        update: true,
+                        delete: true
+                    };
+                    if ((/^[crud]{1,4}$/).test(crud)) {
+                        crudOptions.create = crud.includes('c');
+                        crudOptions.read = crud.includes('r');
+                        crudOptions.update = crud.includes('u');
+                        crudOptions.delete = crud.includes('d');
+                    }
+                    return [4 /*yield*/, new generateAction.GenerateActionClass(modelName, crudOptions, part).main()];
+                case 3:
+                    _a.sent();
+                    spinner = new clui_1.Spinner("Generating and executing migration");
+                    spinner.start();
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName).main()
+                            .then(function (generated) {
+                            var migrationDir = generated[0];
+                            spinner.stop();
+                            Log.success("Executed migration successfully");
+                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        })
+                            .catch(function (e) {
+                            Log.error(e.message);
+                            process.exit();
+                        })];
+                case 4:
+                    _a.sent();
+                    generateDocSpinner.start();
+                    return [4 /*yield*/, new generateDocAction.GenerateDocumentationActionClass().main()
+                            .then(function () {
+                            Log.success('Typedoc generated successfully');
+                        })
+                            .catch(function (e) {
+                            Log.error('Typedoc failed to generate : ' + e.message);
+                        })];
+                case 5:
+                    _a.sent();
+                    generateDocSpinner.stop();
+                    process.exit();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

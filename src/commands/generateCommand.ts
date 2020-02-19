@@ -5,54 +5,41 @@
  */
 
 // Node modules imports
-const reservedWords = require('reserved-words');
-const { Spinner } = require('clui');
-const chalk = require('chalk');
+import reservedWords = require('reserved-words');
+import { Spinner } from 'clui';
+import chalk from 'chalk';
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const generateAction = require('../actions/generateAction');
-const migrateAction = require('../actions/migrateAction');
-const generateDocAction = require('../actions/generateDocumentationAction');
-const Log = require('../utils/log');
+import commandUtils = require('./commandUtils');
+import generateAction = require('../actions/generateAction');
+import migrateAction = require('../actions/migrateAction');
+import generateDocAction = require('../actions/generateDocumentationAction');
+import Log = require('../utils/log');
+import main from 'mysqldump';
 
 
 const generateDocSpinner = new Spinner('Generating documentation');
 
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'generate <modelName> [CRUD] [part]';
+//Yargs command
+export const command: string = 'generate <modelName> [CRUD] [part]';
 
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['gen', 'g'];
+//Yargs command aliases
+export const aliases: string[] = ['gen', 'g'];
 
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generate a new model';
+//Yargs command description
+export const describe: string = 'Generate a new model';
 
-/**
- * Yargs command builder
- * @param yargs
- */
-exports.builder = (yargs) => {
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.default('CRUD', 'CRUD');
     yargs.default('part', null);
 };
 
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = async (argv) => {
+
+//Main function 
+export async function handler  (argv: any): Promise<void> {
+
     const {modelName,crud,part} = argv;
 
     commandUtils.validateDirectory();
@@ -78,12 +65,12 @@ exports.handler = async (argv) => {
         crudOptions.delete = crud.includes('d');
     }
 
-    await generateAction(modelName, crudOptions , part);
+    await new generateAction.GenerateActionClass(modelName, crudOptions , part).main();
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await migrateAction(modelName)
+    await new migrateAction.MigrateActionClass(modelName).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();
@@ -98,7 +85,7 @@ exports.handler = async (argv) => {
 
     generateDocSpinner.start();
 
-    await generateDocAction()
+    await new generateDocAction.GenerateDocumentationActionClass().main()
         .then(() => {
             Log.success('Typedoc generated successfully');
         })
