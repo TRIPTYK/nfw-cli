@@ -66,6 +66,7 @@
     "@types/pluralize": "0.0.29",
     "@types/reserved-words": "^0.1.0",
     "@types/rimraf": "^2.0.3",
+    "@types/stringify-object": "^3.2.0",
     "@types/to-snake-case": "^1.0.0",
     "bluebird": "^3.7.2",
     "promise-mysql": "^4.1.3",

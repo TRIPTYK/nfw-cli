@@ -8,7 +8,7 @@ import project = require('../utils/project');
  * @param options
  * @param entityName
  */
-export function  Main (path: string, {className,options,entityName}) {
+export function  main (path: string, {className,options,entityName}) {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });

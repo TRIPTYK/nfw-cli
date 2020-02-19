@@ -9,7 +9,7 @@ var project = require("../utils/project");
  * @param options
  * @param entityName
  */
-function Main(path, _a) {
+function main(path, _a) {
     var className = _a.className, options = _a.options, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -181,5 +181,5 @@ function Main(path, _a) {
     }
     return file;
 }
-exports.Main = Main;
+exports.main = main;
 ;

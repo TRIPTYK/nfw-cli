@@ -1,11 +1,13 @@
-var capitalizeEntity = require("../actions/lib/utils").capitalizeEntity;
-var project = require('../utils/project');
-module.exports = function (path, _a) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = require("../actions/lib/utils");
+var project = require("../utils/project");
+function main(path, _a) {
     var className = _a.className, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = capitalizeEntity(entityName);
+    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
     file.addStatements(function (writer) { return writer.writeLine("import Boom from '@hapi/boom';"); });
     var middlewareClass = file.addClass({
         name: className
@@ -22,4 +24,6 @@ module.exports = function (path, _a) {
         writer.writeLine("@description " + className + " constructor");
     });
     return file;
-};
+}
+exports.main = main;
+;

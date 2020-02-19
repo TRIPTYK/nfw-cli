@@ -1,6 +1,8 @@
-var buildModelColumnArgumentsFromObject = require("../actions/lib/utils").buildModelColumnArgumentsFromObject;
-var project = require('../utils/project');
-var stringifyObject = require('stringify-object');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = require("../actions/lib/utils");
+var project = require("../utils/project");
+var stringifyObject = require("stringify-object");
 /**
  *
  * @param path
@@ -9,8 +11,8 @@ var stringifyObject = require('stringify-object');
  * @param createUpdate
  * @return {SourceFile}
  */
-module.exports = function (path, _a) {
-    var className = _a.className, entities = _a.entities, _b = _a.createUpdate, createUpdate = _b === void 0 ? {} : _b;
+function main(path, _a) {
+    var className = _a.className, entities = _a.entities, createUpdate = _a.createUpdate;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
@@ -37,7 +39,7 @@ module.exports = function (path, _a) {
         });
         prop.addDecorator({
             name: 'Column',
-            arguments: stringifyObject(buildModelColumnArgumentsFromObject(entity))
+            arguments: stringifyObject(utils_1.buildModelColumnArgumentsFromObject(entity))
         }).setIsDecoratorFactory(true);
     });
     if (createUpdate && createUpdate.createAt) {
@@ -52,4 +54,6 @@ module.exports = function (path, _a) {
     }
     file.fixMissingImports();
     return file;
-};
+}
+exports.main = main;
+;

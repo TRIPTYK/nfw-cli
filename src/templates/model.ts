@@ -1,6 +1,7 @@
-const {buildModelColumnArgumentsFromObject} = require("../actions/lib/utils");
-const project = require('../utils/project');
-const stringifyObject = require('stringify-object');
+import {buildModelColumnArgumentsFromObject} from "../actions/lib/utils";
+import project = require('../utils/project');
+import stringifyObject = require('stringify-object');
+import { SourceFile, PropertyDeclaration, WriterFunction } from "ts-morph";
 
 /**
  *
@@ -10,7 +11,8 @@ const stringifyObject = require('stringify-object');
  * @param createUpdate
  * @return {SourceFile}
  */
-module.exports = (path,{className,entities,createUpdate = {}}) => {
+export function main (path: string, {className,entities,createUpdate}): SourceFile {
+    
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
@@ -42,7 +44,7 @@ module.exports = (path,{className,entities,createUpdate = {}}) => {
 
         prop.addDecorator({
             name : 'Column' ,
-            arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity))
+            arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity)) as any
         }).setIsDecoratorFactory(true);
     });
 
