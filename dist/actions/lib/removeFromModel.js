@@ -1,3 +1,4 @@
+"use strict";
 /**
  *  @module removeFromModel
  *  @description Remove relation from model
@@ -39,35 +40,33 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var Util = require('util');
-var FS = require('fs');
-var plural = require('pluralize').plural;
-var chalk = require('chalk');
+var Util = require("util");
+var FS = require("fs");
+var pluralize_1 = require("pluralize");
+var chalk_1 = require("chalk");
 // promisify
 var ReadFile = Util.promisify(FS.readFile);
 var WriteFile = Util.promisify(FS.writeFile);
 //project modules
-var Log = require('../../utils/log');
-var project = require('../../utils/project');
-/**
- * @description  Remove relationship from serializer and controller
- * @param {string} entity
- * @param {string} column relation name
- */
-exports.removeFromRelationTable = function (entity, column) {
+var Log = require("../../utils/log");
+var project = require("../../utils/project");
+//description :  Remove relationship from serializer and controller
+function removeFromRelationTable(entity, column) {
     var relationFile = project.getSourceFile("src/api/enums/json-api/" + entity + ".enum.ts");
     var relationsArrayDeclaration = relationFile.getVariableDeclaration(entity + "Relations").getInitializer();
     // search by Text value
     var index = relationsArrayDeclaration.getElements().findIndex(function (value) {
-        return value.getText() === "'" + column + "'" || value.getText() === "'" + plural(column) + "'";
+        return value.getText() === "'" + column + "'" || value.getText() === "'" + pluralize_1.plural(column) + "'";
     });
     if (index !== -1)
         relationsArrayDeclaration.removeElement(index);
     relationFile.fixMissingImports();
     relationFile.fixUnusedIdentifiers();
-};
+}
+exports.removeFromRelationTable = removeFromRelationTable;
+;
 /**
  *
  * @param entity
@@ -75,7 +74,7 @@ exports.removeFromRelationTable = function (entity, column) {
  * @param otherModel
  * @param isRelation
  */
-exports.removeFromSerializer = function (entity, column, otherModel, isRelation) {
+function removeFromSerializer(entity, column, otherModel, isRelation) {
     var serializerFile = project.getSourceFile("src/api/serializers/" + entity + ".serializer.ts");
     var serializerClass = serializerFile.getClasses()[0];
     var constructor = serializerClass.getConstructors()[0];
@@ -96,13 +95,13 @@ exports.removeFromSerializer = function (entity, column, otherModel, isRelation)
         var serializeDeclaration = relationFile.getVariableDeclaration(entity + "Serialize").getInitializer();
         // search by Text value
         var index = deserializeDeclaration.getElements().findIndex(function (value) {
-            return value.getText() === "'" + column + "'" || value.getText() === "'" + plural(column) + "'";
+            return value.getText() === "'" + column + "'" || value.getText() === "'" + pluralize_1.plural(column) + "'";
         });
         if (index !== -1)
             deserializeDeclaration.removeElement(index);
         // search by Text value
         var index2 = serializeDeclaration.getElements().findIndex(function (value) {
-            return value.getText() === "'" + column + "'" || value.getText() === "'" + plural(column) + "'";
+            return value.getText() === "'" + column + "'" || value.getText() === "'" + pluralize_1.plural(column) + "'";
         });
         if (index2 !== -1)
             serializeDeclaration.removeElement(index);
@@ -111,38 +110,38 @@ exports.removeFromSerializer = function (entity, column, otherModel, isRelation)
     }
     serializerFile.fixMissingImports();
     serializerFile.fixUnusedIdentifiers();
-};
-/**
- *
- * @param model
- * @param column
- * @returns {Promise<void>}
- */
-exports.removeFromTest = function (model, column) { return __awaiter(_this, void 0, void 0, function () {
-    var testPath, regexRandom, regexArray, testFile;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                testPath = process.cwd() + "/test/" + model + ".test.ts";
-                regexRandom = new RegExp("[\\s]" + column + ".*?\\),", 'gm');
-                regexArray = new RegExp(",'" + column + "'|'" + column + "',|'" + column + "'", 'gm');
-                return [4 /*yield*/, ReadFile(testPath, 'utf-8')];
-            case 1:
-                testFile = _a.sent();
-                testFile = testFile.replace(regexRandom, '').replace(regexArray, '');
-                return [4 /*yield*/, WriteFile(testPath, testFile).then(function () { return Log.info(chalk.cyan("test/" + model + ".test.js") + " updated"); })];
-            case 2:
-                _a.sent();
-                return [2 /*return*/];
-        }
+}
+exports.removeFromSerializer = removeFromSerializer;
+;
+function removeFromTest(model, column) {
+    return __awaiter(this, void 0, void 0, function () {
+        var testPath, regexRandom, regexArray, testFile;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    testPath = process.cwd() + "/test/" + model + ".test.ts";
+                    regexRandom = new RegExp("[\\s]" + column + ".*?\\),", 'gm');
+                    regexArray = new RegExp(",'" + column + "'|'" + column + "',|'" + column + "'", 'gm');
+                    return [4 /*yield*/, ReadFile(testPath, 'utf-8')];
+                case 1:
+                    testFile = _a.sent();
+                    testFile = testFile.replace(regexRandom, '').replace(regexArray, '');
+                    return [4 /*yield*/, WriteFile(testPath, testFile).then(function () { return Log.info(chalk_1.default.cyan("test/" + model + ".test.js") + " updated"); })];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.removeFromTest = removeFromTest;
+;
 /**
  *
  * @param model
  * @param column
  */
-exports.removeFromValidation = function (model, column) {
+function removeFromValidation(model, column) {
     var relationFile = project.getSourceFile("src/api/validations/" + model + ".validation.ts");
     // all exported const should be validation schema
     var validationDeclarations = relationFile.getVariableDeclarations().filter(function (v) { return v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword(); });
@@ -153,14 +152,18 @@ exports.removeFromValidation = function (model, column) {
     });
     relationFile.fixMissingImports();
     relationFile.fixUnusedIdentifiers();
-};
-exports.removeRelationFromModelFile = function (model, column) {
+}
+exports.removeFromValidation = removeFromValidation;
+;
+function removeRelationFromModelFile(model, column) {
     var modelFile = project.getSourceFile("src/api/models/" + model + ".model.ts");
     var modelClass = modelFile.getClasses()[0];
     var prop = modelClass.getInstanceProperty(function (p) {
-        return p.getName() === column || p.getName() === plural(column);
+        return p.getName() === column || p.getName() === pluralize_1.plural(column);
     });
     if (prop)
         prop.remove();
     modelFile.fixUnusedIdentifiers();
-};
+}
+exports.removeRelationFromModelFile = removeRelationFromModelFile;
+;

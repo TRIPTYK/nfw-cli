@@ -54,13 +54,6 @@ var generateEntityFiles = require("./lib/generateEntityFiles");
 var Log = require("../utils/log");
 var utils_1 = require("../actions/lib/utils");
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
-/**
- * Main function
- * @param modelName
- * @param crud
- * @param part
- * @returns {Promise<void>}
- */
 var GenerateActionClass = /** @class */ (function () {
     function GenerateActionClass(modelName, crud, part) {
         this.modelName = modelName;

@@ -5,29 +5,25 @@
  */
 
 // node modules
-const Util = require('util');
-const FS = require('fs');
-const {plural} = require('pluralize');
-const chalk = require('chalk');
+import Util = require('util');
+import FS = require('fs');
+import {plural} from 'pluralize';
+import chalk from 'chalk';
 
 // promisify
 const ReadFile = Util.promisify(FS.readFile);
 const WriteFile = Util.promisify(FS.writeFile);
 
 //project modules
-const Log = require('../../utils/log');
-const project = require('../../utils/project');
+import Log = require('../../utils/log');
+import project = require('../../utils/project');
 
 
-/**
- * @description  Remove relationship from serializer and controller
- * @param {string} entity
- * @param {string} column relation name
- */
-exports.removeFromRelationTable = (entity, column) => {
+//description :  Remove relationship from serializer and controller
+export function removeFromRelationTable (entity: string, column: string) {
     const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
-    const relationsArrayDeclaration = relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer();
+    const relationsArrayDeclaration: any = relationFile.getVariableDeclaration(`${entity}Relations`).getInitializer();
 
     // search by Text value
     const index = relationsArrayDeclaration.getElements().findIndex((value) => {
@@ -48,10 +44,10 @@ exports.removeFromRelationTable = (entity, column) => {
  * @param otherModel
  * @param isRelation
  */
-exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
+export function removeFromSerializer (entity: string, column: string, otherModel, isRelation: boolean) {
     const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
     const serializerClass = serializerFile.getClasses()[0];
-    const constructor = serializerClass.getConstructors()[0];
+    const constructor: any = serializerClass.getConstructors()[0];
     const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
 
     const line = constructor.getStructure().statements.findIndex((e) => {
@@ -67,8 +63,8 @@ exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
     if (!isRelation) {
         const relationFile = project.getSourceFile(`src/api/enums/json-api/${entity}.enum.ts`);
 
-        const deserializeDeclaration = relationFile.getVariableDeclaration(`${entity}Deserialize`).getInitializer();
-        const serializeDeclaration = relationFile.getVariableDeclaration(`${entity}Serialize`).getInitializer();
+        const deserializeDeclaration: any = relationFile.getVariableDeclaration(`${entity}Deserialize`).getInitializer();
+        const serializeDeclaration: any = relationFile.getVariableDeclaration(`${entity}Serialize`).getInitializer();
 
         // search by Text value
         let index = deserializeDeclaration.getElements().findIndex((value) => {
@@ -92,13 +88,7 @@ exports.removeFromSerializer = (entity, column,otherModel,isRelation) => {
     serializerFile.fixUnusedIdentifiers();
 };
 
-/**
- *
- * @param model
- * @param column
- * @returns {Promise<void>}
- */
-exports.removeFromTest = async (model, column) => {
+export async function removeFromTest (model, column: string): Promise<void> {
     let testPath = `${process.cwd()}/test/${model}.test.ts`;
     let regexRandom = new RegExp(`[\\s]${column}.*?\\),`, 'gm');
     let regexArray = new RegExp(`,'${column}'|'${column}',|'${column}'`, 'gm');
@@ -112,13 +102,13 @@ exports.removeFromTest = async (model, column) => {
  * @param model
  * @param column
  */
-exports.removeFromValidation = (model, column) => {
+export function removeFromValidation (model, column: string) {
     const relationFile = project.getSourceFile(`src/api/validations/${model}.validation.ts`);
 
     // all exported const should be validation schema
     const validationDeclarations = relationFile.getVariableDeclarations().filter((v) => v.getVariableStatement().getDeclarationKind() === 'const' && v.getVariableStatement().hasExportKeyword());
 
-    validationDeclarations.forEach((declaration) => {
+    validationDeclarations.forEach((declaration: any) => {
         const prop = declaration.getInitializer().getProperty(column);
         if (prop) prop.remove();
     });
@@ -127,7 +117,7 @@ exports.removeFromValidation = (model, column) => {
     relationFile.fixUnusedIdentifiers();
 };
 
-exports.removeRelationFromModelFile = (model,column) => {
+export function removeRelationFromModelFile (model,column: string) {
     let modelFile = project.getSourceFile(`src/api/models/${model}.model.ts`);
     const modelClass = modelFile.getClasses()[0];
 

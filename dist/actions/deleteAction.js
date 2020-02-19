@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module delete
  * @author Verliefden Romain
@@ -40,19 +41,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var _a = require('ts-morph'), forEachStructureChild = _a.forEachStructureChild, StructureTypeGuards = _a.StructureTypeGuards;
-// Node modules
-var FS = require('fs');
-var Util = require('util');
-var snake = require('to-snake-case');
+Object.defineProperty(exports, "__esModule", { value: true });
+var snake = require("to-snake-case");
 // Project modules
-var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnectionFromNFW;
-var Log = require('../utils/log');
-var items = require('../static/resources').items;
-var _b = require('./lib/utils'), capitalizeEntity = _b.capitalizeEntity, lowercaseEntity = _b.lowercaseEntity;
-var removeRel = require('./removeRelationAction');
-var project = require('../utils/project');
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var Log = require("../utils/log");
+var resources_1 = require("../static/resources");
+var utils_1 = require("./lib/utils");
+var removeRel = require("./removeRelationAction");
+var project = require("../utils/project");
 // simulate class properties
 var capitalize;
 var lowercase;
@@ -60,12 +57,12 @@ var lowercase;
  *  @description deletes typescript files
  *  @returns {Promise<Array>}
  */
-var _deleteTypescriptFiles = function () { return __awaiter(_this, void 0, void 0, function () {
+var _deleteTypescriptFiles = function () { return __awaiter(void 0, void 0, void 0, function () {
     var deleted, i, item, file;
     return __generator(this, function (_a) {
         deleted = [];
-        for (i = 0; i < items.length; i++) {
-            item = items[i];
+        for (i = 0; i < resources_1.items.length; i++) {
+            item = resources_1.items[i];
             file = project.getSourceFile(item.path + "/" + lowercase + "." + item.template + ".ts");
             if (file) {
                 deleted.push({ fileName: item.path + "/" + lowercase + "." + item.template + ".ts", type: 'delete' });
@@ -79,7 +76,7 @@ var _deleteTypescriptFiles = function () { return __awaiter(_this, void 0, void 
  * @description Delete route related information in router index.ts
  * @returns {Promise<{fileName: string, type: string}[]>} deleted route
  */
-var _unroute = function () { return __awaiter(_this, void 0, void 0, function () {
+var _unroute = function () { return __awaiter(void 0, void 0, void 0, function () {
     var fileName, file;
     return __generator(this, function (_a) {
         fileName = "src/api/routes/v1/index.ts";
@@ -97,68 +94,80 @@ var _unroute = function () { return __awaiter(_this, void 0, void 0, function ()
  * @param {boolean} drop if true , drop the table in database
  * @returns {Promise<Array>}
  */
-module.exports = function (entityName, drop) { return __awaiter(_this, void 0, void 0, function () {
-    var dumpPath, sqlConnection, relations, i, promises, results, modifiedFiles;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                entityName = snake(entityName);
-                //constructor behavior
-                capitalize = capitalizeEntity(entityName);
-                lowercase = lowercaseEntity(entityName);
-                dumpPath = "./dist/migration/dump/" + +new Date() + "-" + entityName;
-                return [4 /*yield*/, getSqlConnectionFromNFW()];
-            case 1:
-                sqlConnection = _a.sent();
-                return [4 /*yield*/, sqlConnection.getForeignKeysRelatedTo(entityName).catch(function (err) {
-                        throw new Error("Failed to get foreign keys related to " + entityName + err);
-                    })];
-            case 2:
-                relations = _a.sent();
-                i = 0;
-                _a.label = 3;
-            case 3:
-                if (!(i < relations.length)) return [3 /*break*/, 6];
-                return [4 /*yield*/, removeRel(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME, relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME)
-                        .catch(function () { })];
-            case 4:
-                _a.sent(); // not a problem
-                _a.label = 5;
-            case 5:
-                i++;
-                return [3 /*break*/, 3];
-            case 6:
-                promises = [
-                    _deleteTypescriptFiles(),
-                    _unroute()
-                ];
-                return [4 /*yield*/, Promise.all(promises)];
-            case 7:
-                results = _a.sent();
-                modifiedFiles = [];
-                results.forEach(function (e) {
-                    modifiedFiles = modifiedFiles.concat(e);
-                });
-                return [4 /*yield*/, sqlConnection.tableExists(entityName)];
-            case 8:
-                if (!((_a.sent()) && drop)) return [3 /*break*/, 11];
-                return [4 /*yield*/, sqlConnection.dumpTable(dumpPath, entityName)
-                        .then(function () { return Log.success("SQL dump created at : " + dumpPath); })
-                        .catch(function () {
-                        throw new Error("Failed to create dump");
-                    })];
-            case 9:
-                _a.sent();
-                return [4 /*yield*/, sqlConnection.dropTable(entityName)
-                        .then(function () { return Log.success("Table dropped"); })
-                        .catch(function () { return Log.error("Failed to delete table"); })];
-            case 10:
-                _a.sent();
-                _a.label = 11;
-            case 11: return [4 /*yield*/, project.save()];
-            case 12:
-                _a.sent();
-                return [2 /*return*/, modifiedFiles];
-        }
-    });
-}); };
+var DeleteActionClass = /** @class */ (function () {
+    function DeleteActionClass(entityName, drop) {
+        this.entityName = entityName;
+        this.drop = drop;
+    }
+    DeleteActionClass.prototype.main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var dumpPath, sqlConnection, relations, i, promises, results, modifiedFiles;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.entityName = snake(this.entityName);
+                        //constructor behavior
+                        capitalize = utils_1.capitalizeEntity(this.entityName);
+                        lowercase = utils_1.lowercaseEntity(this.entityName);
+                        dumpPath = "./dist/migration/dump/" + +new Date() + "-" + this.entityName;
+                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 1:
+                        sqlConnection = _a.sent();
+                        return [4 /*yield*/, sqlConnection.getForeignKeysRelatedTo(this.entityName).catch(function (err) {
+                                throw new Error("Failed to get foreign keys related to " + _this.entityName + err);
+                            })];
+                    case 2:
+                        relations = _a.sent();
+                        i = 0;
+                        _a.label = 3;
+                    case 3:
+                        if (!(i < relations.length)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, new removeRel.RemoveRelationAction(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME, relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
+                                .main()
+                                .catch(function () { })];
+                    case 4:
+                        _a.sent(); // not a problem
+                        _a.label = 5;
+                    case 5:
+                        i++;
+                        return [3 /*break*/, 3];
+                    case 6:
+                        promises = [
+                            _deleteTypescriptFiles(),
+                        ];
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 7:
+                        results = _a.sent();
+                        modifiedFiles = [];
+                        results.forEach(function (e) {
+                            modifiedFiles = modifiedFiles.concat(e);
+                        });
+                        return [4 /*yield*/, sqlConnection.tableExists(this.entityName)];
+                    case 8:
+                        if (!((_a.sent()) && this.drop)) return [3 /*break*/, 11];
+                        return [4 /*yield*/, sqlConnection.dumpTable(dumpPath, this.entityName)
+                                .then(function () { return Log.success("SQL dump created at : " + dumpPath); })
+                                .catch(function () {
+                                throw new Error("Failed to create dump");
+                            })];
+                    case 9:
+                        _a.sent();
+                        return [4 /*yield*/, sqlConnection.dropTable(this.entityName)
+                                .then(function () { return Log.success("Table dropped"); })
+                                .catch(function () { return Log.error("Failed to delete table"); })];
+                    case 10:
+                        _a.sent();
+                        _a.label = 11;
+                    case 11: return [4 /*yield*/, project.save()];
+                    case 12:
+                        _a.sent();
+                        return [2 /*return*/, modifiedFiles];
+                }
+            });
+        });
+    };
+    ;
+    return DeleteActionClass;
+}());
+exports.DeleteActionClass = DeleteActionClass;

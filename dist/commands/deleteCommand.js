@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module deleteCommand
  * @description Command module to handle entity deletion
@@ -39,74 +40,68 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
-var commandUtils = require('./commandUtils');
-var deleteAction = require('../actions/deleteAction');
-var Log = require('../utils/log');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var deleteAction = require("../actions/deleteAction");
+var Log = require("../utils/log");
+//Yargs command
 exports.command = 'delete <modelName>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['del', 'D'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Delete a model';
 /**
- * Yargs command builder
+ * //Yargs command builder
  * @param yargs
  */
-exports.builder = function (yargs) {
+//Yargs command builder
+function builder(yargs) {
     yargs.option({
         DROP: {
             type: 'boolean',
             default: false
         }
     });
-};
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var modelName;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                modelName = argv.modelName;
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                if (!argv.DROP) return [3 /*break*/, 3];
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 2:
-                _a.sent();
-                _a.label = 3;
-            case 3: 
-            // TODO : move all error handling messages to this level
-            return [4 /*yield*/, deleteAction(modelName, argv.DROP)
-                    .then(function (array) {
-                    array.forEach(function (e) {
-                        Log.logModification(e);
-                    });
-                })
-                    .catch(function (e) {
-                    Log.error("Failed to delete " + modelName + " : " + e.message);
-                })];
-            case 4:
+}
+exports.builder = builder;
+;
+//Main function
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var modelName;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    modelName = argv.modelName;
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    if (!argv.DROP) return [3 /*break*/, 3];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3: 
                 // TODO : move all error handling messages to this level
-                _a.sent();
-                process.exit();
-                return [2 /*return*/];
-        }
+                return [4 /*yield*/, new deleteAction.DeleteActionClass(modelName, argv.DROP).main()
+                        .then(function (array) {
+                        array.forEach(function (e) {
+                            Log.logModification(e);
+                        });
+                    })
+                        .catch(function (e) {
+                        Log.error("Failed to delete " + modelName + " : " + e.message);
+                    })];
+                case 4:
+                    // TODO : move all error handling messages to this level
+                    _a.sent();
+                    process.exit();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

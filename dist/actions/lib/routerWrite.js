@@ -41,12 +41,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Main function
- * @param {string} entityName
- * @param pluralizeRoute
- * @returns {Promise<void>}
- */
 function main(entityName, pluralizeRoute) {
     if (pluralizeRoute === void 0) { pluralizeRoute = true; }
     return __awaiter(this, void 0, void 0, function () {

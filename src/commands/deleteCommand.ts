@@ -5,33 +5,26 @@
  */
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const deleteAction = require('../actions/deleteAction');
-const Log = require('../utils/log');
+import commandUtils = require('./commandUtils');
+import deleteAction = require('../actions/deleteAction');
+import Log = require('../utils/log');
+
+
+//Yargs command
+export const command: string = 'delete <modelName>';
+
+//Yargs command aliases
+export const aliases: string[] = ['del', 'D'];
+
+//Yargs command description
+export const describe: string = 'Delete a model';
 
 /**
- * Yargs command
- * @type {string}
- */
-exports.command = 'delete <modelName>';
-
-/**
- * Yargs command aliases
- * @type {string[]}
- */
-exports.aliases = ['del', 'D'];
-
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Delete a model';
-
-/**
- * Yargs command builder
+ * //Yargs command builder
  * @param yargs
  */
-exports.builder = (yargs) => {
+//Yargs command builder
+export function builder (yargs: any) {
     yargs.option({
         DROP: {
             type: 'boolean',
@@ -40,12 +33,9 @@ exports.builder = (yargs) => {
     })
 };
 
-/**
- * Main function
- * @param argv
- * @return {Promise<void>}
- */
-exports.handler = async (argv) => {
+
+//Main function
+export async function handler (argv: any): Promise<void> {
     const {modelName} = argv;
 
     commandUtils.validateDirectory();
@@ -54,7 +44,7 @@ exports.handler = async (argv) => {
     if (argv.DROP) await commandUtils.checkConnectToDatabase();
 
     // TODO : move all error handling messages to this level
-    await deleteAction(modelName, argv.DROP)
+    await new deleteAction.DeleteActionClass(modelName, argv.DROP).main()
         .then((array) => {
             array.forEach((e) => {
                 Log.logModification(e);

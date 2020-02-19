@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module removeRelationAction
  * @author Verliefden Romain
@@ -39,11 +40,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // project modules
-var utils = require('./lib/utils');
-var project = require('../utils/project');
-var removeFromModel = require('./lib/removeFromModel');
+var utils = require("./lib/utils");
+var project = require("../utils/project");
+var removeFromModel = require("./lib/removeFromModel");
 var _getModelFromRelationProperty = function (model1Class, model2Class, relation) {
     for (var _i = 0, _a = model1Class.getProperties(); _i < _a.length; _i++) {
         var p = _a[_i];
@@ -58,46 +59,53 @@ var _getModelFromRelationProperty = function (model1Class, model2Class, relation
         }
     }
 };
-/**
- * Main function
- * @param {string} model1
- * @param {string} model2
- * @returns {Promise<void>}
- */
-module.exports = function (model1, model2, type) { return __awaiter(_this, void 0, void 0, function () {
-    var relationsMap, model1File, model2File, model1Class, model2Class, p1, p2;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                if (!utils.modelFileExists(model1) || !utils.modelFileExists(model2)) {
-                    throw new Error('Both model should exist in order to remove a relation between them');
+var RemoveRelationAction = /** @class */ (function () {
+    function RemoveRelationAction(model1, model2, type) {
+        this.model1 = model1;
+        this.model2 = model2;
+        this.type = type;
+    }
+    //Main function
+    RemoveRelationAction.prototype.main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var relationsMap, model1File, model2File, model1Class, model2Class, p1, p2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!utils.modelFileExists(this.model1) || !utils.modelFileExists(this.model2)) {
+                            throw new Error('Both model should exist in order to remove a relation between them');
+                        }
+                        relationsMap = {
+                            otm: ['OneToMany', 'ManyToOne'],
+                            oto: ['OneToOne', 'OneToOne'],
+                            mto: ['ManyToOne', 'OneToMany'],
+                            mtm: ['ManyToMany', 'ManyToMany'],
+                        };
+                        model1File = project.getSourceFile("src/api/models/" + this.model1 + ".model.ts");
+                        model2File = project.getSourceFile("src/api/models/" + this.model2 + ".model.ts");
+                        if (!model1File || !model2File)
+                            throw new Error("One of the model does not exists");
+                        model1Class = model1File.getClasses()[0];
+                        model2Class = model2File.getClasses()[0];
+                        p1 = _getModelFromRelationProperty(model1Class, model2Class, relationsMap[this.type][0]);
+                        p2 = _getModelFromRelationProperty(model2Class, model1Class, relationsMap[this.type][1]);
+                        if (!p1 || !p2)
+                            throw new Error("Relation properties not found");
+                        removeFromModel.removeFromRelationTable(this.model1, p1.getName());
+                        removeFromModel.removeFromRelationTable(this.model2, p2.getName());
+                        removeFromModel.removeFromSerializer(this.model1, p1.getName(), this.model2, true);
+                        removeFromModel.removeFromSerializer(this.model2, p2.getName(), this.model1, true);
+                        p1.remove();
+                        p2.remove();
+                        return [4 /*yield*/, project.save()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
                 }
-                relationsMap = {
-                    otm: ['OneToMany', 'ManyToOne'],
-                    oto: ['OneToOne', 'OneToOne'],
-                    mto: ['ManyToOne', 'OneToMany'],
-                    mtm: ['ManyToMany', 'ManyToMany'],
-                };
-                model1File = project.getSourceFile("src/api/models/" + model1 + ".model.ts");
-                model2File = project.getSourceFile("src/api/models/" + model2 + ".model.ts");
-                if (!model1File || !model2File)
-                    throw new Error("One of the model does not exists");
-                model1Class = model1File.getClasses()[0];
-                model2Class = model2File.getClasses()[0];
-                p1 = _getModelFromRelationProperty(model1Class, model2Class, relationsMap[type][0]);
-                p2 = _getModelFromRelationProperty(model2Class, model1Class, relationsMap[type][1]);
-                if (!p1 || !p2)
-                    throw new Error("Relation properties not found");
-                removeFromModel.removeFromRelationTable(model1, p1.getName());
-                removeFromModel.removeFromRelationTable(model2, p2.getName());
-                removeFromModel.removeFromSerializer(model1, p1.getName(), model2, true);
-                removeFromModel.removeFromSerializer(model2, p2.getName(), model1, true);
-                p1.remove();
-                p2.remove();
-                return [4 /*yield*/, project.save()];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
+            });
+        });
+    };
+    ;
+    return RemoveRelationAction;
+}());
+exports.RemoveRelationAction = RemoveRelationAction;
