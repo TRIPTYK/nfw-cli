@@ -74,7 +74,7 @@ export async function handler (argv: any): Promise<void> {
 
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(modelName,restore,dump,revert).Main()
+    await new migrateAction.MigrateActionClass(modelName,restore,dump,revert).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();

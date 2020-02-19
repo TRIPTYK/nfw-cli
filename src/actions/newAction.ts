@@ -48,7 +48,7 @@ export class NewActionClass {
     }
 
     //description: Generate a new project
-    async Main(){
+    async main(){
 
         const pckManager = this.yarn ? 'yarn' : 'npm';
         const inquirer = new Inquirer();

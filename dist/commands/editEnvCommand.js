@@ -74,7 +74,7 @@ function handler() {
                     env = (_a.sent()).env;
                     envFileName = env + ".env";
                     chosenOne = dotenv.parse(fs.readFileSync(envFileName));
-                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).Main()
+                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).main()
                             .then(function (written) {
                             var confFile = written[0];
                             Log.success("Edited environment successfully");

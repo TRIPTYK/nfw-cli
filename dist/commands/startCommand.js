@@ -128,7 +128,7 @@ function handler(argv) {
                 case 7:
                     _a.sent();
                     _a.label = 8;
-                case 8: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).Main()
+                case 8: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).main()
                         .then(function (generated) {
                         var migrationDir = generated[0];
                         Log.success("Executed migration successfully");
@@ -144,7 +144,7 @@ function handler(argv) {
                 case 10: return [3 /*break*/, 11];
                 case 11:
                     if (connected === true) {
-                        new startAction.StartActionClass(environement, monitoringEnabled).Main();
+                        new startAction.StartActionClass(environement, monitoringEnabled).main();
                     }
                     else
                         Log.error("Server can't start because database connection failed : " + connected.message);

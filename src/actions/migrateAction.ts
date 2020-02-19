@@ -61,7 +61,7 @@ export class MigrateActionClass {
         this.isRevert = isRevert;
     }
 
-    async Main(){
+    async main(){
 
         const ormConfig = new JsonFileWriter();
         ormConfig.openSync("./ormconfig.json");

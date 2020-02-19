@@ -37,7 +37,7 @@ export function builder (yargs: any) {
 export async function handler (argv: any) {
     const {name,port,vers,password} = argv;
 
-    await new installDockerAction.InstallDockerActionAclass(name,port,vers,password).Main()
+    await new installDockerAction.InstallDockerActionAclass(name,port,vers,password).main()
         .catch((e) => {
             Log.error(e.message);
             process.exit();

@@ -86,7 +86,7 @@ export async function handler (argv: any): Promise<void> {
 
             if (confirmation) await sqlConnection.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).Main()
+            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).main()
                 .then((generated) => {
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);

@@ -23,7 +23,7 @@ export class EditEnvActionClass {
     }
 
     //Main function
-    async Main(): Promise<string[]> {
+    async main(): Promise<string[]> {
         let response = await new inquirer.Inquirer().editEnvFile(this.chosenOne);
 
         response.NODE_ENV = this.env;

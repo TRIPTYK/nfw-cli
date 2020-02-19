@@ -56,7 +56,7 @@ var GenerateRouterActionClass = /** @class */ (function () {
         this.entityName = entityName;
         this.routes = routes;
     }
-    GenerateRouterActionClass.prototype.Main = function () {
+    GenerateRouterActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var methods, routerPath, controllerPath, writtenFiles;
             return __generator(this, function (_a) {

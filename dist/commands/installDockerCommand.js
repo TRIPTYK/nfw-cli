@@ -77,7 +77,7 @@ function handler(argv) {
             switch (_a.label) {
                 case 0:
                     name = argv.name, port = argv.port, vers = argv.vers, password = argv.password;
-                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(name, port, vers, password).Main()
+                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(name, port, vers, password).main()
                             .catch(function (e) {
                             Log.error(e.message);
                             process.exit();

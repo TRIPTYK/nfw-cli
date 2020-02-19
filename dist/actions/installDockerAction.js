@@ -47,7 +47,7 @@ var InstallDockerActionAclass = /** @class */ (function () {
         this.version = version;
         this.password = password;
     }
-    InstallDockerActionAclass.prototype.Main = function () {
+    InstallDockerActionAclass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var docker, data, portString, found, _i, _a, d;
             var _this = this;

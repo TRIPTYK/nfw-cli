@@ -51,7 +51,7 @@ var EditEnvActionClass = /** @class */ (function () {
         this.chosenOne = chosenOne;
     }
     //Main function
-    EditEnvActionClass.prototype.Main = function () {
+    EditEnvActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var response, envString, reg, output, writeFileName;
             return __generator(this, function (_a) {

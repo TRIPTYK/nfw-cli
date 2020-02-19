@@ -85,7 +85,7 @@ exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, fun
             case 1:
                 _a.sent();
                 commandUtils.updateORMConfig();
-                return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(username, mail, role, password).Main()
+                return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(username, mail, role, password).main()
                         .then(function (generated) {
                         var filePath = generated[0];
                         Log.info("Created " + filePath);

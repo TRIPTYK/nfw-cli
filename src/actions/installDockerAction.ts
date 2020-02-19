@@ -18,7 +18,7 @@ export class InstallDockerActionAclass {
         this.password = password;
     }
 
-    async Main() {
+    async main() {
         const docker = new Docker();
 
         let data = await exec("docker ps")

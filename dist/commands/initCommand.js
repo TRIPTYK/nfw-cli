@@ -89,7 +89,7 @@ function handler(argv) {
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init").Main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();
@@ -105,7 +105,7 @@ function handler(argv) {
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

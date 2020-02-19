@@ -122,7 +122,7 @@ function handler(argv) {
                 case 10:
                     continueAsking = (_b.sent()).confirmation;
                     return [3 /*break*/, 4];
-                case 11: return [4 /*yield*/, new generateRouterAction.GenerateRouterActionClass(lowercase, routes).Main()
+                case 11: return [4 /*yield*/, new generateRouterAction.GenerateRouterActionClass(lowercase, routes).main()
                         .then(function (writtenPaths) {
                         writtenPaths.forEach(function (path) {
                             Log.info("Created " + chalk_1.default.cyan(path));

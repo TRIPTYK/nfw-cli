@@ -26,7 +26,7 @@ export class CreateSuperUSerActionClass {
     }
 
     //description: create super user
-    async Main(){
+    async main(){
 
         const sqlConnection = await getSqlConnectionFromNFW();
 

@@ -84,7 +84,7 @@ export async function handler (argv: any): Promise<void> {
         continueAsking = (await inquirer.askForConfirmation('Do you want to add a new route ?')).confirmation;
     }
 
-    await new generateRouterAction.GenerateRouterActionClass(lowercase, routes).Main()
+    await new generateRouterAction.GenerateRouterActionClass(lowercase, routes).main()
         .then((writtenPaths) => {
             writtenPaths.forEach((path) => {
                 Log.info(`Created ${chalk.cyan(path)}`);

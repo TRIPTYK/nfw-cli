@@ -37,7 +37,7 @@ export async function handler (): Promise<void> {
 
     generateDocSpinner.start();
 
-    await new generateDocumentationAction.GenerateDocumentationActionClass().Main()
+    await new generateDocumentationAction.GenerateDocumentationActionClass().main()
         .then(() => {
             Log.success('Typedoc generated successfully');
         })

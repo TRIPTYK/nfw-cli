@@ -84,7 +84,7 @@ var MigrateActionClass = /** @class */ (function () {
         this.dump = dump;
         this.isRevert = isRevert;
     }
-    MigrateActionClass.prototype.Main = function () {
+    MigrateActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var ormConfig, connection, getMigrationFileNameFromRecord, nfwConfig, currentEnv, migrationDir, migrationConfig, formatMigrationArray, revertTo, dump, allTables, _a, formatMigrationArray, _b, revertTo, current, between, errors_1, success_1, _i, between_1, forMigration, forMigrationFileName, migrationFile, functionText, regexDownStatement, res, allTables, _c, typeorm_cli, ts_node, files, recentTimestamp, migrationFile, obj, backupDir, latest, dumpName;
             return __generator(this, function (_d) {

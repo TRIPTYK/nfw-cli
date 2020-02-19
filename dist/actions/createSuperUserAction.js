@@ -53,7 +53,7 @@ var CreateSuperUSerActionClass = /** @class */ (function () {
         this.password = password;
     }
     //description: create super user
-    CreateSuperUSerActionClass.prototype.Main = function () {
+    CreateSuperUSerActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var sqlConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
             return __generator(this, function (_a) {

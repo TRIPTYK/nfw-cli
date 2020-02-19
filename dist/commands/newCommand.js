@@ -90,7 +90,7 @@ function handler(argv) {
                     clearConsole();
                     console.log(chalk_1.default.blue('NFW'));
                     // process cwd is changed in newAction to the new project folder
-                    return [4 /*yield*/, new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).Main()
+                    return [4 /*yield*/, new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).main()
                             .then(function () {
                             Log.success("New project generated successfully");
                         })
@@ -104,7 +104,7 @@ function handler(argv) {
                     _a.sent();
                     migrationSpinner = new clui_1.Spinner("Executing migration ...");
                     migrationSpinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init_project").Main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init_project").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             Log.success("Executed migration successfully");
@@ -116,7 +116,7 @@ function handler(argv) {
                 case 2:
                     _a.sent();
                     migrationSpinner.stop();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

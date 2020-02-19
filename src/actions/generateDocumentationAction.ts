@@ -16,7 +16,7 @@ import path = require('path');
 
 export class GenerateDocumentationActionClass{
 
-    async Main(){
+    async main(){
         return await exec(`${path.normalize('./node_modules/.bin/typedoc')} --out ./docs --ignoreCompilerErrors`);
     }
 }

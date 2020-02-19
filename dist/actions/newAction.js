@@ -72,7 +72,7 @@ var NewActionClass = /** @class */ (function () {
         this.yarn = yarn;
     }
     //description: Generate a new project
-    NewActionClass.prototype.Main = function () {
+    NewActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var pckManager, inquirer, envVar, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
             return __generator(this, function (_a) {

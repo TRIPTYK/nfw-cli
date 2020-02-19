@@ -29,7 +29,7 @@ export class GenerateRouterActionClass {
         this.routes = routes;
     }
 
-    async Main(): Promise<string[]> {
+    async main(): Promise<string[]> {
         
         const methods = [];
         const routerPath = `src/api/routes/v1/${this.entityName}.route.ts`;

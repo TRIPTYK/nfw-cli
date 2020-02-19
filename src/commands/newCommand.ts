@@ -62,7 +62,7 @@ export async function handler (argv: any){
     );
 
     // process cwd is changed in newAction to the new project folder
-    await new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).Main()
+    await new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).main()
         .then(() => {
             Log.success("New project generated successfully");
         })
@@ -75,7 +75,7 @@ export async function handler (argv: any){
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();
 
-    await new migrateAction.MigrateActionClass("init_project").Main()
+    await new migrateAction.MigrateActionClass("init_project").main()
         .then((generated: any) => {
             const [migrationDir] = generated;
             Log.success(`Executed migration successfully`);
@@ -87,7 +87,7 @@ export async function handler (argv: any){
 
     migrationSpinner.stop();
 
-    await new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+    await new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
         .then((generated: any) => {
             const [ filePath ] = generated;
 

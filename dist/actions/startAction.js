@@ -51,7 +51,7 @@ var StartActionClass = /** @class */ (function () {
         this.monitoringEnabled = monitoringEnabled;
     }
     //Main function
-    StartActionClass.prototype.Main = function () {
+    StartActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var monitoring, executed;
             return __generator(this, function (_a) {

@@ -52,7 +52,7 @@ export async function handler (argv: any): Promise<void> {
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await new migrateAction.MigrateActionClass("init").Main()
+    await new migrateAction.MigrateActionClass("init").main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();
@@ -66,7 +66,7 @@ export async function handler (argv: any): Promise<void> {
     await commandUtils.checkConnectToDatabase();
 
 
-    await new createSuperUserAction.CreateSuperUSerActionClass("admin").Main()
+    await new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
         .then((generated) => {
             const [ filePath ] = generated;
 

@@ -21,7 +21,7 @@ export class StartActionClass {
     }
 
     //Main function
-    async Main () {
+    async main () {
 
         if (this.monitoringEnabled) {
             let monitoring = spawn(`node`, [`${path.resolve('monitoring', 'app.js')}`]);

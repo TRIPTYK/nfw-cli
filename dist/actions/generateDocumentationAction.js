@@ -52,7 +52,7 @@ var path = require("path");
 var GenerateDocumentationActionClass = /** @class */ (function () {
     function GenerateDocumentationActionClass() {
     }
-    GenerateDocumentationActionClass.prototype.Main = function () {
+    GenerateDocumentationActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {

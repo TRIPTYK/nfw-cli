@@ -136,7 +136,7 @@ function handler(argv) {
                 case 8:
                     _a.sent();
                     _a.label = 9;
-                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).Main()
+                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).main()
                         .then(function (generated) {
                         var migrationDir = generated[0];
                         Log.success("Executed migration successfully");

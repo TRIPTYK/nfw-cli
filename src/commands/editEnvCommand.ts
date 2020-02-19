@@ -41,7 +41,7 @@ export async function handler (): Promise<void> {
     const envFileName = `${env}.env`;
     let chosenOne = dotenv.parse(fs.readFileSync(envFileName));
 
-    await new editEnvAction.EditEnvActionClass(env, chosenOne).Main()
+    await new editEnvAction.EditEnvActionClass(env, chosenOne).main()
         .then((written) => {
             const [confFile] = written;
             Log.success(`Edited environment successfully`);

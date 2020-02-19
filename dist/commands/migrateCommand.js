@@ -108,7 +108,7 @@ function handler(argv) {
                     _a.sent();
                     commandUtils.updateORMConfig();
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName, restore, dump, revert).Main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName, restore, dump, revert).main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();

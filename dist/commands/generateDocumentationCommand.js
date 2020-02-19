@@ -68,7 +68,7 @@ function handler() {
                 case 0:
                     commandUtils.validateDirectory();
                     generateDocSpinner.start();
-                    return [4 /*yield*/, new generateDocumentationAction.GenerateDocumentationActionClass().Main()
+                    return [4 /*yield*/, new generateDocumentationAction.GenerateDocumentationActionClass().main()
                             .then(function () {
                             Log.success('Typedoc generated successfully');
                         })

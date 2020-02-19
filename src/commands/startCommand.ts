@@ -81,7 +81,7 @@ export async function handler (argv: any): Promise<void> {
 
             if (confirmation) await sqlConnection.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).Main()
+            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).main()
                 .then((generated) => {
                     
                     const [migrationDir] = generated;
@@ -97,7 +97,7 @@ export async function handler (argv: any): Promise<void> {
     }
 
     if (connected === true){
-        new startAction.StartActionClass(environement, monitoringEnabled).Main();
+        new startAction.StartActionClass(environement, monitoringEnabled).main();
     }
         
     else

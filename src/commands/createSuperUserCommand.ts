@@ -50,7 +50,7 @@ exports.handler = async (argv: any) => {
 
     commandUtils.updateORMConfig();
 
-    await new createSuperUserAction.CreateSuperUSerActionClass(username,mail,role,password).Main()
+    await new createSuperUserAction.CreateSuperUSerActionClass(username,mail,role,password).main()
         .then((generated) => {
             const [ filePath ] = generated;
 
