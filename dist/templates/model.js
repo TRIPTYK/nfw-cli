@@ -1,17 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
 var stringifyObject = require("stringify-object");
-/**
- *
- * @param path
- * @param className
- * @param {array} entities
- * @param createUpdate
- * @return {SourceFile}
- */
-function main(path, _a) {
+module.exports = function (path, _a) {
     var className = _a.className, entities = _a.entities, createUpdate = _a.createUpdate;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -54,6 +45,4 @@ function main(path, _a) {
     }
     file.fixMissingImports();
     return file;
-}
-exports.main = main;
-;
+};

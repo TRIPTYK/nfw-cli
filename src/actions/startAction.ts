@@ -33,14 +33,14 @@ export class StartActionClass {
             });
         }
         
-        let executed = spawn(`${path.resolve(__baseDir,'node_modules','.bin','ts-node-dev')}`, ["--respawn","--transpileOnly","./src/app.bootstrap.ts","--env" ,`${this.environment}`]);
+        let executed = spawn(`${path.resolve('node_modules','.bin','ts-node-dev')}`, ["--respawn","--transpileOnly","./src/app.bootstrap.ts","--env" ,`${this.environment}`]);
         executed.stderr.on('data',(chunk: any) =>{
             console.log(chunk.toString())
         });
         executed.stdout.on('data', (chunk: any) => {
             console.log(chunk.toString())
         });
-    
+
         executed.on('close', (code: string) => {
             console.log(chalk.red(`Process exited with code ${code}`));
         });

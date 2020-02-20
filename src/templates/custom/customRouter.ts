@@ -2,7 +2,7 @@ import project = require('../../utils/project');
 import TsMorph = require('ts-morph');
 import { capitalizeEntity } from "../../actions/lib/utils";
 
-export function Main(path: string, {routes,entityName}) {
+export = (path: string, {routes,entityName}) => {
 
     const file = project.createSourceFile(path,null,{
         overwrite : true

@@ -2,7 +2,7 @@ import { capitalizeEntity } from "../../actions/lib/utils";
 import project = require('../../utils/project');
 
 
-export function Main (path: string,{className,entityName,methods}) {
+export = (path: string,{className,entityName,methods}) => {
 
     const file = project.createSourceFile(path,null,{
         overwrite : true

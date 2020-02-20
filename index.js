@@ -6,7 +6,8 @@ exports.__esModule = true;
  */
 var yargs = require("yargs");
 // base cli dir
-//global.__baseDir = __dirname;
+//@ts-ignore
+global.__baseDir = __dirname;
 yargs
     .strict()
     .command(require('./dist/commands/newCommand'))

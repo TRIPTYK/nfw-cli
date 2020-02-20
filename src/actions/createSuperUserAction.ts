@@ -10,7 +10,6 @@ import * as ejs from 'ejs';
 
 import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
 
-
 export class CreateSuperUSerActionClass {
 
     username: string;

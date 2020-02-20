@@ -63,7 +63,7 @@
     "@types/inquirer": "^6.5.0",
     "@types/mkdirp": "^1.0.0",
     "@types/mysql": "^2.15.8",
-    "@types/node": "^13.7.1",
+    "@types/node": "^13.7.4",
     "@types/pluralize": "0.0.29",
     "@types/reserved-words": "^0.1.0",
     "@types/rimraf": "^2.0.3",

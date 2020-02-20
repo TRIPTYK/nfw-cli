@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
-function main(path, _a) {
+module.exports = function (path, _a) {
     var className = _a.className, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -24,6 +23,4 @@ function main(path, _a) {
         writer.writeLine("@description " + className + " constructor");
     });
     return file;
-}
-exports.main = main;
-;
+};

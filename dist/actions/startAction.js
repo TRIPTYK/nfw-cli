@@ -64,7 +64,7 @@ var StartActionClass = /** @class */ (function () {
                         console.log("Monitoring error : " + chunk);
                     });
                 }
-                executed = spawn("" + path.resolve(__baseDir, 'node_modules', '.bin', 'ts-node-dev'), ["--respawn", "--transpileOnly", "./src/app.bootstrap.ts", "--env", "" + this.environment]);
+                executed = spawn("" + path.resolve('node_modules', '.bin', 'ts-node-dev'), ["--respawn", "--transpileOnly", "./src/app.bootstrap.ts", "--env", "" + this.environment]);
                 executed.stderr.on('data', function (chunk) {
                     console.log(chunk.toString());
                 });

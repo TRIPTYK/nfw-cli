@@ -73,12 +73,12 @@ var GenerateRouterActionClass = /** @class */ (function () {
                                 });
                             });
                         });
-                        writtenFiles.push(customControllerTemplate.Main(controllerPath, {
+                        writtenFiles.push(customControllerTemplate(controllerPath, {
                             className: utils_1.capitalizeEntity(this.entityName) + "Controller",
                             methods: methods,
                             entityName: this.entityName
                         }));
-                        writtenFiles.push(customRouterTemplate.Main(routerPath, { routes: this.routes, entityName: this.entityName }));
+                        writtenFiles.push(customRouterTemplate(routerPath, { routes: this.routes, entityName: this.entityName }));
                         return [4 /*yield*/, project.save()];
                     case 1:
                         _a.sent();

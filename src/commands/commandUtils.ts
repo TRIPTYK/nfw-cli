@@ -20,6 +20,7 @@ const readFilePromise = promisify(fs.readFile);
 import JsonFileWriter = require('json-file-rw');
 import dotenv = require('dotenv');
 
+
 //Check if we are in a valid project directory
 export function validateDirectory(): void {
     const filesHelper = new Files();

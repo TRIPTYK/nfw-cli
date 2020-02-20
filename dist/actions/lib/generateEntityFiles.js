@@ -102,7 +102,7 @@ function main(modelName, crudOptions, data, part) {
                             entityName: lowercase
                         }));
                     if (!part || part === 'middleware')
-                        files.push(middlewareTemplateFile.main(middlewarePath, {
+                        files.push(middlewareTemplateFile(middlewarePath, {
                             className: capitalize + "Middleware",
                             entityName: lowercase
                         }));

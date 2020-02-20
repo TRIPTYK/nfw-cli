@@ -29,7 +29,7 @@ export async function writeModel (action, data = null) {
         return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
     }).filter(col => col.Field !== "id");
 
-    modelTemplateFile.main(`src/api/models/${lowercase}.model.ts`,{
+    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
         entities : columns,
         className : capitalize,
         createUpdate: data.createUpdate
@@ -46,7 +46,7 @@ export async function basicModel (action) {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
 
-    modelTemplateFile.main(`src/api/models/${lowercase}.model.ts`,{
+    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
         entities : [],
         className : `${capitalize}Model`,
         createUpdate : {

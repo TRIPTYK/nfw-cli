@@ -70,7 +70,7 @@ function writeModel(action, data) {
                     columns = columns.filter(function (column) {
                         return foreignKeys.find(function (elem) { return elem.COLUMN_NAME === column.Field; }) === undefined;
                     }).filter(function (col) { return col.Field !== "id"; });
-                    modelTemplateFile.main("src/api/models/" + lowercase + ".model.ts", {
+                    modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
                         entities: columns,
                         className: capitalize,
                         createUpdate: data.createUpdate
@@ -97,7 +97,7 @@ function basicModel(action) {
                 case 0:
                     lowercase = utils_1.lowercaseEntity(action);
                     capitalize = utils_1.capitalizeEntity(lowercase);
-                    modelTemplateFile.main("src/api/models/" + lowercase + ".model.ts", {
+                    modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
                         entities: [],
                         className: capitalize + "Model",
                         createUpdate: {

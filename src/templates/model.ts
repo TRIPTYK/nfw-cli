@@ -11,7 +11,7 @@ import { SourceFile, PropertyDeclaration, WriterFunction } from "ts-morph";
  * @param createUpdate
  * @return {SourceFile}
  */
-export function main (path: string, {className,entities,createUpdate}): SourceFile {
+export = (path: string, {className,entities,createUpdate}): SourceFile => {
     
     const file = project.createSourceFile(path,null,{
         overwrite : true

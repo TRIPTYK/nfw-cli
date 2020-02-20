@@ -5,6 +5,8 @@
 import yargs = require('yargs');
 
 // base cli dir
+//@ts-ignore
+global.__baseDir = __dirname;
 
 yargs
     .strict()

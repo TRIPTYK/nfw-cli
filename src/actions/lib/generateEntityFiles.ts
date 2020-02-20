@@ -75,7 +75,7 @@ export async function main (modelName: string, crudOptions: object, data = null,
         }));
 
     if (!part || part === 'middleware')
-        files.push(middlewareTemplateFile.main(middlewarePath,{
+        files.push(middlewareTemplateFile(middlewarePath,{
             className : `${capitalize}Middleware`,
             entityName : lowercase
         }));

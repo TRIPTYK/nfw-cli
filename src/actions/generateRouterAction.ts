@@ -44,13 +44,13 @@ export class GenerateRouterActionClass {
             })
         });
     
-        writtenFiles.push(customControllerTemplate.Main(controllerPath,{
+        writtenFiles.push(customControllerTemplate(controllerPath,{
             className : `${capitalizeEntity(this.entityName)}Controller`,
             methods,
             entityName: this.entityName
         }));
     
-        writtenFiles.push(customRouterTemplate.Main(routerPath,{ routes: this.routes , entityName: this.entityName}));
+        writtenFiles.push(customRouterTemplate(routerPath,{ routes: this.routes , entityName: this.entityName}));
     
         await project.save();
     

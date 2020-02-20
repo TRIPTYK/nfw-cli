@@ -1,7 +1,6 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var project = require("../../utils/project");
-function Main(path, _a) {
+module.exports = function (path, _a) {
     var className = _a.className, entityName = _a.entityName, methods = _a.methods;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -39,6 +38,4 @@ function Main(path, _a) {
     });
     file.fixMissingImports();
     return file;
-}
-exports.Main = Main;
-;
+};

@@ -1,9 +1,8 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var project = require("../../utils/project");
 var TsMorph = require("ts-morph");
 var utils_1 = require("../../actions/lib/utils");
-function Main(path, _a) {
+module.exports = function (path, _a) {
     var routes = _a.routes, entityName = _a.entityName;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -34,6 +33,4 @@ function Main(path, _a) {
     file.addStatements('export { router }');
     file.fixMissingImports();
     return file;
-}
-exports.Main = Main;
-;
+};
