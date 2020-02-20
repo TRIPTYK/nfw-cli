@@ -14,7 +14,6 @@ const fs = require('fs');
 const chalk = require('chalk');
 const mkdirp = util.promisify(require('mkdirp'));
 const child_process = require('child_process');
-const exec = util.promisify(child_process.exec);
 const path = require('path');
 const project = require('../utils/project');
 const Log = require('../utils/log');
@@ -144,13 +143,15 @@ module.exports = async (modelName,restore,dump,isRevert) => {
         const migrationFile = `${recentTimestamp}-${modelName}.ts`;
 
         try {
-            child_process.spawnSync(`${ts_node} ${typeorm_cli} migration:run`,{ stdio : 'inherit',shell: true});
+            const spawn = child_process.spawnSync(`${ts_node} ${typeorm_cli} migration:run`,{ stdio : 'inherit',shell: true});
+            if (spawn.stdout.includes("QueryFailedError")) {
+                throw new Error();
+            }
         }catch(e) {
             const obj = _buildErrorObjectFromMessage(e);
             const backupDir = `src/migration/${currentEnv}/failed`;
 
             Log.warning(`Got some errors in migration , removing and backing up file ${migrationFile} in ${backupDir}`);
-            Log.warning(obj.message);
 
             fs.renameSync(`src/migration/${currentEnv}/${migrationFile}`,`${backupDir}/${migrationFile}`);
         }
