@@ -29,16 +29,9 @@ import serializerTemplateFile = require('../../templates/serializer');
 import validationTemplateFile = require('../../templates/validation');
 import testTemplateFile = require('../../templates/test');
 
-/**
- * Main function
- * Check entity existence, and write file or not according to the context
- *
- * @param {string} modelName
- * @param {object} crudOptions
- * @param {object|null} data
- * @returns {Promise<void>}
- */
-export async function main (modelName: string, crudOptions: object, data = null, part: string): Promise<void> {
+
+//Check entity existence, and write file or not according to the context
+export async function main (modelName: string, crudOptions: object, data = null, part?: string): Promise<void> {
 
     if (!modelName.length) {
         Log.error('Nothing to generate. Please, get entity name parameter.');

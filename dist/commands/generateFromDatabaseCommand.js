@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateFromDatabaseCommand
  * @description Handle generating entity from database
@@ -39,71 +40,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules imports
-var chalk = require('chalk');
+var chalk_1 = require("chalk");
 // project imports
-var commandUtils = require('./commandUtils');
-var inquirer = require('../utils/inquirer');
-var Log = require('../utils/log');
-var generateFromDatabaseAction = require('../actions/generateFromDatabaseAction');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var inquirer_1 = require("../utils/inquirer");
+var Log = require("../utils/log");
+var generateFromDatabaseAction = require("../actions/generateFromDatabaseAction");
+//Yargs command
 exports.command = 'import';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['imp'];
-/**
- * Yargs command description
- * @type {string}
- */
+//Yargs command description
 exports.describe = 'Generate all the files from existing tables in the database';
-/**
- * Yargs command builder
- */
-exports.builder = function () {
-};
+//Yargs command builder
+function builder() {
+}
+exports.builder = builder;
+;
 /**
  * Main function
  * @return {Promise<void>}
  */
-exports.handler = function () { return __awaiter(_this, void 0, void 0, function () {
-    var confirmation;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 2:
-                _a.sent();
-                return [4 /*yield*/, inquirer.askForConfirmation(chalk.bgYellow(chalk.black('Warning :')) + " generate model from the database will override existing models with the same name ! Do you want to continue ?")];
-            case 3:
-                confirmation = (_a.sent()).confirmation;
-                if (!confirmation) return [3 /*break*/, 5];
-                return [4 /*yield*/, generateFromDatabaseAction()
-                        .then(function () {
-                        Log.success('Generated from database successfully');
-                    })
-                        .catch(function (e) {
-                        Log.error(e.message);
-                    })];
-            case 4:
-                _a.sent();
-                return [3 /*break*/, 6];
-            case 5:
-                console.log(chalk.bgRed(chalk.black('/!\\ Process Aborted /!\\')));
-                process.exit(0);
-                _a.label = 6;
-            case 6:
-                process.exit(0);
-                return [2 /*return*/];
-        }
+function handler() {
+    return __awaiter(this, void 0, void 0, function () {
+        var inquirer, confirmation;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 2:
+                    _a.sent();
+                    inquirer = new inquirer_1.Inquirer();
+                    return [4 /*yield*/, inquirer.askForConfirmation(chalk_1.default.bgYellow(chalk_1.default.black('Warning :')) + " generate model from the database will override existing models with the same name ! Do you want to continue ?")];
+                case 3:
+                    confirmation = (_a.sent()).confirmation;
+                    if (!confirmation) return [3 /*break*/, 5];
+                    return [4 /*yield*/, new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main()
+                            .then(function () {
+                            Log.success('Generated from database successfully');
+                        })
+                            .catch(function (e) {
+                            Log.error(e.message);
+                        })];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    console.log(chalk_1.default.bgRed(chalk_1.default.black('/!\\ Process Aborted /!\\')));
+                    process.exit(0);
+                    _a.label = 6;
+                case 6:
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

@@ -58,15 +58,7 @@ var repositoryTemplateFile = require("../../templates/repository");
 var routeTemplateFile = require("../../templates/route");
 var serializerTemplateFile = require("../../templates/serializer");
 var validationTemplateFile = require("../../templates/validation");
-/**
- * Main function
- * Check entity existence, and write file or not according to the context
- *
- * @param {string} modelName
- * @param {object} crudOptions
- * @param {object|null} data
- * @returns {Promise<void>}
- */
+//Check entity existence, and write file or not according to the context
 function main(modelName, crudOptions, data, part) {
     if (data === void 0) { data = null; }
     return __awaiter(this, void 0, void 0, function () {
