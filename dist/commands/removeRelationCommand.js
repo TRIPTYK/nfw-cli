@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module removeRelationCommand
  * @description Command module to handle removing relation between 2 models
@@ -39,81 +40,76 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
-var Spinner = require('clui').Spinner;
-var chalk = require('chalk');
+var clui_1 = require("clui");
+var chalk_1 = require("chalk");
 // project imports
-var commandUtils = require('./commandUtils');
-var removeRelationAction = require('../actions/removeRelationAction');
-var Log = require('../utils/log');
-var migrate = require('../actions/migrateAction');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var removeRelationAction = require("../actions/removeRelationAction");
+var Log = require("../utils/log");
+var migrate = require("../actions/migrateAction");
+//Yargs command
 exports.command = 'removeRelation <type> <model1> <model2>';
-/**
- * Yargs aliases
- * @type {string[]}
- */
+//Yargs aliases
 exports.aliases = ['rr', 'rmRl'];
-/**
- * Yargs description
- * @type {string}
- */
+//Yargs description
 exports.describe = 'Remove a relation between two table';
-/**
- * Handle and build command options
- * @param yargs
- */
-exports.builder = function (yargs) {
+//Handle and build command options
+function builder(yargs) {
     yargs.choices('relation', ['mtm', 'mto', 'otm', 'oto']);
-};
+}
+exports.builder = builder;
+;
 /**
  * Main function
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var model1, model2, type, spinner;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                model1 = argv.model1, model2 = argv.model2, type = argv.type;
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 2:
-                _a.sent();
-                return [4 /*yield*/, new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
-                        .then(function () {
-                        Log.success("Relation removed between " + model1 + " and " + model2);
-                    })
-                        .catch(function (e) {
-                        Log.error("Cannot remove relation : " + e.message);
-                    })];
-            case 3:
-                _a.sent();
-                spinner = new Spinner("Generating and executing migration");
-                spinner.start();
-                return [4 /*yield*/, new migrate.MigrateActionClass(model1 + "-" + model2).main()
-                        .then(function (generated) {
-                        spinner.stop();
-                        var migrationDir = generated[0];
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk.cyan(migrationDir));
-                    })
-                        .catch(function (e) {
-                        spinner.stop();
-                        Log.error(e.message);
-                    })];
-            case 4:
-                _a.sent();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+//Main function 
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var model1, model2, type, spinner;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    model1 = argv.model1, model2 = argv.model2, type = argv.type;
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
+                            .then(function () {
+                            Log.success("Relation removed between " + model1 + " and " + model2);
+                        })
+                            .catch(function (e) {
+                            Log.error("Cannot remove relation : " + e.message);
+                        })];
+                case 3:
+                    _a.sent();
+                    spinner = new clui_1.Spinner("Generating and executing migration");
+                    spinner.start();
+                    return [4 /*yield*/, new migrate.MigrateActionClass(model1 + "-" + model2).main()
+                            .then(function (generated) {
+                            spinner.stop();
+                            var migrationDir = generated[0];
+                            Log.success("Executed migration successfully");
+                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                        })
+                            .catch(function (e) {
+                            spinner.stop();
+                            Log.error(e.message);
+                        })];
+                case 4:
+                    _a.sent();
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

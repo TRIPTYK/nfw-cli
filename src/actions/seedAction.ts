@@ -111,7 +111,7 @@ async function howMuchTable() {
     }
 }
 
-function query(tableData: string, j: number, keyObject: string[], i: number, sqlConnection: SqlConnection, table: any, tabProp: any, dataValues: any) {
+function query(tableData, j: number, keyObject: string[], i: number, sqlConnection: SqlConnection, table: any, tabProp: any, dataValues: any) {
     const myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,

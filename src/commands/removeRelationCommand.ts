@@ -5,38 +5,28 @@
  */
 
 // node modules
-const {Spinner} = require('clui');
-const chalk = require('chalk');
+import {Spinner} from 'clui';
+import chalk from 'chalk';
 
 // project imports
-const commandUtils = require('./commandUtils');
-const removeRelationAction = require('../actions/removeRelationAction');
-const Log = require('../utils/log');
-const migrate = require('../actions/migrateAction');
+import commandUtils = require('./commandUtils');
+import removeRelationAction = require('../actions/removeRelationAction');
+import Log = require('../utils/log');
+import migrate = require('../actions/migrateAction');
 
-/**
- * Yargs command
- * @type {string}
- */
-exports.command = 'removeRelation <type> <model1> <model2>';
 
-/**
- * Yargs aliases
- * @type {string[]}
- */
-exports.aliases = ['rr', 'rmRl'];
+//Yargs command
+export const command: string = 'removeRelation <type> <model1> <model2>';
 
-/**
- * Yargs description
- * @type {string}
- */
-exports.describe = 'Remove a relation between two table';
+//Yargs aliases
+export const aliases: string[] = ['rr', 'rmRl'];
 
-/**
- * Handle and build command options
- * @param yargs
- */
-exports.builder = (yargs) => {
+//Yargs description
+export const describe: string = 'Remove a relation between two table';
+
+
+//Handle and build command options
+export function builder (yargs: any) {
     yargs.choices('relation',['mtm','mto','otm','oto']);
 };
 
@@ -46,7 +36,9 @@ exports.builder = (yargs) => {
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = async (argv) => {
+//Main function 
+export async function handler (argv: any): Promise<void> {
+
     const {model1, model2 , type } = argv;
 
     commandUtils.validateDirectory();
