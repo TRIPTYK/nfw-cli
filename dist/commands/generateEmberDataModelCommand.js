@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module generateEmberDataModelCommand
  * @description Command module to handle generating ember data model
@@ -39,56 +40,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-// Node modules imports
-var Spinner = require('clui').Spinner;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
-var commandUtils = require('./commandUtils');
-var generateEmberDataModelAction = require('../actions/generateEmberDataModelAction');
-var Log = require('../utils/log');
-/**
- * Yargs command
- * @type {string}
- */
+var commandUtils = require("./commandUtils");
+var generateEmberDataModelAction = require("../actions/generateEmberDataModelAction");
+var Log = require("../utils/log");
+//Yargs command
 exports.command = 'generateEModel <model>';
-/**
- * Yargs command aliases
- * @type {string[]}
- */
+//Yargs command aliases
 exports.aliases = ['gedm', 'gem'];
-/**
- * Yargs command description
- * @type {string}
- */
-exports.describe = 'Generates an ember data models';
-/**
- * Yargs command builder
- */
-exports.builder = function () {
-};
-/**
- * Main function
- * @return {Promise<void>}
- */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var model;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                model = argv.model;
-                return [4 /*yield*/, generateEmberDataModelAction(model)
-                        .then(function () {
-                        Log.success('Generate model' + model + ' successfully');
-                        Log.info('Copied to clipboard');
-                    })
-                        .catch(function (e) {
-                        Log.error('Failed to generate model ' + e.message);
-                    })];
-            case 1:
-                _a.sent();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+//Yargs command description
+exports.describe = 'Generates an ember data model';
+//Yargs command builder
+function builder() { }
+exports.builder = builder;
+;
+//Main function
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var model;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    model = argv.model;
+                    return [4 /*yield*/, new generateEmberDataModelAction.GenerateEmberDataModelActionClass(model).main()
+                            .then(function () {
+                            Log.success('Generate model' + model + ' successfully');
+                            Log.info('Copied to clipboard');
+                        })
+                            .catch(function (e) {
+                            Log.error('Failed to generate model ' + e.message);
+                        })];
+                case 1:
+                    _a.sent();
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

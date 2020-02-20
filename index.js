@@ -13,6 +13,7 @@ yargs
     .command(require('./dist/commands/startUnitTestsCommand'))
     .command(require('./dist/commands/generateCommand'))
     .command(require('./dist/commands/generateFromDatabaseCommand'))
+    .command(require('./dist/commands/generateEmberDataModelCommand'))
     .command(require('./dist/commands/deleteCommand'))
     .command(require('./dist/commands/infoCommand'))
     .command(require('./dist/commands/startCommand'))

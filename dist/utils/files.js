@@ -41,7 +41,7 @@ var Files = /** @class */ (function () {
     };
     //description Check is the current working directory is a project directory
     Files.prototype.isProjectDirectory = function () {
-        return module.exports.fileExists(path.resolve(process.cwd(), ".nfw"));
+        return this.fileExists(path.resolve(process.cwd(), ".nfw"));
     };
     return Files;
 }());

@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,76 +35,84 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var getSqlConnectionFromNFW = require('../database/sqlAdaptator').getSqlConnectionFromNFW;
-var project = require('../utils/project');
-var fs = require('fs');
-var copy = require('clipboardy');
-var ejs = require('ejs');
-module.exports = function (model) { return __awaiter(_this, void 0, void 0, function () {
-    var file, theClass, elements, _i, _a, prop, decorator, DSfncName, argument, argType, foundType, argumentType, argumentType, ejsTemplateFile, compiled;
-    return __generator(this, function (_b) {
-        file = project.getSourceFileOrThrow("./src/api/models/" + model + ".model.ts");
-        theClass = file.getClasses()[0];
-        elements = [];
-        for (_i = 0, _a = theClass.getInstanceProperties().filter(function (p) { return p.getName() !== 'id'; }); _i < _a.length; _i++) {
-            prop = _a[_i];
-            decorator = prop.getDecorators()[0];
-            if (decorator) {
-                DSfncName = decorator.getName();
-                if (['OneToMany', 'ManyToMay'].includes(DSfncName)) {
-                    DSfncName = 'hasMany';
-                }
-                else if (['ManyToOne', 'OneToOne'].includes(DSfncName)) {
-                    DSfncName = 'belongsTo';
-                }
-                else {
-                    DSfncName = 'attr';
-                }
-                argument = decorator.getArguments()[0];
-                argType = null;
-                if (DSfncName === 'attr' && argument) {
-                    if (argument.getProperties) {
-                        foundType = argument.getProperty('type');
-                        if (foundType) {
-                            argumentType = foundType.getInitializer().getText();
-                            if (['varchar', 'text', 'char'].includes(argumentType)) {
-                                argType = '"string"';
-                            }
-                            else if (['Date'].includes(argumentType)) {
-                                argType = '"date"';
-                            }
+Object.defineProperty(exports, "__esModule", { value: true });
+var project = require("../utils/project");
+var fs = require("fs");
+var copy = require("clipboardy");
+var ejs = require("ejs");
+var GenerateEmberDataModelActionClass = /** @class */ (function () {
+    function GenerateEmberDataModelActionClass(model) {
+        this.model = model;
+    }
+    GenerateEmberDataModelActionClass.prototype.main = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var file, theClass, elements, _i, _a, prop, decorator, DSfncName, argument, argType, foundType, argumentType, argumentType, ejsTemplateFile, compiled;
+            return __generator(this, function (_b) {
+                file = project.getSourceFileOrThrow("./src/api/models/" + this.model + ".model.ts");
+                theClass = file.getClasses()[0];
+                elements = [];
+                for (_i = 0, _a = theClass.getInstanceProperties().filter(function (p) { return p.getName() !== 'id'; }); _i < _a.length; _i++) {
+                    prop = _a[_i];
+                    decorator = prop.getDecorators()[0];
+                    if (decorator) {
+                        DSfncName = decorator.getName();
+                        if (['OneToMany', 'ManyToMay'].includes(DSfncName)) {
+                            DSfncName = 'hasMany';
+                        }
+                        else if (['ManyToOne', 'OneToOne'].includes(DSfncName)) {
+                            DSfncName = 'belongsTo';
                         }
                         else {
-                            argumentType = prop.getType().getText();
-                            if (['string'].includes(argumentType)) {
-                                argType = '"string"';
-                            }
-                            else if (['number'].includes(argumentType)) {
-                                argType = '"number"';
-                            }
-                            else if (['date', 'datetime'].includes(argumentType)) {
-                                argType = '"date"';
+                            DSfncName = 'attr';
+                        }
+                        argument = decorator.getArguments()[0];
+                        argType = null;
+                        if (DSfncName === 'attr' && argument) {
+                            if (argument.getProperties) {
+                                foundType = argument.getProperty('type');
+                                if (foundType) {
+                                    argumentType = foundType.getInitializer().getText();
+                                    if (['varchar', 'text', 'char'].includes(argumentType)) {
+                                        argType = '"string"';
+                                    }
+                                    else if (['Date'].includes(argumentType)) {
+                                        argType = '"date"';
+                                    }
+                                }
+                                else {
+                                    argumentType = prop.getType().getText();
+                                    if (['string'].includes(argumentType)) {
+                                        argType = '"string"';
+                                    }
+                                    else if (['number'].includes(argumentType)) {
+                                        argType = '"number"';
+                                    }
+                                    else if (['date', 'datetime'].includes(argumentType)) {
+                                        argType = '"date"';
+                                    }
+                                }
                             }
                         }
+                        if (DSfncName !== 'attr' && argument) {
+                            argType = "\"" + argument.getBodyText().toLowerCase() + "\"";
+                        }
+                        elements.push({
+                            property: prop.getName(),
+                            function: DSfncName,
+                            arg: argType
+                        });
                     }
                 }
-                if (DSfncName !== 'attr' && argument) {
-                    argType = "\"" + argument.getBodyText().toLowerCase() + "\"";
-                }
-                elements.push({
-                    property: prop.getName(),
-                    function: DSfncName,
-                    arg: argType
+                ejsTemplateFile = fs.readFileSync(__dirname + '/../templates/emberModel.ejs', 'utf-8');
+                compiled = ejs.compile(ejsTemplateFile)({
+                    modelName: theClass.getName(),
+                    elements: elements
                 });
-            }
-        }
-        ejsTemplateFile = fs.readFileSync(__dirname + '/../templates/emberModel.ejs', 'utf-8');
-        compiled = ejs.compile(ejsTemplateFile)({
-            modelName: theClass.getName(),
-            elements: elements
+                copy.writeSync(compiled);
+                return [2 /*return*/];
+            });
         });
-        copy.writeSync(compiled);
-        return [2 /*return*/];
-    });
-}); };
+    };
+    return GenerateEmberDataModelActionClass;
+}());
+exports.GenerateEmberDataModelActionClass = GenerateEmberDataModelActionClass;

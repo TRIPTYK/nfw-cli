@@ -40,6 +40,6 @@ export class Files {
     
     //description Check is the current working directory is a project directory
     isProjectDirectory (): boolean {
-        return module.exports.fileExists(path.resolve(process.cwd(), ".nfw"));
+        return this.fileExists(path.resolve(process.cwd(), ".nfw"));
     }
 };
