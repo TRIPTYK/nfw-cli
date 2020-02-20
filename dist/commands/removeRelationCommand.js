@@ -88,7 +88,7 @@ exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, func
                 return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, removeRelationAction(model1, model2, type)
+                return [4 /*yield*/, new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
                         .then(function () {
                         Log.success("Relation removed between " + model1 + " and " + model2);
                     })
@@ -99,7 +99,7 @@ exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, func
                 _a.sent();
                 spinner = new Spinner("Generating and executing migration");
                 spinner.start();
-                return [4 /*yield*/, migrate(model1 + "-" + model2)
+                return [4 /*yield*/, new migrate.MigrateActionClass(model1 + "-" + model2).main()
                         .then(function (generated) {
                         spinner.stop();
                         var migrationDir = generated[0];

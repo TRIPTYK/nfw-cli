@@ -39,6 +39,7 @@ export class RemoveRelationAction {
 
     //Main function
      async main () {
+         
         if(!utils.modelFileExists(this.model1) ||!utils.modelFileExists(this.model2)) {
             throw new Error('Both model should exist in order to remove a relation between them');
         }

@@ -53,7 +53,7 @@ exports.handler = async (argv) => {
     await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
 
-    await removeRelationAction(model1, model2, type)
+    await new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
         .then(() => {
             Log.success(`Relation removed between ${model1} and ${model2}`);
         })
@@ -63,7 +63,7 @@ exports.handler = async (argv) => {
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
-    await migrate(`${model1}-${model2}`)
+    await new migrate.MigrateActionClass(`${model1}-${model2}`).main()
         .then((generated) => {
             spinner.stop();
             const [migrationDir] = generated;

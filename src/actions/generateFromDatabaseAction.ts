@@ -62,7 +62,8 @@ export class GenerateFromDatabaseActionClass {
         for (let j = 0; j < Bridgings.length; j++) {
             Log.info(`a reliationship has been detected between ${Bridgings[j][0].REFERENCED_TABLE_NAME} and ${Bridgings[j][1].REFERENCED_TABLE_NAME}`)
             let {m1Name,m2Name} = await inquirer.questionM1M2(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME);
-            await createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null,m1Name,m2Name)
+            await new createRelation.CreateRelationActionClass(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null,m1Name,m2Name)
+                .main()
                 .then(() => Log.success("Relation successfully added !"))
                 .catch((err) => Log.error(err.message));
         }
@@ -75,7 +76,8 @@ export class GenerateFromDatabaseActionClass {
             if(noGenerate.includes(foreignConstraint[j].TABLE_NAME) && noGenerate.includes(foreignConstraint[j].REFERENCED_TABLE_NAME)) continue;
             let {response} = await inquirer.askForeignKeyRelation(foreignConstraint[j]);
             let {m1Name,m2Name} = await inquirer.questionM1M2(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME);
-            await createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, m2Name, foreignConstraint[j].REFERENCED_COLUMN_NAME,m1Name,m2Name)
+            await new createRelation.CreateRelationActionClass(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, m2Name, foreignConstraint[j].REFERENCED_COLUMN_NAME,m1Name,m2Name)
+                .main()    
                 .then(() => Log.success("Relation successfully added !"))
                 .catch((err) => Log.error(err.message));
         }

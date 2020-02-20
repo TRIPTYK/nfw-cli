@@ -67,7 +67,8 @@ var GenerateFromDatabaseActionClass = /** @class */ (function () {
                         return [4 /*yield*/, inquirer.questionM1M2(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME)];
                     case 2:
                         _a = _b.sent(), m1Name = _a.m1Name, m2Name = _a.m2Name;
-                        return [4 /*yield*/, createRelation(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null, m1Name, m2Name)
+                        return [4 /*yield*/, new createRelation.CreateRelationActionClass(Bridgings[j][0].REFERENCED_TABLE_NAME, Bridgings[j][1].REFERENCED_TABLE_NAME, 'mtm', Bridgings[j][0].TABLE_NAME, null, m1Name, m2Name)
+                                .main()
                                 .then(function () { return Log.success("Relation successfully added !"); })
                                 .catch(function (err) { return Log.error(err.message); })];
                     case 3:
@@ -98,7 +99,8 @@ var GenerateFromDatabaseActionClass = /** @class */ (function () {
                         return [4 /*yield*/, inquirer.questionM1M2(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME)];
                     case 3:
                         _a = _b.sent(), m1Name = _a.m1Name, m2Name = _a.m2Name;
-                        return [4 /*yield*/, createRelation(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, m2Name, foreignConstraint[j].REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                        return [4 /*yield*/, new createRelation.CreateRelationActionClass(foreignConstraint[j].TABLE_NAME, foreignConstraint[j].REFERENCED_TABLE_NAME, response, m2Name, foreignConstraint[j].REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                                .main()
                                 .then(function () { return Log.success("Relation successfully added !"); })
                                 .catch(function (err) { return Log.error(err.message); })];
                     case 4:

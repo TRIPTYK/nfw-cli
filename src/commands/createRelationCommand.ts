@@ -5,41 +5,30 @@
  */
 
 // Project imports
-const commandUtils = require('./commandUtils');
-const migrateAction = require('../actions/migrateAction');
-const createRelationAction = require('../actions/createRelationAction');
-const Log = require('../utils/log');
-const {format} =require('../actions/lib/utils');
+import commandUtils = require('./commandUtils');
+import migrateAction = require('../actions/migrateAction');
+import createRelationAction = require('../actions/createRelationAction');
+import Log = require('../utils/log');
+import {format} from '../actions/lib/utils';
 
 //node modules
-const {Spinner} = require('clui');
-const chalk = require('chalk');
-const {singular} =require('pluralize');
+import {Spinner} from 'clui';
+import chalk from 'chalk';
+import {singular} from 'pluralize';
 
 
-/**
- * Yargs command syntax
- * @type {string}
- */
-exports.command = 'addRelationship <relation> <model1> <model2>';
+//Yargs command syntax
+export const command: string = 'addRelationship <relation> <model1> <model2>';
 
-/**
- * Aliases for Yargs command
- * @type {string[]}
- */
-exports.aliases = ['ar', 'addR'];
+//Aliases for Yargs command
+export const aliases: string[] = ['ar', 'addR'];
 
-/**
- * Command description
- * @type {string}
- */
-exports.describe = 'Create  relation between two table';
+//Command description
+export const describe: string = 'Create  relation between two table';
 
-/**
- * Handle and build command options
- * @param yargs
- */
-exports.builder = (yargs) => {
+
+//Handle and build command options
+export function builder (yargs: any) {
     yargs.choices('relation',['mtm','mto','otm','oto']);
     yargs.option('name', {
         desc: "Specify the name of foreign key (for Oto) or the name of the bridging table (for Mtm)",
@@ -68,7 +57,9 @@ exports.builder = (yargs) => {
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = async (argv) => {
+//Main function 
+export async function handler (argv: any): Promise<void> {
+
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
     await commandUtils.checkConnectToDatabase();
@@ -83,12 +74,12 @@ exports.handler = async (argv) => {
     m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
     m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
 
-    await createRelationAction(model1, model2, relation, name, refCol , m1Name , m2Name)
+    await new createRelationAction.CreateRelationActionClass(model1, model2, relation, name, refCol , m1Name , m2Name).main()
         .then(async () => {
             Log.success("Relation successfully added !");
             const spinner = new Spinner("Generating and executing migration");
             spinner.start();
-            await migrateAction(`${model1}-${model2}`)
+            await new migrateAction.MigrateActionClass(`${model1}-${model2}`).main()
                 .then((generated) => {
                     spinner.stop();
                     const [migrationDir] = generated;

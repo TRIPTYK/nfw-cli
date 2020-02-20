@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module createRelationCommand
  * @description Command module to handle creating relation between 2 models
@@ -39,37 +40,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
-var commandUtils = require('./commandUtils');
-var migrateAction = require('../actions/migrateAction');
-var createRelationAction = require('../actions/createRelationAction');
-var Log = require('../utils/log');
-var format = require('../actions/lib/utils').format;
+var commandUtils = require("./commandUtils");
+var migrateAction = require("../actions/migrateAction");
+var createRelationAction = require("../actions/createRelationAction");
+var Log = require("../utils/log");
+var utils_1 = require("../actions/lib/utils");
 //node modules
-var Spinner = require('clui').Spinner;
-var chalk = require('chalk');
-var singular = require('pluralize').singular;
-/**
- * Yargs command syntax
- * @type {string}
- */
+var clui_1 = require("clui");
+var chalk_1 = require("chalk");
+var pluralize_1 = require("pluralize");
+//Yargs command syntax
 exports.command = 'addRelationship <relation> <model1> <model2>';
-/**
- * Aliases for Yargs command
- * @type {string[]}
- */
+//Aliases for Yargs command
 exports.aliases = ['ar', 'addR'];
-/**
- * Command description
- * @type {string}
- */
+//Command description
 exports.describe = 'Create  relation between two table';
-/**
- * Handle and build command options
- * @param yargs
- */
-exports.builder = function (yargs) {
+//Handle and build command options
+function builder(yargs) {
     yargs.choices('relation', ['mtm', 'mto', 'otm', 'oto']);
     yargs.option('name', {
         desc: "Specify the name of foreign key (for Oto) or the name of the bridging table (for Mtm)",
@@ -91,63 +80,70 @@ exports.builder = function (yargs) {
         type: "string",
         default: null
     });
-};
+}
+exports.builder = builder;
+;
 /**
  * Main function
  * @param argv
  * @return {Promise<void>}
  */
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var model1, model2, relation, name, refCol, m1Name, m2Name;
-    var _this = this;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkVersion()];
-            case 1:
-                _a.sent();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 2:
-                _a.sent();
-                model1 = format(argv.model1);
-                model2 = format(argv.model2);
-                relation = argv.relation;
-                name = argv.name;
-                refCol = argv.refCol;
-                m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
-                m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
-                return [4 /*yield*/, createRelationAction(model1, model2, relation, name, refCol, m1Name, m2Name)
-                        .then(function () { return __awaiter(_this, void 0, void 0, function () {
-                        var spinner;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    Log.success("Relation successfully added !");
-                                    spinner = new Spinner("Generating and executing migration");
-                                    spinner.start();
-                                    return [4 /*yield*/, migrateAction(model1 + "-" + model2)
-                                            .then(function (generated) {
-                                            spinner.stop();
-                                            var migrationDir = generated[0];
-                                            Log.success("Executed migration successfully");
-                                            Log.info("Generated in " + chalk.cyan(migrationDir));
-                                        })
-                                            .catch(function (e) {
-                                            spinner.stop();
-                                            Log.error(e.message);
-                                        })];
-                                case 1:
-                                    _a.sent();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })
-                        .catch(function (err) { return Log.error(err.message); })];
-            case 3:
-                _a.sent();
-                process.exit(0);
-                return [2 /*return*/];
-        }
+//Main function 
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var model1, model2, relation, name, refCol, m1Name, m2Name;
+        var _this = this;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    commandUtils.validateDirectory();
+                    return [4 /*yield*/, commandUtils.checkVersion()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                case 2:
+                    _a.sent();
+                    model1 = utils_1.format(argv.model1);
+                    model2 = utils_1.format(argv.model2);
+                    relation = argv.relation;
+                    name = argv.name;
+                    refCol = argv.refCol;
+                    m1Name = argv.m1Name ? pluralize_1.singular(utils_1.format(argv.m1Name)) : model1;
+                    m2Name = argv.m2Name ? pluralize_1.singular(utils_1.format(argv.m2Name)) : model2;
+                    return [4 /*yield*/, new createRelationAction.CreateRelationActionClass(model1, model2, relation, name, refCol, m1Name, m2Name).main()
+                            .then(function () { return __awaiter(_this, void 0, void 0, function () {
+                            var spinner;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        Log.success("Relation successfully added !");
+                                        spinner = new clui_1.Spinner("Generating and executing migration");
+                                        spinner.start();
+                                        return [4 /*yield*/, new migrateAction.MigrateActionClass(model1 + "-" + model2).main()
+                                                .then(function (generated) {
+                                                spinner.stop();
+                                                var migrationDir = generated[0];
+                                                Log.success("Executed migration successfully");
+                                                Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                                            })
+                                                .catch(function (e) {
+                                                spinner.stop();
+                                                Log.error(e.message);
+                                            })];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })
+                            .catch(function (err) { return Log.error(err.message); })];
+                case 3:
+                    _a.sent();
+                    process.exit(0);
+                    return [2 /*return*/];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
+;

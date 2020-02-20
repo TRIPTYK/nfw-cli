@@ -169,7 +169,8 @@ var GenerateActionClass = /** @class */ (function () {
                                         return [4 /*yield*/, inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME)];
                                     case 2:
                                         _a = _b.sent(), m1Name = _a.m1Name, m2Name = _a.m2Name;
-                                        return [4 /*yield*/, createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                                        return [4 /*yield*/, new createRelationAction.CreateRelationActionClass(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                                                .main()
                                                 .then(function () { return Log.success("Relation successfully added !"); })
                                                 .catch(function (err) { return Log.error(err.message + "\nFix the issue then run nfw " + response + " " + tmpKey.TABLE_NAME + " " + tmpKey.REFERENCED_TABLE_NAME); })];
                                     case 3:

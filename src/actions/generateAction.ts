@@ -108,7 +108,8 @@ export class GenerateActionClass {
                         let tmpKey = foreignKeys[i];
                         let response = (await inquirer.askForeignKeyRelation(tmpKey)).response;
                         let {m1Name, m2Name} = await inquirer.questionM1M2(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME);
-                        await createRelationAction(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                        await new createRelationAction.CreateRelationActionClass(tmpKey.TABLE_NAME, tmpKey.REFERENCED_TABLE_NAME, response, tmpKey.COLUMN_NAME, tmpKey.REFERENCED_COLUMN_NAME, m1Name, m2Name)
+                            .main()
                             .then(() => Log.success("Relation successfully added !"))
                             .catch((err) => Log.error(`${err.message}\nFix the issue then run nfw ${response} ${tmpKey.TABLE_NAME} ${tmpKey.REFERENCED_TABLE_NAME}`));
                     }
