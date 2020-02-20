@@ -2,15 +2,17 @@
 /**
  * @author Samuel Antoine
  */
-var yargs = require('yargs');
+import yargs = require('yargs');
+
 // base cli dir
-exports.global.__baseDir = __dirname;
+
 yargs
     .strict()
     .command(require('./dist/commands/newCommand'))
     .command(require('./dist/commands/startUnitTestsCommand'))
     .command(require('./dist/commands/generateCommand'))
     .command(require('./dist/commands/generateFromDatabaseCommand'))
+    .command(require('./dist/commands/generateEmberDataModelCommand'))
     .command(require('./dist/commands/deleteCommand'))
     .command(require('./dist/commands/infoCommand'))
     .command(require('./dist/commands/startCommand'))

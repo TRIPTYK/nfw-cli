@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module resources
  * @author Amaury Deflorenne
@@ -5,10 +6,8 @@
  * @author Verliefden Romain
  * @description Static resources for project
  */
-/**
- * @description Array of each element to generate with the provided entity
- * @type {object[]}
- */
+Object.defineProperty(exports, "__esModule", { value: true });
+//description : Array of each element to generate with the provided entity
 exports.items = [
     { template: 'controller', path: 'src/api/controllers' },
     { template: 'repository', path: 'src/api/repositories' },

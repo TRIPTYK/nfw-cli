@@ -6,11 +6,9 @@
  * @description Static resources for project
  */
 
-/**
- * @description Array of each element to generate with the provided entity
- * @type {object[]}
- */
-exports.items = [
+ 
+ //description : Array of each element to generate with the provided entity
+export const items: any[] = [
     {template: 'controller', path : 'src/api/controllers' },
     {template: 'repository', path : 'src/api/repositories'},
     {template: 'validation', path: 'src/api/validations'},

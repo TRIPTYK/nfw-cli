@@ -1,12 +1,12 @@
 #!/usr/bin/env node
+"use strict";
+exports.__esModule = true;
 /**
  * @author Samuel Antoine
  */
-const yargs = require('yargs');
-
+var yargs = require("yargs");
 // base cli dir
-global.__baseDir = __dirname;
-
+//global.__baseDir = __dirname;
 yargs
     .strict()
     .command(require('./dist/commands/newCommand'))

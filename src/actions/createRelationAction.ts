@@ -104,6 +104,7 @@ export class CreateRelationActionClass {
 
         Log.info(`Updated ${relationFile.getFilePath()}`);
     };
+    
 
     //description : build the string to write in a model for many to many relationship
     _Mtm = (modelClass, model1: string , model2: string, isFirst: boolean, name: string, m1Name: string,m2Name: string): [] => {
