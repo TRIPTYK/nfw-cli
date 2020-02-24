@@ -44,24 +44,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var installDockerAction = require("../actions/installDockerAction");
 var Log = require("../utils/log");
-var JsonFileWriter = require("json-file-rw");
-var EnvFileWriter = require("env-file-rw");
-var inquirer = require("../utils/inquirer");
-exports.command = 'setupMysql';
-exports.aliases = ['smysql'];
-exports.describe = 'desc';
+var inquirer_1 = require("../utils/inquirer");
+var DockerStrategy_1 = require("../database/DockerStrategy");
+exports.command = 'setupDatabase';
+exports.aliases = ['sdb'];
+exports.describe = 'Setup database container (mysql, mongodb)';
 function builder(yargs) {
     yargs.option('name', {
         type: "string",
-        default: "nfw_server_docker"
+        default: undefined
     });
     yargs.option('port', {
         type: "string",
-        default: "3306"
+        default: undefined
     });
     yargs.option('vers', {
         type: "string",
-        default: "5.7"
+        default: undefined
     });
     yargs.option('password', {
         type: "string",
@@ -72,36 +71,36 @@ exports.builder = builder;
 ;
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var name, port, vers, password, nfwFile, currentEnv, array, confirmation, envFileWriter;
+        var name, port, vers, password, inquirer, dbToInstall, databaseStrategy;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     name = argv.name, port = argv.port, vers = argv.vers, password = argv.password;
-                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(name, port, vers, password).main()
+                    inquirer = new inquirer_1.Inquirer();
+                    return [4 /*yield*/, inquirer.askForDatabase()];
+                case 1:
+                    dbToInstall = _a.sent();
+                    switch (dbToInstall.dbType) {
+                        case 'mongo': {
+                            databaseStrategy = new DockerStrategy_1.MongoDBStrategy();
+                            break;
+                        }
+                        case 'mysql': {
+                            databaseStrategy = new DockerStrategy_1.MysqlStrategy();
+                            break;
+                        }
+                        default: {
+                            databaseStrategy = new DockerStrategy_1.MysqlStrategy();
+                            break;
+                        }
+                    }
+                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(databaseStrategy, name, port, vers, password).main()
                             .catch(function (e) {
                             Log.error(e.message);
                             process.exit();
                         })];
-                case 1:
-                    _a.sent();
-                    nfwFile = new JsonFileWriter();
-                    nfwFile.openSync('.nfw');
-                    currentEnv = nfwFile.getNodeValue("env", "development");
-                    array = nfwFile.getNodeValue(currentEnv + ".dockerContainers", []);
-                    array.push(name);
-                    nfwFile.saveSync();
-                    Log.success("Your docker container was created on localhost , port " + port + " with mysql version " + vers + " and password " + password);
-                    return [4 /*yield*/, new inquirer.Inquirer().askForConfirmation("Do you want to update your current environment file with these values ?")];
                 case 2:
-                    confirmation = (_a.sent()).confirmation;
-                    if (confirmation) {
-                        envFileWriter = new EnvFileWriter(currentEnv + '.env');
-                        envFileWriter.setNodeValue('TYPEORM_HOST', 'localhost');
-                        envFileWriter.setNodeValue('TYPEORM_TYPE', 'mysql');
-                        envFileWriter.setNodeValue('TYPEORM_PWD', password);
-                        envFileWriter.setNodeValue('TYPEORM_PORT', port);
-                        envFileWriter.saveSync();
-                    }
+                    _a.sent();
                     return [2 /*return*/];
             }
         });

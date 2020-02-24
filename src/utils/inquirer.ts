@@ -125,6 +125,19 @@ export class Inquirer {
         return inquirer.prompt(question);
     }
 
+    askForDatabase () {
+        const question: inquirer.InputQuestion = [ 
+            {
+                type: 'list',
+                name: 'dbType',
+                message: 'What database type do you want to install ?',
+                default: 'mysql',
+                choices: ['mysql', 'mongo']
+            }
+        ];
+        return inquirer.prompt(question);
+    }
+
     /**
      * TODO
      * @param type

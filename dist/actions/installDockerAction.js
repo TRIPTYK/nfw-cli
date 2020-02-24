@@ -40,21 +40,29 @@ var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 var Log = require("../utils/log");
 var docker_cli_js_1 = require("docker-cli-js");
+var JsonFileWriter = require("json-file-rw");
+var EnvFileWriter = require("env-file-rw");
+var inquirer_1 = require("../utils/inquirer");
 var InstallDockerActionAclass = /** @class */ (function () {
-    function InstallDockerActionAclass(name, port, version, password) {
+    function InstallDockerActionAclass(strategy, name, port, version, password) {
+        this.strategy = strategy;
         this.name = name;
         this.port = port;
         this.version = version;
         this.password = password;
     }
+    InstallDockerActionAclass.prototype.setStrategy = function (strategy) {
+        this.strategy = strategy;
+    };
     InstallDockerActionAclass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var docker, data, portString, found, _i, _a, d;
-            var _this = this;
+            var docker, inquirer, envFileValues, data, portString, found, _i, _a, d, nfwFile, currentEnv, array, confirmation, envFileWriter;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         docker = new docker_cli_js_1.Docker();
+                        inquirer = new inquirer_1.Inquirer();
+                        envFileValues = this.strategy.createDockerContainer(this.name, this.port, this.version, this.password);
                         return [4 /*yield*/, exec("docker ps")
                                 .catch(function (e) {
                                 throw new Error('Cannot find or read docker file , please verify if docker is installed properly or that you have sufficient privileges.');
@@ -64,9 +72,9 @@ var InstallDockerActionAclass = /** @class */ (function () {
                         return [4 /*yield*/, docker.command("ps -a")];
                     case 2:
                         data = _b.sent();
-                        portString = "0.0.0.0:" + this.port + "->" + this.port + "/tcp, 33060/tcp";
+                        portString = "0.0.0.0:" + envFileValues.port + "->" + envFileValues.port + "/tcp, 33060/tcp";
                         found = data.containerList.find(function (d) {
-                            return d.names === _this.name;
+                            return d.names === envFileValues.name;
                         });
                         if (found) {
                             throw new Error("Container " + found.names + " already exists, please use --name to change container name");
@@ -80,14 +88,32 @@ var InstallDockerActionAclass = /** @class */ (function () {
                                 Log.info("Container " + d.names + " is configured with this port but is not running");
                             }
                         }
-                        return [4 /*yield*/, exec("docker pull mysql:" + this.version)];
+                        return [4 /*yield*/, exec("docker pull " + envFileValues.dbType + ":" + envFileValues.version)];
                     case 3:
                         data = _b.sent();
                         console.log(data.stdout);
-                        return [4 /*yield*/, exec("docker create --name " + this.name + " -p " + this.port + ":3306 -e MYSQL_ROOT_PASSWORD=" + this.password + " mysql:" + this.version)];
+                        return [4 /*yield*/, exec("docker create --name " + envFileValues.name + " -p " + envFileValues.port + ":" + envFileValues.port + " -e " + envFileValues.complementaryEnvInfos + " " + envFileValues.dbType + ":" + envFileValues.version)];
                     case 4:
                         data = _b.sent();
                         console.log(data.stdout);
+                        nfwFile = new JsonFileWriter();
+                        nfwFile.openSync('.nfw');
+                        currentEnv = nfwFile.getNodeValue("env", "development");
+                        array = nfwFile.getNodeValue(currentEnv + ".dockerContainers", []);
+                        array.push(envFileValues.name);
+                        nfwFile.saveSync();
+                        Log.success("Your docker container was created on localhost , port " + envFileValues.port + " with " + envFileValues.dbType + " version " + envFileValues.version + " and password " + envFileValues.password);
+                        return [4 /*yield*/, inquirer.askForConfirmation("Do you want to update your current environment file with these values ?")];
+                    case 5:
+                        confirmation = (_b.sent()).confirmation;
+                        if (confirmation) {
+                            envFileWriter = new EnvFileWriter(currentEnv + '.env');
+                            envFileWriter.setNodeValue('TYPEORM_HOST', envFileValues.host);
+                            envFileWriter.setNodeValue('TYPEORM_TYPE', envFileValues.dbType);
+                            envFileWriter.setNodeValue('TYPEORM_PWD', envFileValues.password);
+                            envFileWriter.setNodeValue('TYPEORM_PORT', envFileValues.port);
+                            envFileWriter.saveSync();
+                        }
                         return [2 /*return*/];
                 }
             });

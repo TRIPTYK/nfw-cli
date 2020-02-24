@@ -132,6 +132,18 @@ var Inquirer = /** @class */ (function () {
         };
         return inquirer.prompt(question);
     };
+    Inquirer.prototype.askForDatabase = function () {
+        var question = [
+            {
+                type: 'list',
+                name: 'dbType',
+                message: 'What database type do you want to install ?',
+                default: 'mysql',
+                choices: ['mysql', 'mongo']
+            }
+        ];
+        return inquirer.prompt(question);
+    };
     /**
      * TODO
      * @param type
