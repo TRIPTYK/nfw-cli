@@ -6,10 +6,13 @@ const sql = new SQLBuilder('MySQL');
 import inquirer = require('inquirer');
 import Log = require('../utils/log');
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import JsonFileWriter = require("json-file-rw");
+import child_process = require('child_process');
 
 // variables
 import bcrypt = require('bcryptjs');
 import { Singleton } from "../utils/DatabaseSingleton";
+import { DatabaseEnv } from "../database/DatabaseEnv";
 let dropData;
 let seedExtension;
 let pathSeedRead;
@@ -113,40 +116,33 @@ async function howMuchTable() {
     const databaseConnection = await databaseStrategy.getConnectionFromNFW();
     let result = await databaseConnection.getTables();
 
-    console.log(result);
 
     for (let i = 0; i < result.length; i++) {
         if (Object.values(result[i])[0] === 'migration_table') {} else {
             tableArray.push(Object.values(result[i])[0]);
         }
     }
-    console.log(tableArray);
 }
 
-function query(tableData, j: number, keyObject: string[], i: number, databaseStrategy, table: any, tabProp: any, dataValues: any) {
-    const myQuery = sql.$insert({
-        $table: table,
-        $columns: tabProp,
-        $values: dataValues
-    });
-    databaseStrategy.db.query(myQuery, function (err) {
+async function query(tableData, j: number, keyObject: string[], i: number, databaseConnection, table: any, tabProp: any, dataValues: any) {
+    
+    await databaseConnection.insertIntoTable(table,tabProp,dataValues).catch((err) => {
         if (err) {
             Log.error("Error on your seed");
             process.exit(0);
         };
-        if (!err && i == keyObject.length - 1 && j == tableData.length - 1) {
-            Log.success("write done");
-            process.exit(0);
-        }
     });
-
-
-
+    if (i == keyObject.length - 1 && j == tableData.length - 1) {
+        Log.success("write done");
+        process.exit(0);
+    }
 }
+
+
 async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: boolean) {
 
-    const sqlConnection = await databaseStrategy.getConnectionFromNFW();
-    sqlConnection.connect();
+    const databaseConnection = await databaseStrategy.getConnectionFromNFW();
+    //await databaseConnection.connect();
 
 
      /**
@@ -173,13 +169,8 @@ async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: b
                 for (let i = 0; i < keyObject.length; i++) {
                     tableData = obj[keyObject[i]];
                     let table = keyObject[i];
-                    let sql1 = `TRUNCATE TABLE ${table}`;
                     if (dropData == true) {
-                        sqlConnection.db.query(sql1, function (err, results) {
-                            if (err) {
-                                throw err;
-                            }
-                        })
+                        databaseConnection.truncateTable(table);
                     }
                     for (let j = 0; j < tableData.length; j++) {
                         let tabProp = Object.keys(tableData[j]);
@@ -190,7 +181,7 @@ async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: b
                                 dataValues[x] = hash;
                             }
                         }
-                        query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
+                        query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues);
                     }
                 }
 
@@ -230,13 +221,8 @@ async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: b
                             for (let i = 0; i < keyObject.length; i++) {
                                 tableData = obj[keyObject[i]];
                                 let table = keyObject[i];
-                                let sql1 = `TRUNCATE TABLE ${table}`;
                                 if (dropData == true) {
-                                    sqlConnection.db.query(sql1, function (err, results) {
-                                        if (err) {
-                                            throw err;
-                                        }
-                                    })
+                                    databaseConnection.truncateTable(table)
                                 }
                                 for (let j = 0; j < tableData.length; j++) {
             
@@ -250,7 +236,7 @@ async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: b
                                             dataValues[x] = hash;
                                         }
                                     }
-                                    query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues)
+                                    query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues)
                                 }
                             }
                         });
@@ -270,73 +256,68 @@ async function seedWriteFileJson(pathSeedRead: string, objetDb) {
         process.exit(0);
     });
 }
+
 async function seedWriteFileXlsx(newWB, pathSeedRead) {
     await xlsx.writeFile(newWB, pathSeedRead + ".xlsx");
 }
+
 async function readbdd(seedExtension: string, pathSeedRead: string) {
 
-    const sqlConnection = await databaseStrategy.getConnectionFromNFW();
-    sqlConnection.connect();
-    let database = sqlConnection.environement.TYPEORM_DB;
+    const databaseConnection = await databaseStrategy.getConnectionFromNFW();
     let objetDb = {};
     let newWB = xlsx.utils.book_new();
 
 
     for (let i = 0; i < tableArray.length; i++) {
         let tableSql = tableArray[i];
-        //console.log("table sql ? " + tableSql);
-        let sql2 = `SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'${tableSql}' and TABLE_SCHEMA = '${database}'`;
+        let {columns} = await databaseConnection.getTableInfo(tableSql)
 
-        //let sql2 = `select * from ${tableSql}`;
-        sqlConnection.db.query(sql2, function (err, results: any) {
-            let jsonOut = [];
+        let jsonOut = [];
 
-            let keys: {id: number | string, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number | string} = {
-                id: null,
-                createdAt: '',
-                updatedAt: '',
-                deletedAt: '',
-                avatarId: null
-            };
-            //console.log(results);
+        let keys: {id: number | string, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number | string} = {
+            id: null,
+            createdAt: '',
+            updatedAt: '',
+            deletedAt: '',
+            avatarId: null
+        };
 
-            for (let j = 0; j < results.length; j++) {
+        for (let j = 0; j < columns.length; j++) {
 
-                // supprime les colonnes inutiles
+            // supprime les colonnes inutiles
 
-                let key = results[j].COLUMN_NAME;
-                let type = results[j].COLUMN_TYPE
-                keys[key] = '';
-                delete keys.id;
-                delete keys.createdAt;
-                delete keys.updatedAt;
-                delete keys.deletedAt;
-                delete keys.avatarId;
-            }
+            let key = columns[j].Field;
+            let type = columns[j].Type;
+            keys[key] = '';
+            delete keys.id;
+            delete keys.createdAt;
+            delete keys.updatedAt;
+            delete keys.deletedAt;
+            delete keys.avatarId;
+        }
 
-            jsonOut.push(keys);
-            objetDb[tableSql] = jsonOut;
+        jsonOut.push(keys);
+        objetDb[tableSql] = jsonOut;
 
-            switch (seedExtension) {
-                case 'json':
-                    if (i == tableArray.length - 1) {
-                        objetDb[tableSql] = jsonOut;
+        switch (seedExtension) {
+            case 'json':
+                if (i == tableArray.length - 1) {
+                    objetDb[tableSql] = jsonOut;
 
-                        seedWriteFileJson(pathSeedRead, objetDb);
-                    }
-                    break;
+                    seedWriteFileJson(pathSeedRead, objetDb);
+                }
+                break;
 
-                case 'xlsx':
-
-                    let newWS = xlsx.utils.json_to_sheet(jsonOut);
-                    xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
-                    if (i == tableArray.length - 1) {
-                        seedWriteFileXlsx(newWB, pathSeedRead);
-                        seedWriteFileJson(pathSeedRead, objetDb);
-                    }
-                    break;
-            }
-        });
+            case 'xlsx':
+                let newWS = xlsx.utils.json_to_sheet(jsonOut);
+                xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
+                if (i == tableArray.length - 1) {
+                    seedWriteFileXlsx(newWB, pathSeedRead);
+                    seedWriteFileJson(pathSeedRead, objetDb);
+                }
+                break;
+        }
+        
     }
 
 }

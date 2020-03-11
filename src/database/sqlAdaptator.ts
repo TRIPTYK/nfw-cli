@@ -8,6 +8,7 @@
 // project modules
 //import mysql = require('mysql');
 import util = require('util');
+import SQLBuilder = require('json-sql-builder2');
 import mysqldump from 'mysqldump';
 import bcrypt = require('bcryptjs');
 import {singular} from 'pluralize';
@@ -135,6 +136,25 @@ export class SqlConnection implements AdaptatorStrategy {
     async dropTable(tableName: string): Promise<any>
     {
         return await this.db.query(`DROP TABLE ${tableName};`);
+    }
+
+    async truncateTable(tableName: string): Promise<void> {
+        
+        return await this.db.query(`TRUNCATE TABLE ${tableName}`);
+    }
+
+    async insertIntoTable (table: string, columns: any, values: any): Promise<void> {
+
+        const sql = new SQLBuilder('MySQL');
+        const myQuery = sql.$insert({
+            $table: table,
+            $columns: columns,
+            $values: values
+        });
+
+        console.log(myQuery);
+        
+        return await this.db.query(myQuery);
     }
 
     //description: Delete all foreignKeys that point to a specific table

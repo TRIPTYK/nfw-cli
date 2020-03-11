@@ -68,9 +68,29 @@ export class MongoConnection implements AdaptatorStrategy{
         }
     }
 
+    async insertIntoTable(collName: string, fields: any, values: any) {
+
+        const obj = {
+            _id: new mongoose.Types.ObjectId()
+        };
+
+        for (let index = 0; index < fields.length; index++) {
+            const element = fields[index];
+            const val = values[index];
+            obj[element] = val;
+        }
+
+        await this.db.collection(collName).insertOne(obj);
+    }
+
     async dropTable(collName: string): Promise<void>{
 
         return await this.db.db.dropCollection(collName);
+    }
+
+    async truncateTable(collName: string) {
+
+        return await this.dropTable(collName);
     }
 
     async tableExists (collName: string): Promise<boolean> {

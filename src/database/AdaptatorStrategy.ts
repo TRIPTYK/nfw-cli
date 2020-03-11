@@ -6,5 +6,7 @@ export interface AdaptatorStrategy {
     tableExists(tableName: string): Promise<boolean>;
     getTableInfo(tableName: string): Promise<any>;
     getTables(): Promise<any>;
-    dropTable(tableName: string):Promise<void>;
+    dropTable(tableName: string): Promise<void>;
+    truncateTable(tableName: string): Promise<void>;
+    insertIntoTable(tableName: string, columns, values): Promise<void>
 }

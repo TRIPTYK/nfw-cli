@@ -45,6 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // project modules
 //import mysql = require('mysql');
 var util = require("util");
+var SQLBuilder = require("json-sql-builder2");
 var mysqldump_1 = require("mysqldump");
 var bcrypt = require("bcryptjs");
 var pluralize_1 = require("pluralize");
@@ -235,6 +236,35 @@ var SqlConnection = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.db.query("DROP TABLE " + tableName + ";")];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SqlConnection.prototype.truncateTable = function (tableName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.db.query("TRUNCATE TABLE " + tableName)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SqlConnection.prototype.insertIntoTable = function (table, columns, values) {
+        return __awaiter(this, void 0, void 0, function () {
+            var sql, myQuery;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        sql = new SQLBuilder('MySQL');
+                        myQuery = sql.$insert({
+                            $table: table,
+                            $columns: columns,
+                            $values: values
+                        });
+                        console.log(myQuery);
+                        return [4 /*yield*/, this.db.query(myQuery)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });

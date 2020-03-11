@@ -184,46 +184,48 @@ function howMuchTable() {
                     return [4 /*yield*/, databaseConnection.getTables()];
                 case 2:
                     result = _a.sent();
-                    console.log(result);
                     for (i = 0; i < result.length; i++) {
                         if (Object.values(result[i])[0] === 'migration_table') { }
                         else {
                             tableArray.push(Object.values(result[i])[0]);
                         }
                     }
-                    console.log(tableArray);
                     return [2 /*return*/];
             }
         });
     });
 }
-function query(tableData, j, keyObject, i, databaseStrategy, table, tabProp, dataValues) {
-    var myQuery = sql.$insert({
-        $table: table,
-        $columns: tabProp,
-        $values: dataValues
-    });
-    databaseStrategy.db.query(myQuery, function (err) {
-        if (err) {
-            Log.error("Error on your seed");
-            process.exit(0);
-        }
-        ;
-        if (!err && i == keyObject.length - 1 && j == tableData.length - 1) {
-            Log.success("write done");
-            process.exit(0);
-        }
+function query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, databaseConnection.insertIntoTable(table, tabProp, dataValues).catch(function (err) {
+                        if (err) {
+                            Log.error("Error on your seed");
+                            process.exit(0);
+                        }
+                        ;
+                    })];
+                case 1:
+                    _a.sent();
+                    if (i == keyObject.length - 1 && j == tableData.length - 1) {
+                        Log.success("write done");
+                        process.exit(0);
+                    }
+                    return [2 /*return*/];
+            }
+        });
     });
 }
 function writeDb(pathSeedWrite, seedExtension, dropData) {
     return __awaiter(this, void 0, void 0, function () {
-        var sqlConnection;
+        var databaseConnection;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                 case 1:
-                    sqlConnection = _a.sent();
-                    sqlConnection.connect();
+                    databaseConnection = _a.sent();
+                    //await databaseConnection.connect();
                     /**
                      * 1ere lecteure avec fs pour s'assurer que le fichier existe
                      * pour le json on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
@@ -245,13 +247,8 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                     for (var i = 0; i < keyObject.length; i++) {
                                         tableData = obj[keyObject[i]];
                                         var table = keyObject[i];
-                                        var sql1 = "TRUNCATE TABLE " + table;
                                         if (dropData == true) {
-                                            sqlConnection.db.query(sql1, function (err, results) {
-                                                if (err) {
-                                                    throw err;
-                                                }
-                                            });
+                                            databaseConnection.truncateTable(table);
                                         }
                                         for (var j = 0; j < tableData.length; j++) {
                                             var tabProp = Object.keys(tableData[j]);
@@ -262,7 +259,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                                     dataValues[x] = hash;
                                                 }
                                             }
-                                            query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues);
+                                            query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues);
                                         }
                                     }
                                 }
@@ -297,13 +294,8 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                         for (var i = 0; i < keyObject.length; i++) {
                                             tableData = obj[keyObject[i]];
                                             var table = keyObject[i];
-                                            var sql1 = "TRUNCATE TABLE " + table;
                                             if (dropData == true) {
-                                                sqlConnection.db.query(sql1, function (err, results) {
-                                                    if (err) {
-                                                        throw err;
-                                                    }
-                                                });
+                                                databaseConnection.truncateTable(table);
                                             }
                                             for (var j = 0; j < tableData.length; j++) {
                                                 var tabProp = Object.keys(tableData[j]);
@@ -314,7 +306,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
                                                         dataValues[x] = hash;
                                                     }
                                                 }
-                                                query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues);
+                                                query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues);
                                             }
                                         }
                                     });
@@ -358,66 +350,63 @@ function seedWriteFileXlsx(newWB, pathSeedRead) {
 }
 function readbdd(seedExtension, pathSeedRead) {
     return __awaiter(this, void 0, void 0, function () {
-        var sqlConnection, database, objetDb, newWB, _loop_1, i;
+        var databaseConnection, objetDb, newWB, i, tableSql, columns, jsonOut, keys, j, key, type, newWS;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                 case 1:
-                    sqlConnection = _a.sent();
-                    sqlConnection.connect();
-                    database = sqlConnection.environement.TYPEORM_DB;
+                    databaseConnection = _a.sent();
                     objetDb = {};
                     newWB = xlsx.utils.book_new();
-                    _loop_1 = function (i) {
-                        var tableSql = tableArray[i];
-                        //console.log("table sql ? " + tableSql);
-                        var sql2 = "SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'" + tableSql + "' and TABLE_SCHEMA = '" + database + "'";
-                        //let sql2 = `select * from ${tableSql}`;
-                        sqlConnection.db.query(sql2, function (err, results) {
-                            var jsonOut = [];
-                            var keys = {
-                                id: null,
-                                createdAt: '',
-                                updatedAt: '',
-                                deletedAt: '',
-                                avatarId: null
-                            };
-                            //console.log(results);
-                            for (var j = 0; j < results.length; j++) {
-                                // supprime les colonnes inutiles
-                                var key = results[j].COLUMN_NAME;
-                                var type = results[j].COLUMN_TYPE;
-                                keys[key] = '';
-                                delete keys.id;
-                                delete keys.createdAt;
-                                delete keys.updatedAt;
-                                delete keys.deletedAt;
-                                delete keys.avatarId;
-                            }
-                            jsonOut.push(keys);
-                            objetDb[tableSql] = jsonOut;
-                            switch (seedExtension) {
-                                case 'json':
-                                    if (i == tableArray.length - 1) {
-                                        objetDb[tableSql] = jsonOut;
-                                        seedWriteFileJson(pathSeedRead, objetDb);
-                                    }
-                                    break;
-                                case 'xlsx':
-                                    var newWS = xlsx.utils.json_to_sheet(jsonOut);
-                                    xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
-                                    if (i == tableArray.length - 1) {
-                                        seedWriteFileXlsx(newWB, pathSeedRead);
-                                        seedWriteFileJson(pathSeedRead, objetDb);
-                                    }
-                                    break;
-                            }
-                        });
+                    i = 0;
+                    _a.label = 2;
+                case 2:
+                    if (!(i < tableArray.length)) return [3 /*break*/, 5];
+                    tableSql = tableArray[i];
+                    return [4 /*yield*/, databaseConnection.getTableInfo(tableSql)];
+                case 3:
+                    columns = (_a.sent()).columns;
+                    jsonOut = [];
+                    keys = {
+                        id: null,
+                        createdAt: '',
+                        updatedAt: '',
+                        deletedAt: '',
+                        avatarId: null
                     };
-                    for (i = 0; i < tableArray.length; i++) {
-                        _loop_1(i);
+                    for (j = 0; j < columns.length; j++) {
+                        key = columns[j].Field;
+                        type = columns[j].Type;
+                        keys[key] = '';
+                        delete keys.id;
+                        delete keys.createdAt;
+                        delete keys.updatedAt;
+                        delete keys.deletedAt;
+                        delete keys.avatarId;
                     }
-                    return [2 /*return*/];
+                    jsonOut.push(keys);
+                    objetDb[tableSql] = jsonOut;
+                    switch (seedExtension) {
+                        case 'json':
+                            if (i == tableArray.length - 1) {
+                                objetDb[tableSql] = jsonOut;
+                                seedWriteFileJson(pathSeedRead, objetDb);
+                            }
+                            break;
+                        case 'xlsx':
+                            newWS = xlsx.utils.json_to_sheet(jsonOut);
+                            xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
+                            if (i == tableArray.length - 1) {
+                                seedWriteFileXlsx(newWB, pathSeedRead);
+                                seedWriteFileJson(pathSeedRead, objetDb);
+                            }
+                            break;
+                    }
+                    _a.label = 4;
+                case 4:
+                    i++;
+                    return [3 /*break*/, 2];
+                case 5: return [2 /*return*/];
             }
         });
     });

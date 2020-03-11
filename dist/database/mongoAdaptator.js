@@ -110,11 +110,43 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    MongoConnection.prototype.insertIntoTable = function (collName, fields, values) {
+        return __awaiter(this, void 0, void 0, function () {
+            var obj, index, element, val;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        obj = {
+                            _id: new mongoose.Types.ObjectId()
+                        };
+                        for (index = 0; index < fields.length; index++) {
+                            element = fields[index];
+                            val = values[index];
+                            obj[element] = val;
+                        }
+                        return [4 /*yield*/, this.db.collection(collName).insertOne(obj)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     MongoConnection.prototype.dropTable = function (collName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.db.db.dropCollection(collName)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    MongoConnection.prototype.truncateTable = function (collName) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dropTable(collName)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
