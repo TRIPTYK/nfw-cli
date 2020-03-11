@@ -14,11 +14,13 @@ const exec = util.promisify(require('child_process').exec);
 
 // project modules
 import {Files} from '../utils/files';
-import { SqlConnection , DatabaseEnv } from '../database/sqlAdaptator';
+import { SqlConnection } from '../database/sqlAdaptator';
+import { DatabaseEnv } from '../database/DatabaseEnv';
 import Log = require('../utils/log');
 const readFilePromise = promisify(fs.readFile);
 import JsonFileWriter = require('json-file-rw');
 import dotenv = require('dotenv');
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 
 //Check if we are in a valid project directory
@@ -83,19 +85,18 @@ export function updateORMConfig (environement = null) {
     return ormconfigFile.saveSync();
 }
 
-export async function checkConnectToDatabase (): Promise<void> {
+export async function checkConnectToDatabase (databaseStrategy: AdaptatorStrategy): Promise<void> {
     try {
-        await new SqlConnection(exports.getCurrentEnvironment()).connect();
+        const currentEnv: DatabaseEnv = exports.getCurrentEnvironment().getEnvironment();
+        await databaseStrategy.connect(currentEnv);
+        //await new SqlConnection(exports.getCurrentEnvironment()).connect();
     }catch(e) {
         Log.error("Can't connect to database : " + e.message);
         process.exit();
     }
 };
 
-/**
- *
- * @returns {DatabaseEnv}
- */
+
 export function getCurrentEnvironment (): DatabaseEnv {
     const nfwFile = fs.readFileSync('.nfw','utf-8');
     let nfwEnv = JSON.parse(nfwFile).env;
@@ -105,10 +106,7 @@ export function getCurrentEnvironment (): DatabaseEnv {
     return new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`);
 };
 
-/**
- *
- * @return {Promise<void>}
- */
+
 export async function checkVersion (): Promise<void> {
     let [packageJsonCLI,packageJsonNFW]: any = await Promise.all(
         [readFilePromise(__baseDir + "/package.json","utf-8"),readFilePromise(process.cwd() + "/package.json","utf-8")]

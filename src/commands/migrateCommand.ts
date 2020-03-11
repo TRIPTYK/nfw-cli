@@ -16,6 +16,9 @@ import commandUtils = require('./commandUtils');
 import Log = require('../utils/log');
 import migrateAction = require('../actions/migrateAction');
 import utils = require('../actions/lib/utils');
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { SqlConnection } from '../database/sqlAdaptator';
+import { Singleton } from '../utils/DatabaseSingleton';
 
 //Yargs command
 export const command: string = 'migrate <migrateName>';
@@ -67,14 +70,17 @@ export async function handler (argv: any): Promise<void> {
     const revert = argv.revert;
     const spinner = new Spinner("Generating and executing migration");
 
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
+
     commandUtils.validateDirectory();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
   
     commandUtils.updateORMConfig();
 
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(modelName,restore,dump,revert).main()
+    await new migrateAction.MigrateActionClass(databaseStrategy, modelName,restore,dump,revert).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();

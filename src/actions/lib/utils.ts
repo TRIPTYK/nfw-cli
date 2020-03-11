@@ -15,10 +15,11 @@ import reservedWords = require('reserved-words');
 
 import project = require('../../utils/project');
 
-import { SqlConnection , DatabaseEnv } from '../../database/sqlAdaptator';
+import { SqlConnection } from '../../database/sqlAdaptator';
+import { DatabaseEnv } from '../../database/DatabaseEnv';
 import { ColumnList } from 'mysqldump';
 
-
+ 
 //description : Count the lines of a file
 export function countLines (path: string): Promise<number> {
 
@@ -142,7 +143,7 @@ export function buildJoiFromColumn (column: any): object {
     return joiObject;
 };
 
-//description Check if a table is a bridging table in a many to many relationship
+//description : Check if a table is a bridging table in a many to many relationship
 export function isBridgindTable (entity: any): boolean {
 
     let {columns, foreignKeys} = entity;
@@ -153,7 +154,7 @@ export function isBridgindTable (entity: any): boolean {
     return columns.length === 0;
 };
 
-//description Check if a column exist in a database table
+//description : Check if a column exist in a database table
 export function columnExist (model: string, column: string): boolean {
 
     let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
@@ -203,6 +204,8 @@ export async function createDataBaseIfNotExists (setupEnv: DatabaseEnv) {
     const sqlConnection = new SqlConnection();
     const currentEnvData = env.getEnvironment();
 
+    if(currentEnvData.TYPEORM_TYPE === 'mongodb') return;
+
     try {
         await sqlConnection.connect(env.getEnvironment());
     } catch (e) {
@@ -230,6 +233,10 @@ export function buildModelColumnArgumentsFromObject (dbColumnaData: any) {
 
     if (dbColumnaData.Default === null && dbColumnaData.Null === 'NO')
         delete columnArgument['default'];
+
+    if(dbColumnaData.Default === undefined){
+        delete columnArgument['default'];
+    }
 
     //handle nullable
     if (dbColumnaData.Key !== 'PRI' && dbColumnaData.Key !== 'UNI') {

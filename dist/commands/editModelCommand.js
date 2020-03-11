@@ -51,6 +51,7 @@ var utils_1 = require("../actions/lib/utils");
 //Node Modules
 var clui_1 = require("clui");
 var chalk_1 = require("chalk");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'editModel <model> <action> [columnName]';
 //Yargs command aliases
@@ -66,19 +67,21 @@ exports.builder = builder;
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var model, columnName, action, spinner;
+        var model, columnName, action, strategyInstance, databaseStrategy, spinner;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     model = argv.model, columnName = argv.columnName, action = argv.action;
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     model = utils_1.format(model);
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 2:
                     _a.sent();
                     if (!utils.modelFileExists(model)) {
@@ -100,7 +103,7 @@ function handler(argv) {
                                 switch (_a.label) {
                                     case 0:
                                         spinner.start();
-                                        return [4 /*yield*/, new migrate.MigrateActionClass("remove-" + columnName + "-from-" + model).main()
+                                        return [4 /*yield*/, new migrate.MigrateActionClass(databaseStrategy, "remove-" + columnName + "-from-" + model).main()
                                                 .then(function (generated) {
                                                 var migrationDir = generated[0];
                                                 spinner.stop();
@@ -132,7 +135,7 @@ function handler(argv) {
                                 switch (_a.label) {
                                     case 0:
                                         spinner.start();
-                                        return [4 /*yield*/, new migrate.MigrateActionClass("remove-" + columnName + "-from-" + model).main()
+                                        return [4 /*yield*/, new migrate.MigrateActionClass(databaseStrategy, "remove-" + columnName + "-from-" + model).main()
                                                 .then(function (generated) {
                                                 var migrationDir = generated[0];
                                                 spinner.stop();

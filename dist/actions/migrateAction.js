@@ -42,7 +42,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
 // Node modules
 var JsonFileWriter = require("json-file-rw");
 var util = require("util");
@@ -54,6 +53,9 @@ var exec = util.promisify(child_process.exec);
 var path = require("path");
 var project = require("../utils/project");
 var Log = require("../utils/log");
+var mongoAdaptator_1 = require("../database/mongoAdaptator");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var DatabaseEnv_1 = require("../database/DatabaseEnv");
 var _buildErrorObjectFromMessage = function (e) {
     var msgReg = /^\s*(\w+):\s*([ -+|\--z]*),?/gm;
     var m;
@@ -78,27 +80,32 @@ var _buildErrorObjectFromMessage = function (e) {
  * @returns {Promise<array>}
  */
 var MigrateActionClass = /** @class */ (function () {
-    function MigrateActionClass(modelName, restore, dump, isRevert) {
+    function MigrateActionClass(strategy, modelName, restore, dump, isRevert) {
+        this.strategy = strategy;
         this.modelName = modelName;
         this.restore = restore;
         this.dump = dump;
         this.isRevert = isRevert;
     }
+    MigrateActionClass.prototype.setStrategy = function (strategy) {
+        this.strategy = strategy;
+    };
     MigrateActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var ormConfig, connection, getMigrationFileNameFromRecord, nfwConfig, currentEnv, migrationDir, migrationConfig, formatMigrationArray, revertTo, dump, allTables, _a, formatMigrationArray, _b, revertTo, current, between, errors_1, success_1, _i, between_1, forMigration, forMigrationFileName, migrationFile, functionText, regexDownStatement, res, allTables, _c, typeorm_cli, ts_node, files, recentTimestamp, migrationFile, obj, backupDir, latest, dumpName;
+            var ormConfig, connection, getMigrationFileNameFromRecord, nfwConfig, currentEnv, envValues, migrationDir, migrationConfig, formatMigrationArray, revertTo, dump, allTables, _a, formatMigrationArray, _b, revertTo, current, between, errors_1, success_1, _i, between_1, forMigration, forMigrationFileName, migrationFile, functionText, regexDownStatement, res, allTables, _c, typeorm_cli, ts_node, files, recentTimestamp, migrationFile, obj, backupDir, latest, dumpName;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
                         ormConfig = new JsonFileWriter();
                         ormConfig.openSync("./ormconfig.json");
-                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                        return [4 /*yield*/, this.strategy.getConnectionFromNFW()];
                     case 1:
                         connection = _d.sent();
                         getMigrationFileNameFromRecord = function (record) { return record.timestamp + '-' + record.name.replace(record.timestamp.toString(), ''); };
                         nfwConfig = new JsonFileWriter();
                         nfwConfig.openSync(".nfw");
                         currentEnv = nfwConfig.getNodeValue("env", "development");
+                        envValues = new DatabaseEnv_1.DatabaseEnv(currentEnv + ".env").getEnvironment();
                         return [4 /*yield*/, mkdirp("src/migration/" + currentEnv + "/failed")];
                     case 2:
                         _d.sent();
@@ -198,7 +205,12 @@ var MigrateActionClass = /** @class */ (function () {
                     case 21:
                         typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
                         ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');
-                        child_process.spawnSync(ts_node + " " + typeorm_cli + " migration:generate -n " + this.modelName, { stdio: 'inherit', shell: true });
+                        if (this.strategy instanceof mongoAdaptator_1.MongoConnection) {
+                            child_process.spawnSync(ts_node + " " + typeorm_cli + " migration:create -n " + this.modelName, { stdio: 'inherit', shell: true });
+                        }
+                        else {
+                            child_process.spawnSync(ts_node + " " + typeorm_cli + " migration:generate -n " + this.modelName, { stdio: 'inherit', shell: true });
+                        }
                         files = fs.readdirSync(migrationDir, { withFileTypes: true }).filter(function (dirent) { return !dirent.isDirectory(); })
                             .map(function (dirent) { return dirent.name; });
                         recentTimestamp = Math.max.apply(null, files.map(function (e) {
@@ -220,6 +232,10 @@ var MigrateActionClass = /** @class */ (function () {
                         _d.label = 22;
                     case 22:
                         if (!this.dump) return [3 /*break*/, 25];
+                        if (this.strategy instanceof mongoAdaptator_1.MongoConnection) {
+                            child_process.spawnSync("mongodump --host=" + envValues.TYPEORM_HOST + " --port=" + envValues.TYPEORM_PORT + " --username=" + envValues.TYPEORM_USER + " --password=" + envValues.TYPEORM_PWD + " --db=" + envValues.TYPEORM_DB + " --authenticationDatabase=admin -o ./dist/migration/dump", { stdio: 'inherit', shell: true });
+                        }
+                        if (!(this.strategy instanceof sqlAdaptator_1.SqlConnection)) return [3 /*break*/, 25];
                         return [4 /*yield*/, connection.select('migration_table', ['timestamp', 'name'], 'ORDER BY timestamp DESC')];
                     case 23:
                         latest = (_d.sent())[0];

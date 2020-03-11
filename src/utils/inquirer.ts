@@ -10,7 +10,6 @@ import inquirer = require('inquirer');
 // project modules
 import {Files} from './files';
 import {columnExist,relationExist,format} from '../actions/lib/utils';
-import { DatabaseEnv } from '../database/sqlAdaptator';
 import { DotenvParseOptions, DotenvConfigOutput, DotenvParseOutput } from 'dotenv/types';
 
 export class Inquirer {
@@ -350,6 +349,13 @@ export class Inquirer {
                 choices: ['Production', 'Development', 'Staging', 'Test']
             },
             {
+                type: 'list',
+                name: 'TYPEORM_TYPE',
+                message: 'Choose the database type you want to use : ',
+                default: 'mysql',
+                choices: ['mysql', 'mongodb']
+            },
+            {
                 type: 'input',
                 name: 'PORT',
                 message: 'Which port will the app use ?',
@@ -385,19 +391,6 @@ export class Inquirer {
                 type: 'password',
                 name: 'TYPEORM_PWD',
                 message: 'Database password ?'
-            },
-            {
-                type: 'input',
-                name: 'TYPEORM_PORT',
-                message: 'Database port ?',
-                default: 3306,
-                validate: (data: string) => {
-                    if ((/^[0-9]+$/).test(data)) {
-                        return true;
-                    } else {
-                        return "Please, insert numbers only !"
-                    }
-                }
             },
         ];
         return inquirer.prompt(envQuestion);

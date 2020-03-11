@@ -13,6 +13,8 @@ import commandUtils = require('./commandUtils');
 import removeRelationAction = require('../actions/removeRelationAction');
 import Log = require('../utils/log');
 import migrate = require('../actions/migrateAction');
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { Singleton } from '..//utils/DatabaseSingleton';
 
 
 //Yargs command
@@ -40,10 +42,12 @@ export function builder (yargs: any) {
 export async function handler (argv: any): Promise<void> {
 
     const {model1, model2 , type } = argv;
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     await new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
         .then(() => {
@@ -55,7 +59,7 @@ export async function handler (argv: any): Promise<void> {
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
-    await new migrate.MigrateActionClass(`${model1}-${model2}`).main()
+    await new migrate.MigrateActionClass(databaseStrategy, `${model1}-${model2}`).main()
         .then((generated) => {
             spinner.stop();
             const [migrationDir] = generated;

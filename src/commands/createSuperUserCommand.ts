@@ -11,6 +11,8 @@ import chalk from 'chalk';
 import commandUtils = require('./commandUtils');
 import Log = require('../utils/log');
 import createSuperUserAction = require('../actions/createSuperUserAction');
+import { Singleton } from '../utils/DatabaseSingleton';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 
 //Yargs command syntax
@@ -44,13 +46,14 @@ export function builder (yargs: any) {
 //Main function
 exports.handler = async (argv: any) => {
     const {username,mail,role,password} = argv;
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
 
     commandUtils.validateDirectory();
-    await commandUtils.checkConnectToDatabase();
 
     commandUtils.updateORMConfig();
 
-    await new createSuperUserAction.CreateSuperUSerActionClass(username,mail,role,password).main()
+    await new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, username,mail,role,password).main()
         .then((generated) => {
             const [ filePath ] = generated;
 

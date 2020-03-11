@@ -53,16 +53,17 @@ var modelSpecs = require("./lib/modelSpecs");
 var generateEntityFiles = require("./lib/generateEntityFiles");
 var Log = require("../utils/log");
 var utils_1 = require("../actions/lib/utils");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var mongoAdaptator_1 = require("../database/mongoAdaptator");
 var GenerateActionClass = /** @class */ (function () {
-    function GenerateActionClass(modelName, crud, part) {
+    function GenerateActionClass(databaseStrategy, modelName, crud, part) {
+        this.databaseStrategy = databaseStrategy;
         this.modelName = modelName;
         this.crud = crud;
         this.part = part;
     }
     GenerateActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var modelExists, sqlConnection, inquirer, confirmation, spinner, isExisting, entityModelData, data, _a, _b, columns, foreignKeys, j, _loop_1, i;
+            var modelExists, databaseConnection, inquirer, confirmation, spinner, isExisting, entityModelData, dbType, data, _a, _b, columns, foreignKeys, j, _loop_1, i;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -70,9 +71,9 @@ var GenerateActionClass = /** @class */ (function () {
                         return [4 /*yield*/, utils.modelFileExists(this.modelName)];
                     case 1:
                         modelExists = _c.sent();
-                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                        return [4 /*yield*/, this.databaseStrategy.getConnectionFromNFW()];
                     case 2:
-                        sqlConnection = _c.sent();
+                        databaseConnection = _c.sent();
                         inquirer = new inquirer_1.Inquirer();
                         if (!modelExists) return [3 /*break*/, 4];
                         return [4 /*yield*/, inquirer.askForConfirmation(chalk_1.default.magenta(this.modelName) + " already exists, will you overwrite it ?")];
@@ -86,11 +87,12 @@ var GenerateActionClass = /** @class */ (function () {
                     case 4:
                         spinner = new clui_1.Spinner("Checking for existing entities ....");
                         spinner.start();
-                        return [4 /*yield*/, sqlConnection.tableExists(this.modelName)];
+                        return [4 /*yield*/, databaseConnection.tableExists(this.modelName)];
                     case 5:
                         isExisting = _c.sent();
                         spinner.stop();
                         entityModelData = null;
+                        dbType = this.databaseStrategy instanceof mongoAdaptator_1.MongoConnection ? "mongo" : "other";
                         return [4 /*yield*/, inquirer.askForChoice(isExisting)];
                     case 6:
                         data = _c.sent();
@@ -106,7 +108,7 @@ var GenerateActionClass = /** @class */ (function () {
                     case 8:
                         entityModelData = _c.sent();
                         if (!(!this.part || this.part === "model")) return [3 /*break*/, 10];
-                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData)
+                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData, dbType)
                                 .catch(function (e) {
                                 console.log(e);
                                 Log.error("Failed to generate model : " + e.message + "\nExiting ...");
@@ -118,7 +120,7 @@ var GenerateActionClass = /** @class */ (function () {
                     case 10: return [3 /*break*/, 23];
                     case 11:
                         if (!(!this.part || this.part === "model")) return [3 /*break*/, 13];
-                        return [4 /*yield*/, modelWriteAction.basicModel(this.modelName)
+                        return [4 /*yield*/, modelWriteAction.basicModel(this.modelName, dbType)
                                 .catch(function (e) {
                                 Log.error("Failed to generate model : " + e.message + "\nExiting ...");
                                 process.exit(1);
@@ -139,7 +141,7 @@ var GenerateActionClass = /** @class */ (function () {
                         console.log(chalk_1.default.bgRed(chalk_1.default.black(" /!\\ Process aborted /!\\")));
                         process.exit(0);
                         return [3 /*break*/, 23];
-                    case 15: return [4 /*yield*/, sqlConnection.getTableInfo(this.modelName)];
+                    case 15: return [4 /*yield*/, databaseConnection.getTableInfo(this.modelName)];
                     case 16:
                         _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
                         for (j = 0; j < columns.length; j++) {
@@ -147,7 +149,7 @@ var GenerateActionClass = /** @class */ (function () {
                         }
                         entityModelData = { columns: columns, foreignKeys: foreignKeys };
                         if (!(!this.part || this.part === "model")) return [3 /*break*/, 18];
-                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData)
+                        return [4 /*yield*/, modelWriteAction.writeModel(this.modelName, entityModelData, dbType)
                                 .catch(function (e) {
                                 Log.error("Failed to generate model : " + e.message + "\nExiting ...");
                                 process.exit(1);

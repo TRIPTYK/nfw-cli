@@ -15,6 +15,9 @@ import {columnExist,format} from '../actions/lib/utils';
 //Node Modules
 import {Spinner} from 'clui';
 import chalk from 'chalk';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { SqlConnection } from '../database/sqlAdaptator';
+import { Singleton } from '../utils/DatabaseSingleton';
 
 
 //Yargs command
@@ -37,11 +40,15 @@ export function builder (yargs: any) {
 export async function handler (argv: any): Promise<void> {
 
     let {model, columnName, action} = argv;
+    
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy = strategyInstance.setDatabaseStrategy();
+
     model= format(model);
     const spinner = new Spinner("Generating and executing migration");
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     if (!utils.modelFileExists(model)) {
         Log.error("Model should exist in order to edit him");
@@ -58,7 +65,7 @@ export async function handler (argv: any): Promise<void> {
         await new editModelAction.EditModelClass('add', model,columnName).main()
             .then(async () =>{
                 spinner.start();
-                await new migrate.MigrateActionClass(`remove-${columnName}-from-${model}`).main()
+                await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()
                     .then((generated) => {
                         const [migrationDir] = generated;
                         spinner.stop();
@@ -78,7 +85,7 @@ export async function handler (argv: any): Promise<void> {
         await new editModelAction.EditModelClass('remove', model, columnName).main()
             .then(async () => {
                 spinner.start();
-                await new migrate.MigrateActionClass(`remove-${columnName}-from-${model}`).main()
+                await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()
                     .then((generated) => {
                         const [migrationDir] = generated;
                         spinner.stop();

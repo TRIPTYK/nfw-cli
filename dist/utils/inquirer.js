@@ -391,6 +391,13 @@ var Inquirer = /** @class */ (function () {
                 choices: ['Production', 'Development', 'Staging', 'Test']
             },
             {
+                type: 'list',
+                name: 'TYPEORM_TYPE',
+                message: 'Choose the database type you want to use : ',
+                default: 'mysql',
+                choices: ['mysql', 'mongodb']
+            },
+            {
                 type: 'input',
                 name: 'PORT',
                 message: 'Which port will the app use ?',
@@ -427,20 +434,6 @@ var Inquirer = /** @class */ (function () {
                 type: 'password',
                 name: 'TYPEORM_PWD',
                 message: 'Database password ?'
-            },
-            {
-                type: 'input',
-                name: 'TYPEORM_PORT',
-                message: 'Database port ?',
-                default: 3306,
-                validate: function (data) {
-                    if ((/^[0-9]+$/).test(data)) {
-                        return true;
-                    }
-                    else {
-                        return "Please, insert numbers only !";
-                    }
-                }
             },
         ];
         return inquirer.prompt(envQuestion);

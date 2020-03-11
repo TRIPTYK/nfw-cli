@@ -50,7 +50,7 @@ var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 // project modules
 var files_1 = require("../utils/files");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var DatabaseEnv_1 = require("../database/DatabaseEnv");
 var Log = require("../utils/log");
 var readFilePromise = util_1.promisify(fs.readFile);
 var JsonFileWriter = require("json-file-rw");
@@ -125,14 +125,15 @@ function updateORMConfig(environement) {
     return ormconfigFile.saveSync();
 }
 exports.updateORMConfig = updateORMConfig;
-function checkConnectToDatabase() {
+function checkConnectToDatabase(databaseStrategy) {
     return __awaiter(this, void 0, void 0, function () {
-        var e_1;
+        var currentEnv, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, new sqlAdaptator_1.SqlConnection(exports.getCurrentEnvironment()).connect()];
+                    currentEnv = exports.getCurrentEnvironment().getEnvironment();
+                    return [4 /*yield*/, databaseStrategy.connect(currentEnv)];
                 case 1:
                     _a.sent();
                     return [3 /*break*/, 3];
@@ -148,23 +149,15 @@ function checkConnectToDatabase() {
 }
 exports.checkConnectToDatabase = checkConnectToDatabase;
 ;
-/**
- *
- * @returns {DatabaseEnv}
- */
 function getCurrentEnvironment() {
     var nfwFile = fs.readFileSync('.nfw', 'utf-8');
     var nfwEnv = JSON.parse(nfwFile).env;
     if (!nfwEnv)
         nfwEnv = 'development';
-    return new sqlAdaptator_1.DatabaseEnv(nfwEnv.toLowerCase() + ".env");
+    return new DatabaseEnv_1.DatabaseEnv(nfwEnv.toLowerCase() + ".env");
 }
 exports.getCurrentEnvironment = getCurrentEnvironment;
 ;
-/**
- *
- * @return {Promise<void>}
- */
 function checkVersion() {
     return __awaiter(this, void 0, void 0, function () {
         var _a, packageJsonCLI, packageJsonNFW;

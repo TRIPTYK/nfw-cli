@@ -50,6 +50,9 @@ var newAction = require("../actions/newAction");
 var migrateAction = require("../actions/migrateAction");
 var createSuperUserAction = require("../actions/createSuperUserAction");
 var Log = require("../utils/log");
+var inquirer_1 = require("../utils/inquirer");
+var mongoAdaptator_1 = require("../database/mongoAdaptator");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 //yargs comand
 exports.command = 'new <name>';
 //yargs command aliases
@@ -79,7 +82,7 @@ exports.builder = builder;
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var name, defaultEnv, useDifferentPath, useYarn, migrationSpinner;
+        var name, defaultEnv, useDifferentPath, useYarn, envVar, databaseStrategy, migrationSpinner;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -89,8 +92,19 @@ function handler(argv) {
                     useYarn = argv.yarn;
                     clearConsole();
                     console.log(chalk_1.default.blue('NFW'));
+                    return [4 /*yield*/, new inquirer_1.Inquirer().askForEnvVariable()];
+                case 1:
+                    envVar = _a.sent();
+                    if (envVar.TYPEORM_TYPE === 'mongodb') {
+                        envVar.TYPEORM_PORT = '27017';
+                        databaseStrategy = new mongoAdaptator_1.MongoConnection();
+                    }
+                    else {
+                        envVar.TYPEORM_PORT = '3306';
+                        databaseStrategy = new sqlAdaptator_1.SqlConnection();
+                    }
                     // process cwd is changed in newAction to the new project folder
-                    return [4 /*yield*/, new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).main()
+                    return [4 /*yield*/, new newAction.NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
                             .then(function () {
                             Log.success("New project generated successfully");
                         })
@@ -99,12 +113,12 @@ function handler(argv) {
                             Log.error("Error when generating new project : " + e.message);
                             process.exit();
                         })];
-                case 1:
+                case 2:
                     // process cwd is changed in newAction to the new project folder
                     _a.sent();
                     migrationSpinner = new clui_1.Spinner("Executing migration ...");
                     migrationSpinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init_project").main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "init_project").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             Log.success("Executed migration successfully");
@@ -113,10 +127,10 @@ function handler(argv) {
                             .catch(function (e) {
                             Log.error("Failed to execute migration : " + e.message);
                         })];
-                case 2:
+                case 3:
                     _a.sent();
                     migrationSpinner.stop();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);
@@ -126,7 +140,7 @@ function handler(argv) {
                             .catch(function (e) {
                             Log.error("Failed to create super user : " + e.message);
                         })];
-                case 3:
+                case 4:
                     _a.sent();
                     process.exit();
                     return [2 /*return*/];

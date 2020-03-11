@@ -47,6 +47,7 @@ var chalk_1 = require("chalk");
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
 var createSuperUserAction = require("../actions/createSuperUserAction");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command syntax
 exports.command = 'createUser <username>';
 //Yargs command aliases
@@ -75,17 +76,16 @@ exports.builder = builder;
 ;
 //Main function
 exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, function () {
-    var username, mail, role, password;
+    var username, mail, role, password, strategyInstance, databaseStrategy;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 username = argv.username, mail = argv.mail, role = argv.role, password = argv.password;
+                strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                databaseStrategy = strategyInstance.setDatabaseStrategy();
                 commandUtils.validateDirectory();
-                return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
-            case 1:
-                _a.sent();
                 commandUtils.updateORMConfig();
-                return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(username, mail, role, password).main()
+                return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, username, mail, role, password).main()
                         .then(function (generated) {
                         var filePath = generated[0];
                         Log.info("Created " + filePath);
@@ -95,7 +95,7 @@ exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, fun
                         .catch(function (e) {
                         Log.error("Failed to create super user : " + e.message);
                     })];
-            case 2:
+            case 1:
                 _a.sent();
                 process.exit(0);
                 return [2 /*return*/];

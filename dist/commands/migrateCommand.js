@@ -50,6 +50,7 @@ var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
 var migrateAction = require("../actions/migrateAction");
 var utils = require("../actions/lib/utils");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'migrate <migrateName>';
 //Yargs command aliases
@@ -93,7 +94,7 @@ var _validateArgs = function (argv, options) {
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var modelName, restore, dump, revert, spinner;
+        var modelName, restore, dump, revert, spinner, strategyInstance, databaseStrategy;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -102,13 +103,15 @@ function handler(argv) {
                     dump = argv.dump;
                     revert = argv.revert;
                     spinner = new clui_1.Spinner("Generating and executing migration");
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 1:
                     _a.sent();
                     commandUtils.updateORMConfig();
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName, restore, dump, revert).main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, modelName, restore, dump, revert).main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();

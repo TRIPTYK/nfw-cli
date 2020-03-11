@@ -16,6 +16,8 @@ import migrateAction = require('../actions/migrateAction');
 import generateDocAction = require('../actions/generateDocumentationAction');
 import Log = require('../utils/log');
 import main from 'mysqldump';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { Singleton } from '../utils/DatabaseSingleton';
 
 
 const generateDocSpinner = new Spinner('Generating documentation');
@@ -41,10 +43,12 @@ export function builder (yargs: any) {
 export async function handler  (argv: any): Promise<void> {
 
     const {modelName,crud,part} = argv;
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     if (reservedWords.check(modelName, 6)) {
         console.log("modelName is a reserved word");
@@ -65,12 +69,12 @@ export async function handler  (argv: any): Promise<void> {
         crudOptions.delete = crud.includes('d');
     }
 
-    await new generateAction.GenerateActionClass(modelName, crudOptions , part).main();
+    await new generateAction.GenerateActionClass(databaseStrategy, modelName, crudOptions , part).main();
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(modelName).main()
+    await new migrateAction.MigrateActionClass(databaseStrategy, modelName).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();

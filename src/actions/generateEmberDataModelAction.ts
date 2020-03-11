@@ -1,4 +1,4 @@
-import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
 import project = require('../utils/project');
 import fs = require('fs');
 import copy = require('clipboardy');

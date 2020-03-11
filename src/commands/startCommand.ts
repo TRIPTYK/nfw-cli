@@ -15,6 +15,8 @@ import migrateAction = require('../actions/migrateAction');
 import {SqlConnection} from "../database/sqlAdaptator";
 import Log = require('../utils/log');
 import JsonFileWriter = require('json-file-rw');
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { Singleton } from '../utils/DatabaseSingleton';
 
  //Yargs command
 export const command: string = 'start';
@@ -38,7 +40,7 @@ export function builder (yargs: any) {
 export async function handler (argv: any): Promise<void> {
 
     commandUtils.validateDirectory();
-
+    
     let environement = argv.env;
     const monitoringEnabled = argv.monitoring;
 
@@ -54,11 +56,11 @@ export async function handler (argv: any): Promise<void> {
 
     let connected;
     const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
-    const sqlConnection = new SqlConnection();
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy = strategyInstance.setDatabaseStrategy();
 
     try {
-        await sqlConnection.connect(currentEnv);
-
+        await databaseStrategy.connect(currentEnv);
         connected = true;
     } catch (e) {
 
@@ -67,23 +69,23 @@ export async function handler (argv: any): Promise<void> {
         
         delete clonedEnv.TYPEORM_DB;
 
-        await sqlConnection.connect(clonedEnv).catch((e) => {
-            
+        await databaseStrategy.connect(clonedEnv).catch((e) => {
+
             Log.error("Failed to pre-connect to database : " + e.message);
             Log.info(`Please check your ${environement} configuration and if your server is running`);
             process.exit(1);
         });
 
         if (e.code === 'ER_BAD_DB_ERROR') {
-            
+
             const dbName = currentEnv.TYPEORM_DB;
             const confirmation = (await new inquirer.Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
-            if (confirmation) await sqlConnection.createDatabase(dbName);
+            if (confirmation) await databaseStrategy.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).main()
+            await new migrateAction.MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
                 .then((generated) => {
-                    
+
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);
                     Log.info(`Generated in ${chalk.cyan(migrationDir)}`);

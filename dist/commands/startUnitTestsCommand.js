@@ -78,7 +78,7 @@ exports.builder = function (yargs) { };
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, sqlConnection, e_1, clonedEnv, dbName, confirmation;
+        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, sqlConnection, databaseStrategy, e_1, clonedEnv, dbName, confirmation;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -110,6 +110,7 @@ function handler(argv) {
                 case 2:
                     currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
                     sqlConnection = new sqlAdaptator_1.SqlConnection();
+                    databaseStrategy = new sqlAdaptator_1.SqlConnection();
                     _a.label = 3;
                 case 3:
                     _a.trys.push([3, 5, , 12]);
@@ -136,7 +137,7 @@ function handler(argv) {
                 case 8:
                     _a.sent();
                     _a.label = 9;
-                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass("create-db-" + dbName).main()
+                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
                         .then(function (generated) {
                         var migrationDir = generated[0];
                         Log.success("Executed migration successfully");

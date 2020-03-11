@@ -9,11 +9,14 @@ import Log = require('../utils/log');
 import actionUtils = require('../actions/lib/utils');
 import migrateAction = require('../actions/migrateAction');
 import createSuperUserAction = require('../actions/createSuperUserAction');
+import { Singleton } from '../utils/DatabaseSingleton';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 //Node_modules import
 import fs = require('fs');
 import chalk from 'chalk';
 import {Spinner} from 'clui';
+
 
 //Yargs command
 export const command: string = 'initialize';
@@ -41,6 +44,8 @@ export async function handler (argv: any): Promise<void> {
     commandUtils.validateDirectory();
 
     let files = fs.readdirSync('./');
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
 
     // select only env files
     let envFiles = files.filter((file) => file.includes('.env')).map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')));
@@ -52,7 +57,7 @@ export async function handler (argv: any): Promise<void> {
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await new migrateAction.MigrateActionClass("init").main()
+    await new migrateAction.MigrateActionClass(databaseStrategy, "init").main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();
@@ -63,10 +68,10 @@ export async function handler (argv: any): Promise<void> {
             spinner.stop();
             Log.error(e.message);
         });
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
 
-    await new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
+    await new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
         .then((generated) => {
             const [ filePath ] = generated;
 

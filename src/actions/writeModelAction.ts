@@ -10,17 +10,14 @@ import {capitalizeEntity, lowercaseEntity} from './lib/utils';
 import project = require('../utils/project');
 import modelTemplateFile = require('../templates/model');
 
-/**
- * @param {string} action Model name
- * @param {array} data Data describing the model
- * @description write a typeorm model from an array of info about an entity
- * @returns {Promise<void>}
- */
-export async function writeModel (action, data = null) {
+
+//action: modelName
+//Description : write a typeorm model from an array of info about an entity
+export async function writeModel (action: string, data = null, dbType: string): Promise<void> {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
     let {columns, foreignKeys} = data;
-
+ 
     /*
          filter the foreign keys from columns , they are not needed anymore
          Only when imported by database
@@ -29,20 +26,19 @@ export async function writeModel (action, data = null) {
         return foreignKeys.find(elem => elem.COLUMN_NAME === column.Field) === undefined;
     }).filter(col => col.Field !== "id");
 
+    
     modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
         entities : columns,
         className : capitalize,
         createUpdate: data.createUpdate
-    });
+    }, dbType);
 
     await project.save();
 };
 
-/**
- *  @description creates a basic model , with no entites , imports or foreign keys
- *  @param {string} action
- */
-export async function basicModel (action) {
+
+//Description : creates a basic model , with no entites , imports or foreign keys
+export async function basicModel (action: string, dbType: string) {
     let lowercase = lowercaseEntity(action);
     let capitalize = capitalizeEntity(lowercase);
 
@@ -53,7 +49,7 @@ export async function basicModel (action) {
             createAt: true,
             updateAt: true
         }
-    });
+    }, dbType);
 
     await project.save();
 };

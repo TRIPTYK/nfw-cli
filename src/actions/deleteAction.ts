@@ -10,16 +10,21 @@ import {forEachStructureChild, StructureTypeGuards} from 'ts-morph';
 // Node modules
 import FS = require('fs');
 import Util = require('util');
+import child_process = require('child_process');
 import snake = require('to-snake-case');
+import JsonFileWriter = require("json-file-rw");
 
 // Project modules
-import { getSqlConnectionFromNFW  } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
 import Log = require('../utils/log');
 import {items} from '../static/resources';
 import {capitalizeEntity, lowercaseEntity} from './lib/utils';
 import removeRel = require('./removeRelationAction');
 
 import project = require('../utils/project');
+import { MongoConnection } from '../database/mongoAdaptator';
+import { SqlConnection } from '../database/sqlAdaptator';
+import { DatabaseEnv } from '../database/DatabaseEnv';
 
 // simulate class properties
 let capitalize;
@@ -70,10 +75,12 @@ const _unroute = async (): Promise<{fileName: string, type: string}[]> => {
  */
 export class DeleteActionClass {
 
+    databaseStrategy: AdaptatorStrategy;
     entityName: string;
     drop: boolean;
 
-    constructor(entityName: string, drop: boolean){
+    constructor(databaseStrategy: AdaptatorStrategy, entityName: string, drop: boolean){
+        this.databaseStrategy = databaseStrategy;
         this.entityName = entityName;
         this.drop = drop;
     }
@@ -84,19 +91,30 @@ export class DeleteActionClass {
         //constructor behavior
         capitalize = capitalizeEntity(this.entityName);
         lowercase = lowercaseEntity(this.entityName);
+        const nfwConfig = new JsonFileWriter();
+        nfwConfig.openSync(".nfw");
+        const currentEnv = nfwConfig.getNodeValue("env","development");
+        const envValues = new DatabaseEnv(`${currentEnv}.env`).getEnvironment();
     
         let dumpPath = `./dist/migration/dump/${+new Date()}-${this.entityName}`;
-        const sqlConnection = await getSqlConnectionFromNFW();
+
+
+        const databaseConnection = await this.databaseStrategy.getConnectionFromNFW();
+
+        if(this.databaseStrategy instanceof SqlConnection) {
+
+            let relations = await databaseConnection.getForeignKeysRelatedTo(this.entityName).catch((err) => {
+                throw new Error(`Failed to get foreign keys related to ${this.entityName}` + err)
+            });
+        
+            for (let i = 0; i < relations.length; i++)
+                await new removeRel.RemoveRelationAction(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
+                    .main()
+                    .catch(() => {}); // not a problem
+        
+        }
     
-        let relations = await sqlConnection.getForeignKeysRelatedTo(this.entityName).catch((err) => {
-            throw new Error(`Failed to get foreign keys related to ${this.entityName}` + err)
-        });
-    
-        for (let i = 0; i < relations.length; i++)
-            await new removeRel.RemoveRelationAction(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
-                .main()
-                .catch(() => {}); // not a problem
-    
+        
     
         let promises = [  // launch all tasks in async
             _deleteTypescriptFiles(),
@@ -110,17 +128,29 @@ export class DeleteActionClass {
             modifiedFiles = modifiedFiles.concat(e)
         });
     
-        if (await sqlConnection.tableExists(this.entityName) && this.drop) {
-            await sqlConnection.dumpTable(dumpPath, this.entityName)
+        if (await databaseConnection.tableExists(this.entityName) && this.drop) {
+
+            if(this.databaseStrategy instanceof MongoConnection) {
+
+                child_process.spawnSync(`mongodump --host=${envValues.TYPEORM_HOST} --port=${envValues.TYPEORM_PORT} --username=${envValues.TYPEORM_USER} --password=${envValues.TYPEORM_PWD} --db=${envValues.TYPEORM_DB} --authenticationDatabase=admin --collection=${this.entityName} -o ./dist/migration/dump`, 
+                {stdio : 'inherit', shell: true});
+            }
+
+            if(this.databaseStrategy instanceof SqlConnection) {
+
+                await databaseConnection.dumpTable(dumpPath, this.entityName)
                 .then(() => Log.success(`SQL dump created at : ${dumpPath}`))
                 .catch(() => {
                     throw new Error(`Failed to create dump`);
                });
-    
-            await sqlConnection.dropTable(this.entityName)
-                .then(() => Log.success("Table dropped"))
-                .catch(() => Log.error("Failed to delete table"));
-        }
+
+            }
+
+            await databaseConnection.dropTable(this.entityName)
+                    .then(() => Log.success("Table/Collection dropped"))
+                    .catch(() => Log.error("Failed to delete table/Collection"));
+            }
+
     
         await project.save();
     

@@ -2,7 +2,7 @@
 var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
 var stringifyObject = require("stringify-object");
-module.exports = function (path, _a) {
+module.exports = function (path, _a, dbType) {
     var className = _a.className, entities = _a.entities, createUpdate = _a.createUpdate;
     var file = project.createSourceFile(path, null, {
         overwrite: true
@@ -24,6 +24,24 @@ module.exports = function (path, _a) {
         }
         return true;
     });
+    if (dbType === "other") {
+        var propId = modelClass.addProperty({
+            name: 'id: number'
+        });
+        propId.addDecorator({
+            name: 'PrimaryGeneratedColumn',
+            arguments: []
+        }).setIsDecoratorFactory(true);
+    }
+    if (dbType === 'mongo') {
+        var propId = modelClass.addProperty({
+            name: 'id: ObjectID'
+        });
+        propId.addDecorator({
+            name: 'ObjectIdColumn',
+            arguments: []
+        }).setIsDecoratorFactory(true);
+    }
     entities.forEach(function (entity) {
         var prop = modelClass.addProperty({
             name: entity.Field

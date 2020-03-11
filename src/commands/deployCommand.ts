@@ -8,6 +8,7 @@
 import commandUtils = require('./commandUtils');
 import deployAction = require('./../actions/deployAction');
 import Log = require('./../utils/log');
+import { Singleton } from '../utils/DatabaseSingleton';
 
 //Yargs command
 export const command: string = 'deploy <env> [mode]';
@@ -31,11 +32,13 @@ export function builder (yargs: any) {
 export async function handler (argv: any): Promise<void> {
 
     const {env,mode,createDatabase} = argv;
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy = strategyInstance.setDatabaseStrategy();
 
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
-    await new deployAction.DeployActionClass(env,mode,createDatabase).main()
+    await new deployAction.DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
         .catch((e) => {
             Log.error(e.message);
         });

@@ -65,7 +65,8 @@ var WriteFile = util.promisify(fs.writeFile);
 // module vars
 var newPath = undefined;
 var NewActionClass = /** @class */ (function () {
-    function NewActionClass(name, defaultenv, pathoption, yarn) {
+    function NewActionClass(envVar, name, defaultenv, pathoption, yarn) {
+        this.envVar = envVar;
         this.name = name;
         this.defaultEnv = defaultenv;
         this.pathOption = pathoption;
@@ -74,7 +75,7 @@ var NewActionClass = /** @class */ (function () {
     //description: Generate a new project
     NewActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var pckManager, inquirer, files, envVar, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
+            var pckManager, inquirer, files, databaseStrategy, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -91,15 +92,13 @@ var NewActionClass = /** @class */ (function () {
                             console.log(chalk_1.default.red('Error :') + ("You already have a directory name \"nfw\" or \"" + this.name + "\" !"));
                             process.exit(0);
                         }
-                        envVar = undefined;
-                        if (!this.defaultEnv) return [3 /*break*/, 4];
-                        return [4 /*yield*/, inquirer.askForEnvVariable()];
+                        //let envVar = undefined;
+                        if (this.defaultEnv) {
+                            //envVar = await inquirer.askForEnvVariable();
+                            this.envVar.URL = "http://localhost:" + this.envVar.PORT;
+                        }
+                        return [4 /*yield*/, _gitCloneAndRemove(this.name)];
                     case 3:
-                        envVar = _a.sent();
-                        envVar.URL = "http://localhost:" + envVar.PORT;
-                        _a.label = 4;
-                    case 4: return [4 /*yield*/, _gitCloneAndRemove(this.name)];
-                    case 5:
                         _a.sent();
                         process.chdir(this.name); // set current directory inside boilerplate
                         kickstart = new clui_1.Spinner('Generating app ...');
@@ -111,14 +110,14 @@ var NewActionClass = /** @class */ (function () {
                         mkdirp.sync("./dist/uploads/documents/md");
                         return [4 /*yield*/, exec(pckManager + " " + (this.yarn ? 'add' : 'install') + " bcrypt --save")
                                 .then(function () { return console.log(chalk_1.default.green("Installed bcrypt successfully")); })];
-                    case 6:
+                    case 4:
                         _a.sent();
                         return [4 /*yield*/, exec(pckManager + " " + (this.yarn ? '' : 'install'))
                                 .then(function () { return console.log(chalk_1.default.green("Installed packages successfully")); })];
-                    case 7:
+                    case 5:
                         _a.sent();
                         kickstart.stop();
-                        setupEnv = envVar === undefined ? 'development' : envVar.env.toLowerCase();
+                        setupEnv = this.envVar === undefined ? 'development' : this.envVar.env.toLowerCase();
                         config = {
                             name: this.name,
                             path: process.cwd(),
@@ -126,7 +125,7 @@ var NewActionClass = /** @class */ (function () {
                         };
                         return [4 /*yield*/, WriteFile(config.path + "/.nfw", JSON.stringify(config, null, 2))
                                 .then(function () { return Log.success("Config file generated successfully"); })];
-                    case 8:
+                    case 6:
                         _a.sent();
                         if (this.defaultEnv) {
                             envFilePath = newPath === undefined ? setupEnv + ".env" : path.resolve(newPath.path, setupEnv + ".env");
@@ -134,23 +133,30 @@ var NewActionClass = /** @class */ (function () {
                             envFileWriter = new EnvFileWriter(envFilePath);
                             jsonFileWriter = new JsonFileWriter();
                             jsonFileWriter.openSync(ormConfigPath);
-                            jsonFileWriter.setNodeValue("host", envVar.TYPEORM_HOST);
-                            jsonFileWriter.setNodeValue("port", envVar.TYPEORM_PORT);
-                            jsonFileWriter.setNodeValue("username", envVar.TYPEORM_USER);
-                            jsonFileWriter.setNodeValue("password", envVar.TYPEORM_PWD);
-                            jsonFileWriter.setNodeValue("database", envVar.TYPEORM_DB);
-                            envFileWriter.setNodeValue("TYPEORM_HOST", envVar.TYPEORM_HOST);
-                            envFileWriter.setNodeValue("TYPEORM_DB", envVar.TYPEORM_DB);
-                            envFileWriter.setNodeValue("TYPEORM_PORT", envVar.TYPEORM_PORT);
-                            envFileWriter.setNodeValue("TYPEORM_USER", envVar.TYPEORM_USER);
-                            envFileWriter.setNodeValue("TYPEORM_PWD", envVar.TYPEORM_PWD);
+                            jsonFileWriter.setNodeValue("host", this.envVar.TYPEORM_HOST);
+                            jsonFileWriter.setNodeValue("port", this.envVar.TYPEORM_PORT);
+                            jsonFileWriter.setNodeValue("username", this.envVar.TYPEORM_USER);
+                            jsonFileWriter.setNodeValue("password", this.envVar.TYPEORM_PWD);
+                            jsonFileWriter.setNodeValue("database", this.envVar.TYPEORM_DB);
+                            jsonFileWriter.setNodeValue("type", this.envVar.TYPEORM_TYPE);
+                            jsonFileWriter.setNodeValue("authSource", "admin");
+                            jsonFileWriter.setNodeValue("useNewUrlParser", true);
+                            jsonFileWriter.setNodeValue("useUnifiedTopology", true);
+                            envFileWriter.setNodeValue("TYPEORM_HOST", this.envVar.TYPEORM_HOST);
+                            envFileWriter.setNodeValue("TYPEORM_DB", this.envVar.TYPEORM_DB);
+                            envFileWriter.setNodeValue("TYPEORM_PORT", this.envVar.TYPEORM_PORT);
+                            envFileWriter.setNodeValue("TYPEORM_USER", this.envVar.TYPEORM_USER);
+                            envFileWriter.setNodeValue("TYPEORM_PWD", this.envVar.TYPEORM_PWD);
+                            envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
                             jsonFileWriter.saveSync();
                             envFileWriter.saveSync();
                         }
+                        if (!(this.envVar.TYPEORM_TYPE === 'mysql')) return [3 /*break*/, 8];
                         return [4 /*yield*/, utils.createDataBaseIfNotExists(setupEnv)];
-                    case 9:
+                    case 7:
                         _a.sent();
-                        return [2 /*return*/];
+                        _a.label = 8;
+                    case 8: return [2 /*return*/];
                 }
             });
         });

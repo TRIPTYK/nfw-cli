@@ -20,6 +20,7 @@ import Log = require('../utils/log');
 import migrateAction = require('../actions/migrateAction');
 import {SqlConnection} from "../database/sqlAdaptator";
 import inquirer = require("../utils/inquirer");
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 
 //Yargs command
@@ -70,6 +71,7 @@ export async function handler (argv: any): Promise<void> {
     let connected;
     const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
     const sqlConnection = new SqlConnection();
+    const databaseStrategy: AdaptatorStrategy = new SqlConnection();
 
     try {
         await sqlConnection.connect(currentEnv);
@@ -86,7 +88,7 @@ export async function handler (argv: any): Promise<void> {
 
             if (confirmation) await sqlConnection.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(`create-db-${dbName}`).main()
+            await new migrateAction.MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
                 .then((generated) => {
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);

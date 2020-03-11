@@ -8,28 +8,35 @@
 import * as fs from 'fs';
 import * as ejs from 'ejs';
 
-import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
+
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 export class CreateSuperUSerActionClass {
 
+    strategy: AdaptatorStrategy;
     username: string;
     mail?: string;
     role?: string;
     password?: string;
 
-    constructor(username: string, mail?: string, role?: string, password?: string){
+    constructor(strategy: AdaptatorStrategy, username: string, mail?: string, role?: string, password?: string){
+        this.strategy = strategy;
         this.username = username;
         this.mail = mail;
         this.role = role;
         this.password = password;
     }
 
+    public setStrategy(strategy: AdaptatorStrategy){
+        this.strategy = strategy; 
+    }
+
     //description: create super user
     async main(){
 
-        const sqlConnection = await getSqlConnectionFromNFW();
+        const databaseConnection = await this.strategy.getConnectionFromNFW();
 
-        let credentials = await sqlConnection.insertAdmin({
+        let credentials = await databaseConnection.insertAdmin({
             username: this.username,
             mail: this.mail,
             role: this.role,

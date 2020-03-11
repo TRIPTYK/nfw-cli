@@ -43,15 +43,17 @@ var SQLBuilder = require("json-sql-builder2");
 var sql = new SQLBuilder('MySQL');
 var inquirer = require("inquirer");
 var Log = require("../utils/log");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
 // variables
 var bcrypt = require("bcryptjs");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 var dropData;
 var seedExtension;
 var pathSeedRead;
 var pathSeedWrite;
 var seedMethode;
 var tableArray = [];
+var strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+var databaseStrategy = strategyInstance.setDatabaseStrategy();
 // 1) connexion à la bdd puis requete sql pour les champs colonne / type
 // 2) formatage correcte pour le json + xlsx 
 // 3) écriture du fichier json 
@@ -173,34 +175,35 @@ function writeInquire() {
  */
 function howMuchTable() {
     return __awaiter(this, void 0, void 0, function () {
-        var sqlConnection, result, i;
+        var databaseConnection, result, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                 case 1:
-                    sqlConnection = _a.sent();
-                    sqlConnection.connect();
-                    return [4 /*yield*/, sqlConnection.db.query("SHOW TABLES")];
+                    databaseConnection = _a.sent();
+                    return [4 /*yield*/, databaseConnection.getTables()];
                 case 2:
                     result = _a.sent();
+                    console.log(result);
                     for (i = 0; i < result.length; i++) {
                         if (Object.values(result[i])[0] === 'migration_table') { }
                         else {
                             tableArray.push(Object.values(result[i])[0]);
                         }
                     }
+                    console.log(tableArray);
                     return [2 /*return*/];
             }
         });
     });
 }
-function query(tableData, j, keyObject, i, sqlConnection, table, tabProp, dataValues) {
+function query(tableData, j, keyObject, i, databaseStrategy, table, tabProp, dataValues) {
     var myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-    sqlConnection.db.query(myQuery, function (err) {
+    databaseStrategy.db.query(myQuery, function (err) {
         if (err) {
             Log.error("Error on your seed");
             process.exit(0);
@@ -217,7 +220,7 @@ function writeDb(pathSeedWrite, seedExtension, dropData) {
         var sqlConnection;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                 case 1:
                     sqlConnection = _a.sent();
                     sqlConnection.connect();
@@ -358,7 +361,7 @@ function readbdd(seedExtension, pathSeedRead) {
         var sqlConnection, database, objetDb, newWB, _loop_1, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                 case 1:
                     sqlConnection = _a.sent();
                     sqlConnection.connect();
@@ -379,6 +382,7 @@ function readbdd(seedExtension, pathSeedRead) {
                                 deletedAt: '',
                                 avatarId: null
                             };
+                            //console.log(results);
                             for (var j = 0; j < results.length; j++) {
                                 // supprime les colonnes inutiles
                                 var key = results[j].COLUMN_NAME;

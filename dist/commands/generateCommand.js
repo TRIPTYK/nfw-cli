@@ -51,6 +51,7 @@ var generateAction = require("../actions/generateAction");
 var migrateAction = require("../actions/migrateAction");
 var generateDocAction = require("../actions/generateDocumentationAction");
 var Log = require("../utils/log");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 var generateDocSpinner = new clui_1.Spinner('Generating documentation');
 //Yargs command
 exports.command = 'generate <modelName> [CRUD] [part]';
@@ -68,16 +69,18 @@ exports.builder = builder;
 //Main function 
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var modelName, crud, part, crudOptions, spinner;
+        var modelName, crud, part, strategyInstance, databaseStrategy, crudOptions, spinner;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     modelName = argv.modelName, crud = argv.crud, part = argv.part;
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 2:
                     _a.sent();
                     if (reservedWords.check(modelName, 6)) {
@@ -96,12 +99,12 @@ function handler(argv) {
                         crudOptions.update = crud.includes('u');
                         crudOptions.delete = crud.includes('d');
                     }
-                    return [4 /*yield*/, new generateAction.GenerateActionClass(modelName, crudOptions, part).main()];
+                    return [4 /*yield*/, new generateAction.GenerateActionClass(databaseStrategy, modelName, crudOptions, part).main()];
                 case 3:
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(modelName).main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, modelName).main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();

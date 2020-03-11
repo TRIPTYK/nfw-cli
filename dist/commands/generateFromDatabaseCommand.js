@@ -47,6 +47,7 @@ var chalk_1 = require("chalk");
 var commandUtils = require("./commandUtils");
 var inquirer_1 = require("../utils/inquirer");
 var Log = require("../utils/log");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 var generateFromDatabaseAction = require("../actions/generateFromDatabaseAction");
 //Yargs command
 exports.command = 'import';
@@ -65,15 +66,17 @@ exports.builder = builder;
  */
 function handler() {
     return __awaiter(this, void 0, void 0, function () {
-        var inquirer, confirmation;
+        var strategyInstance, databaseStrategy, inquirer, confirmation;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 2:
                     _a.sent();
                     inquirer = new inquirer_1.Inquirer();
@@ -81,7 +84,7 @@ function handler() {
                 case 3:
                     confirmation = (_a.sent()).confirmation;
                     if (!confirmation) return [3 /*break*/, 5];
-                    return [4 /*yield*/, new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main()
+                    return [4 /*yield*/, new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main(databaseStrategy)
                             .then(function () {
                             Log.success('Generated from database successfully');
                         })

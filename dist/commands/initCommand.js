@@ -47,6 +47,7 @@ var Log = require("../utils/log");
 var actionUtils = require("../actions/lib/utils");
 var migrateAction = require("../actions/migrateAction");
 var createSuperUserAction = require("../actions/createSuperUserAction");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Node_modules import
 var fs = require("fs");
 var chalk_1 = require("chalk");
@@ -73,12 +74,14 @@ exports.builder = builder;
  */
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var files, envFiles, spinner;
+        var files, strategyInstance, databaseStrategy, envFiles, spinner;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     commandUtils.validateDirectory();
                     files = fs.readdirSync('./');
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     envFiles = files.filter(function (file) { return file.includes('.env'); }).map(function (fileName) { return fileName.substr(0, fileName.lastIndexOf('.')); });
                     if (!envFiles.includes(argv.env)) {
                         Log.error("Error: " + argv.env + " is not found, available environment are : " + envFiles);
@@ -89,7 +92,7 @@ function handler(argv) {
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass("init").main()
+                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "init").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();
@@ -102,10 +105,10 @@ function handler(argv) {
                         })];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

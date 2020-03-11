@@ -51,6 +51,7 @@ var utils_1 = require("../actions/lib/utils");
 var clui_1 = require("clui");
 var chalk_1 = require("chalk");
 var pluralize_1 = require("pluralize");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command syntax
 exports.command = 'addRelationship <relation> <model1> <model2>';
 //Aliases for Yargs command
@@ -91,16 +92,18 @@ exports.builder = builder;
 //Main function 
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var model1, model2, relation, name, refCol, m1Name, m2Name;
+        var strategyInstance, databaseStrategy, model1, model2, relation, name, refCol, m1Name, m2Name;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase()];
+                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 2:
                     _a.sent();
                     model1 = utils_1.format(argv.model1);
@@ -119,7 +122,7 @@ function handler(argv) {
                                         Log.success("Relation successfully added !");
                                         spinner = new clui_1.Spinner("Generating and executing migration");
                                         spinner.start();
-                                        return [4 /*yield*/, new migrateAction.MigrateActionClass(model1 + "-" + model2).main()
+                                        return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, model1 + "-" + model2).main()
                                                 .then(function (generated) {
                                                 spinner.stop();
                                                 var migrationDir = generated[0];

@@ -11,7 +11,7 @@ import { SourceFile, PropertyDeclaration, WriterFunction } from "ts-morph";
  * @param createUpdate
  * @return {SourceFile}
  */
-export = (path: string, {className,entities,createUpdate}): SourceFile => {
+export = (path: string, {className,entities,createUpdate}, dbType: string): SourceFile => {
     
     const file = project.createSourceFile(path,null,{
         overwrite : true
@@ -37,7 +37,28 @@ export = (path: string, {className,entities,createUpdate}): SourceFile => {
             return true;
         });
 
+    if(dbType === "other"){
+        const propId = modelClass.addProperty({
+            name: 'id: number'
+        });
+        propId.addDecorator({
+            name: 'PrimaryGeneratedColumn',
+            arguments: []
+        }).setIsDecoratorFactory(true);
+    }
+
+    if(dbType === 'mongo'){
+        const propId = modelClass.addProperty({
+            name: 'id: ObjectID'
+        });
+        propId.addDecorator({
+            name: 'ObjectIdColumn',
+            arguments: []
+        }).setIsDecoratorFactory(true);
+    }
+
     entities.forEach((entity) => {
+
         const prop = modelClass.addProperty({
             name : entity.Field
         });

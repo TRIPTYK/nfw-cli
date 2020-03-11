@@ -109,7 +109,7 @@ var InstallDockerActionAclass = /** @class */ (function () {
                         if (confirmation) {
                             envFileWriter = new EnvFileWriter(currentEnv + '.env');
                             envFileWriter.setNodeValue('TYPEORM_HOST', envFileValues.host);
-                            envFileWriter.setNodeValue('TYPEORM_TYPE', envFileValues.dbType);
+                            envFileWriter.setNodeValue('TYPEORM_TYPE', envFileValues.envDBType);
                             envFileWriter.setNodeValue('TYPEORM_PWD', envFileValues.password);
                             envFileWriter.setNodeValue('TYPEORM_PORT', envFileValues.port);
                             envFileWriter.saveSync();

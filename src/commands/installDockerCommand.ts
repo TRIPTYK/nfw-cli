@@ -7,8 +7,6 @@
  */
 import installDockerAction = require('../actions/installDockerAction');
 import Log = require('../utils/log');
-import JsonFileWriter = require('json-file-rw');
-import EnvFileWriter = require('env-file-rw');
 import {Inquirer} from '../utils/inquirer';
 import {DockerStrategy, MongoDBStrategy, MysqlStrategy} from '../database/DockerStrategy';
 
@@ -63,25 +61,4 @@ export async function handler (argv: any): Promise<void> {
             process.exit();
     });
 
-    /*
-    const nfwFile = new JsonFileWriter();
-    nfwFile.openSync('.nfw');
-    const currentEnv = nfwFile.getNodeValue("env","development");
-    const array = nfwFile.getNodeValue(`${currentEnv}.dockerContainers`,[]);
-    array.push(name);
-    nfwFile.saveSync();
-
-    Log.success(`Your docker container was created on localhost , port ${port} with mysql version ${vers} and password ${password}`);
-
-    const {confirmation} = await inquirer.askForConfirmation("Do you want to update your current environment file with these values ?");
-
-    if (confirmation) {
-        const envFileWriter = new EnvFileWriter(currentEnv + '.env');
-        envFileWriter.setNodeValue('TYPEORM_HOST','localhost');
-        envFileWriter.setNodeValue('TYPEORM_TYPE','mysql');
-        envFileWriter.setNodeValue('TYPEORM_PWD',password);
-        envFileWriter.setNodeValue('TYPEORM_PORT',port);
-        envFileWriter.saveSync();
-    }
-    */
 };

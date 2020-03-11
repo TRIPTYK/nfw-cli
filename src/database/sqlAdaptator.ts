@@ -17,35 +17,10 @@ import * as promisemysql from 'promise-mysql';
 
 // project imports
 import utils = require('../actions/lib/utils');
+import { DatabaseEnv } from './DatabaseEnv';
+import { AdaptatorStrategy } from './AdaptatorStrategy';
 
-export class DatabaseEnv
-{
-
-    envVariables: any;
-
-    constructor(path?: string | object)
-    {
-        dotenv.config();
-        if (typeof path === "string"){
-            this.loadFromFile(path);
-        }
-        if (typeof path === "object")
-            this.envVariables = path;
-    }
-
-    loadFromFile(path: string)
-    {
-        this.envVariables = dotenv.config({path: path}).parsed;
-    }
-
-    getEnvironment()
-    {
-        return this.envVariables;
-    }
-}
-
-export class SqlConnection
-{
+export class SqlConnection implements AdaptatorStrategy {
 
     environement: any;
 
@@ -218,22 +193,23 @@ export class SqlConnection
 
         return mysqldump(options);
     }
+
+    async getConnectionFromNFW () {
+
+        const nfwFile = fs.readFileSync('.nfw','utf-8');
+        let nfwEnv = JSON.parse(nfwFile).env;
+    
+        if (!nfwEnv)
+            nfwEnv = 'development';
+    
+        const connection =  new SqlConnection(
+            new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`)
+        );
+        await connection.connect();
+        return connection;
+    };
 }
 
 //exports.DatabaseEnv = DatabaseEnv;
 //exports.SqlConnection = SqlConnection;
 
-export async function getSqlConnectionFromNFW () {
-
-    const nfwFile = fs.readFileSync('.nfw','utf-8');
-    let nfwEnv = JSON.parse(nfwFile).env;
-
-    if (!nfwEnv)
-        nfwEnv = 'development';
-
-    const connection =  new SqlConnection(
-        new DatabaseEnv(`${nfwEnv.toLowerCase()}.env`)
-    );
-    await connection.connect();
-    return connection;
-};

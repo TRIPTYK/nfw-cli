@@ -62,6 +62,7 @@ var removeAccent = require("remove-accents");
 var reservedWords = require("reserved-words");
 var project = require("../../utils/project");
 var sqlAdaptator_1 = require("../../database/sqlAdaptator");
+var DatabaseEnv_1 = require("../../database/DatabaseEnv");
 //description : Count the lines of a file
 function countLines(path) {
     var count = 0;
@@ -175,7 +176,7 @@ function buildJoiFromColumn(column) {
 }
 exports.buildJoiFromColumn = buildJoiFromColumn;
 ;
-//description Check if a table is a bridging table in a many to many relationship
+//description : Check if a table is a bridging table in a many to many relationship
 function isBridgindTable(entity) {
     var columns = entity.columns, foreignKeys = entity.foreignKeys;
     columns = columns.filter(function (column) {
@@ -185,7 +186,7 @@ function isBridgindTable(entity) {
 }
 exports.isBridgindTable = isBridgindTable;
 ;
-//description Check if a column exist in a database table
+//description : Check if a column exist in a database table
 function columnExist(model, column) {
     var modelClass = project.getSourceFile("src/api/models/" + module.exports.lowercaseEntity(model) + ".model.ts").getClasses()[0];
     return modelClass.getInstanceProperty(column) !== undefined;
@@ -231,9 +232,11 @@ function createDataBaseIfNotExists(setupEnv) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    env = new sqlAdaptator_1.DatabaseEnv(setupEnv + ".env");
+                    env = new DatabaseEnv_1.DatabaseEnv(setupEnv + ".env");
                     sqlConnection = new sqlAdaptator_1.SqlConnection();
                     currentEnvData = env.getEnvironment();
+                    if (currentEnvData.TYPEORM_TYPE === 'mongodb')
+                        return [2 /*return*/];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 8]);
@@ -270,6 +273,9 @@ function buildModelColumnArgumentsFromObject(dbColumnaData) {
         columnArgument['default'] = dbColumnaData.Default;
     if (dbColumnaData.Default === null && dbColumnaData.Null === 'NO')
         delete columnArgument['default'];
+    if (dbColumnaData.Default === undefined) {
+        delete columnArgument['default'];
+    }
     //handle nullable
     if (dbColumnaData.Key !== 'PRI' && dbColumnaData.Key !== 'UNI') {
         columnArgument['nullable'] = dbColumnaData.Null === 'YES';

@@ -17,16 +17,19 @@ import modelSpecs = require('./lib/modelSpecs');
 import generateEntityFiles = require('./lib/generateEntityFiles');
 import Log = require('../utils/log');
 import { format } from '../actions/lib/utils';
-import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { MongoConnection } from '../database/mongoAdaptator';
 
 
 export class GenerateActionClass {
 
+    databaseStrategy: AdaptatorStrategy
     modelName: string;
     crud: object;
     part: string;
 
-    constructor(modelName: string, crud: object, part: string){
+    constructor(databaseStrategy: AdaptatorStrategy, modelName: string, crud: object, part: string){
+        this.databaseStrategy = databaseStrategy;
         this.modelName = modelName;
         this.crud = crud;
         this.part = part;
@@ -36,8 +39,8 @@ export class GenerateActionClass {
 
         this.modelName = format(this.modelName);
         const modelExists = await utils.modelFileExists(this.modelName);
-        const sqlConnection =  await getSqlConnectionFromNFW();
-        const inquirer = new Inquirer()
+        const databaseConnection =  await this.databaseStrategy.getConnectionFromNFW();
+        const inquirer = new Inquirer();
     
         if (modelExists) {
             const {confirmation} = await inquirer.askForConfirmation(`${chalk.magenta(this.modelName)} already exists, will you overwrite it ?`);
@@ -49,11 +52,11 @@ export class GenerateActionClass {
     
         const spinner = new Spinner("Checking for existing entities ....");
         spinner.start();
-        const isExisting = await sqlConnection.tableExists(this.modelName);
+        const isExisting = await databaseConnection.tableExists(this.modelName);
         spinner.stop();
     
         let entityModelData = null;
-    
+        const dbType = this.databaseStrategy instanceof MongoConnection ? "mongo" : "other";
     
         const data = await inquirer.askForChoice(isExisting);
     
@@ -61,7 +64,7 @@ export class GenerateActionClass {
             case "create an entity":
                 entityModelData = await modelSpecs.dbParams(this.modelName);
                 if (!this.part || this.part === "model")
-                    await modelWriteAction.writeModel(this.modelName, entityModelData)
+                    await modelWriteAction.writeModel(this.modelName, entityModelData, dbType)
                         .catch(e => {
                             console.log(e);
                             Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
@@ -70,7 +73,7 @@ export class GenerateActionClass {
                 break;
             case "create empty entity":
                 if (!this.part || this.part === "model")
-                    await modelWriteAction.basicModel(this.modelName)
+                    await modelWriteAction.basicModel(this.modelName, dbType)
                         .catch(e => {
                             Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                             process.exit(1);
@@ -89,14 +92,14 @@ export class GenerateActionClass {
                 process.exit(0);
                 break;
             case 'create from db':
-                let { columns, foreignKeys } = await sqlConnection.getTableInfo(this.modelName);
+                let { columns, foreignKeys } = await databaseConnection.getTableInfo(this.modelName);
                 for (let j = 0; j < columns.length; j++) {
                     columns[j].Type = utils.sqlTypeData(columns[j].Type);
                 }
                 entityModelData = { columns, foreignKeys };
     
                 if (!this.part || this.part === "model") {
-                    await modelWriteAction.writeModel(this.modelName, entityModelData)
+                    await modelWriteAction.writeModel(this.modelName, entityModelData, dbType)
                         .catch(e => {
                             Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                             process.exit(1);

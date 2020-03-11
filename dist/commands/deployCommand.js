@@ -45,6 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var commandUtils = require("./commandUtils");
 var deployAction = require("./../actions/deployAction");
 var Log = require("./../utils/log");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'deploy <env> [mode]';
 //Yargs command aliases
@@ -63,16 +64,18 @@ exports.builder = builder;
 ;
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var env, mode, createDatabase;
+        var env, mode, createDatabase, strategyInstance, databaseStrategy;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     env = argv.env, mode = argv.mode, createDatabase = argv.createDatabase;
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, new deployAction.DeployActionClass(env, mode, createDatabase).main()
+                    return [4 /*yield*/, new deployAction.DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
                             .catch(function (e) {
                             Log.error(e.message);
                         })];

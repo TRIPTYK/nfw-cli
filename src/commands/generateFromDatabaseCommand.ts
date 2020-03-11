@@ -11,6 +11,8 @@ import chalk from 'chalk';
 import commandUtils = require('./commandUtils');
 import {Inquirer}from '../utils/inquirer';
 import Log = require('../utils/log');
+import { Singleton } from '../utils/DatabaseSingleton';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 import generateFromDatabaseAction = require('../actions/generateFromDatabaseAction');
 
@@ -34,15 +36,18 @@ export function builder () {
  */
 export async function handler (): Promise<void> {
 
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
+
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     const inquirer = new Inquirer();
     const {confirmation} = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will override existing models with the same name ! Do you want to continue ?`);
 
     if (confirmation) {
-        await new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main()
+        await new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main(databaseStrategy)
             .then(() => {
                 Log.success('Generated from database successfully');
             })

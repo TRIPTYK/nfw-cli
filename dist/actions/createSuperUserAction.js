@@ -44,24 +44,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
 var fs = require("fs");
 var ejs = require("ejs");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var CreateSuperUSerActionClass = /** @class */ (function () {
-    function CreateSuperUSerActionClass(username, mail, role, password) {
+    function CreateSuperUSerActionClass(strategy, username, mail, role, password) {
+        this.strategy = strategy;
         this.username = username;
         this.mail = mail;
         this.role = role;
         this.password = password;
     }
+    CreateSuperUSerActionClass.prototype.setStrategy = function (strategy) {
+        this.strategy = strategy;
+    };
     //description: create super user
     CreateSuperUSerActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var sqlConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
+            var databaseConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 0: return [4 /*yield*/, this.strategy.getConnectionFromNFW()];
                     case 1:
-                        sqlConnection = _a.sent();
-                        return [4 /*yield*/, sqlConnection.insertAdmin({
+                        databaseConnection = _a.sent();
+                        return [4 /*yield*/, databaseConnection.insertAdmin({
                                 username: this.username,
                                 mail: this.mail,
                                 role: this.role,

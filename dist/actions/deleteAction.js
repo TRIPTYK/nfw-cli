@@ -42,14 +42,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var child_process = require("child_process");
 var snake = require("to-snake-case");
-// Project modules
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var JsonFileWriter = require("json-file-rw");
 var Log = require("../utils/log");
 var resources_1 = require("../static/resources");
 var utils_1 = require("./lib/utils");
 var removeRel = require("./removeRelationAction");
 var project = require("../utils/project");
+var mongoAdaptator_1 = require("../database/mongoAdaptator");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var DatabaseEnv_1 = require("../database/DatabaseEnv");
 // simulate class properties
 var capitalize;
 var lowercase;
@@ -95,13 +98,14 @@ var _unroute = function () { return __awaiter(void 0, void 0, void 0, function (
  * @returns {Promise<Array>}
  */
 var DeleteActionClass = /** @class */ (function () {
-    function DeleteActionClass(entityName, drop) {
+    function DeleteActionClass(databaseStrategy, entityName, drop) {
+        this.databaseStrategy = databaseStrategy;
         this.entityName = entityName;
         this.drop = drop;
     }
     DeleteActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var dumpPath, sqlConnection, relations, i, promises, results, modifiedFiles;
+            var nfwConfig, currentEnv, envValues, dumpPath, databaseConnection, relations, i, promises, results, modifiedFiles;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -110,11 +114,16 @@ var DeleteActionClass = /** @class */ (function () {
                         //constructor behavior
                         capitalize = utils_1.capitalizeEntity(this.entityName);
                         lowercase = utils_1.lowercaseEntity(this.entityName);
+                        nfwConfig = new JsonFileWriter();
+                        nfwConfig.openSync(".nfw");
+                        currentEnv = nfwConfig.getNodeValue("env", "development");
+                        envValues = new DatabaseEnv_1.DatabaseEnv(currentEnv + ".env").getEnvironment();
                         dumpPath = "./dist/migration/dump/" + +new Date() + "-" + this.entityName;
-                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                        return [4 /*yield*/, this.databaseStrategy.getConnectionFromNFW()];
                     case 1:
-                        sqlConnection = _a.sent();
-                        return [4 /*yield*/, sqlConnection.getForeignKeysRelatedTo(this.entityName).catch(function (err) {
+                        databaseConnection = _a.sent();
+                        if (!(this.databaseStrategy instanceof sqlAdaptator_1.SqlConnection)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, databaseConnection.getForeignKeysRelatedTo(this.entityName).catch(function (err) {
                                 throw new Error("Failed to get foreign keys related to " + _this.entityName + err);
                             })];
                     case 2:
@@ -143,24 +152,29 @@ var DeleteActionClass = /** @class */ (function () {
                         results.forEach(function (e) {
                             modifiedFiles = modifiedFiles.concat(e);
                         });
-                        return [4 /*yield*/, sqlConnection.tableExists(this.entityName)];
+                        return [4 /*yield*/, databaseConnection.tableExists(this.entityName)];
                     case 8:
-                        if (!((_a.sent()) && this.drop)) return [3 /*break*/, 11];
-                        return [4 /*yield*/, sqlConnection.dumpTable(dumpPath, this.entityName)
+                        if (!((_a.sent()) && this.drop)) return [3 /*break*/, 12];
+                        if (this.databaseStrategy instanceof mongoAdaptator_1.MongoConnection) {
+                            child_process.spawnSync("mongodump --host=" + envValues.TYPEORM_HOST + " --port=" + envValues.TYPEORM_PORT + " --username=" + envValues.TYPEORM_USER + " --password=" + envValues.TYPEORM_PWD + " --db=" + envValues.TYPEORM_DB + " --authenticationDatabase=admin --collection=" + this.entityName + " -o ./dist/migration/dump", { stdio: 'inherit', shell: true });
+                        }
+                        if (!(this.databaseStrategy instanceof sqlAdaptator_1.SqlConnection)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, databaseConnection.dumpTable(dumpPath, this.entityName)
                                 .then(function () { return Log.success("SQL dump created at : " + dumpPath); })
                                 .catch(function () {
                                 throw new Error("Failed to create dump");
                             })];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, sqlConnection.dropTable(this.entityName)
-                                .then(function () { return Log.success("Table dropped"); })
-                                .catch(function () { return Log.error("Failed to delete table"); })];
-                    case 10:
+                        _a.label = 10;
+                    case 10: return [4 /*yield*/, databaseConnection.dropTable(this.entityName)
+                            .then(function () { return Log.success("Table/Collection dropped"); })
+                            .catch(function () { return Log.error("Failed to delete table/Collection"); })];
+                    case 11:
                         _a.sent();
-                        _a.label = 11;
-                    case 11: return [4 /*yield*/, project.save()];
-                    case 12:
+                        _a.label = 12;
+                    case 12: return [4 /*yield*/, project.save()];
+                    case 13:
                         _a.sent();
                         return [2 /*return*/, modifiedFiles];
                 }

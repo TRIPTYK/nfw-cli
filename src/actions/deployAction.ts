@@ -6,17 +6,20 @@ const exec = util.promisify(require('child_process').exec);
 import fs = require('fs');
 
 // project modules
-import { DatabaseEnv , getSqlConnectionFromNFW } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
+import { DatabaseEnv } from '../database/DatabaseEnv';
 import Log = require('../utils/log');
 
 
 export class DeployActionClass {
 
+    databaseStrategy: AdaptatorStrategy;
     env: DatabaseEnv;
     mode: string;
     deployDB: boolean;
 
-    constructor( env: DatabaseEnv, mode: string, deployDB: boolean){
+    constructor(databaseStrategy: AdaptatorStrategy, env: DatabaseEnv, mode: string, deployDB: boolean){
+        this.databaseStrategy = databaseStrategy;
         this.env = env;
         this.mode = mode;
         this.deployDB = deployDB;
@@ -39,7 +42,7 @@ export class DeployActionClass {
 
         if (this.deployDB) {
             Log.info("connecting to DB ...");
-            const connection = await getSqlConnectionFromNFW();
+            const connection = await this.databaseStrategy.getConnectionFromNFW();
             Log.success('Connected');
 
             Log.info("Creating dump ...");

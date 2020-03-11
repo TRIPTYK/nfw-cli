@@ -48,29 +48,11 @@ var util = require("util");
 var mysqldump_1 = require("mysqldump");
 var bcrypt = require("bcryptjs");
 var pluralize_1 = require("pluralize");
-var dotenv = require("dotenv");
 var fs = require("fs");
 var promisemysql = require("promise-mysql");
 // project imports
 var utils = require("../actions/lib/utils");
-var DatabaseEnv = /** @class */ (function () {
-    function DatabaseEnv(path) {
-        dotenv.config();
-        if (typeof path === "string") {
-            this.loadFromFile(path);
-        }
-        if (typeof path === "object")
-            this.envVariables = path;
-    }
-    DatabaseEnv.prototype.loadFromFile = function (path) {
-        this.envVariables = dotenv.config({ path: path }).parsed;
-    };
-    DatabaseEnv.prototype.getEnvironment = function () {
-        return this.envVariables;
-    };
-    return DatabaseEnv;
-}());
-exports.DatabaseEnv = DatabaseEnv;
+var DatabaseEnv_1 = require("./DatabaseEnv");
 var SqlConnection = /** @class */ (function () {
     function SqlConnection(env) {
         if (env === void 0) { env = null; }
@@ -329,29 +311,28 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
+    SqlConnection.prototype.getConnectionFromNFW = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var nfwFile, nfwEnv, connection;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        nfwFile = fs.readFileSync('.nfw', 'utf-8');
+                        nfwEnv = JSON.parse(nfwFile).env;
+                        if (!nfwEnv)
+                            nfwEnv = 'development';
+                        connection = new SqlConnection(new DatabaseEnv_1.DatabaseEnv(nfwEnv.toLowerCase() + ".env"));
+                        return [4 /*yield*/, connection.connect()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, connection];
+                }
+            });
+        });
+    };
+    ;
     return SqlConnection;
 }());
 exports.SqlConnection = SqlConnection;
 //exports.DatabaseEnv = DatabaseEnv;
 //exports.SqlConnection = SqlConnection;
-function getSqlConnectionFromNFW() {
-    return __awaiter(this, void 0, void 0, function () {
-        var nfwFile, nfwEnv, connection;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    nfwFile = fs.readFileSync('.nfw', 'utf-8');
-                    nfwEnv = JSON.parse(nfwFile).env;
-                    if (!nfwEnv)
-                        nfwEnv = 'development';
-                    connection = new SqlConnection(new DatabaseEnv(nfwEnv.toLowerCase() + ".env"));
-                    return [4 /*yield*/, connection.connect()];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/, connection];
-            }
-        });
-    });
-}
-exports.getSqlConnectionFromNFW = getSqlConnectionFromNFW;
-;

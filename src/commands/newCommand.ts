@@ -15,6 +15,10 @@ import migrateAction = require('../actions/migrateAction');
 import createSuperUserAction = require('../actions/createSuperUserAction');
 import Log = require('../utils/log');
 import yargs = require('yargs');
+import { Inquirer } from '../utils/inquirer';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { MongoConnection } from '../database/mongoAdaptator';
+import { SqlConnection } from '../database/sqlAdaptator';
 
 //yargs comand
 export const command: string = 'new <name>';
@@ -61,8 +65,19 @@ export async function handler (argv: any){
         )
     );
 
+    let envVar = await new Inquirer().askForEnvVariable();
+    let databaseStrategy: AdaptatorStrategy;
+
+    if(envVar.TYPEORM_TYPE === 'mongodb'){
+        envVar.TYPEORM_PORT = '27017';
+        databaseStrategy = new MongoConnection();
+    } else {
+        envVar.TYPEORM_PORT = '3306';
+        databaseStrategy = new SqlConnection();
+    }
+
     // process cwd is changed in newAction to the new project folder
-    await new newAction.NewActionClass(name, !defaultEnv, useDifferentPath, useYarn).main()
+    await new newAction.NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
         .then(() => {
             Log.success("New project generated successfully");
         })
@@ -75,7 +90,7 @@ export async function handler (argv: any){
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();
 
-    await new migrateAction.MigrateActionClass("init_project").main()
+    await new migrateAction.MigrateActionClass(databaseStrategy, "init_project").main()
         .then((generated: any) => {
             const [migrationDir] = generated;
             Log.success(`Executed migration successfully`);
@@ -87,7 +102,7 @@ export async function handler (argv: any){
 
     migrationSpinner.stop();
 
-    await new createSuperUserAction.CreateSuperUSerActionClass("admin").main()
+    await new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
         .then((generated: any) => {
             const [ filePath ] = generated;
 

@@ -5,15 +5,19 @@ import SQLBuilder = require('json-sql-builder2');
 const sql = new SQLBuilder('MySQL');
 import inquirer = require('inquirer');
 import Log = require('../utils/log');
-import { getSqlConnectionFromNFW, SqlConnection } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+
 // variables
 import bcrypt = require('bcryptjs');
+import { Singleton } from "../utils/DatabaseSingleton";
 let dropData;
 let seedExtension;
 let pathSeedRead;
 let pathSeedWrite;
 let seedMethode;
 let tableArray = [];
+const strategyInstance = Singleton.getInstance();
+const databaseStrategy = strategyInstance.setDatabaseStrategy();
 
 // 1) connexion à la bdd puis requete sql pour les champs colonne / type
 // 2) formatage correcte pour le json + xlsx 
@@ -21,6 +25,7 @@ let tableArray = [];
 // 4) écriture xlsx 
 // 5) connection finie
 export async function main() {
+
     await inquirer.prompt([{
             type: 'list',
             message: ' choissisez la méthode de seed :    ? ',
@@ -45,6 +50,7 @@ export async function main() {
     }
 
 }
+
 async function readInquire() {
     await
     inquirer
@@ -100,24 +106,30 @@ async function writeInquire() {
  */
 async function howMuchTable() {
 
-    const sqlConnection = await getSqlConnectionFromNFW();
-    sqlConnection.connect();
-    let result = await sqlConnection.db.query(`SHOW TABLES`);
+    //const sqlConnection = await databaseStrategy.getConnectionFromNFW();
+    //sqlConnection.connect();
+    //let result = await sqlConnection.db.query(`SHOW TABLES`);
+
+    const databaseConnection = await databaseStrategy.getConnectionFromNFW();
+    let result = await databaseConnection.getTables();
+
+    console.log(result);
 
     for (let i = 0; i < result.length; i++) {
         if (Object.values(result[i])[0] === 'migration_table') {} else {
             tableArray.push(Object.values(result[i])[0]);
         }
     }
+    console.log(tableArray);
 }
 
-function query(tableData, j: number, keyObject: string[], i: number, sqlConnection: SqlConnection, table: any, tabProp: any, dataValues: any) {
+function query(tableData, j: number, keyObject: string[], i: number, databaseStrategy, table: any, tabProp: any, dataValues: any) {
     const myQuery = sql.$insert({
         $table: table,
         $columns: tabProp,
         $values: dataValues
     });
-    sqlConnection.db.query(myQuery, function (err) {
+    databaseStrategy.db.query(myQuery, function (err) {
         if (err) {
             Log.error("Error on your seed");
             process.exit(0);
@@ -133,7 +145,7 @@ function query(tableData, j: number, keyObject: string[], i: number, sqlConnecti
 }
 async function writeDb(pathSeedWrite: string, seedExtension: string, dropData: boolean) {
 
-    const sqlConnection = await getSqlConnectionFromNFW();
+    const sqlConnection = await databaseStrategy.getConnectionFromNFW();
     sqlConnection.connect();
 
 
@@ -263,7 +275,7 @@ async function seedWriteFileXlsx(newWB, pathSeedRead) {
 }
 async function readbdd(seedExtension: string, pathSeedRead: string) {
 
-    const sqlConnection = await getSqlConnectionFromNFW();
+    const sqlConnection = await databaseStrategy.getConnectionFromNFW();
     sqlConnection.connect();
     let database = sqlConnection.environement.TYPEORM_DB;
     let objetDb = {};
@@ -286,6 +298,7 @@ async function readbdd(seedExtension: string, pathSeedRead: string) {
                 deletedAt: '',
                 avatarId: null
             };
+            //console.log(results);
 
             for (let j = 0; j < results.length; j++) {
 

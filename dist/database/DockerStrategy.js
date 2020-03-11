@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+//NOTE: envDBType is only used because when installing mongo container, only 'mongo' keyword is used, but when connecting to a mongo DB, 'mongodb' must be used
+//So when the program reads the env file to connect to mongo DB, it needs to find 'mongodb' in type... however, when installing docker container,
+//only 'docker pull mongo' will work (not 'docker pull mongodb').
 var MongoDBStrategy = /** @class */ (function () {
     function MongoDBStrategy() {
     }
@@ -10,6 +13,7 @@ var MongoDBStrategy = /** @class */ (function () {
         var dbEnvVariables = {
             host: 'localhost',
             dbType: 'mongo',
+            envDBType: 'mongodb',
             password: password,
             port: port,
             version: version,
@@ -31,6 +35,7 @@ var MysqlStrategy = /** @class */ (function () {
         var dbEnvVariables = {
             host: 'localhost',
             dbType: 'mysql',
+            envDBType: 'mysql',
             password: password,
             port: port,
             version: version,

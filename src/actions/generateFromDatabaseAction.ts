@@ -10,22 +10,24 @@ import modelWrite = require('./writeModelAction');
 import generateEntityFiles = require('./lib/generateEntityFiles');
 import utils = require('./lib/utils');
 import Log = require('../utils/log');
-import { getSqlConnectionFromNFW } from '../database/sqlAdaptator';
+import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
 import createRelation = require('./createRelationAction');
+import { MongoConnection } from '../database/mongoAdaptator';
 
 const noGenerate = ['user', 'document', 'refresh_token', 'migration_table'];
 
 
 export class GenerateFromDatabaseActionClass {
 
-    async main(): Promise<void>{
+    async main(databaseStrategy: AdaptatorStrategy): Promise<void>{
 
-        const sqlAdaptor = await getSqlConnectionFromNFW();
-        const databaseName = sqlAdaptor.environement.TYPEORM_DB;
-        let p_tables = sqlAdaptor.getTables();
+        const databaseadaptor = await databaseStrategy.getConnectionFromNFW();
+        const databaseName = databaseadaptor.environement.TYPEORM_DB;
+        let p_tables = await databaseadaptor.getTables();
         let p_tablesIn = "Tables_in_" + databaseName;
         let Bridgings = [], foreignConstraint = [];
         let [tables, tablesIn] = await Promise.all([p_tables, p_tablesIn]);
+        const dbType = databaseStrategy instanceof MongoConnection ? "mongo" : "other";
 
         let crudOptions = {
             create: true,
@@ -35,7 +37,7 @@ export class GenerateFromDatabaseActionClass {
         };
 
         for (let j = 0; j < tables.length; j++) {
-            let {columns, foreignKeys} = await sqlAdaptor.getTableInfo(tables[j][tablesIn]);
+            let {columns, foreignKeys} = await databaseadaptor.getTableInfo(tables[j][tablesIn]);
             let entityModelData = {columns, foreignKeys};
             if (utils.isBridgindTable(entityModelData)) {
                 Bridgings.push(foreignKeys);
@@ -44,7 +46,7 @@ export class GenerateFromDatabaseActionClass {
             for (let j = 0; j < columns.length; j++) columns[j].Type = utils.sqlTypeData(columns[j].Type);
             for (let j = 0; j < foreignKeys.length; j++) foreignConstraint.push(foreignKeys[j]);
             if (noGenerate.includes(tables[j][tablesIn])) continue;
-            await modelWrite.writeModel(tables[j][tablesIn], entityModelData)
+            await modelWrite.writeModel(tables[j][tablesIn], entityModelData, dbType)
                 .catch(e => {
                     Log.error(`Failed to generate model : ${e.message}\nExiting ...`);
                     process.exit(1);

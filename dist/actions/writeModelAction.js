@@ -47,13 +47,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("./lib/utils");
 var project = require("../utils/project");
 var modelTemplateFile = require("../templates/model");
-/**
- * @param {string} action Model name
- * @param {array} data Data describing the model
- * @description write a typeorm model from an array of info about an entity
- * @returns {Promise<void>}
- */
-function writeModel(action, data) {
+//action: modelName
+//Description : write a typeorm model from an array of info about an entity
+function writeModel(action, data, dbType) {
     if (data === void 0) { data = null; }
     return __awaiter(this, void 0, void 0, function () {
         var lowercase, capitalize, columns, foreignKeys;
@@ -74,7 +70,7 @@ function writeModel(action, data) {
                         entities: columns,
                         className: capitalize,
                         createUpdate: data.createUpdate
-                    });
+                    }, dbType);
                     return [4 /*yield*/, project.save()];
                 case 1:
                     _a.sent();
@@ -85,11 +81,8 @@ function writeModel(action, data) {
 }
 exports.writeModel = writeModel;
 ;
-/**
- *  @description creates a basic model , with no entites , imports or foreign keys
- *  @param {string} action
- */
-function basicModel(action) {
+//Description : creates a basic model , with no entites , imports or foreign keys
+function basicModel(action, dbType) {
     return __awaiter(this, void 0, void 0, function () {
         var lowercase, capitalize;
         return __generator(this, function (_a) {
@@ -104,7 +97,7 @@ function basicModel(action) {
                             createAt: true,
                             updateAt: true
                         }
-                    });
+                    }, dbType);
                     return [4 /*yield*/, project.save()];
                 case 1:
                     _a.sent();

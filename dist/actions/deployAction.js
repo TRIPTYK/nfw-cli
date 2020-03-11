@@ -42,11 +42,11 @@ var util = require("util");
 var path = require("path");
 var exec = util.promisify(require('child_process').exec);
 var fs = require("fs");
-// project modules
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var DatabaseEnv_1 = require("../database/DatabaseEnv");
 var Log = require("../utils/log");
 var DeployActionClass = /** @class */ (function () {
-    function DeployActionClass(env, mode, deployDB) {
+    function DeployActionClass(databaseStrategy, env, mode, deployDB) {
+        this.databaseStrategy = databaseStrategy;
         this.env = env;
         this.mode = mode;
         this.deployDB = deployDB;
@@ -57,7 +57,7 @@ var DeployActionClass = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        loadedEnv = new sqlAdaptator_1.DatabaseEnv();
+                        loadedEnv = new DatabaseEnv_1.DatabaseEnv();
                         loadedEnv.loadFromFile(this.env + '.env');
                         deploy = require(process.cwd() + "/ecosystem.config").deploy;
                         if (!deploy.hasOwnProperty(this.env)) {
@@ -69,7 +69,7 @@ var DeployActionClass = /** @class */ (function () {
                         Log.info("PM2 local version is " + stdout);
                         if (!this.deployDB) return [3 /*break*/, 5];
                         Log.info("connecting to DB ...");
-                        return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                        return [4 /*yield*/, this.databaseStrategy.getConnectionFromNFW()];
                     case 2:
                         connection = _a.sent();
                         Log.success('Connected');

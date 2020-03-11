@@ -15,6 +15,9 @@ import {format} from '../actions/lib/utils';
 import {Spinner} from 'clui';
 import chalk from 'chalk';
 import {singular} from 'pluralize';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { SqlConnection } from '../database/sqlAdaptator';
+import { Singleton } from '../utils/DatabaseSingleton';
 
 
 //Yargs command syntax
@@ -60,9 +63,12 @@ export function builder (yargs: any) {
 //Main function 
 export async function handler (argv: any): Promise<void> {
 
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy = strategyInstance.setDatabaseStrategy();
+
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
-    await commandUtils.checkConnectToDatabase();
+    await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     const model1 = format(argv.model1);
     const model2 = format(argv.model2);
@@ -70,7 +76,7 @@ export async function handler (argv: any): Promise<void> {
     const name = argv.name;
     const refCol = argv.refCol;
     let m1Name,m2Name;
-
+    
     m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
     m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
 
@@ -79,7 +85,7 @@ export async function handler (argv: any): Promise<void> {
             Log.success("Relation successfully added !");
             const spinner = new Spinner("Generating and executing migration");
             spinner.start();
-            await new migrateAction.MigrateActionClass(`${model1}-${model2}`).main()
+            await new migrateAction.MigrateActionClass(databaseStrategy, `${model1}-${model2}`).main()
                 .then((generated) => {
                     spinner.stop();
                     const [migrationDir] = generated;

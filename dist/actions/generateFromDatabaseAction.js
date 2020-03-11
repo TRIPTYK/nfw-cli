@@ -47,8 +47,8 @@ var modelWrite = require("./writeModelAction");
 var generateEntityFiles = require("./lib/generateEntityFiles");
 var utils = require("./lib/utils");
 var Log = require("../utils/log");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var createRelation = require("./createRelationAction");
+var mongoAdaptator_1 = require("../database/mongoAdaptator");
 var noGenerate = ['user', 'document', 'refresh_token', 'migration_table'];
 var GenerateFromDatabaseActionClass = /** @class */ (function () {
     function GenerateFromDatabaseActionClass() {
@@ -114,21 +114,24 @@ var GenerateFromDatabaseActionClass = /** @class */ (function () {
             });
         }); };
     }
-    GenerateFromDatabaseActionClass.prototype.main = function () {
+    GenerateFromDatabaseActionClass.prototype.main = function (databaseStrategy) {
         return __awaiter(this, void 0, void 0, function () {
-            var sqlAdaptor, databaseName, p_tables, p_tablesIn, Bridgings, foreignConstraint, _a, tables, tablesIn, crudOptions, j, _b, columns, foreignKeys, entityModelData, j_1, j_2;
+            var databaseadaptor, databaseName, p_tables, p_tablesIn, Bridgings, foreignConstraint, _a, tables, tablesIn, dbType, crudOptions, j, _b, columns, foreignKeys, entityModelData, j_1, j_2;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4 /*yield*/, sqlAdaptator_1.getSqlConnectionFromNFW()];
+                    case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
                     case 1:
-                        sqlAdaptor = _c.sent();
-                        databaseName = sqlAdaptor.environement.TYPEORM_DB;
-                        p_tables = sqlAdaptor.getTables();
+                        databaseadaptor = _c.sent();
+                        databaseName = databaseadaptor.environement.TYPEORM_DB;
+                        return [4 /*yield*/, databaseadaptor.getTables()];
+                    case 2:
+                        p_tables = _c.sent();
                         p_tablesIn = "Tables_in_" + databaseName;
                         Bridgings = [], foreignConstraint = [];
                         return [4 /*yield*/, Promise.all([p_tables, p_tablesIn])];
-                    case 2:
+                    case 3:
                         _a = _c.sent(), tables = _a[0], tablesIn = _a[1];
+                        dbType = databaseStrategy instanceof mongoAdaptator_1.MongoConnection ? "mongo" : "other";
                         crudOptions = {
                             create: true,
                             read: true,
@@ -136,42 +139,42 @@ var GenerateFromDatabaseActionClass = /** @class */ (function () {
                             delete: true
                         };
                         j = 0;
-                        _c.label = 3;
-                    case 3:
-                        if (!(j < tables.length)) return [3 /*break*/, 8];
-                        return [4 /*yield*/, sqlAdaptor.getTableInfo(tables[j][tablesIn])];
+                        _c.label = 4;
                     case 4:
+                        if (!(j < tables.length)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, databaseadaptor.getTableInfo(tables[j][tablesIn])];
+                    case 5:
                         _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
                         entityModelData = { columns: columns, foreignKeys: foreignKeys };
                         if (utils.isBridgindTable(entityModelData)) {
                             Bridgings.push(foreignKeys);
-                            return [3 /*break*/, 7];
+                            return [3 /*break*/, 8];
                         }
                         for (j_1 = 0; j_1 < columns.length; j_1++)
                             columns[j_1].Type = utils.sqlTypeData(columns[j_1].Type);
                         for (j_2 = 0; j_2 < foreignKeys.length; j_2++)
                             foreignConstraint.push(foreignKeys[j_2]);
                         if (noGenerate.includes(tables[j][tablesIn]))
-                            return [3 /*break*/, 7];
-                        return [4 /*yield*/, modelWrite.writeModel(tables[j][tablesIn], entityModelData)
+                            return [3 /*break*/, 8];
+                        return [4 /*yield*/, modelWrite.writeModel(tables[j][tablesIn], entityModelData, dbType)
                                 .catch(function (e) {
                                 Log.error("Failed to generate model : " + e.message + "\nExiting ...");
                                 process.exit(1);
                             })];
-                    case 5:
-                        _c.sent();
-                        return [4 /*yield*/, generateEntityFiles.main(tables[j][tablesIn], crudOptions, entityModelData)];
                     case 6:
                         _c.sent();
-                        _c.label = 7;
+                        return [4 /*yield*/, generateEntityFiles.main(tables[j][tablesIn], crudOptions, entityModelData)];
                     case 7:
+                        _c.sent();
+                        _c.label = 8;
+                    case 8:
                         j++;
-                        return [3 /*break*/, 3];
-                    case 8: return [4 /*yield*/, this._BridgingTableHander(Bridgings)];
-                    case 9:
+                        return [3 /*break*/, 4];
+                    case 9: return [4 /*yield*/, this._BridgingTableHander(Bridgings)];
+                    case 10:
                         _c.sent();
                         return [4 /*yield*/, this._RelationHandler(foreignConstraint)];
-                    case 10:
+                    case 11:
                         _c.sent();
                         return [2 /*return*/];
                 }
