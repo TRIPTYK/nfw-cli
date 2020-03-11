@@ -10,7 +10,7 @@ import clearConsole = require('clear');
 import { Spinner } from 'clui';
 
 // Project imports
-import newAction = require('../actions/newAction');
+import { NewActionClass } from '../actions/newAction';
 import migrateAction = require('../actions/migrateAction');
 import createSuperUserAction = require('../actions/createSuperUserAction');
 import Log = require('../utils/log');
@@ -77,7 +77,7 @@ export async function handler (argv: any){
     }
 
     // process cwd is changed in newAction to the new project folder
-    await new newAction.NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
+    await new NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
         .then(() => {
             Log.success("New project generated successfully");
         })
