@@ -46,7 +46,7 @@ var chalk_1 = require("chalk");
 var clearConsole = require("clear");
 var clui_1 = require("clui");
 // Project imports
-var newAction = require("../actions/newAction");
+var newAction_1 = require("../actions/newAction");
 var migrateAction = require("../actions/migrateAction");
 var createSuperUserAction = require("../actions/createSuperUserAction");
 var Log = require("../utils/log");
@@ -104,7 +104,7 @@ function handler(argv) {
                         databaseStrategy = new sqlAdaptator_1.SqlConnection();
                     }
                     // process cwd is changed in newAction to the new project folder
-                    return [4 /*yield*/, new newAction.NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
+                    return [4 /*yield*/, new newAction_1.NewActionClass(envVar, name, !defaultEnv, useDifferentPath, useYarn).main()
                             .then(function () {
                             Log.success("New project generated successfully");
                         })
@@ -130,7 +130,7 @@ function handler(argv) {
                 case 3:
                     _a.sent();
                     migrationSpinner.stop();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

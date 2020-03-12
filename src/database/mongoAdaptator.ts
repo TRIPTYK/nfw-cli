@@ -83,6 +83,16 @@ export class MongoConnection implements AdaptatorStrategy{
         await this.db.collection(collName).insertOne(obj);
     }
 
+    async selectFromTable(collName: string, fieldName: string) {
+
+        let results;
+        [results] = await this.db.collection(collName).aggregate([
+            {"$project": { "res": fieldName, "_id": 0}}
+        ]).toArray();
+
+        return results.res;
+    }
+
     async dropTable(collName: string): Promise<void>{
 
         return await this.db.db.dropCollection(collName);
@@ -123,9 +133,8 @@ export class MongoConnection implements AdaptatorStrategy{
 
     async getTableType(collName: string, name: string){
 
-        let columnType;
-        [columnType] = await this.db.collection(collName).aggregate([
-            {"$project":{"types":{"$type": "$"+name}}}
+        let [columnType] = await this.db.collection(collName).aggregate([
+            {"$project":{"types":{"$type": name}}}
         ]).toArray();
         return columnType.types;
     }

@@ -55,7 +55,7 @@ exports.command = 'removeRelation <type> <model1> <model2>';
 //Yargs aliases
 exports.aliases = ['rr', 'rmRl'];
 //Yargs description
-exports.describe = 'Remove a relation between two table';
+exports.describe = 'Remove a relation between two table. Only works with MySQL databases';
 //Handle and build command options
 function builder(yargs) {
     yargs.choices('relation', ['mtm', 'mto', 'otm', 'oto']);

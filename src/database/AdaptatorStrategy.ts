@@ -8,5 +8,6 @@ export interface AdaptatorStrategy {
     getTables(): Promise<any>;
     dropTable(tableName: string): Promise<void>;
     truncateTable(tableName: string): Promise<void>;
-    insertIntoTable(tableName: string, columns, values): Promise<void>
+    insertIntoTable(tableName: string, columns, values): Promise<void>;
+    selectFromTable(tableName: string, colName: string): Promise<any>;
 }

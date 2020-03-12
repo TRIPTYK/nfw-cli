@@ -71,7 +71,7 @@ export async function handler (argv: any): Promise<void> {
     await commandUtils.checkConnectToDatabase(databaseStrategy);
 
 
-    await new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
+    await new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
         .then((generated) => {
             const [ filePath ] = generated;
 

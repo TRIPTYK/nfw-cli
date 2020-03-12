@@ -251,6 +251,27 @@ var SqlConnection = /** @class */ (function () {
             });
         });
     };
+    SqlConnection.prototype.selectFromTable = function (tableName, colName) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        results = [];
+                        return [4 /*yield*/, this.db.query("SELECT " + colName + " AS res FROM " + tableName + " LIMIT 1")];
+                    case 1:
+                        results = _a.sent();
+                        if (typeof results === 'undefined' || results.length === 0) {
+                            return [2 /*return*/, ''];
+                        }
+                        else {
+                            return [2 /*return*/, results[0].res];
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     SqlConnection.prototype.insertIntoTable = function (table, columns, values) {
         return __awaiter(this, void 0, void 0, function () {
             var sql, myQuery;
@@ -263,7 +284,6 @@ var SqlConnection = /** @class */ (function () {
                             $columns: columns,
                             $values: values
                         });
-                        console.log(myQuery);
                         return [4 /*yield*/, this.db.query(myQuery)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }

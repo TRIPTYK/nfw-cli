@@ -108,7 +108,7 @@ function handler(argv) {
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
+                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

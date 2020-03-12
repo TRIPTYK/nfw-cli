@@ -132,6 +132,21 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    MongoConnection.prototype.selectFromTable = function (collName, fieldName) {
+        return __awaiter(this, void 0, void 0, function () {
+            var results;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.db.collection(collName).aggregate([
+                            { "$project": { "res": fieldName, "_id": 0 } }
+                        ]).toArray()];
+                    case 1:
+                        results = (_a.sent())[0];
+                        return [2 /*return*/, results.res];
+                }
+            });
+        });
+    };
     MongoConnection.prototype.dropTable = function (collName) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -208,7 +223,7 @@ var MongoConnection = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.db.collection(collName).aggregate([
-                            { "$project": { "types": { "$type": "$" + name } } }
+                            { "$project": { "types": { "$type": name } } }
                         ]).toArray()];
                     case 1:
                         columnType = (_a.sent())[0];

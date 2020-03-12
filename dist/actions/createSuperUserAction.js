@@ -44,19 +44,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
 var fs = require("fs");
 var ejs = require("ejs");
-var CreateSuperUSerActionClass = /** @class */ (function () {
-    function CreateSuperUSerActionClass(strategy, username, mail, role, password) {
+var CreateSuperUserActionClass = /** @class */ (function () {
+    function CreateSuperUserActionClass(strategy, username, mail, role, password) {
         this.strategy = strategy;
         this.username = username;
         this.mail = mail;
         this.role = role;
         this.password = password;
     }
-    CreateSuperUSerActionClass.prototype.setStrategy = function (strategy) {
+    CreateSuperUserActionClass.prototype.setStrategy = function (strategy) {
         this.strategy = strategy;
     };
     //description: create super user
-    CreateSuperUSerActionClass.prototype.main = function () {
+    CreateSuperUserActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var databaseConnection, credentials, credentialsFileName, credentialsTemplate, compiled;
             return __generator(this, function (_a) {
@@ -84,7 +84,7 @@ var CreateSuperUSerActionClass = /** @class */ (function () {
             });
         });
     };
-    return CreateSuperUSerActionClass;
+    return CreateSuperUserActionClass;
 }());
-exports.CreateSuperUSerActionClass = CreateSuperUSerActionClass;
+exports.CreateSuperUserActionClass = CreateSuperUserActionClass;
 ;

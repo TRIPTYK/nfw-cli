@@ -57,7 +57,7 @@ exports.command = 'addRelationship <relation> <model1> <model2>';
 //Aliases for Yargs command
 exports.aliases = ['ar', 'addR'];
 //Command description
-exports.describe = 'Create  relation between two table';
+exports.describe = 'Create  relation between two table. Only works with MySQL Databases';
 //Handle and build command options
 function builder(yargs) {
     yargs.choices('relation', ['mtm', 'mto', 'otm', 'oto']);

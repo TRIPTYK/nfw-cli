@@ -11,7 +11,7 @@ import * as ejs from 'ejs';
 
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
-export class CreateSuperUSerActionClass {
+export class CreateSuperUserActionClass {
 
     strategy: AdaptatorStrategy;
     username: string;

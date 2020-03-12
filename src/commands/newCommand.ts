@@ -102,7 +102,7 @@ export async function handler (argv: any){
 
     migrationSpinner.stop();
 
-    await new createSuperUserAction.CreateSuperUSerActionClass(databaseStrategy, "admin").main()
+    await new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
         .then((generated: any) => {
             const [ filePath ] = generated;
 

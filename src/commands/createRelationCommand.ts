@@ -27,7 +27,7 @@ export const command: string = 'addRelationship <relation> <model1> <model2>';
 export const aliases: string[] = ['ar', 'addR'];
 
 //Command description
-export const describe: string = 'Create  relation between two table';
+export const describe: string = 'Create  relation between two table. Only works with MySQL Databases';
 
 
 //Handle and build command options

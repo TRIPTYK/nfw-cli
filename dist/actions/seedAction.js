@@ -185,7 +185,7 @@ function howMuchTable() {
                 case 2:
                     result = _a.sent();
                     for (i = 0; i < result.length; i++) {
-                        if (Object.values(result[i])[0] === 'migration_table') { }
+                        if (Object.values(result[i])[0] === 'migration_table' || Object.values(result[i])[0] === 'document') { }
                         else {
                             tableArray.push(Object.values(result[i])[0]);
                         }
@@ -201,7 +201,7 @@ function query(tableData, j, keyObject, i, databaseConnection, table, tabProp, d
             switch (_a.label) {
                 case 0: return [4 /*yield*/, databaseConnection.insertIntoTable(table, tabProp, dataValues).catch(function (err) {
                         if (err) {
-                            Log.error("Error on your seed");
+                            console.error("Error on your seed", err.message);
                             process.exit(0);
                         }
                         ;
@@ -350,7 +350,7 @@ function seedWriteFileXlsx(newWB, pathSeedRead) {
 }
 function readbdd(seedExtension, pathSeedRead) {
     return __awaiter(this, void 0, void 0, function () {
-        var databaseConnection, objetDb, newWB, i, tableSql, columns, jsonOut, keys, j, key, type, newWS;
+        var databaseConnection, objetDb, newWB, i, tableSql, columns, jsonOut, keys, j, columnData, key, type, newWS;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
@@ -361,7 +361,7 @@ function readbdd(seedExtension, pathSeedRead) {
                     i = 0;
                     _a.label = 2;
                 case 2:
-                    if (!(i < tableArray.length)) return [3 /*break*/, 5];
+                    if (!(i < tableArray.length)) return [3 /*break*/, 9];
                     tableSql = tableArray[i];
                     return [4 /*yield*/, databaseConnection.getTableInfo(tableSql)];
                 case 3:
@@ -372,18 +372,32 @@ function readbdd(seedExtension, pathSeedRead) {
                         createdAt: '',
                         updatedAt: '',
                         deletedAt: '',
-                        avatarId: null
+                        avatarId: null,
+                        created_at: '',
+                        updated_at: ''
                     };
-                    for (j = 0; j < columns.length; j++) {
-                        key = columns[j].Field;
-                        type = columns[j].Type;
-                        keys[key] = '';
-                        delete keys.id;
-                        delete keys.createdAt;
-                        delete keys.updatedAt;
-                        delete keys.deletedAt;
-                        delete keys.avatarId;
-                    }
+                    j = 0;
+                    _a.label = 4;
+                case 4:
+                    if (!(j < columns.length)) return [3 /*break*/, 7];
+                    return [4 /*yield*/, databaseConnection.selectFromTable(tableSql, columns[j].Field)];
+                case 5:
+                    columnData = _a.sent();
+                    key = columns[j].Field;
+                    type = columns[j].Type;
+                    keys[key] = columnData;
+                    delete keys.id;
+                    delete keys.createdAt;
+                    delete keys.updatedAt;
+                    delete keys.deletedAt;
+                    delete keys.avatarId;
+                    delete keys.created_at;
+                    delete keys.updated_at;
+                    _a.label = 6;
+                case 6:
+                    j++;
+                    return [3 /*break*/, 4];
+                case 7:
                     jsonOut.push(keys);
                     objetDb[tableSql] = jsonOut;
                     switch (seedExtension) {
@@ -402,11 +416,11 @@ function readbdd(seedExtension, pathSeedRead) {
                             }
                             break;
                     }
-                    _a.label = 4;
-                case 4:
+                    _a.label = 8;
+                case 8:
                     i++;
                     return [3 /*break*/, 2];
-                case 5: return [2 /*return*/];
+                case 9: return [2 /*return*/];
             }
         });
     });

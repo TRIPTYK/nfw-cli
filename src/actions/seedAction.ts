@@ -13,6 +13,7 @@ import child_process = require('child_process');
 import bcrypt = require('bcryptjs');
 import { Singleton } from "../utils/DatabaseSingleton";
 import { DatabaseEnv } from "../database/DatabaseEnv";
+import { promiseImpl } from "ejs";
 let dropData;
 let seedExtension;
 let pathSeedRead;
@@ -116,9 +117,8 @@ async function howMuchTable() {
     const databaseConnection = await databaseStrategy.getConnectionFromNFW();
     let result = await databaseConnection.getTables();
 
-
     for (let i = 0; i < result.length; i++) {
-        if (Object.values(result[i])[0] === 'migration_table') {} else {
+        if (Object.values(result[i])[0] === 'migration_table' || Object.values(result[i])[0] === 'document' ) {} else {
             tableArray.push(Object.values(result[i])[0]);
         }
     }
@@ -128,7 +128,7 @@ async function query(tableData, j: number, keyObject: string[], i: number, datab
     
     await databaseConnection.insertIntoTable(table,tabProp,dataValues).catch((err) => {
         if (err) {
-            Log.error("Error on your seed");
+            console.error("Error on your seed", err.message);
             process.exit(0);
         };
     });
@@ -274,26 +274,30 @@ async function readbdd(seedExtension: string, pathSeedRead: string) {
 
         let jsonOut = [];
 
-        let keys: {id: number | string, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number | string} = {
+        let keys: {id: number | string, createdAt: any, updatedAt: any, deletedAt: any, avatarId: number | string, created_at: any, updated_at: any} = {
             id: null,
             createdAt: '',
             updatedAt: '',
             deletedAt: '',
-            avatarId: null
+            avatarId: null,
+            created_at: '',
+            updated_at: ''
         };
 
         for (let j = 0; j < columns.length; j++) {
 
             // supprime les colonnes inutiles
-
+            let columnData = await databaseConnection.selectFromTable(tableSql, columns[j].Field);
             let key = columns[j].Field;
             let type = columns[j].Type;
-            keys[key] = '';
+            keys[key] = columnData;
             delete keys.id;
             delete keys.createdAt;
             delete keys.updatedAt;
             delete keys.deletedAt;
             delete keys.avatarId;
+            delete keys.created_at;
+            delete keys.updated_at;
         }
 
         jsonOut.push(keys);

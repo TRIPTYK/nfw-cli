@@ -24,7 +24,7 @@ export const command: string = 'removeRelation <type> <model1> <model2>';
 export const aliases: string[] = ['rr', 'rmRl'];
 
 //Yargs description
-export const describe: string = 'Remove a relation between two table';
+export const describe: string = 'Remove a relation between two table. Only works with MySQL databases';
 
 
 //Handle and build command options

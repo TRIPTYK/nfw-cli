@@ -142,6 +142,18 @@ export class SqlConnection implements AdaptatorStrategy {
         
         return await this.db.query(`TRUNCATE TABLE ${tableName}`);
     }
+    
+    async selectFromTable(tableName: string, colName: string): Promise<any> {
+
+        let results = [];
+        results = await this.db.query(`SELECT ${colName} AS res FROM ${tableName} LIMIT 1`);
+
+        if(typeof results === 'undefined' || results.length === 0) {
+            return '';
+        } else {
+            return results[0].res;
+        }
+    }
 
     async insertIntoTable (table: string, columns: any, values: any): Promise<void> {
 
@@ -152,8 +164,6 @@ export class SqlConnection implements AdaptatorStrategy {
             $values: values
         });
 
-        console.log(myQuery);
-        
         return await this.db.query(myQuery);
     }
 
