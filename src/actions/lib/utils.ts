@@ -17,7 +17,6 @@ import project = require('../../utils/project');
 
 import { SqlConnection } from '../../database/sqlAdaptator';
 import { DatabaseEnv } from '../../database/DatabaseEnv';
-import { ColumnList } from 'mysqldump';
 
  
 //description : Count the lines of a file

@@ -48,7 +48,7 @@ var commandUtils = require("./commandUtils");
 var inquirer_1 = require("../utils/inquirer");
 var Log = require("../utils/log");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
-var generateFromDatabaseAction = require("../actions/generateFromDatabaseAction");
+var generateFromDatabaseAction_1 = require("../actions/generateFromDatabaseAction");
 //Yargs command
 exports.command = 'import';
 //Yargs command aliases
@@ -84,7 +84,7 @@ function handler() {
                 case 3:
                     confirmation = (_a.sent()).confirmation;
                     if (!confirmation) return [3 /*break*/, 5];
-                    return [4 /*yield*/, new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main(databaseStrategy)
+                    return [4 /*yield*/, new generateFromDatabaseAction_1.GenerateFromDatabaseActionClass().main(databaseStrategy)
                             .then(function () {
                             Log.success('Generated from database successfully');
                         })

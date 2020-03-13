@@ -24,7 +24,7 @@ const _getModelFromRelationProperty = (model1Class,model2Class,relation) => {
 };
 
 
-export class RemoveRelationAction {
+export class RemoveRelationActionClass {
 
     model1: string;
     model2: string;

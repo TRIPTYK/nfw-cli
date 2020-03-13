@@ -27,7 +27,6 @@ const exec = util.promisify(require('child_process').exec);
 const rmdir = util.promisify(rimraf);
 const renameDir = util.promisify(fs.rename);
 const WriteFile = util.promisify(fs.writeFile);
-import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
 // module vars
 let newPath = undefined;
@@ -66,11 +65,9 @@ export class NewActionClass {
         //let envVar = undefined;
     
         if (this.defaultEnv) {
-            //envVar = await inquirer.askForEnvVariable();
             this.envVar.URL = `http://localhost:${this.envVar.PORT}`;
         }
 
-        let databaseStrategy: AdaptatorStrategy;
     
         await _gitCloneAndRemove(this.name);
     
@@ -107,10 +104,28 @@ export class NewActionClass {
     
         if (this.defaultEnv) {
             
-            const envFilePath = newPath === undefined ? `${setupEnv}.env` : path.resolve(newPath.path, `${setupEnv}.env`);
             const ormConfigPath = newPath === undefined ? `ormconfig.json` : path.resolve(newPath.path, `ormconfig.json`);
     
-            const envFileWriter = new EnvFileWriter(envFilePath);
+            //Gets .env files from root dir to write env values in each of them
+            const extenstion = '.env';
+            const files = fs.readdirSync('./');
+            const envFiles = files.filter(function(file) {
+                return path.extname(file).toLowerCase() === extenstion;
+            });
+
+            for (const environmentFile of envFiles) {
+                const envFileWriter = new EnvFileWriter(environmentFile);
+
+                envFileWriter.setNodeValue("TYPEORM_HOST",this.envVar.TYPEORM_HOST);
+                envFileWriter.setNodeValue("TYPEORM_DB",this.envVar.TYPEORM_DB);
+                envFileWriter.setNodeValue("TYPEORM_PORT",this.envVar.TYPEORM_PORT);
+                envFileWriter.setNodeValue("TYPEORM_USER",this.envVar.TYPEORM_USER);
+                envFileWriter.setNodeValue("TYPEORM_PWD",this.envVar.TYPEORM_PWD);
+                envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
+
+                envFileWriter.saveSync();
+            }
+
             const jsonFileWriter = new JsonFileWriter();
             jsonFileWriter.openSync(ormConfigPath);
     
@@ -124,16 +139,7 @@ export class NewActionClass {
             jsonFileWriter.setNodeValue("useNewUrlParser", true);
             jsonFileWriter.setNodeValue("useUnifiedTopology", true);
 
-            
-            envFileWriter.setNodeValue("TYPEORM_HOST",this.envVar.TYPEORM_HOST);
-            envFileWriter.setNodeValue("TYPEORM_DB",this.envVar.TYPEORM_DB);
-            envFileWriter.setNodeValue("TYPEORM_PORT",this.envVar.TYPEORM_PORT);
-            envFileWriter.setNodeValue("TYPEORM_USER",this.envVar.TYPEORM_USER);
-            envFileWriter.setNodeValue("TYPEORM_PWD",this.envVar.TYPEORM_PWD);
-            envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
-    
             jsonFileWriter.saveSync();
-            envFileWriter.saveSync();
         }
     
         if(this.envVar.TYPEORM_TYPE === 'mysql'){

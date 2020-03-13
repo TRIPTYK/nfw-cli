@@ -6,7 +6,7 @@
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import deployAction = require('./../actions/deployAction');
+import { DeployActionClass }from './../actions/deployAction';
 import Log = require('./../utils/log');
 import { Singleton } from '../utils/DatabaseSingleton';
 
@@ -38,7 +38,7 @@ export async function handler (argv: any): Promise<void> {
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
-    await new deployAction.DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
+    await new DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
         .catch((e) => {
             Log.error(e.message);
         });

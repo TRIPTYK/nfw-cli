@@ -46,9 +46,9 @@ var clui_1 = require("clui");
 var chalk_1 = require("chalk");
 // project imports
 var commandUtils = require("./commandUtils");
-var removeRelationAction = require("../actions/removeRelationAction");
+var removeRelationAction_1 = require("../actions/removeRelationAction");
 var Log = require("../utils/log");
-var migrate = require("../actions/migrateAction");
+var migrateAction_1 = require("../actions/migrateAction");
 var DatabaseSingleton_1 = require("..//utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'removeRelation <type> <model1> <model2>';
@@ -84,7 +84,7 @@ function handler(argv) {
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, new removeRelationAction.RemoveRelationAction(model1, model2, type).main()
+                    return [4 /*yield*/, new removeRelationAction_1.RemoveRelationActionClass(model1, model2, type).main()
                             .then(function () {
                             Log.success("Relation removed between " + model1 + " and " + model2);
                         })
@@ -95,7 +95,7 @@ function handler(argv) {
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrate.MigrateActionClass(databaseStrategy, model1 + "-" + model2).main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, model1 + "-" + model2).main()
                             .then(function (generated) {
                             spinner.stop();
                             var migrationDir = generated[0];

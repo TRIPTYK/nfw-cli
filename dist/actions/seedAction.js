@@ -41,16 +41,12 @@ var xlsx = require("xlsx");
 var fs = require("fs");
 var SQLBuilder = require("json-sql-builder2");
 var sql = new SQLBuilder('MySQL');
-var inquirer = require("inquirer");
 var Log = require("../utils/log");
 // variables
 var bcrypt = require("bcryptjs");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
-var dropData;
+var inquirer_1 = require("../utils/inquirer");
 var seedExtension;
-var pathSeedRead;
-var pathSeedWrite;
-var seedMethode;
 var tableArray = [];
 var strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
 var databaseStrategy = strategyInstance.setDatabaseStrategy();
@@ -61,40 +57,35 @@ var databaseStrategy = strategyInstance.setDatabaseStrategy();
 // 5) connection finie
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var _a;
+        var seedMethod, seedInfos, seedPath, _a, isTruncate, dropData;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, inquirer.prompt([{
-                            type: 'list',
-                            message: ' choissisez la méthode de seed :    ? ',
-                            name: 'methode',
-                            choices: ['lecture', 'ecriture']
-                        },])
-                        .then(function (answers) {
-                        seedMethode = answers.methode;
-                    })];
+                case 0: return [4 /*yield*/, new inquirer_1.Inquirer().askForSeedType()];
                 case 1:
-                    _b.sent();
-                    _a = seedMethode;
+                    seedMethod = _b.sent();
+                    return [4 /*yield*/, new inquirer_1.Inquirer().askForSeedQuestions(databaseStrategy)];
+                case 2:
+                    seedInfos = _b.sent();
+                    seedExtension = seedInfos.seedExtension;
+                    seedPath = seedInfos.path;
+                    _a = seedMethod.method;
                     switch (_a) {
-                        case 'lecture': return [3 /*break*/, 2];
-                        case 'ecriture': return [3 /*break*/, 6];
+                        case 'Read db and write json/xlsx': return [3 /*break*/, 3];
+                        case 'read json/xlsx and write into db': return [3 /*break*/, 6];
                     }
                     return [3 /*break*/, 9];
-                case 2: return [4 /*yield*/, readInquire()];
-                case 3:
-                    _b.sent();
-                    return [4 /*yield*/, howMuchTable()];
+                case 3: return [4 /*yield*/, howMuchTable()];
                 case 4:
                     _b.sent();
-                    return [4 /*yield*/, readbdd(seedExtension, pathSeedRead)];
+                    return [4 /*yield*/, readbdd(seedExtension, seedPath)];
                 case 5:
                     _b.sent();
                     return [3 /*break*/, 9];
-                case 6: return [4 /*yield*/, writeInquire()];
+                case 6: return [4 /*yield*/, new inquirer_1.Inquirer().askForTruncate()];
                 case 7:
-                    _b.sent();
-                    return [4 /*yield*/, writeDb(pathSeedWrite, seedExtension, dropData)];
+                    isTruncate = _b.sent();
+                    dropData = isTruncate.dropData;
+                    return [4 /*yield*/, writeDb(seedPath, seedExtension, dropData)];
                 case 8:
                     _b.sent();
                     return [3 /*break*/, 9];
@@ -104,71 +95,6 @@ function main() {
     });
 }
 exports.main = main;
-function readInquire() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, inquirer
-                        .prompt([{
-                            type: 'list',
-                            message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
-                            name: 'seedExtension',
-                            choices: ['json', 'xlsx']
-                        },
-                        {
-                            type: 'input',
-                            message: ' chemin du fichier  ? ',
-                            default: 'seed',
-                            name: 'path',
-                        },
-                    ])
-                        .then(function (answers) {
-                        seedExtension = answers.seedExtension;
-                        pathSeedRead = answers.path;
-                    })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
-function writeInquire() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, inquirer
-                        .prompt([{
-                            type: 'confirm',
-                            message: ' delete les datas de la table  ? ',
-                            default: true,
-                            name: 'dropData',
-                        },
-                        {
-                            type: 'list',
-                            message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
-                            name: 'seedExtension',
-                            choices: ['json', 'xlsx']
-                        },
-                        {
-                            type: 'input',
-                            message: ' chemin du fichier  ? ',
-                            default: 'seed',
-                            name: 'path',
-                        },
-                    ])
-                        .then(function (answers) {
-                        dropData = answers.dropData;
-                        seedExtension = answers.seedExtension;
-                        pathSeedWrite = answers.path;
-                    })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
 /**
  * liste toutes les tables de la db
  * les push dans un tableau en excluant la tables de migrations

@@ -48,7 +48,7 @@ var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
-var migrateAction = require("../actions/migrateAction");
+var migrateAction_1 = require("../actions/migrateAction");
 var utils = require("../actions/lib/utils");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
@@ -111,7 +111,7 @@ function handler(argv) {
                     _a.sent();
                     commandUtils.updateORMConfig();
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, modelName, restore, dump, revert).main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, modelName, restore, dump, revert).main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();

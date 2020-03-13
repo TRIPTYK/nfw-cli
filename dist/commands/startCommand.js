@@ -54,11 +54,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var chalk_1 = require("chalk");
 // node modules
-var inquirer = require("../utils/inquirer");
+var inquirer_1 = require("../utils/inquirer");
 // Project imports
 var commandUtils = require("./commandUtils");
-var startAction = require("../actions/startAction");
-var migrateAction = require("../actions/migrateAction");
+var startAction_1 = require("../actions/startAction");
+var migrateAction_1 = require("../actions/migrateAction");
 var Log = require("../utils/log");
 var JsonFileWriter = require("json-file-rw");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
@@ -121,7 +121,7 @@ function handler(argv) {
                     _a.sent();
                     if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 10];
                     dbName = currentEnv.TYPEORM_DB;
-                    return [4 /*yield*/, new inquirer.Inquirer().askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
+                    return [4 /*yield*/, new inquirer_1.Inquirer().askForConfirmation("Database '" + dbName + "' does not exists , do you want to create the database ?")];
                 case 6:
                     confirmation = (_a.sent()).confirmation;
                     if (!confirmation) return [3 /*break*/, 8];
@@ -129,7 +129,7 @@ function handler(argv) {
                 case 7:
                     _a.sent();
                     _a.label = 8;
-                case 8: return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
+                case 8: return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
                         .then(function (generated) {
                         var migrationDir = generated[0];
                         Log.success("Executed migration successfully");
@@ -145,7 +145,7 @@ function handler(argv) {
                 case 10: return [3 /*break*/, 11];
                 case 11:
                     if (connected === true) {
-                        new startAction.StartActionClass(environement, monitoringEnabled).main();
+                        new startAction_1.StartActionClass(environement, monitoringEnabled).main();
                     }
                     else
                         Log.error("Server can't start because database connection failed : " + connected.message);

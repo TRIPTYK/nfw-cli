@@ -12,7 +12,7 @@ import chalk = require('chalk');
 // Project modules
 import inquirer = require('../utils/inquirer');
 import commandUtils = require('./commandUtils');
-import editEnvAction = require('../actions/editEnvAction');
+import { EditEnvActionClass } from '../actions/editEnvAction';
 import Log = require('../utils/log');
 
 //Yargs command
@@ -41,7 +41,7 @@ export async function handler (): Promise<void> {
     const envFileName = `${env}.env`;
     let chosenOne = dotenv.parse(fs.readFileSync(envFileName));
 
-    await new editEnvAction.EditEnvActionClass(env, chosenOne).main()
+    await new EditEnvActionClass(env, chosenOne).main()
         .then((written) => {
             const [confFile] = written;
             Log.success(`Edited environment successfully`);

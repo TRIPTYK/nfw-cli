@@ -3,22 +3,16 @@ import xlsx = require("xlsx");
 import fs = require('fs');
 import SQLBuilder = require('json-sql-builder2');
 const sql = new SQLBuilder('MySQL');
-import inquirer = require('inquirer');
 import Log = require('../utils/log');
-import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 import JsonFileWriter = require("json-file-rw");
-import child_process = require('child_process');
 
 // variables
 import bcrypt = require('bcryptjs');
 import { Singleton } from "../utils/DatabaseSingleton";
-import { DatabaseEnv } from "../database/DatabaseEnv";
-import { promiseImpl } from "ejs";
-let dropData;
+import { Inquirer } from "../utils/inquirer";
+
+
 let seedExtension;
-let pathSeedRead;
-let pathSeedWrite;
-let seedMethode;
 let tableArray = [];
 const strategyInstance = Singleton.getInstance();
 const databaseStrategy = strategyInstance.setDatabaseStrategy();
@@ -30,79 +24,25 @@ const databaseStrategy = strategyInstance.setDatabaseStrategy();
 // 5) connection finie
 export async function main() {
 
-    await inquirer.prompt([{
-            type: 'list',
-            message: ' choissisez la méthode de seed :    ? ',
-            name: 'methode',
-            choices: ['lecture', 'ecriture']
-        }, ])
-        .then(answers => {
-            seedMethode = answers.methode;
-        })
+    let seedMethod = await new Inquirer().askForSeedType();
+    let seedInfos = await new Inquirer().askForSeedQuestions(databaseStrategy);
 
-    switch (seedMethode) {
-        case 'lecture':
-            await readInquire();
+    seedExtension = seedInfos.seedExtension;
+    let seedPath = seedInfos.path;
+
+    switch (seedMethod.method) {
+        case 'Read db and write json/xlsx':
             await howMuchTable();
-            await readbdd(seedExtension, pathSeedRead);
-
+            await readbdd(seedExtension, seedPath);
             break;
-        case 'ecriture':
-            await writeInquire();
-            await writeDb(pathSeedWrite, seedExtension, dropData);
+        case 'read json/xlsx and write into db':
+            let isTruncate = await new Inquirer().askForTruncate();
+            let dropData = isTruncate.dropData;
+            await writeDb(seedPath, seedExtension, dropData);
             break;
     }
-
 }
 
-async function readInquire() {
-    await
-    inquirer
-        .prompt([{
-                type: 'list',
-                message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
-                name: 'seedExtension',
-                choices: ['json', 'xlsx']
-            },
-            {
-                type: 'input',
-                message: ' chemin du fichier  ? ',
-                default: 'seed',
-                name: 'path',
-            },
-        ])
-        .then(answers => {
-            seedExtension = answers.seedExtension;
-            pathSeedRead = answers.path;
-        });
-}
-async function writeInquire() {
-    await inquirer
-        .prompt([{
-                type: 'confirm',
-                message: ' delete les datas de la table  ? ',
-                default: true,
-                name: 'dropData',
-            },
-            {
-                type: 'list',
-                message: ' choissisez le format de l\'extension de votre fichier de seed  ? ',
-                name: 'seedExtension',
-                choices: ['json', 'xlsx']
-            },
-            {
-                type: 'input',
-                message: ' chemin du fichier  ? ',
-                default: 'seed',
-                name: 'path',
-            },
-        ])
-        .then(answers => {
-            dropData = answers.dropData;
-            seedExtension = answers.seedExtension;
-            pathSeedWrite = answers.path;
-        });
-}
 
 /**
  * liste toutes les tables de la db 

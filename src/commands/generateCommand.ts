@@ -11,11 +11,10 @@ import chalk from 'chalk';
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import generateAction = require('../actions/generateAction');
-import migrateAction = require('../actions/migrateAction');
-import generateDocAction = require('../actions/generateDocumentationAction');
+import { GenerateActionClass } from '../actions/generateAction';
+import { MigrateActionClass } from '../actions/migrateAction';
+import { GenerateDocumentationActionClass } from '../actions/generateDocumentationAction';
 import Log = require('../utils/log');
-import main from 'mysqldump';
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 import { Singleton } from '../utils/DatabaseSingleton';
 
@@ -69,12 +68,12 @@ export async function handler  (argv: any): Promise<void> {
         crudOptions.delete = crud.includes('d');
     }
 
-    await new generateAction.GenerateActionClass(databaseStrategy, modelName, crudOptions , part).main();
+    await new GenerateActionClass(databaseStrategy, modelName, crudOptions , part).main();
 
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(databaseStrategy, modelName).main()
+    await new MigrateActionClass(databaseStrategy, modelName).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();
@@ -89,7 +88,7 @@ export async function handler  (argv: any): Promise<void> {
 
     generateDocSpinner.start();
 
-    await new generateDocAction.GenerateDocumentationActionClass().main()
+    await new GenerateDocumentationActionClass().main()
         .then(() => {
             Log.success('Typedoc generated successfully');
         })

@@ -5,7 +5,7 @@
 /**
  * project imports
  */
-import installDockerAction = require('../actions/installDockerAction');
+import { InstallDockerActionAclass } from '../actions/installDockerAction';
 import Log = require('../utils/log');
 import {Inquirer} from '../utils/inquirer';
 import {DockerStrategy, MongoDBStrategy, MysqlStrategy} from '../database/DockerStrategy';
@@ -55,7 +55,7 @@ export async function handler (argv: any): Promise<void> {
         }
     }
 
-    await new installDockerAction.InstallDockerActionAclass(databaseStrategy, name, port, vers, password).main()
+    await new InstallDockerActionAclass(databaseStrategy, name, port, vers, password).main()
         .catch((e) => {
             Log.error(e.message);
             process.exit();

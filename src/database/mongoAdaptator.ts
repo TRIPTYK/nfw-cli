@@ -18,6 +18,7 @@ export class MongoConnection implements AdaptatorStrategy{
         }
     }
 
+    //connection to mongo using mongoose
     async connect (env: {[key:string] : any} = null): Promise<void> {
 
         if(!env) {
@@ -30,6 +31,7 @@ export class MongoConnection implements AdaptatorStrategy{
         this.db = mongoose.connection;
     }
 
+    //Insert admin into user collection with 'userModel' stored in ./database
     async insertAdmin ({username, mail, role, password}:{username: string, mail: string, role: string, password: string}): Promise<{login: string, password: (string|string)}> {
 
         if(!mail) {
@@ -59,7 +61,6 @@ export class MongoConnection implements AdaptatorStrategy{
             username: username
         });
 
-
         await user.save();
 
         return {
@@ -68,6 +69,8 @@ export class MongoConnection implements AdaptatorStrategy{
         }
     }
 
+    //insert an object containing fields names associated with its value. Obj has the following format:
+    //{field1 : value1, field2, value2}
     async insertIntoTable(collName: string, fields: any, values: any) {
 
         const obj = {
@@ -83,10 +86,10 @@ export class MongoConnection implements AdaptatorStrategy{
         await this.db.collection(collName).insertOne(obj);
     }
 
+    //Select the first document from given collection to sample data (used to seed database)
     async selectFromTable(collName: string, fieldName: string) {
 
-        let results;
-        [results] = await this.db.collection(collName).aggregate([
+        let [results] = await this.db.collection(collName).aggregate([
             {"$project": { "res": fieldName, "_id": 0}}
         ]).toArray();
 
@@ -112,6 +115,8 @@ export class MongoConnection implements AdaptatorStrategy{
         else return false;
     }
 
+    //get collection fields names and type. If a collection is empty, throws and error
+    //Remove _id and __v from results
     async getTableInfo(collName: string) {
 
         let [fields] = await this.db.collection(collName).aggregate([
@@ -122,12 +127,21 @@ export class MongoConnection implements AdaptatorStrategy{
 
         const newColumn = [];
 
-        for(const name of fields.names){
-            if(name !== '__v' && name !== '_id'){
-                let colType = await this.getTableType(collName, name);
-                newColumn.push({Field: name, Type: colType});
+        try {
+            for(const name of fields.names){
+                if(name !== '__v' && name !== '_id'){
+                    let colType = await this.getTableType(collName, name);
+                    newColumn.push({Field: name, Type: colType});
+                }
+            }
+        } catch(e) {
+            if(!fields) {
+                throw Error("One or more collection in you database is empty, please check you database");
+            } else {
+                console.log(e);
             }
         }
+        
         return {columns: newColumn, foreignKeys: []}
     }
 
@@ -139,6 +153,7 @@ export class MongoConnection implements AdaptatorStrategy{
         return columnType.types;
     }
 
+    //list collections
     async getTables(){
         
         let collList = [];

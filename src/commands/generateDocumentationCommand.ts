@@ -9,7 +9,7 @@ import {Spinner} from 'clui';
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import generateDocumentationAction = require('../actions/generateDocumentationAction');
+import { GenerateDocumentationActionClass } from '../actions/generateDocumentationAction';
 import Log = require('../utils/log');
 
 const generateDocSpinner = new Spinner('Generating documentation');
@@ -37,7 +37,7 @@ export async function handler (): Promise<void> {
 
     generateDocSpinner.start();
 
-    await new generateDocumentationAction.GenerateDocumentationActionClass().main()
+    await new GenerateDocumentationActionClass().main()
         .then(() => {
             Log.success('Typedoc generated successfully');
         })

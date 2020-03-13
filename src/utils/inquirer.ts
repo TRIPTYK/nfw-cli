@@ -11,6 +11,8 @@ import inquirer = require('inquirer');
 import {Files} from './files';
 import {columnExist,relationExist,format} from '../actions/lib/utils';
 import { DotenvParseOptions, DotenvConfigOutput, DotenvParseOutput } from 'dotenv/types';
+import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { SqlConnection } from '../database/sqlAdaptator';
 
 export class Inquirer {
 
@@ -312,6 +314,53 @@ export class Inquirer {
             }
         ];
         return inquirer.prompt(options);
+    }
+
+    askForSeedType() {
+        const questionParams: inquirer.InputQuestion =[
+        {
+            type: 'list',
+            message: ' Seed method: ',
+            name: 'method',
+            choices: ['Read db and write json/xlsx', 'read json/xlsx and write into db']
+        }
+    ]
+    
+        return inquirer.prompt(questionParams);
+    }
+
+    askForSeedQuestions(databaseStrategy: AdaptatorStrategy) {
+        let extensionChoices = ['json'];
+        if (databaseStrategy instanceof SqlConnection) extensionChoices.unshift('xlsx');
+        const questionParams: inquirer.InputQuestion = [
+            {
+                type: 'list',
+                message: ' Seed file format: ',
+                name: 'seedExtension',
+                choices: extensionChoices
+            },
+            {
+                type: 'input',
+                message: ' File path ? ',
+                default: 'seed',
+                name: 'path',
+            },
+        ]
+        
+        return inquirer.prompt(questionParams);
+    }
+
+    askForTruncate() {
+        const questionParams: inquirer.InputQuestion = [
+            {
+                type: 'confirm',
+                message: ' Truncate table ? ',
+                default: true,
+                name: 'dropData',
+            }
+        ]
+
+        return inquirer.prompt(questionParams);
     }
 
     /**

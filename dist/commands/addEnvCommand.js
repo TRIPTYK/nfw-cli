@@ -46,7 +46,7 @@ var fs = require("fs");
 var dotenv = require("dotenv");
 var chalk_1 = require("chalk");
 // Project modules
-var editEnvAction = require("../actions/editEnvAction");
+var editEnvAction_1 = require("../actions/editEnvAction");
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
 //Yargs command syntax
@@ -70,7 +70,7 @@ function handler(argv) {
                     commandUtils.validateDirectory();
                     console.log(chalk_1.default.blue('The default choices are based on the default environement setting -> developement.env'));
                     chosenOne = dotenv.parse(fs.readFileSync("development.env"));
-                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).main()
+                    return [4 /*yield*/, new editEnvAction_1.EditEnvActionClass(env, chosenOne).main()
                             .then(function (written) {
                             var envFile = written[0];
                             Log.success("New environment generated successfully");

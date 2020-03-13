@@ -48,7 +48,7 @@ var JsonFileWriter = require("json-file-rw");
 var Log = require("../utils/log");
 var resources_1 = require("../static/resources");
 var utils_1 = require("./lib/utils");
-var removeRel = require("./removeRelationAction");
+var removeRelationAction_1 = require("./removeRelationAction");
 var project = require("../utils/project");
 var mongoAdaptator_1 = require("../database/mongoAdaptator");
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
@@ -132,7 +132,7 @@ var DeleteActionClass = /** @class */ (function () {
                         _a.label = 3;
                     case 3:
                         if (!(i < relations.length)) return [3 /*break*/, 6];
-                        return [4 /*yield*/, new removeRel.RemoveRelationAction(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME, relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
+                        return [4 /*yield*/, new removeRelationAction_1.RemoveRelationActionClass(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME, relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
                                 .main()
                                 .catch(function () { })];
                     case 4:

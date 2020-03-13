@@ -49,7 +49,6 @@ var fs = require("fs");
 var chalk_1 = require("chalk");
 var mkdirp = util.promisify(require('mkdirp'));
 var child_process = require("child_process");
-var exec = util.promisify(child_process.exec);
 var path = require("path");
 var project = require("../utils/project");
 var Log = require("../utils/log");

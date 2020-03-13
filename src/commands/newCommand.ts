@@ -11,8 +11,8 @@ import { Spinner } from 'clui';
 
 // Project imports
 import { NewActionClass } from '../actions/newAction';
-import migrateAction = require('../actions/migrateAction');
-import createSuperUserAction = require('../actions/createSuperUserAction');
+import { MigrateActionClass } from '../actions/migrateAction';
+import { CreateSuperUserActionClass } from '../actions/createSuperUserAction';
 import Log = require('../utils/log');
 import yargs = require('yargs');
 import { Inquirer } from '../utils/inquirer';
@@ -90,7 +90,7 @@ export async function handler (argv: any){
     const migrationSpinner = new Spinner("Executing migration ...");
     migrationSpinner.start();
 
-    await new migrateAction.MigrateActionClass(databaseStrategy, "init_project").main()
+    await new MigrateActionClass(databaseStrategy, "init_project").main()
         .then((generated: any) => {
             const [migrationDir] = generated;
             Log.success(`Executed migration successfully`);
@@ -102,7 +102,7 @@ export async function handler (argv: any){
 
     migrationSpinner.stop();
 
-    await new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
+    await new CreateSuperUserActionClass(databaseStrategy, "admin").main()
         .then((generated: any) => {
             const [ filePath ] = generated;
 

@@ -10,7 +10,7 @@ import chalk from 'chalk';
 // Project imports
 import commandUtils = require('./commandUtils');
 import Log = require('../utils/log');
-import createSuperUserAction = require('../actions/createSuperUserAction');
+import { CreateSuperUserActionClass } from '../actions/createSuperUserAction';
 import { Singleton } from '../utils/DatabaseSingleton';
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
@@ -53,7 +53,7 @@ exports.handler = async (argv: any) => {
 
     commandUtils.updateORMConfig();
 
-    await new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, username,mail,role,password).main()
+    await new CreateSuperUserActionClass(databaseStrategy, username,mail,role,password).main()
         .then((generated) => {
             const [ filePath ] = generated;
 

@@ -10,7 +10,7 @@ import dotenv = require('dotenv');
 import chalk from 'chalk';
 
 // Project modules
-import editEnvAction = require('../actions/editEnvAction');
+import { EditEnvActionClass } from '../actions/editEnvAction';
 import commandUtils = require('./commandUtils');
 import Log = require('../utils/log');
 
@@ -37,7 +37,7 @@ export async function handler (argv: any): Promise<void> {
 
     let chosenOne = dotenv.parse(fs.readFileSync(`development.env`));
 
-    await new editEnvAction.EditEnvActionClass(env, chosenOne).main()
+    await new EditEnvActionClass(env, chosenOne).main()
         .then((written) => {
             const [envFile] = written;
             Log.success(`New environment generated successfully`);

@@ -6,8 +6,8 @@
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import migrateAction = require('../actions/migrateAction');
-import createRelationAction = require('../actions/createRelationAction');
+import { MigrateActionClass } from '../actions/migrateAction';
+import { CreateRelationActionClass } from '../actions/createRelationAction';
 import Log = require('../utils/log');
 import {format} from '../actions/lib/utils';
 
@@ -80,12 +80,12 @@ export async function handler (argv: any): Promise<void> {
     m1Name = argv.m1Name ? singular(format(argv.m1Name)) : model1;
     m2Name = argv.m2Name ? singular(format(argv.m2Name)) : model2;
 
-    await new createRelationAction.CreateRelationActionClass(model1, model2, relation, name, refCol , m1Name , m2Name).main()
+    await new CreateRelationActionClass(model1, model2, relation, name, refCol , m1Name , m2Name).main()
         .then(async () => {
             Log.success("Relation successfully added !");
             const spinner = new Spinner("Generating and executing migration");
             spinner.start();
-            await new migrateAction.MigrateActionClass(databaseStrategy, `${model1}-${model2}`).main()
+            await new MigrateActionClass(databaseStrategy, `${model1}-${model2}`).main()
                 .then((generated) => {
                     spinner.stop();
                     const [migrationDir] = generated;

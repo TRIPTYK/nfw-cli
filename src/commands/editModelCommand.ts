@@ -7,7 +7,7 @@
 // Project imports
 import commandUtils = require('./commandUtils');
 import utils = require('../actions/lib/utils');
-import editModelAction = require('../actions/editModelAction');
+import { EditModelClass } from '../actions/editModelAction';
 import Log = require('../utils/log');
 import migrate = require('../actions/migrateAction');
 import {columnExist,format} from '../actions/lib/utils';
@@ -15,8 +15,6 @@ import {columnExist,format} from '../actions/lib/utils';
 //Node Modules
 import {Spinner} from 'clui';
 import chalk from 'chalk';
-import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
-import { SqlConnection } from '../database/sqlAdaptator';
 import { Singleton } from '../utils/DatabaseSingleton';
 
 
@@ -62,7 +60,7 @@ export async function handler (argv: any): Promise<void> {
             Log.error('column already exist');
             process.exit(0);
         }
-        await new editModelAction.EditModelClass('add', model,columnName).main()
+        await new EditModelClass('add', model,columnName).main()
             .then(async () =>{
                 spinner.start();
                 await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()
@@ -82,7 +80,7 @@ export async function handler (argv: any): Promise<void> {
                 Log.error('Failed to edit model : ' + e.message)
             });
     } else if (action === 'remove' && columnName) {
-        await new editModelAction.EditModelClass('remove', model, columnName).main()
+        await new EditModelClass('remove', model, columnName).main()
             .then(async () => {
                 spinner.start();
                 await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()

@@ -47,7 +47,7 @@ var dotenv = require("dotenv");
 // Project modules
 var inquirer = require("../utils/inquirer");
 var commandUtils = require("./commandUtils");
-var editEnvAction = require("../actions/editEnvAction");
+var editEnvAction_1 = require("../actions/editEnvAction");
 var Log = require("../utils/log");
 //Yargs command
 exports.command = 'editENV';
@@ -74,7 +74,7 @@ function handler() {
                     env = (_a.sent()).env;
                     envFileName = env + ".env";
                     chosenOne = dotenv.parse(fs.readFileSync(envFileName));
-                    return [4 /*yield*/, new editEnvAction.EditEnvActionClass(env, chosenOne).main()
+                    return [4 /*yield*/, new editEnvAction_1.EditEnvActionClass(env, chosenOne).main()
                             .then(function (written) {
                             var confFile = written[0];
                             Log.success("Edited environment successfully");

@@ -75,7 +75,7 @@ var NewActionClass = /** @class */ (function () {
     //description: Generate a new project
     NewActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var pckManager, inquirer, files, databaseStrategy, kickstart, setupEnv, config, envFilePath, ormConfigPath, envFileWriter, jsonFileWriter;
+            var pckManager, inquirer, files, kickstart, setupEnv, config, ormConfigPath, extenstion_1, files_2, envFiles, _i, envFiles_1, environmentFile, envFileWriter, jsonFileWriter;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -94,7 +94,6 @@ var NewActionClass = /** @class */ (function () {
                         }
                         //let envVar = undefined;
                         if (this.defaultEnv) {
-                            //envVar = await inquirer.askForEnvVariable();
                             this.envVar.URL = "http://localhost:" + this.envVar.PORT;
                         }
                         return [4 /*yield*/, _gitCloneAndRemove(this.name)];
@@ -128,9 +127,23 @@ var NewActionClass = /** @class */ (function () {
                     case 6:
                         _a.sent();
                         if (this.defaultEnv) {
-                            envFilePath = newPath === undefined ? setupEnv + ".env" : path.resolve(newPath.path, setupEnv + ".env");
                             ormConfigPath = newPath === undefined ? "ormconfig.json" : path.resolve(newPath.path, "ormconfig.json");
-                            envFileWriter = new EnvFileWriter(envFilePath);
+                            extenstion_1 = '.env';
+                            files_2 = fs.readdirSync('./');
+                            envFiles = files_2.filter(function (file) {
+                                return path.extname(file).toLowerCase() === extenstion_1;
+                            });
+                            for (_i = 0, envFiles_1 = envFiles; _i < envFiles_1.length; _i++) {
+                                environmentFile = envFiles_1[_i];
+                                envFileWriter = new EnvFileWriter(environmentFile);
+                                envFileWriter.setNodeValue("TYPEORM_HOST", this.envVar.TYPEORM_HOST);
+                                envFileWriter.setNodeValue("TYPEORM_DB", this.envVar.TYPEORM_DB);
+                                envFileWriter.setNodeValue("TYPEORM_PORT", this.envVar.TYPEORM_PORT);
+                                envFileWriter.setNodeValue("TYPEORM_USER", this.envVar.TYPEORM_USER);
+                                envFileWriter.setNodeValue("TYPEORM_PWD", this.envVar.TYPEORM_PWD);
+                                envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
+                                envFileWriter.saveSync();
+                            }
                             jsonFileWriter = new JsonFileWriter();
                             jsonFileWriter.openSync(ormConfigPath);
                             jsonFileWriter.setNodeValue("host", this.envVar.TYPEORM_HOST);
@@ -142,14 +155,7 @@ var NewActionClass = /** @class */ (function () {
                             jsonFileWriter.setNodeValue("authSource", "admin");
                             jsonFileWriter.setNodeValue("useNewUrlParser", true);
                             jsonFileWriter.setNodeValue("useUnifiedTopology", true);
-                            envFileWriter.setNodeValue("TYPEORM_HOST", this.envVar.TYPEORM_HOST);
-                            envFileWriter.setNodeValue("TYPEORM_DB", this.envVar.TYPEORM_DB);
-                            envFileWriter.setNodeValue("TYPEORM_PORT", this.envVar.TYPEORM_PORT);
-                            envFileWriter.setNodeValue("TYPEORM_USER", this.envVar.TYPEORM_USER);
-                            envFileWriter.setNodeValue("TYPEORM_PWD", this.envVar.TYPEORM_PWD);
-                            envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
                             jsonFileWriter.saveSync();
-                            envFileWriter.saveSync();
                         }
                         if (!(this.envVar.TYPEORM_TYPE === 'mysql')) return [3 /*break*/, 8];
                         return [4 /*yield*/, utils.createDataBaseIfNotExists(setupEnv)];

@@ -64,9 +64,9 @@ var commandUtils = require("./commandUtils");
 var clui_1 = require("clui");
 var startUnitTestsAction = require("../actions/startUnitTestsAction");
 var Log = require("../utils/log");
-var migrateAction = require("../actions/migrateAction");
-var sqlAdaptator_1 = require("../database/sqlAdaptator");
+var migrateAction_1 = require("../actions/migrateAction");
 var inquirer = require("../utils/inquirer");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'test';
 //Yargs command aliases
@@ -78,7 +78,7 @@ exports.builder = function (yargs) { };
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, sqlConnection, databaseStrategy, e_1, clonedEnv, dbName, confirmation;
+        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, strategyInstance, databaseStrategy, e_1, clonedEnv, dbName, confirmation;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -109,12 +109,12 @@ function handler(argv) {
                     _a.label = 2;
                 case 2:
                     currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
-                    sqlConnection = new sqlAdaptator_1.SqlConnection();
-                    databaseStrategy = new sqlAdaptator_1.SqlConnection();
+                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     _a.label = 3;
                 case 3:
                     _a.trys.push([3, 5, , 12]);
-                    return [4 /*yield*/, sqlConnection.connect(currentEnv)];
+                    return [4 /*yield*/, databaseStrategy.connect(currentEnv)];
                 case 4:
                     _a.sent();
                     connected = true;
@@ -124,7 +124,7 @@ function handler(argv) {
                     connected = e_1;
                     clonedEnv = __assign({}, currentEnv);
                     delete clonedEnv.TYPEORM_DB;
-                    return [4 /*yield*/, sqlConnection.connect(clonedEnv)];
+                    return [4 /*yield*/, databaseStrategy.connect(clonedEnv)];
                 case 6:
                     _a.sent();
                     if (!(e_1.code === 'ER_BAD_DB_ERROR')) return [3 /*break*/, 11];
@@ -133,11 +133,11 @@ function handler(argv) {
                 case 7:
                     confirmation = (_a.sent()).confirmation;
                     if (!confirmation) return [3 /*break*/, 9];
-                    return [4 /*yield*/, sqlConnection.createDatabase(dbName)];
+                    return [4 /*yield*/, databaseStrategy.createDatabase(dbName)];
                 case 8:
                     _a.sent();
                     _a.label = 9;
-                case 9: return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
+                case 9: return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
                         .then(function (generated) {
                         var migrationDir = generated[0];
                         Log.success("Executed migration successfully");

@@ -42,7 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * project imports
  */
-var installDockerAction = require("../actions/installDockerAction");
+var installDockerAction_1 = require("../actions/installDockerAction");
 var Log = require("../utils/log");
 var inquirer_1 = require("../utils/inquirer");
 var DockerStrategy_1 = require("../database/DockerStrategy");
@@ -94,7 +94,7 @@ function handler(argv) {
                             break;
                         }
                     }
-                    return [4 /*yield*/, new installDockerAction.InstallDockerActionAclass(databaseStrategy, name, port, vers, password).main()
+                    return [4 /*yield*/, new installDockerAction_1.InstallDockerActionAclass(databaseStrategy, name, port, vers, password).main()
                             .catch(function (e) {
                             Log.error(e.message);
                             process.exit();

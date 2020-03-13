@@ -45,7 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var clui_1 = require("clui");
 // Project imports
 var commandUtils = require("./commandUtils");
-var generateDocumentationAction = require("../actions/generateDocumentationAction");
+var generateDocumentationAction_1 = require("../actions/generateDocumentationAction");
 var Log = require("../utils/log");
 var generateDocSpinner = new clui_1.Spinner('Generating documentation');
 //Yargs command
@@ -68,7 +68,7 @@ function handler() {
                 case 0:
                     commandUtils.validateDirectory();
                     generateDocSpinner.start();
-                    return [4 /*yield*/, new generateDocumentationAction.GenerateDocumentationActionClass().main()
+                    return [4 /*yield*/, new generateDocumentationAction_1.GenerateDocumentationActionClass().main()
                             .then(function () {
                             Log.success('Typedoc generated successfully');
                         })

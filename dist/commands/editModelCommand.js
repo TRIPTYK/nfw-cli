@@ -44,7 +44,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
 var commandUtils = require("./commandUtils");
 var utils = require("../actions/lib/utils");
-var editModelAction = require("../actions/editModelAction");
+var editModelAction_1 = require("../actions/editModelAction");
 var Log = require("../utils/log");
 var migrate = require("../actions/migrateAction");
 var utils_1 = require("../actions/lib/utils");
@@ -97,7 +97,7 @@ function handler(argv) {
                         Log.error('column already exist');
                         process.exit(0);
                     }
-                    return [4 /*yield*/, new editModelAction.EditModelClass('add', model, columnName).main()
+                    return [4 /*yield*/, new editModelAction_1.EditModelClass('add', model, columnName).main()
                             .then(function () { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
@@ -129,7 +129,7 @@ function handler(argv) {
                     return [3 /*break*/, 7];
                 case 5:
                     if (!(action === 'remove' && columnName)) return [3 /*break*/, 7];
-                    return [4 /*yield*/, new editModelAction.EditModelClass('remove', model, columnName).main()
+                    return [4 /*yield*/, new editModelAction_1.EditModelClass('remove', model, columnName).main()
                             .then(function () { return __awaiter(_this, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {

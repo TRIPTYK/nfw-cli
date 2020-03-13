@@ -1,8 +1,7 @@
 import util = require('util');
 const exec = util.promisify(require('child_process').exec);
 import Log = require('../utils/log');
-import { Options,Docker} from 'docker-cli-js';
-import { basicModel } from './writeModelAction';
+import { Docker} from 'docker-cli-js';
 import { DockerStrategy } from '../database/DockerStrategy';
 import { DBEnvVariables } from '../utils/interfaces';
 

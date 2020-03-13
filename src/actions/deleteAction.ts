@@ -5,7 +5,6 @@
  * @description Delete entity files
  */
 
-import {forEachStructureChild, StructureTypeGuards} from 'ts-morph';
 
 // Node modules
 import FS = require('fs');
@@ -19,7 +18,7 @@ import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
 import Log = require('../utils/log');
 import {items} from '../static/resources';
 import {capitalizeEntity, lowercaseEntity} from './lib/utils';
-import removeRel = require('./removeRelationAction');
+import { RemoveRelationActionClass } from './removeRelationAction';
 
 import project = require('../utils/project');
 import { MongoConnection } from '../database/mongoAdaptator';
@@ -108,7 +107,7 @@ export class DeleteActionClass {
             });
         
             for (let i = 0; i < relations.length; i++)
-                await new removeRel.RemoveRelationAction(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
+                await new RemoveRelationActionClass(relations[i].TABLE_NAME, relations[i].REFERENCED_TABLE_NAME,relations[i].TABLE_NAME /*, relations[i].REFERENCED_TABLE_NAME*/)
                     .main()
                     .catch(() => {}); // not a problem
         

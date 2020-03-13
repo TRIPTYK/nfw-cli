@@ -6,16 +6,14 @@
 import chalk from 'chalk';
 
 // node modules
-import inquirer = require("../utils/inquirer");
+import { Inquirer } from "../utils/inquirer";
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import startAction = require('../actions/startAction');
-import migrateAction = require('../actions/migrateAction');
-import {SqlConnection} from "../database/sqlAdaptator";
+import { StartActionClass } from '../actions/startAction';
+import { MigrateActionClass }from '../actions/migrateAction';
 import Log = require('../utils/log');
 import JsonFileWriter = require('json-file-rw');
-import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 import { Singleton } from '../utils/DatabaseSingleton';
 
  //Yargs command
@@ -79,11 +77,11 @@ export async function handler (argv: any): Promise<void> {
         if (e.code === 'ER_BAD_DB_ERROR') {
 
             const dbName = currentEnv.TYPEORM_DB;
-            const confirmation = (await new inquirer.Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
+            const confirmation = (await new Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
             if (confirmation) await databaseStrategy.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
+            await new MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
                 .then((generated) => {
 
                     const [migrationDir] = generated;
@@ -99,7 +97,7 @@ export async function handler (argv: any): Promise<void> {
     }
 
     if (connected === true){
-        new startAction.StartActionClass(environement, monitoringEnabled).main();
+        new StartActionClass(environement, monitoringEnabled).main();
     }
         
     else

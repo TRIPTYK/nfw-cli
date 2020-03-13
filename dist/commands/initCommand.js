@@ -45,8 +45,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var commandUtils = require("../commands/commandUtils");
 var Log = require("../utils/log");
 var actionUtils = require("../actions/lib/utils");
-var migrateAction = require("../actions/migrateAction");
-var createSuperUserAction = require("../actions/createSuperUserAction");
+var migrateAction_1 = require("../actions/migrateAction");
+var createSuperUserAction_1 = require("../actions/createSuperUserAction");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Node_modules import
 var fs = require("fs");
@@ -92,7 +92,7 @@ function handler(argv) {
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "init").main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "init").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();
@@ -108,7 +108,7 @@ function handler(argv) {
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
+                    return [4 /*yield*/, new createSuperUserAction_1.CreateSuperUserActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

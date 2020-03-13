@@ -47,8 +47,8 @@ var clearConsole = require("clear");
 var clui_1 = require("clui");
 // Project imports
 var newAction_1 = require("../actions/newAction");
-var migrateAction = require("../actions/migrateAction");
-var createSuperUserAction = require("../actions/createSuperUserAction");
+var migrateAction_1 = require("../actions/migrateAction");
+var createSuperUserAction_1 = require("../actions/createSuperUserAction");
 var Log = require("../utils/log");
 var inquirer_1 = require("../utils/inquirer");
 var mongoAdaptator_1 = require("../database/mongoAdaptator");
@@ -118,7 +118,7 @@ function handler(argv) {
                     _a.sent();
                     migrationSpinner = new clui_1.Spinner("Executing migration ...");
                     migrationSpinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, "init_project").main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "init_project").main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             Log.success("Executed migration successfully");
@@ -130,7 +130,7 @@ function handler(argv) {
                 case 3:
                     _a.sent();
                     migrationSpinner.stop();
-                    return [4 /*yield*/, new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
+                    return [4 /*yield*/, new createSuperUserAction_1.CreateSuperUserActionClass(databaseStrategy, "admin").main()
                             .then(function (generated) {
                             var filePath = generated[0];
                             Log.info("Created " + filePath);

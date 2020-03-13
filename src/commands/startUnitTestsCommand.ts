@@ -17,10 +17,9 @@ import commandUtils = require('./commandUtils');
 import {Spinner} from 'clui';
 import startUnitTestsAction = require('../actions/startUnitTestsAction');
 import Log = require('../utils/log');
-import migrateAction = require('../actions/migrateAction');
-import {SqlConnection} from "../database/sqlAdaptator";
+import { MigrateActionClass } from '../actions/migrateAction';
 import inquirer = require("../utils/inquirer");
-import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
+import { Singleton } from '../utils/DatabaseSingleton';
 
 
 //Yargs command
@@ -70,25 +69,26 @@ export async function handler (argv: any): Promise<void> {
 
     let connected;
     const currentEnv = commandUtils.getCurrentEnvironment().getEnvironment();
-    const sqlConnection = new SqlConnection();
-    const databaseStrategy: AdaptatorStrategy = new SqlConnection();
+
+    const strategyInstance = Singleton.getInstance();
+    const databaseStrategy = strategyInstance.setDatabaseStrategy();
 
     try {
-        await sqlConnection.connect(currentEnv);
+        await databaseStrategy.connect(currentEnv);
         connected = true;
     } catch (e) {
         connected = e;
         let clonedEnv = { ... currentEnv };
         delete clonedEnv.TYPEORM_DB;
-        await sqlConnection.connect(clonedEnv);
+        await databaseStrategy.connect(clonedEnv);
 
         if (e.code === 'ER_BAD_DB_ERROR') {
             const dbName = currentEnv.TYPEORM_DB;
             const confirmation = (await new inquirer.Inquirer().askForConfirmation(`Database '${dbName}' does not exists , do you want to create the database ?`)).confirmation;
 
-            if (confirmation) await sqlConnection.createDatabase(dbName);
+            if (confirmation) await databaseStrategy.createDatabase(dbName);
 
-            await new migrateAction.MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
+            await new MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
                 .then((generated) => {
                     const [migrationDir] = generated;
                     Log.success(`Executed migration successfully`);

@@ -48,6 +48,7 @@ var MongoConnection = /** @class */ (function () {
             this.environement = env.getEnvironment();
         }
     }
+    //connection to mongo using mongoose
     MongoConnection.prototype.connect = function (env) {
         if (env === void 0) { env = null; }
         return __awaiter(this, void 0, void 0, function () {
@@ -68,6 +69,7 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    //Insert admin into user collection with 'userModel' stored in ./database
     MongoConnection.prototype.insertAdmin = function (_a) {
         var username = _a.username, mail = _a.mail, role = _a.role, password = _a.password;
         return __awaiter(this, void 0, void 0, function () {
@@ -110,6 +112,8 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    //insert an object containing fields names associated with its value. Obj has the following format:
+    //{field1 : value1, field2, value2}
     MongoConnection.prototype.insertIntoTable = function (collName, fields, values) {
         return __awaiter(this, void 0, void 0, function () {
             var obj, index, element, val;
@@ -132,6 +136,7 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    //Select the first document from given collection to sample data (used to seed database)
     MongoConnection.prototype.selectFromTable = function (collName, fieldName) {
         return __awaiter(this, void 0, void 0, function () {
             var results;
@@ -185,9 +190,11 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    //get collection fields names and type. If a collection is empty, throws and error
+    //Remove _id and __v from results
     MongoConnection.prototype.getTableInfo = function (collName) {
         return __awaiter(this, void 0, void 0, function () {
-            var fields, newColumn, _i, _a, name_1, colType;
+            var fields, newColumn, _i, _a, name_1, colType, e_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.db.collection(collName).aggregate([
@@ -198,21 +205,34 @@ var MongoConnection = /** @class */ (function () {
                     case 1:
                         fields = (_b.sent())[0];
                         newColumn = [];
-                        _i = 0, _a = fields.names;
                         _b.label = 2;
                     case 2:
-                        if (!(_i < _a.length)) return [3 /*break*/, 5];
-                        name_1 = _a[_i];
-                        if (!(name_1 !== '__v' && name_1 !== '_id')) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.getTableType(collName, name_1)];
+                        _b.trys.push([2, 7, , 8]);
+                        _i = 0, _a = fields.names;
+                        _b.label = 3;
                     case 3:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        name_1 = _a[_i];
+                        if (!(name_1 !== '__v' && name_1 !== '_id')) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.getTableType(collName, name_1)];
+                    case 4:
                         colType = _b.sent();
                         newColumn.push({ Field: name_1, Type: colType });
-                        _b.label = 4;
-                    case 4:
+                        _b.label = 5;
+                    case 5:
                         _i++;
-                        return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, { columns: newColumn, foreignKeys: [] }];
+                        return [3 /*break*/, 3];
+                    case 6: return [3 /*break*/, 8];
+                    case 7:
+                        e_1 = _b.sent();
+                        if (!fields) {
+                            throw Error("One or more collection in you database is empty, please check you database");
+                        }
+                        else {
+                            console.log(e_1);
+                        }
+                        return [3 /*break*/, 8];
+                    case 8: return [2 /*return*/, { columns: newColumn, foreignKeys: [] }];
                 }
             });
         });
@@ -232,6 +252,7 @@ var MongoConnection = /** @class */ (function () {
             });
         });
     };
+    //list collections
     MongoConnection.prototype.getTables = function () {
         return __awaiter(this, void 0, void 0, function () {
             var collList, collNames, _i, collNames_1, coll;

@@ -47,9 +47,9 @@ var clui_1 = require("clui");
 var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
-var generateAction = require("../actions/generateAction");
-var migrateAction = require("../actions/migrateAction");
-var generateDocAction = require("../actions/generateDocumentationAction");
+var generateAction_1 = require("../actions/generateAction");
+var migrateAction_1 = require("../actions/migrateAction");
+var generateDocumentationAction_1 = require("../actions/generateDocumentationAction");
 var Log = require("../utils/log");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 var generateDocSpinner = new clui_1.Spinner('Generating documentation');
@@ -99,12 +99,12 @@ function handler(argv) {
                         crudOptions.update = crud.includes('u');
                         crudOptions.delete = crud.includes('d');
                     }
-                    return [4 /*yield*/, new generateAction.GenerateActionClass(databaseStrategy, modelName, crudOptions, part).main()];
+                    return [4 /*yield*/, new generateAction_1.GenerateActionClass(databaseStrategy, modelName, crudOptions, part).main()];
                 case 3:
                     _a.sent();
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction.MigrateActionClass(databaseStrategy, modelName).main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, modelName).main()
                             .then(function (generated) {
                             var migrationDir = generated[0];
                             spinner.stop();
@@ -118,7 +118,7 @@ function handler(argv) {
                 case 4:
                     _a.sent();
                     generateDocSpinner.start();
-                    return [4 /*yield*/, new generateDocAction.GenerateDocumentationActionClass().main()
+                    return [4 /*yield*/, new generateDocumentationAction_1.GenerateDocumentationActionClass().main()
                             .then(function () {
                             Log.success('Typedoc generated successfully');
                         })

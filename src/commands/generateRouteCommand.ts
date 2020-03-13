@@ -10,7 +10,7 @@ import chalk from 'chalk';
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import generateRouterAction = require('../actions/generateRouterAction');
+import { GenerateRouterActionClass } from '../actions/generateRouterAction';
 import {Inquirer} from '../utils/inquirer';
 import {lowercaseEntity} from "../actions/lib/utils";
 import {Files} from '../utils/files';
@@ -85,7 +85,7 @@ export async function handler (argv: any): Promise<void> {
         continueAsking = (await inquirer.askForConfirmation('Do you want to add a new route ?')).confirmation;
     }
 
-    await new generateRouterAction.GenerateRouterActionClass(lowercase, routes).main()
+    await new GenerateRouterActionClass(lowercase, routes).main()
         .then((writtenPaths) => {
             writtenPaths.forEach((path) => {
                 Log.info(`Created ${chalk.cyan(path)}`);

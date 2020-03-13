@@ -14,10 +14,9 @@ import chalk from 'chalk';
 // Project imports
 import commandUtils = require('./commandUtils');
 import Log = require('../utils/log');
-import migrateAction = require('../actions/migrateAction');
+import { MigrateActionClass } from '../actions/migrateAction';
 import utils = require('../actions/lib/utils');
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
-import { SqlConnection } from '../database/sqlAdaptator';
 import { Singleton } from '../utils/DatabaseSingleton';
 
 //Yargs command
@@ -80,7 +79,7 @@ export async function handler (argv: any): Promise<void> {
 
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(databaseStrategy, modelName,restore,dump,revert).main()
+    await new MigrateActionClass(databaseStrategy, modelName,restore,dump,revert).main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();

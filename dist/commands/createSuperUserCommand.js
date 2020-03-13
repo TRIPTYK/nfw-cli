@@ -46,7 +46,7 @@ var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
-var createSuperUserAction = require("../actions/createSuperUserAction");
+var createSuperUserAction_1 = require("../actions/createSuperUserAction");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command syntax
 exports.command = 'createUser <username>';
@@ -85,7 +85,7 @@ exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, fun
                 databaseStrategy = strategyInstance.setDatabaseStrategy();
                 commandUtils.validateDirectory();
                 commandUtils.updateORMConfig();
-                return [4 /*yield*/, new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, username, mail, role, password).main()
+                return [4 /*yield*/, new createSuperUserAction_1.CreateSuperUserActionClass(databaseStrategy, username, mail, role, password).main()
                         .then(function (generated) {
                         var filePath = generated[0];
                         Log.info("Created " + filePath);

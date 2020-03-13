@@ -46,7 +46,7 @@ var snakeCase = require("to-snake-case");
 var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
-var generateRouterAction = require("../actions/generateRouterAction");
+var generateRouterAction_1 = require("../actions/generateRouterAction");
 var inquirer_1 = require("../utils/inquirer");
 var utils_1 = require("../actions/lib/utils");
 var files_1 = require("../utils/files");
@@ -123,7 +123,7 @@ function handler(argv) {
                 case 10:
                     continueAsking = (_b.sent()).confirmation;
                     return [3 /*break*/, 4];
-                case 11: return [4 /*yield*/, new generateRouterAction.GenerateRouterActionClass(lowercase, routes).main()
+                case 11: return [4 /*yield*/, new generateRouterAction_1.GenerateRouterActionClass(lowercase, routes).main()
                         .then(function (writtenPaths) {
                         writtenPaths.forEach(function (path) {
                             Log.info("Created " + chalk_1.default.cyan(path));

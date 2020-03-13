@@ -43,7 +43,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
 var commandUtils = require("./commandUtils");
-var generateEmberDataModelAction = require("../actions/generateEmberDataModelAction");
+var generateEmberDataModelAction_1 = require("../actions/generateEmberDataModelAction");
 var Log = require("../utils/log");
 //Yargs command
 exports.command = 'generateEModel <model>';
@@ -64,7 +64,7 @@ function handler(argv) {
                 case 0:
                     commandUtils.validateDirectory();
                     model = argv.model;
-                    return [4 /*yield*/, new generateEmberDataModelAction.GenerateEmberDataModelActionClass(model).main()
+                    return [4 /*yield*/, new generateEmberDataModelAction_1.GenerateEmberDataModelActionClass(model).main()
                             .then(function () {
                             Log.success('Generate model' + model + ' successfully');
                             Log.info('Copied to clipboard');

@@ -7,8 +7,8 @@
 import commandUtils = require('../commands/commandUtils');
 import Log = require('../utils/log');
 import actionUtils = require('../actions/lib/utils');
-import migrateAction = require('../actions/migrateAction');
-import createSuperUserAction = require('../actions/createSuperUserAction');
+import { MigrateActionClass } from '../actions/migrateAction';
+import { CreateSuperUserActionClass } from '../actions/createSuperUserAction';
 import { Singleton } from '../utils/DatabaseSingleton';
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
@@ -57,7 +57,7 @@ export async function handler (argv: any): Promise<void> {
     const spinner = new Spinner("Generating and executing migration");
     spinner.start();
 
-    await new migrateAction.MigrateActionClass(databaseStrategy, "init").main()
+    await new MigrateActionClass(databaseStrategy, "init").main()
         .then((generated) => {
             const [migrationDir] = generated;
             spinner.stop();
@@ -71,7 +71,7 @@ export async function handler (argv: any): Promise<void> {
     await commandUtils.checkConnectToDatabase(databaseStrategy);
 
 
-    await new createSuperUserAction.CreateSuperUserActionClass(databaseStrategy, "admin").main()
+    await new CreateSuperUserActionClass(databaseStrategy, "admin").main()
         .then((generated) => {
             const [ filePath ] = generated;
 

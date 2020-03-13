@@ -43,7 +43,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
 var commandUtils = require("./commandUtils");
-var deleteAction = require("../actions/deleteAction");
+var deleteAction_1 = require("../actions/deleteAction");
 var Log = require("../utils/log");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
@@ -88,7 +88,7 @@ function handler(argv) {
                     _a.label = 3;
                 case 3: 
                 // TODO : move all error handling messages to this level
-                return [4 /*yield*/, new deleteAction.DeleteActionClass(databaseStrategy, modelName, argv.DROP).main()
+                return [4 /*yield*/, new deleteAction_1.DeleteActionClass(databaseStrategy, modelName, argv.DROP).main()
                         .then(function (array) {
                         array.forEach(function (e) {
                             Log.logModification(e);

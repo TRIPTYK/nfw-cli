@@ -43,7 +43,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Project imports
 var commandUtils = require("./commandUtils");
-var deployAction = require("./../actions/deployAction");
+var deployAction_1 = require("./../actions/deployAction");
 var Log = require("./../utils/log");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
@@ -75,7 +75,7 @@ function handler(argv) {
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, new deployAction.DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
+                    return [4 /*yield*/, new deployAction_1.DeployActionClass(databaseStrategy, env, mode, createDatabase).main()
                             .catch(function (e) {
                             Log.error(e.message);
                         })];

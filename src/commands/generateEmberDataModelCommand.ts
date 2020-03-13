@@ -9,7 +9,7 @@ import {Spinner} from 'clui';
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import generateEmberDataModelAction = require('../actions/generateEmberDataModelAction');
+import { GenerateEmberDataModelActionClass }from '../actions/generateEmberDataModelAction';
 import Log = require('../utils/log');
 
 
@@ -33,7 +33,7 @@ export async function handler (argv: any): Promise<void> {
 
     const { model } = argv;
 
-    await new generateEmberDataModelAction.GenerateEmberDataModelActionClass(model).main()
+    await new GenerateEmberDataModelActionClass(model).main()
         .then(() => {
             Log.success('Generate model' + model + ' successfully');
             Log.info('Copied to clipboard');

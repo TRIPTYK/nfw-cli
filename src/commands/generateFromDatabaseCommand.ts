@@ -14,7 +14,7 @@ import Log = require('../utils/log');
 import { Singleton } from '../utils/DatabaseSingleton';
 import { AdaptatorStrategy } from '../database/AdaptatorStrategy';
 
-import generateFromDatabaseAction = require('../actions/generateFromDatabaseAction');
+import { GenerateFromDatabaseActionClass } from '../actions/generateFromDatabaseAction';
 
 
 //Yargs command
@@ -47,7 +47,7 @@ export async function handler (): Promise<void> {
     const {confirmation} = await inquirer.askForConfirmation(`${chalk.bgYellow(chalk.black('Warning :'))} generate model from the database will override existing models with the same name ! Do you want to continue ?`);
 
     if (confirmation) {
-        await new generateFromDatabaseAction.GenerateFromDatabaseActionClass().main(databaseStrategy)
+        await new GenerateFromDatabaseActionClass().main(databaseStrategy)
             .then(() => {
                 Log.success('Generated from database successfully');
             })

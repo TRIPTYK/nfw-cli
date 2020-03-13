@@ -59,14 +59,14 @@ var _getModelFromRelationProperty = function (model1Class, model2Class, relation
         }
     }
 };
-var RemoveRelationAction = /** @class */ (function () {
-    function RemoveRelationAction(model1, model2, type) {
+var RemoveRelationActionClass = /** @class */ (function () {
+    function RemoveRelationActionClass(model1, model2, type) {
         this.model1 = model1;
         this.model2 = model2;
         this.type = type;
     }
     //Main function
-    RemoveRelationAction.prototype.main = function () {
+    RemoveRelationActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
             var relationsMap, model1File, model2File, model1Class, model2Class, p1, p2;
             return __generator(this, function (_a) {
@@ -106,6 +106,6 @@ var RemoveRelationAction = /** @class */ (function () {
         });
     };
     ;
-    return RemoveRelationAction;
+    return RemoveRelationActionClass;
 }());
-exports.RemoveRelationAction = RemoveRelationAction;
+exports.RemoveRelationActionClass = RemoveRelationActionClass;

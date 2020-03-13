@@ -10,6 +10,7 @@ var inquirer = require("inquirer");
 // project modules
 var files_1 = require("./files");
 var utils_1 = require("../actions/lib/utils");
+var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var Inquirer = /** @class */ (function () {
     function Inquirer() {
     }
@@ -352,6 +353,48 @@ var Inquirer = /** @class */ (function () {
             }
         ];
         return inquirer.prompt(options);
+    };
+    Inquirer.prototype.askForSeedType = function () {
+        var questionParams = [
+            {
+                type: 'list',
+                message: ' Seed method: ',
+                name: 'method',
+                choices: ['Read db and write json/xlsx', 'read json/xlsx and write into db']
+            }
+        ];
+        return inquirer.prompt(questionParams);
+    };
+    Inquirer.prototype.askForSeedQuestions = function (databaseStrategy) {
+        var extensionChoices = ['json'];
+        if (databaseStrategy instanceof sqlAdaptator_1.SqlConnection)
+            extensionChoices.unshift('xlsx');
+        var questionParams = [
+            {
+                type: 'list',
+                message: ' Seed file format: ',
+                name: 'seedExtension',
+                choices: extensionChoices
+            },
+            {
+                type: 'input',
+                message: ' File path ? ',
+                default: 'seed',
+                name: 'path',
+            },
+        ];
+        return inquirer.prompt(questionParams);
+    };
+    Inquirer.prototype.askForTruncate = function () {
+        var questionParams = [
+            {
+                type: 'confirm',
+                message: ' Truncate table ? ',
+                default: true,
+                name: 'dropData',
+            }
+        ];
+        return inquirer.prompt(questionParams);
     };
     /**
      * TODO
