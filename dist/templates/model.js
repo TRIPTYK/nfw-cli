@@ -33,6 +33,7 @@ module.exports = function (path, _a, dbType) {
             arguments: []
         }).setIsDecoratorFactory(true);
     }
+    //in typeorm, ObjectID and ObjectIdColumn is used in models inseatd of "normal" column types (number, Long, ...) and PrimaryGeneratedColumn
     if (dbType === 'mongo') {
         var propId = modelClass.addProperty({
             name: 'id: ObjectID'

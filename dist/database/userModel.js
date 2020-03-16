@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+//Schema and model of the user entity, used when creating a new project while using a MongoDB database.
 var UserSchema = new Schema({
     createdAt: {
         type: Date,

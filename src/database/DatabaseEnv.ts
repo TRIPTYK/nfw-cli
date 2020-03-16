@@ -1,6 +1,5 @@
 import dotenv = require('dotenv');
 import fs = require('fs');
-import { AdaptatorStrategy } from './AdaptatorStrategy';
 
 export class DatabaseEnv {
     

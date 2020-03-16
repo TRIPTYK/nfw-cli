@@ -161,6 +161,8 @@ export class MigrateActionClass {
             const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
             const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');   
 
+            //typeorm generate feature currently doesn't work with mongodb so an empty migration is created when using Mongodb
+            //To use migrations with a Mongo database, migrations must be written by hand in src/migration/development/migration_name
             if(this.strategy instanceof MongoConnection){
                 child_process.spawnSync(`${ts_node} ${typeorm_cli} migration:create -n ${this.modelName}`, {stdio : 'inherit', shell: true});
             } else {

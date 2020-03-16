@@ -42,6 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Node modules
 var child_process = require("child_process");
 var snake = require("to-snake-case");
 var JsonFileWriter = require("json-file-rw");
@@ -139,6 +140,7 @@ var DeleteActionClass = /** @class */ (function () {
                         return [4 /*yield*/, databaseConnection.tableExists(this.entityName)];
                     case 8:
                         if (!((_a.sent()) && this.drop)) return [3 /*break*/, 12];
+                        //NOTE: to use mongodump, MongoDB needs to be installed on client !
                         if (this.databaseStrategy instanceof mongoAdaptator_1.MongoConnection) {
                             child_process.spawnSync("mongodump --host=" + envValues.TYPEORM_HOST + " --port=" + envValues.TYPEORM_PORT + " --username=" + envValues.TYPEORM_USER + " --password=" + envValues.TYPEORM_PWD + " --db=" + envValues.TYPEORM_DB + " --authenticationDatabase=admin --collection=" + this.entityName + " -o ./dist/migration/dump", { stdio: 'inherit', shell: true });
                         }

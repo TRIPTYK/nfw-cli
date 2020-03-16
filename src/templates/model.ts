@@ -1,7 +1,7 @@
 import {buildModelColumnArgumentsFromObject} from "../actions/lib/utils";
 import project = require('../utils/project');
 import stringifyObject = require('stringify-object');
-import { SourceFile, PropertyDeclaration, WriterFunction } from "ts-morph";
+import { SourceFile } from "ts-morph";
 
 /**
  *
@@ -47,6 +47,7 @@ export = (path: string, {className,entities,createUpdate}, dbType: string): Sour
         }).setIsDecoratorFactory(true);
     }
 
+    //in typeorm, ObjectID and ObjectIdColumn is used in models inseatd of "normal" column types (number, Long, ...) and PrimaryGeneratedColumn
     if(dbType === 'mongo'){
         const propId = modelClass.addProperty({
             name: 'id: ObjectID'

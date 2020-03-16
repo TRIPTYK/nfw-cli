@@ -1,6 +1,5 @@
 import { capitalizeEntity } from "../actions/lib/utils";
 import project = require('../utils/project');
-import dashify = require('dashify');
 
 export = (path: string,{className,entityName}) => {
 

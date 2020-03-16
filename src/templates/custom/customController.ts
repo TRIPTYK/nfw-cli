@@ -1,4 +1,3 @@
-import { capitalizeEntity } from "../../actions/lib/utils";
 import project = require('../../utils/project');
 
 

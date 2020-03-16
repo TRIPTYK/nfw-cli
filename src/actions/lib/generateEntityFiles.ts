@@ -7,8 +7,6 @@
  */
 
 // node modules
-import FS = require('fs');
-import ejs = require('ejs');
 import project = require('../../utils/project');
 
 // project modules

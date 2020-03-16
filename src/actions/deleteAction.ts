@@ -7,8 +7,6 @@
 
 
 // Node modules
-import FS = require('fs');
-import Util = require('util');
 import child_process = require('child_process');
 import snake = require('to-snake-case');
 import JsonFileWriter = require("json-file-rw");
@@ -84,6 +82,7 @@ export class DeleteActionClass {
 
         const databaseConnection = await this.databaseStrategy.getConnectionFromNFW();
 
+        //Only for mysql databases, as there's no foreign keys in mongodb and you can't create relations between tables (mysql-only feature in the CLI)
         if(this.databaseStrategy instanceof SqlConnection) {
 
             let relations = await databaseConnection.getForeignKeysRelatedTo(this.entityName).catch((err) => {
@@ -112,6 +111,7 @@ export class DeleteActionClass {
     
         if (await databaseConnection.tableExists(this.entityName) && this.drop) {
 
+            //NOTE: to use mongodump, MongoDB needs to be installed on client !
             if(this.databaseStrategy instanceof MongoConnection) {
 
                 child_process.spawnSync(`mongodump --host=${envValues.TYPEORM_HOST} --port=${envValues.TYPEORM_PORT} --username=${envValues.TYPEORM_USER} --password=${envValues.TYPEORM_PWD} --db=${envValues.TYPEORM_DB} --authenticationDatabase=admin --collection=${this.entityName} -o ./dist/migration/dump`, 

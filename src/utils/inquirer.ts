@@ -43,39 +43,6 @@ export class Inquirer {
     /**
      * TODO
      */
-    askRouteData (choices = null) {
-        const question: inquirer.InputQuestion = [
-            {
-                name: 'routeMethod',
-                type: 'list',
-                message: 'Route method',
-                default: '/',
-                choices: ['get', 'post', 'put', 'patch', 'delete']
-            },
-            {
-                name: 'controllerMethod',
-                type: 'input',
-                message: 'Route controller method',
-                validate: (input) => {
-                    if( input === '') return "Controller method can't be empty";
-                    else if(input.includes(' ')) return 'Controller method can\'t contains space';
-                    else if (!input.match(/^[a-zA-Z]\w+$/)) return "Controller method contain fordibben charachter";
-                    else return true;
-                }
-            },
-            {
-                name: 'routeAuthorization',
-                type: 'list',
-                message: 'Route authorization level',
-                choices: choices ? choices : ['admin', 'user', 'ghost']
-            }
-        ];
-        return inquirer.prompt(question);
-    }
-
-    /**
-     * TODO
-     */
     enumQuestion () {
         const question: inquirer.InputQuestion = {
             type: 'input',
