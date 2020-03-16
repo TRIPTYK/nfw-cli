@@ -13,7 +13,6 @@ import project = require('../../utils/project');
 
 // project modules
 import Log = require('../../utils/log');
-import writeToRouter = require('./routerWrite');
 import {capitalizeEntity, lowercaseEntity} from './utils';
 
 // false class properties
@@ -21,12 +20,12 @@ let capitalize;
 let lowercase;
 
 import controllerTemplateFile = require('../../templates/controller');
-import middlewareTemplateFile = require('../../templates/middleware');
 import relationsTemplateFile = require('../../templates/relations');
 import repositoryTemplateFile = require('../../templates/repository');
-import routeTemplateFile = require('../../templates/route');
 import serializerTemplateFile = require('../../templates/serializer');
 import validationTemplateFile = require('../../templates/validation');
+import schemaTemplateFile = require('../../templates/schema');
+import typeTemplateFile = require('../../templates/types');
 import testTemplateFile = require('../../templates/test');
 
 
@@ -59,24 +58,21 @@ export async function main (modelName: string, crudOptions: object, data = null,
 
     const files = [];
     const controllerPath = `src/api/controllers/${lowercase}.controller.ts`;
-    const middlewarePath = `src/api/middlewares/${lowercase}.middleware.ts`;
     const validationPath = `src/api/validations/${lowercase}.validation.ts`;
     const relationPath = `src/api/enums/json-api/${lowercase}.enum.ts`;
     const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
-    const routerPath = `src/api/routes/v1/${lowercase}.route.ts`;
+    const schemaPath = `src/api/serializers/schemas/${lowercase}.schema.ts`;
+    const typePath = `src/api/serializers/schemas/types.ts`;
     const testPath = `test/${lowercase}.test.ts`;
+
+        
+    typeTemplateFile(typePath, lowercase);
 
     if (!part || part === 'controller')
         files.push(controllerTemplateFile.main(controllerPath,{
             className : `${capitalize}Controller`,
             options : crudOptions,
-            entityName : lowercase
-        }));
-
-    if (!part || part === 'middleware')
-        files.push(middlewareTemplateFile(middlewarePath,{
-            className : `${capitalize}Middleware`,
             entityName : lowercase
         }));
 
@@ -99,20 +95,18 @@ export async function main (modelName: string, crudOptions: object, data = null,
             entities : tableColumns
         }));
 
+    if(!part || part === 'schema')
+        files.push(schemaTemplateFile(schemaPath, {
+            className: `${capitalize}Schema`,
+            entityName: lowercase
+        }));
+
     if (!part || part === 'serializer')
         files.push(serializerTemplateFile(serializerPath,{
             className : `${capitalize}Serializer`,
             entityName : lowercase,
             //columns : tableColumns
         }));
-
-    if (!part || part === 'route') {
-        files.push(routeTemplateFile(routerPath, {
-            options: crudOptions,
-            entityName: lowercase
-        }));
-        await writeToRouter.main(lowercase);
-    }
 
     // auto generate imports
     files.forEach(file => {

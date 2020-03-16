@@ -49,22 +49,6 @@ const _deleteTypescriptFiles = async (): Promise<any[]> => {
     return deleted;
 };
 
-/**
- * @description Delete route related information in router index.ts
- * @returns {Promise<{fileName: string, type: string}[]>} deleted route
- */
-const _unroute = async (): Promise<{fileName: string, type: string}[]> => {
-    const fileName = `src/api/routes/v1/index.ts`;
-    const file = project.getSourceFile(fileName);
-
-    file.getStatementsWithComments().forEach((e) => {
-        if(e.getText().includes(`${capitalize}Router`))
-            e.remove();
-    });
-
-    return [{type: 'edit', fileName: fileName}];
-};
-
 
 /**
  * @description Module export main entry , it deletes generated files
@@ -117,7 +101,6 @@ export class DeleteActionClass {
     
         let promises = [  // launch all tasks in async
             _deleteTypescriptFiles(),
-            //_unroute()
         ];
     
         let results = await Promise.all(promises);

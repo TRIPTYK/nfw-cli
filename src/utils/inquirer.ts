@@ -41,30 +41,6 @@ export class Inquirer {
     }
 
     /**
-     * Ask route path
-     */
-    askRoutePath () {
-        const question: inquirer.InputQuestion =
-            {
-                name: 'routePath',
-                type: 'input',
-                message: 'Please enter the sub-route path',
-                default: '/',
-                validate : (input: string) =>{
-                    if (input === "") return "route path must contains at least one letter";
-                    else if(input.includes(' ')) return 'route path can\'t contains space';
-                    else return true;
-                },
-                filter : (input: string) =>{
-                    if(input[0] !== '/') return `/${input}`;
-                    else return input;
-                }
-            }
-        ;
-        return inquirer.prompt(question);
-    }
-
-    /**
      * TODO
      */
     askRouteData (choices = null) {

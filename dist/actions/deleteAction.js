@@ -76,22 +76,6 @@ var _deleteTypescriptFiles = function () { return __awaiter(void 0, void 0, void
     });
 }); };
 /**
- * @description Delete route related information in router index.ts
- * @returns {Promise<{fileName: string, type: string}[]>} deleted route
- */
-var _unroute = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var fileName, file;
-    return __generator(this, function (_a) {
-        fileName = "src/api/routes/v1/index.ts";
-        file = project.getSourceFile(fileName);
-        file.getStatementsWithComments().forEach(function (e) {
-            if (e.getText().includes(capitalize + "Router"))
-                e.remove();
-        });
-        return [2 /*return*/, [{ type: 'edit', fileName: fileName }]];
-    });
-}); };
-/**
  * @description Module export main entry , it deletes generated files
  * @param {string} entityName
  * @param {boolean} drop if true , drop the table in database

@@ -41,32 +41,6 @@ var Inquirer = /** @class */ (function () {
         return inquirer.prompt(question);
     };
     /**
-     * Ask route path
-     */
-    Inquirer.prototype.askRoutePath = function () {
-        var question = {
-            name: 'routePath',
-            type: 'input',
-            message: 'Please enter the sub-route path',
-            default: '/',
-            validate: function (input) {
-                if (input === "")
-                    return "route path must contains at least one letter";
-                else if (input.includes(' '))
-                    return 'route path can\'t contains space';
-                else
-                    return true;
-            },
-            filter: function (input) {
-                if (input[0] !== '/')
-                    return "/" + input;
-                else
-                    return input;
-            }
-        };
-        return inquirer.prompt(question);
-    };
-    /**
      * TODO
      */
     Inquirer.prototype.askRouteData = function (choices) {

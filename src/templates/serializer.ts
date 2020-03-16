@@ -3,12 +3,12 @@ import project = require('../utils/project');
 import dashify = require('dashify');
 
 export = (path: string,{className,entityName}) => {
+
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
-    const entityNameCapitalized = capitalizeEntity(entityName);
 
-    file.addStatements(writer => writer.writeLine(`import Boom from '@hapi/boom';`));
+    const entityNameCapitalized = capitalizeEntity(entityName);
 
     const serializerClass = file.addClass({
         name: className
@@ -17,20 +17,18 @@ export = (path: string,{className,entityName}) => {
     serializerClass.setIsExported(true);
     serializerClass.setExtends(`BaseSerializer`);
 
+    serializerClass.addDecorator({
+        name: 'injectable',
+        arguments: []
+    });
+
     serializerClass.addConstructor({
-        parameters : [{ name : 'serializerParams' , initializer : 'new SerializerParams()'}],
+        parameters : [{ name : 'serializerParams: SerializerParams' , initializer : '{}'}],
         statements : [
-        `super('${dashify(entityName)}');`,
-        writer => {
-            writer.write("const data = ").block(() => {
-                writer
-                    .writeLine(`whitelist: ${entityName}Serialize,`)
-                    .writeLine(`whitelistOnDeserialize : ${entityName}Deserialize,`)
-                    .writeLine(`relationships: {}`);
-            }).write(";");
-        },
-        `this.setupLinks(data, serializerParams);`,
-        `this.serializer.register(this.type, data);`
+            `super(${entityNameCapitalized}Schema)`,
+            `if(serializerParams.pagination) {
+                this.setupPaginationLinks(serializerParams.pagination);
+            }`
         ]
     })
     .addJsDoc(`${entityName} constructor`);
