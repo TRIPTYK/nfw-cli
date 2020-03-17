@@ -26,7 +26,6 @@ yargs
     .command(require('./dist/commands/editEnvCommand'))
     .command(require('./dist/commands/addEnvCommand'))
     .command(require('./dist/commands/generateDocumentationCommand'))
-    .command(require('./dist/commands/generateRouteCommand'))
     .command(require('./dist/commands/initCommand'))
     .command(require('./dist/commands/installDockerCommand'))
     .command(require('./dist/commands/deployCommand'))
