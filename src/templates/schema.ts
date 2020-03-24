@@ -1,48 +1,41 @@
 import project = require ('../utils/project');
-import { VariableDeclarationKind } from 'ts-morph';
-
 
 export = (path: string, {className, entityName}) => {
-
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
 
-    file.addVariableStatement({
-        declarationKind: VariableDeclarationKind.Const,
-        declarations: [{
-            name: `${entityName}Serialize`,
-            type: 'string[]',
-            initializer: `[]`
-        }]
-    }).setIsExported(true);
-    file.addVariableStatement({
-        declarationKind: VariableDeclarationKind.Const,
-        declarations: [
-            {
-                name: `${entityName}Deserialize`,
-                type: 'string[]',
-                initializer: '[]'
-            }
-        ]
-    }).setIsExported(true);
+    const schema = `${className}SerializerSchema`;
 
-    file.addVariableStatement({
-        declarationKind: VariableDeclarationKind.Const,
-        declarations: [{
-            name: `${className}`,
-            type: 'Readonly<JSONAPISerializerSchema>',
-            initializer: `{
-                relationships : {},
-                type: documentType,
-                whitelist: documentSerialize,
-                whitelistOnDeserialize: ${entityName}Deserialize
-            }`
-        }]
+    const addedClass = file.addClass({
+        name : schema,
+        isDefaultExport : true
     });
 
-    file.addStatements(writer => writer.writeLine(`export default ${className};`));
+    addedClass.addProperty({
+        isStatic : true,
+        type : "string[]",
+        name : "serialize"
+    });
+
+    addedClass.addProperty({
+        isStatic : true,
+        type : "string[]",
+        name : "deserialize"
+    });
+
+    addedClass.addGetAccessor({
+        isStatic : true,
+        returnType : "Readonly<JSONAPISerializerSchema>",
+        name : "schema"
+    }).setBodyText(`
+return {
+    relationships : {},
+    type: ${schema}.type,
+    whitelist: ${schema}.serialize,
+    whitelistOnDeserialize : ${schema}.deserialize
+};
+    `);
 
     return file;
-
 }

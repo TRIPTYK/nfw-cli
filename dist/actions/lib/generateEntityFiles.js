@@ -57,12 +57,11 @@ var repositoryTemplateFile = require("../../templates/repository");
 var serializerTemplateFile = require("../../templates/serializer");
 var validationTemplateFile = require("../../templates/validation");
 var schemaTemplateFile = require("../../templates/schema");
-var typeTemplateFile = require("../../templates/types");
 //Check entity existence, and write file or not according to the context
 function main(modelName, crudOptions, data, part) {
     if (data === void 0) { data = null; }
     return __awaiter(this, void 0, void 0, function () {
-        var tableColumns, foreignKeys, index, allColumns, files, controllerPath, validationPath, relationPath, repositoryPath, serializerPath, schemaPath, typePath, testPath;
+        var tableColumns, foreignKeys, index, allColumns, files, controllerPath, validationPath, relationPath, repositoryPath, serializerPath, schemaPath;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -93,9 +92,6 @@ function main(modelName, crudOptions, data, part) {
                     repositoryPath = "src/api/repositories/" + lowercase + ".repository.ts";
                     serializerPath = "src/api/serializers/" + lowercase + ".serializer.ts";
                     schemaPath = "src/api/serializers/schemas/" + lowercase + ".schema.ts";
-                    typePath = "src/api/serializers/schemas/types.ts";
-                    testPath = "test/" + lowercase + ".test.ts";
-                    typeTemplateFile(typePath, lowercase);
                     if (!part || part === 'controller')
                         files.push(controllerTemplateFile.main(controllerPath, {
                             className: capitalize + "Controller",

@@ -23,7 +23,6 @@ import repositoryTemplateFile = require('../../templates/repository');
 import serializerTemplateFile = require('../../templates/serializer');
 import validationTemplateFile = require('../../templates/validation');
 import schemaTemplateFile = require('../../templates/schema');
-import typeTemplateFile = require('../../templates/types');
 import testTemplateFile = require('../../templates/test');
 
 
@@ -61,11 +60,6 @@ export async function main (modelName: string, crudOptions: object, data = null,
     const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
     const schemaPath = `src/api/serializers/schemas/${lowercase}.schema.ts`;
-    const typePath = `src/api/serializers/schemas/types.ts`;
-    const testPath = `test/${lowercase}.test.ts`;
-
-        
-    typeTemplateFile(typePath, lowercase);
 
     if (!part || part === 'controller')
         files.push(controllerTemplateFile.main(controllerPath,{
