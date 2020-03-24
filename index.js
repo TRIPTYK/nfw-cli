@@ -1,35 +1,36 @@
 #!/usr/bin/env node
+"use strict";
+exports.__esModule = true;
 /**
  * @author Samuel Antoine
  */
-const yargs = require('yargs');
-
+var yargs = require("yargs");
 // base cli dir
+//@ts-ignore
 global.__baseDir = __dirname;
-
 yargs
     .strict()
-    .command(require('./commands/newCommand'))
-    .command(require('./commands/startUnitTestsCommand'))
-    .command(require('./commands/generateCommand'))
-    .command(require('./commands/generateFromDatabaseCommand'))
-    .command(require('./commands/deleteCommand'))
-    .command(require('./commands/infoCommand'))
-    .command(require('./commands/startCommand'))
-    .command(require('./commands/migrateCommand'))
-    .command(require('./commands/createSuperUserCommand'))
-    .command(require('./commands/createRelationCommand'))
-    .command(require('./commands/removeRelationCommand'))
-    .command(require('./commands/editModelCommand'))
-    .command(require('./commands/editEnvCommand'))
-    .command(require('./commands/addEnvCommand'))
-    .command(require('./commands/generateDocumentationCommand'))
-    .command(require('./commands/generateRouteCommand'))
-    .command(require('./commands/initCommand'))
-    .command(require('./commands/installDockerCommand'))
-    .command(require('./commands/deployCommand'))
-    .command(require('./commands/switchEnvCommand'))
-    .command(require('./commands/seedCommand'))
+    .command(require('./dist/commands/newCommand'))
+    .command(require('./dist/commands/startUnitTestsCommand'))
+    .command(require('./dist/commands/generateCommand'))
+    .command(require('./dist/commands/generateFromDatabaseCommand'))
+    .command(require('./dist/commands/generateEmberDataModelCommand'))
+    .command(require('./dist/commands/deleteCommand'))
+    .command(require('./dist/commands/infoCommand'))
+    .command(require('./dist/commands/startCommand'))
+    .command(require('./dist/commands/migrateCommand'))
+    .command(require('./dist/commands/createSuperUserCommand'))
+    .command(require('./dist/commands/createRelationCommand'))
+    .command(require('./dist/commands/removeRelationCommand'))
+    .command(require('./dist/commands/editModelCommand'))
+    .command(require('./dist/commands/editEnvCommand'))
+    .command(require('./dist/commands/addEnvCommand'))
+    .command(require('./dist/commands/generateDocumentationCommand'))
+    .command(require('./dist/commands/initCommand'))
+    .command(require('./dist/commands/installDockerCommand'))
+    .command(require('./dist/commands/deployCommand'))
+    .command(require('./dist/commands/switchEnvCommand'))
+    .command(require('./dist/commands/seedCommand'))
     // provide a minimum demand and a minimum demand message
     .demandCommand(1, 'You need at least one command before moving on')
     .help()

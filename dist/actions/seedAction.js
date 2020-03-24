@@ -1,0 +1,353 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// node modules 
+var xlsx = require("xlsx");
+var fs = require("fs");
+var SQLBuilder = require("json-sql-builder2");
+var sql = new SQLBuilder('MySQL');
+var Log = require("../utils/log");
+// variables
+var bcrypt = require("bcryptjs");
+var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
+var inquirer_1 = require("../utils/inquirer");
+var seedExtension;
+var tableArray = [];
+var strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
+var databaseStrategy = strategyInstance.setDatabaseStrategy();
+// 1) connexion à la bdd puis requete sql pour les champs colonne / type
+// 2) formatage correcte pour le json + xlsx 
+// 3) écriture du fichier json 
+// 4) écriture xlsx 
+// 5) connection finie
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        var seedMethod, seedInfos, seedPath, _a, isTruncate, dropData;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, new inquirer_1.Inquirer().askForSeedType()];
+                case 1:
+                    seedMethod = _b.sent();
+                    return [4 /*yield*/, new inquirer_1.Inquirer().askForSeedQuestions(databaseStrategy)];
+                case 2:
+                    seedInfos = _b.sent();
+                    seedExtension = seedInfos.seedExtension;
+                    seedPath = seedInfos.path;
+                    _a = seedMethod.method;
+                    switch (_a) {
+                        case 'Read db and write json/xlsx': return [3 /*break*/, 3];
+                        case 'read json/xlsx and write into db': return [3 /*break*/, 6];
+                    }
+                    return [3 /*break*/, 9];
+                case 3: return [4 /*yield*/, howMuchTable()];
+                case 4:
+                    _b.sent();
+                    return [4 /*yield*/, readbdd(seedExtension, seedPath)];
+                case 5:
+                    _b.sent();
+                    return [3 /*break*/, 9];
+                case 6: return [4 /*yield*/, new inquirer_1.Inquirer().askForTruncate()];
+                case 7:
+                    isTruncate = _b.sent();
+                    dropData = isTruncate.dropData;
+                    return [4 /*yield*/, writeDb(seedPath, seedExtension, dropData)];
+                case 8:
+                    _b.sent();
+                    return [3 /*break*/, 9];
+                case 9: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.main = main;
+/**
+ * liste toutes les tables de la db
+ * les push dans un tableau en excluant la tables de migrations
+ */
+function howMuchTable() {
+    return __awaiter(this, void 0, void 0, function () {
+        var databaseConnection, result, i;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
+                case 1:
+                    databaseConnection = _a.sent();
+                    return [4 /*yield*/, databaseConnection.getTables()];
+                case 2:
+                    result = _a.sent();
+                    for (i = 0; i < result.length; i++) {
+                        if (Object.values(result[i])[0] === 'migration_table' || Object.values(result[i])[0] === 'document') { }
+                        else {
+                            tableArray.push(Object.values(result[i])[0]);
+                        }
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, databaseConnection.insertIntoTable(table, tabProp, dataValues).catch(function (err) {
+                        if (err) {
+                            console.error("Error on your seed", err.message);
+                            process.exit(0);
+                        }
+                        ;
+                    })];
+                case 1:
+                    _a.sent();
+                    if (i == keyObject.length - 1 && j == tableData.length - 1) {
+                        Log.success("write done");
+                        process.exit(0);
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function writeDb(pathSeedWrite, seedExtension, dropData) {
+    return __awaiter(this, void 0, void 0, function () {
+        var databaseConnection;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
+                case 1:
+                    databaseConnection = _a.sent();
+                    //await databaseConnection.connect();
+                    /**
+                     * 1ere lecteure avec fs pour s'assurer que le fichier existe
+                     * pour le json on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+                     * pour l'xlsx on lit le fichier, puis on ajoute les feuilles du fichier dans un objet
+                     * on écrit le tout dans un json
+                     * puis on lit le json et on écrit dans la bdd
+                     */
+                    switch (seedExtension) {
+                        case 'json':
+                            fs.readFile(pathSeedWrite + '.json', function (err, data) {
+                                if (err) {
+                                    console.log("il semblerait que votre fichier " + pathSeedWrite + ".json n'existe pas");
+                                    process.exit(0);
+                                }
+                                else {
+                                    var obj = JSON.parse(data.toString());
+                                    var keyObject = Object.keys(obj);
+                                    var tableData = void 0;
+                                    for (var i = 0; i < keyObject.length; i++) {
+                                        tableData = obj[keyObject[i]];
+                                        var table = keyObject[i];
+                                        if (dropData == true) {
+                                            databaseConnection.truncateTable(table);
+                                        }
+                                        for (var j = 0; j < tableData.length; j++) {
+                                            var tabProp = Object.keys(tableData[j]);
+                                            var dataValues = Object.values(tableData[j]);
+                                            for (var x = 0; x < tabProp.length; x++) {
+                                                if (tabProp[x] == "password") {
+                                                    var hash = bcrypt.hashSync(dataValues[x].toString(), 10);
+                                                    dataValues[x] = hash;
+                                                }
+                                            }
+                                            query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues);
+                                        }
+                                    }
+                                }
+                            });
+                            break;
+                        case 'xlsx':
+                            fs.readFile(pathSeedWrite + '.xlsx', function (err, data) {
+                                if (err) {
+                                    console.log("il semblerait que votre fichier " + pathSeedWrite + ".xlsx n'existe pas");
+                                    process.exit(0);
+                                }
+                                else {
+                                    var wb_1 = xlsx.readFile(pathSeedWrite + '.xlsx', {
+                                        cellDates: true
+                                    });
+                                    var result = {};
+                                    wb_1.SheetNames.forEach(function (sheetName) {
+                                        var roa = xlsx.utils.sheet_to_json(wb_1.Sheets[sheetName]);
+                                        if (roa.length > 0) {
+                                            result[sheetName] = roa;
+                                        }
+                                    });
+                                    fs.writeFile(pathSeedWrite + '.json', (JSON.stringify(result, null, 4)), function (err) {
+                                        if (err)
+                                            throw err;
+                                    });
+                                    fs.readFile(pathSeedWrite + '.json', function (err, data) {
+                                        // on lit le fichier, on parse tout dans un objet, on récupère ses keys dans un tableau
+                                        var obj = JSON.parse(data.toString());
+                                        var keyObject = Object.keys(obj);
+                                        var tableData;
+                                        for (var i = 0; i < keyObject.length; i++) {
+                                            tableData = obj[keyObject[i]];
+                                            var table = keyObject[i];
+                                            if (dropData == true) {
+                                                databaseConnection.truncateTable(table);
+                                            }
+                                            for (var j = 0; j < tableData.length; j++) {
+                                                var tabProp = Object.keys(tableData[j]);
+                                                var dataValues = Object.values(tableData[j]);
+                                                for (var x = 0; x < tabProp.length; x++) {
+                                                    if (tabProp[x] == "password") {
+                                                        var hash = bcrypt.hashSync(dataValues[x].toString(), 10);
+                                                        dataValues[x] = hash;
+                                                    }
+                                                }
+                                                query(tableData, j, keyObject, i, databaseConnection, table, tabProp, dataValues);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                            break;
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function seedWriteFileJson(pathSeedRead, objetDb) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fs.writeFile(pathSeedRead + ".json", (JSON.stringify(objetDb, null, 4)), function (err) {
+                        if (err)
+                            throw err;
+                        Log.success("read done");
+                        process.exit(0);
+                    })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function seedWriteFileXlsx(newWB, pathSeedRead) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, xlsx.writeFile(newWB, pathSeedRead + ".xlsx")];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function readbdd(seedExtension, pathSeedRead) {
+    return __awaiter(this, void 0, void 0, function () {
+        var databaseConnection, objetDb, newWB, i, tableSql, columns, jsonOut, keys, j, columnData, key, type, newWS;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, databaseStrategy.getConnectionFromNFW()];
+                case 1:
+                    databaseConnection = _a.sent();
+                    objetDb = {};
+                    newWB = xlsx.utils.book_new();
+                    i = 0;
+                    _a.label = 2;
+                case 2:
+                    if (!(i < tableArray.length)) return [3 /*break*/, 9];
+                    tableSql = tableArray[i];
+                    return [4 /*yield*/, databaseConnection.getTableInfo(tableSql)];
+                case 3:
+                    columns = (_a.sent()).columns;
+                    jsonOut = [];
+                    keys = {
+                        id: null,
+                        createdAt: '',
+                        updatedAt: '',
+                        deletedAt: '',
+                        avatarId: null,
+                        created_at: '',
+                        updated_at: ''
+                    };
+                    j = 0;
+                    _a.label = 4;
+                case 4:
+                    if (!(j < columns.length)) return [3 /*break*/, 7];
+                    return [4 /*yield*/, databaseConnection.selectFromTable(tableSql, columns[j].Field)];
+                case 5:
+                    columnData = _a.sent();
+                    key = columns[j].Field;
+                    type = columns[j].Type;
+                    keys[key] = columnData;
+                    delete keys.id;
+                    delete keys.createdAt;
+                    delete keys.updatedAt;
+                    delete keys.deletedAt;
+                    delete keys.avatarId;
+                    delete keys.created_at;
+                    delete keys.updated_at;
+                    _a.label = 6;
+                case 6:
+                    j++;
+                    return [3 /*break*/, 4];
+                case 7:
+                    jsonOut.push(keys);
+                    objetDb[tableSql] = jsonOut;
+                    switch (seedExtension) {
+                        case 'json':
+                            if (i == tableArray.length - 1) {
+                                objetDb[tableSql] = jsonOut;
+                                seedWriteFileJson(pathSeedRead, objetDb);
+                            }
+                            break;
+                        case 'xlsx':
+                            newWS = xlsx.utils.json_to_sheet(jsonOut);
+                            xlsx.utils.book_append_sheet(newWB, newWS, tableSql);
+                            if (i == tableArray.length - 1) {
+                                seedWriteFileXlsx(newWB, pathSeedRead);
+                                seedWriteFileJson(pathSeedRead, objetDb);
+                            }
+                            break;
+                    }
+                    _a.label = 8;
+                case 8:
+                    i++;
+                    return [3 /*break*/, 2];
+                case 9: return [2 /*return*/];
+            }
+        });
+    });
+}
