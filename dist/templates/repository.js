@@ -12,10 +12,10 @@ module.exports = function (path, _a) {
         name: className
     });
     repoClass.setIsExported(true);
-    repoClass.setExtends("BaseRepository<" + entityNameCapitalized + "Model>");
+    repoClass.setExtends("BaseRepository<" + entityNameCapitalized + ">");
     repoClass.addDecorator({
         name: 'EntityRepository',
-        arguments: entityNameCapitalized + "Model"
+        arguments: "" + entityNameCapitalized
     }).setIsDecoratorFactory(true);
     repoClass.addConstructor({
         statements: "super();"

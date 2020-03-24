@@ -14,11 +14,11 @@ export = (path,{className,entityName}) => {
     });
 
     repoClass.setIsExported(true);
-    repoClass.setExtends(`BaseRepository<${entityNameCapitalized}Model>`);
+    repoClass.setExtends(`BaseRepository<${entityNameCapitalized}>`);
 
     repoClass.addDecorator({
         name : 'EntityRepository',
-        arguments : `${entityNameCapitalized}Model` as any
+        arguments : `${entityNameCapitalized}` as any
     }).setIsDecoratorFactory(true);
 
     repoClass.addConstructor({

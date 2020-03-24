@@ -44,7 +44,7 @@ export async function basicModel (action: string, dbType: string) {
 
     modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
         entities : [],
-        className : `${capitalize}Model`,
+        className : `${capitalize}`,
         createUpdate : {
             createAt: true,
             updateAt: true

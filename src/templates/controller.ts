@@ -173,7 +173,7 @@ export function  main (path: string, {className,options,entityName}) {
 
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: [`DeserializeRelationsMiddleware, { schema : ${entityNameCapitalized}Schema }`]
+            arguments: [`DeserializeRelationsMiddleware, { schema : ${entityNameCapitalized}SerializerSchema }`]
         });
 
         createMethod.addDecorator({

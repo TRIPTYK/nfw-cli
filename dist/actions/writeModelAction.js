@@ -92,7 +92,7 @@ function basicModel(action, dbType) {
                     capitalize = utils_1.capitalizeEntity(lowercase);
                     modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
                         entities: [],
-                        className: capitalize + "Model",
+                        className: "" + capitalize,
                         createUpdate: {
                             createAt: true,
                             updateAt: true
