@@ -24,6 +24,6 @@ module.exports = function (path, _a) {
         isStatic: true,
         returnType: "Readonly<JSONAPISerializerSchema>",
         name: "schema"
-    }).setBodyText("\n        return {\n            relationships : {},\n            type: " + schema + ".type,\n            whitelist: " + schema + ".serialize,\n            whitelistOnDeserialize : " + schema + ".deserialize\n        };\n    ");
+    }).setBodyText("\nreturn {\n    relationships : {},\n    type: " + schema + ".type,\n    whitelist: " + schema + ".serialize,\n    whitelistOnDeserialize : " + schema + ".deserialize\n};\n    ");
     return file;
 };
