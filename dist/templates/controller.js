@@ -135,7 +135,7 @@ function main(path, _a) {
         });
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: ["DeserializeRelationsMiddleware, { schema : " + entityNameCapitalized + "Schema }"]
+            arguments: ["DeserializeRelationsMiddleware, { schema : " + entityNameCapitalized + "SerializerSchema }"]
         });
         createMethod.addDecorator({
             name: 'MethodMiddleware',

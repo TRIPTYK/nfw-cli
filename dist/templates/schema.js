@@ -14,7 +14,7 @@ module.exports = function (path, _a) {
         isStatic: true,
         type: "string",
         name: "type",
-        initializer: entityName
+        initializer: "\"" + entityName + "\""
     });
     addedClass.addProperty({
         isStatic: true,

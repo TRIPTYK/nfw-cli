@@ -89,7 +89,7 @@ export async function main (modelName: string, crudOptions: object, data = null,
 
     if(!part || part === 'schema')
         files.push(schemaTemplateFile(schemaPath, {
-            className: `${capitalize}Schema`,
+            className: `${capitalize}SerializerSchema`,
             entityName: lowercase
         }));
 

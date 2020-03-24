@@ -5,10 +5,8 @@ export = (path: string, {className, entityName}) => {
         overwrite : true
     });
 
-    const schema = `${className}SerializerSchema`;
-
     const addedClass = file.addClass({
-        name : schema,
+        name : className,
         isDefaultExport : true
     });
 
@@ -16,7 +14,7 @@ export = (path: string, {className, entityName}) => {
         isStatic : true,
         type : "string",
         name : "type",
-        initializer : entityName
+        initializer : `"${entityName}"`
     });
 
     addedClass.addProperty({
@@ -38,9 +36,9 @@ export = (path: string, {className, entityName}) => {
     }).setBodyText(`
 return {
     relationships : {},
-    type: ${schema}.type,
-    whitelist: ${schema}.serialize,
-    whitelistOnDeserialize : ${schema}.deserialize
+    type: ${className}.type,
+    whitelist: ${className}.serialize,
+    whitelistOnDeserialize : ${className}.deserialize
 };
     `);
 

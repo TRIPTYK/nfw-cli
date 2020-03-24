@@ -19,7 +19,7 @@ module.exports = function (path, _a) {
     serializerClass.addConstructor({
         parameters: [{ name: 'serializerParams: SerializerParams', initializer: '{}' }],
         statements: [
-            "super(" + entityNameCapitalized + "Schema.schema)",
+            "super(" + entityNameCapitalized + "SerializerSchema.schema)",
             "if(serializerParams.pagination) {\n                this.setupPaginationLinks(serializerParams.pagination);\n            }"
         ]
     })
