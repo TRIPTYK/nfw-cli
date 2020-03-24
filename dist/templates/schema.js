@@ -12,6 +12,12 @@ module.exports = function (path, _a) {
     });
     addedClass.addProperty({
         isStatic: true,
+        type: "string",
+        name: "type",
+        initializer: entityName
+    });
+    addedClass.addProperty({
+        isStatic: true,
         type: "string[]",
         name: "serialize"
     });

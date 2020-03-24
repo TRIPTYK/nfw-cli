@@ -15,7 +15,7 @@ import { Singleton } from '../utils/DatabaseSingleton';
 export const command: string = 'delete <modelName>';
 
 //Yargs command aliases
-export const aliases: string[] = ['del', 'D'];
+export const aliases: string[] = ['del', 'd'];
 
 //Yargs command description
 export const describe: string = 'Delete a model';

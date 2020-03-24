@@ -49,7 +49,7 @@ var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'delete <modelName>';
 //Yargs command aliases
-exports.aliases = ['del', 'D'];
+exports.aliases = ['del', 'd'];
 //Yargs command description
 exports.describe = 'Delete a model';
 /**
