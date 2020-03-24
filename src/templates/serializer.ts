@@ -24,7 +24,7 @@ export = (path: string,{className,entityName}) => {
     serializerClass.addConstructor({
         parameters : [{ name : 'serializerParams: SerializerParams' , initializer : '{}'}],
         statements : [
-            `super(${entityNameCapitalized}Schema)`,
+            `super(${entityNameCapitalized}Schema.schema)`,
             `if(serializerParams.pagination) {
                 this.setupPaginationLinks(serializerParams.pagination);
             }`

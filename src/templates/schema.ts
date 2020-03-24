@@ -14,6 +14,13 @@ export = (path: string, {className, entityName}) => {
 
     addedClass.addProperty({
         isStatic : true,
+        type : "string",
+        name : "type",
+        initializer : entityName
+    });
+
+    addedClass.addProperty({
+        isStatic : true,
         type : "string[]",
         name : "serialize"
     });
