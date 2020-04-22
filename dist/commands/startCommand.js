@@ -65,7 +65,7 @@ var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'start';
 //Yargs command aliases
-exports.aliases = [];
+exports.aliases = ['s'];
 //Yargs command description
 exports.describe = 'Start the api server';
 //Yargs command builder

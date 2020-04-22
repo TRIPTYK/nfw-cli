@@ -20,7 +20,7 @@ import { Singleton } from '../utils/DatabaseSingleton';
 export const command: string = 'start';
 
 //Yargs command aliases
-export const aliases: string[] = [];
+export const aliases: string[] = ['s'];
 
 //Yargs command description
 export const describe: string = 'Start the api server';

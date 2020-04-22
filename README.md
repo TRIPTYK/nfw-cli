@@ -42,6 +42,9 @@ npm install
 npm link
 ```
 
+## Requirements
+## Mysql and/or MongoDB client
+
 ## Author
 
 👤 **Triptyk**
