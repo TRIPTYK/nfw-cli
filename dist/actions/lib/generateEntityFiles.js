@@ -116,7 +116,7 @@ function main(modelName, crudOptions, data, part) {
                         }));
                     if (!part || part === 'schema')
                         files.push(schemaTemplateFile(schemaPath, {
-                            className: capitalize + "Schema",
+                            className: capitalize + "SerializerSchema",
                             entityName: lowercase
                         }));
                     if (!part || part === 'serializer')

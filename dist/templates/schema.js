@@ -5,9 +5,8 @@ module.exports = function (path, _a) {
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var schema = className + "SerializerSchema";
     var addedClass = file.addClass({
-        name: schema,
+        name: className,
         isDefaultExport: true
     });
     addedClass.addProperty({
@@ -30,6 +29,6 @@ module.exports = function (path, _a) {
         isStatic: true,
         returnType: "Readonly<JSONAPISerializerSchema>",
         name: "schema"
-    }).setBodyText("\nreturn {\n    relationships : {},\n    type: " + schema + ".type,\n    whitelist: " + schema + ".serialize,\n    whitelistOnDeserialize : " + schema + ".deserialize\n};\n    ");
+    }).setBodyText("\nreturn {\n    relationships : {},\n    type: " + className + ".type,\n    whitelist: " + className + ".serialize,\n    whitelistOnDeserialize : " + className + ".deserialize\n};\n    ");
     return file;
 };
