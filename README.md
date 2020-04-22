@@ -13,33 +13,13 @@ nfw
 ## Installation with Yarn
 
 ```sh
-git clone https://github.com/TRIPTYK/nfw-cli.git --branch=develop
-```
-
-```sh
-yarn install
-```
-
-```sh
-yarn link
-```
-
-```sh
-export PATH="$(yarn global bin):$PATH"
+yarn global add @triptyk/nfw-cli
 ```
 
 ## Installation with Npm
 
 ```sh
-git clone https://github.com/TRIPTYK/nfw-cli.git --branch=develop
-```
-
-```sh
-npm install
-```
-
-```sh
-npm link
+npm install -g @triptyk/nfw-cli 
 ```
 
 ## Author
