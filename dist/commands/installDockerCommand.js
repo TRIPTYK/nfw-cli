@@ -45,7 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var installDockerAction_1 = require("../actions/installDockerAction");
 var Log = require("../utils/log");
 var inquirer_1 = require("../utils/inquirer");
-var DockerStrategy_1 = require("../database/DockerStrategy");
+var dockerStrategy_1 = require("../database/dockerStrategy");
 exports.command = 'setupDatabase';
 exports.aliases = ['sdb'];
 exports.describe = 'Setup database container (mysql, mongodb)';
@@ -82,15 +82,15 @@ function handler(argv) {
                     dbToInstall = _a.sent();
                     switch (dbToInstall.dbType) {
                         case 'mongo': {
-                            databaseStrategy = new DockerStrategy_1.MongoDBStrategy();
+                            databaseStrategy = new dockerStrategy_1.MongoDBStrategy();
                             break;
                         }
                         case 'mysql': {
-                            databaseStrategy = new DockerStrategy_1.MysqlStrategy();
+                            databaseStrategy = new dockerStrategy_1.MysqlStrategy();
                             break;
                         }
                         default: {
-                            databaseStrategy = new DockerStrategy_1.MysqlStrategy();
+                            databaseStrategy = new dockerStrategy_1.MysqlStrategy();
                             break;
                         }
                     }

@@ -11,7 +11,7 @@ const project = new tsMorph.Project({
  */
 export = (() => {
     if (!isInitialised) {
-        project.addExistingSourceFiles(["src/**/*.ts","test/**/*.ts"]);
+        project.addSourceFilesAtPaths(["src/**/*.ts","test/**/*.ts"]);
         isInitialised = true;
     }
 

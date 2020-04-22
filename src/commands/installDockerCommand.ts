@@ -8,7 +8,7 @@
 import { InstallDockerActionAclass } from '../actions/installDockerAction';
 import Log = require('../utils/log');
 import {Inquirer} from '../utils/inquirer';
-import {DockerStrategy, MongoDBStrategy, MysqlStrategy} from '../database/DockerStrategy';
+import {DockerStrategy, MongoDBStrategy, MysqlStrategy} from '../database/dockerStrategy';
 
 export const command: string = 'setupDatabase';
 export const aliases: string[] = ['sdb'];

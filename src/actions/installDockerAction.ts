@@ -1,8 +1,8 @@
 import util = require('util');
 const exec = util.promisify(require('child_process').exec);
 import Log = require('../utils/log');
-import { Docker} from 'docker-cli-js';
-import { DockerStrategy } from '../database/DockerStrategy';
+import { Docker } from 'docker-cli-js';
+import { DockerStrategy } from '../database/dockerStrategy';
 import { DBEnvVariables } from '../utils/interfaces';
 
 import JsonFileWriter = require('json-file-rw');
@@ -12,10 +12,10 @@ import { Inquirer } from '../utils/inquirer';
 
 export class InstallDockerActionAclass {
     private strategy: DockerStrategy;
-    name: string;
-    port: string;
-    version: string;
-    password: string;
+    private name: string;   
+    private port: string;
+    private version: string;
+    private password: string;
 
     constructor (strategy: DockerStrategy, name: string, port: string, version: string, password: string) {
         this.strategy = strategy;
