@@ -1,5 +1,5 @@
 {
-  "name": "nfw-cli",
+  "name": "@triptyk/nfw-cli",
   "version": "0.0.2",
   "description": "CLI to kickstart back-end entities creation",
   "main": "index.js",
