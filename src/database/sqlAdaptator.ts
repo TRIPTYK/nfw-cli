@@ -120,7 +120,7 @@ export class SqlConnection implements AdaptatorStrategy {
 
     async getColumns(tableName:string): Promise<any>
     {
-        return await this.db.query(`SHOW COLUMNS FROM ${tableName} ;`);
+        return await this.db.query(`SHOW COLUMNS FROM \`${tableName}\`;`);
     }
 
     async select(table: string,fields: string[],supplement = ''): Promise<any>
