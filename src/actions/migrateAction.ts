@@ -45,12 +45,10 @@ const _buildErrorObjectFromMessage = (e: Error) => {
 export class MigrateActionClass {
     strategy: AdaptatorStrategy;
     modelName: string;
-    directory?:string;
 
-    constructor(strategy: AdaptatorStrategy, modelName: string, directory?: string){
+    constructor(strategy: AdaptatorStrategy, modelName: string){
         this.strategy = strategy;
         this.modelName = modelName;
-        this.directory = directory;
     }
 
     setStrategy (strategy: AdaptatorStrategy){
@@ -60,8 +58,6 @@ export class MigrateActionClass {
     async main(){
         const typeorm_cli = path.resolve('.', 'node_modules', 'typeorm', 'cli.js');
         const ts_node = path.resolve('.', 'node_modules', '.bin', 'ts-node');   
-
-        await mkdirp(`${this.directory}/failed`);
 
         //typeorm generate feature currently doesn't work with mongodb so an empty migration is created when using Mongodb
         //To use migrations with a Mongo database, migrations must be written by hand in src/migration/development/migration_name

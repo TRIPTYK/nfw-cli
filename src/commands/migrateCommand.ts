@@ -32,21 +32,6 @@ export const describe: string = 'Generate, compile and run the migration';
 //Yargs command builder
 export function builder (yargs: any) {
     yargs.check(_validateArgs);
-    yargs.option('restore', {
-        desc: "Restore migration data at a specific state",
-        type: "boolean",
-        default: false
-    });
-    yargs.option('revert', {
-        desc: "Revert migration at a specific state",
-        type: "boolean",
-        default: false
-    });
-    yargs.option('dump',{
-        desc :'dump', 
-        type : "boolean",
-        default : false
-    });
 };
 
 /**
@@ -71,14 +56,13 @@ export async function handler (argv: any): Promise<void> {
 
     const strategyInstance = Singleton.getInstance();
     const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
-    const {TYPEORM_MIGRATIONS_DIR} = commandUtils.getCurrentEnvironment().envVariables;
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase(databaseStrategy);
 
     spinner.start();
 
-    await new MigrateActionClass(databaseStrategy, modelName, TYPEORM_MIGRATIONS_DIR).main()
+    await new MigrateActionClass(databaseStrategy, modelName).main()
         .then((isSuccess) => {
             spinner.stop();
 
