@@ -51,8 +51,6 @@ exports.handler = async (argv: any) => {
 
     commandUtils.validateDirectory();
 
-    commandUtils.updateORMConfig();
-
     await new CreateSuperUserActionClass(databaseStrategy, username,mail,role,password).main()
         .then((generated) => {
             const [ filePath ] = generated;

@@ -55,7 +55,6 @@ var files_1 = require("../utils/files");
 var inquirer_1 = require("../utils/inquirer");
 var Log = require("../utils/log");
 var utils = require("./lib/utils");
-var JsonFileWriter = require("json-file-rw");
 var EnvFileWriter = require("env-file-rw");
 // promisified
 var exec = util.promisify(require('child_process').exec);
@@ -75,7 +74,7 @@ var NewActionClass = /** @class */ (function () {
     //description: Generate a new project
     NewActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var pckManager, inquirer, files, kickstart, setupEnv, config, ormConfigPath, extenstion_1, files_2, envFiles, _i, envFiles_1, environmentFile, envFileWriter, jsonFileWriter;
+            var pckManager, inquirer, files, kickstart, setupEnv, config, extenstion_1, files_2, envFiles, _i, envFiles_1, environmentFile, envFileWriter;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -127,7 +126,6 @@ var NewActionClass = /** @class */ (function () {
                     case 6:
                         _a.sent();
                         if (this.defaultEnv) {
-                            ormConfigPath = newPath === undefined ? "ormconfig.json" : path.resolve(newPath.path, "ormconfig.json");
                             extenstion_1 = '.env';
                             files_2 = fs.readdirSync('./');
                             envFiles = files_2.filter(function (file) {
@@ -144,18 +142,6 @@ var NewActionClass = /** @class */ (function () {
                                 envFileWriter.setNodeValue("TYPEORM_TYPE", this.envVar.TYPEORM_TYPE);
                                 envFileWriter.saveSync();
                             }
-                            jsonFileWriter = new JsonFileWriter();
-                            jsonFileWriter.openSync(ormConfigPath);
-                            jsonFileWriter.setNodeValue("host", this.envVar.TYPEORM_HOST);
-                            jsonFileWriter.setNodeValue("port", this.envVar.TYPEORM_PORT);
-                            jsonFileWriter.setNodeValue("username", this.envVar.TYPEORM_USER);
-                            jsonFileWriter.setNodeValue("password", this.envVar.TYPEORM_PWD);
-                            jsonFileWriter.setNodeValue("database", this.envVar.TYPEORM_DB);
-                            jsonFileWriter.setNodeValue("type", this.envVar.TYPEORM_TYPE);
-                            jsonFileWriter.setNodeValue("authSource", "admin");
-                            jsonFileWriter.setNodeValue("useNewUrlParser", true);
-                            jsonFileWriter.setNodeValue("useUnifiedTopology", true);
-                            jsonFileWriter.saveSync();
                         }
                         if (!(this.envVar.TYPEORM_TYPE === 'mysql')) return [3 /*break*/, 8];
                         return [4 /*yield*/, utils.createDataBaseIfNotExists(setupEnv)];

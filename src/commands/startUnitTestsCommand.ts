@@ -41,20 +41,6 @@ export async function handler (argv: any): Promise<void> {
     status.start();
 
     commandUtils.validateDirectory();
-
-    const envFileContent = fs.readFileSync(`test.env`);
-    const ormconfigFile = new JsonFileWriter();
-    ormconfigFile.openSync(`ormconfig.json`);
-    let envFile = dotenv.parse(envFileContent);
-
-    ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
-    ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
-    ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);
-    ormconfigFile.setNodeValue("username",envFile.TYPEORM_USER);
-    ormconfigFile.setNodeValue("password",envFile.TYPEORM_PWD);
-    ormconfigFile.setNodeValue("port",envFile.TYPEORM_PORT);
-    ormconfigFile.saveSync();
-
     const nfwFile = new JsonFileWriter();
     nfwFile.openSync(".nfw");
 

@@ -57,34 +57,6 @@ export async function startDockerContainers (environement: string) {
     await snooze(1000);
 }
 
-export function updateORMConfig (environement = null) {
-    if (environement === null) {
-        const nfwFile = new JsonFileWriter();
-        nfwFile.openSync(".nfw");
-        environement = nfwFile.getNodeValue("env","development");
-        nfwFile.saveSync();
-    }
-
-    const envFileContent = fs.readFileSync(`${environement}.env`);
-
-    const ormconfigFile = new JsonFileWriter();
-    ormconfigFile.openSync(`ormconfig.json`);
-    let envFile = dotenv.parse(envFileContent);
-
-    ormconfigFile.setNodeValue("cli.migrationsDir",path.join("./src/migration/",environement));
-    ormconfigFile.setNodeValue("migrations",[
-        `src/migration/${environement}/*.ts`
-    ]);
-    ormconfigFile.setNodeValue("type",envFile.TYPEORM_TYPE);
-    ormconfigFile.setNodeValue("name",envFile.TYPEORM_NAME);
-    ormconfigFile.setNodeValue("host",envFile.TYPEORM_HOST);
-    ormconfigFile.setNodeValue("database",envFile.TYPEORM_DB);
-    ormconfigFile.setNodeValue("username",envFile.TYPEORM_USER);
-    ormconfigFile.setNodeValue("password",envFile.TYPEORM_PWD);
-    ormconfigFile.setNodeValue("port",envFile.TYPEORM_PORT);
-    return ormconfigFile.saveSync();
-}
-
 export async function checkConnectToDatabase (databaseStrategy: AdaptatorStrategy): Promise<void> {
     try {
         const currentEnv: DatabaseEnv = exports.getCurrentEnvironment().getEnvironment();

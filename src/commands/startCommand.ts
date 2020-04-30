@@ -48,8 +48,7 @@ export async function handler (argv: any): Promise<void> {
     if (environement === undefined) {
         environement = nfwFile.getNodeValue("env","development");
     }
-
-    commandUtils.updateORMConfig(environement);
+    
     await commandUtils.startDockerContainers(environement);
 
     let connected;

@@ -84,7 +84,6 @@ exports.handler = function (argv) { return __awaiter(void 0, void 0, void 0, fun
                 strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
                 databaseStrategy = strategyInstance.setDatabaseStrategy();
                 commandUtils.validateDirectory();
-                commandUtils.updateORMConfig();
                 return [4 /*yield*/, new createSuperUserAction_1.CreateSuperUserActionClass(databaseStrategy, username, mail, role, password).main()
                         .then(function (generated) {
                         var filePath = generated[0];

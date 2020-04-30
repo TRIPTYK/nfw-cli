@@ -86,7 +86,6 @@ function handler(argv) {
                     if (environement === undefined) {
                         environement = nfwFile.getNodeValue("env", "development");
                     }
-                    commandUtils.updateORMConfig(environement);
                     return [4 /*yield*/, commandUtils.startDockerContainers(environement)];
                 case 1:
                     _a.sent();

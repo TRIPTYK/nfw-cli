@@ -2,6 +2,7 @@ import { AdaptatorStrategy } from "../database/AdaptatorStrategy";
 import { SqlConnection } from "../database/sqlAdaptator";
 import { MongoConnection } from "../database/mongoAdaptator";
 import JsonFileWriter = require('json-file-rw');
+import { getCurrentEnvironment } from "../commands/commandUtils";
 
 export class Singleton {
 
@@ -20,12 +21,9 @@ export class Singleton {
     }
 
     setDatabaseStrategy (): AdaptatorStrategy {
+        const type = getCurrentEnvironment().envVariables.TYPEORM_TYPE;
 
-        const nfwConfig = new JsonFileWriter();
-        nfwConfig.openSync('./ormconfig.json');
-        const currentDB = nfwConfig.getNodeValue('type');
-
-        if(currentDB === 'mongodb') {
+        if(type === 'mongodb') {
             return this._databaseStrategy = new MongoConnection();
         } else {
             return this._databaseStrategy = new SqlConnection();

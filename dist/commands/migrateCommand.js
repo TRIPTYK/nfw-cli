@@ -59,21 +59,6 @@ exports.describe = 'Generate, compile and run the migration';
 //Yargs command builder
 function builder(yargs) {
     yargs.check(_validateArgs);
-    yargs.option('restore', {
-        desc: "Restore migration data at a specific state",
-        type: "boolean",
-        default: false
-    });
-    yargs.option('revert', {
-        desc: "Revert migration at a specific state",
-        type: "boolean",
-        default: false
-    });
-    yargs.option('dump', {
-        desc: 'dump',
-        type: "boolean",
-        default: false
-    });
 }
 exports.builder = builder;
 ;
@@ -93,7 +78,7 @@ var _validateArgs = function (argv, options) {
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var modelName, restore, dump, revert, spinner, strategyInstance, databaseStrategy, TYPEORM_MIGRATIONS_DIR;
+        var modelName, restore, dump, revert, spinner, strategyInstance, databaseStrategy;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -104,14 +89,12 @@ function handler(argv) {
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
                     databaseStrategy = strategyInstance.setDatabaseStrategy();
-                    TYPEORM_MIGRATIONS_DIR = commandUtils.getCurrentEnvironment().envVariables.TYPEORM_MIGRATIONS_DIR;
-                    console.log(TYPEORM_MIGRATIONS_DIR);
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 1:
                     _a.sent();
                     spinner.start();
-                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, modelName, restore, dump, revert).main()
+                    return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, modelName).main()
                             .then(function (isSuccess) {
                             spinner.stop();
                             if (isSuccess) {

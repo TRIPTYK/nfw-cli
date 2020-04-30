@@ -70,12 +70,9 @@ var _buildErrorObjectFromMessage = function (e) {
  * @returns {Promise<array>}
  */
 var MigrateActionClass = /** @class */ (function () {
-    function MigrateActionClass(strategy, modelName, restore, dump, isRevert) {
+    function MigrateActionClass(strategy, modelName) {
         this.strategy = strategy;
         this.modelName = modelName;
-        this.restore = restore;
-        this.dump = dump;
-        this.isRevert = isRevert;
     }
     MigrateActionClass.prototype.setStrategy = function (strategy) {
         this.strategy = strategy;

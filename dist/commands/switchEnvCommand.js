@@ -86,7 +86,6 @@ function handler(argv) {
                     nfwFile.openSync('.nfw');
                     nfwFile.setNodeValue('env', env);
                     nfwFile.saveSync();
-                    commandUtils.updateORMConfig(env);
                     process.exit();
                     return [2 /*return*/];
             }

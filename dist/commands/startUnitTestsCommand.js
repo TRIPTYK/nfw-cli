@@ -56,8 +56,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var JsonFileWriter = require("json-file-rw");
 var util = require("util");
 var exec = util.promisify(require('child_process').exec);
-var fs = require("fs");
-var dotenv = require("dotenv");
 // Project imports
 var commandUtils = require("./commandUtils");
 var clui_1 = require("clui");
@@ -77,24 +75,13 @@ exports.builder = function (yargs) { };
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var status, envFileContent, ormconfigFile, envFile, nfwFile, containerName, connected, currentEnv, strategyInstance, databaseStrategy, e_1, clonedEnv, dbName, confirmation;
+        var status, nfwFile, containerName, connected, currentEnv, strategyInstance, databaseStrategy, e_1, clonedEnv, dbName, confirmation;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     status = new clui_1.Spinner('Executing unit tests, please wait ...');
                     status.start();
                     commandUtils.validateDirectory();
-                    envFileContent = fs.readFileSync("test.env");
-                    ormconfigFile = new JsonFileWriter();
-                    ormconfigFile.openSync("ormconfig.json");
-                    envFile = dotenv.parse(envFileContent);
-                    ormconfigFile.setNodeValue("name", envFile.TYPEORM_NAME);
-                    ormconfigFile.setNodeValue("host", envFile.TYPEORM_HOST);
-                    ormconfigFile.setNodeValue("database", envFile.TYPEORM_DB);
-                    ormconfigFile.setNodeValue("username", envFile.TYPEORM_USER);
-                    ormconfigFile.setNodeValue("password", envFile.TYPEORM_PWD);
-                    ormconfigFile.setNodeValue("port", envFile.TYPEORM_PORT);
-                    ormconfigFile.saveSync();
                     nfwFile = new JsonFileWriter();
                     nfwFile.openSync(".nfw");
                     if (!nfwFile.nodeExists('dockerContainer')) return [3 /*break*/, 2];

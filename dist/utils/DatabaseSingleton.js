@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var mongoAdaptator_1 = require("../database/mongoAdaptator");
-var JsonFileWriter = require("json-file-rw");
+var commandUtils_1 = require("../commands/commandUtils");
 var Singleton = /** @class */ (function () {
     function Singleton() {
     }
@@ -14,10 +14,8 @@ var Singleton = /** @class */ (function () {
         return Singleton.instance;
     };
     Singleton.prototype.setDatabaseStrategy = function () {
-        var nfwConfig = new JsonFileWriter();
-        nfwConfig.openSync('./ormconfig.json');
-        var currentDB = nfwConfig.getNodeValue('type');
-        if (currentDB === 'mongodb') {
+        var type = commandUtils_1.getCurrentEnvironment().envVariables.TYPEORM_TYPE;
+        if (type === 'mongodb') {
             return this._databaseStrategy = new mongoAdaptator_1.MongoConnection();
         }
         else {

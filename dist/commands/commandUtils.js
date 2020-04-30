@@ -45,7 +45,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chalk_1 = require("chalk");
 var fs = require("fs");
 var util_1 = require("util");
-var path = require("path");
 var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 // project modules
@@ -54,7 +53,6 @@ var DatabaseEnv_1 = require("../database/DatabaseEnv");
 var Log = require("../utils/log");
 var readFilePromise = util_1.promisify(fs.readFile);
 var JsonFileWriter = require("json-file-rw");
-var dotenv = require("dotenv");
 //Check if we are in a valid project directory
 function validateDirectory() {
     var filesHelper = new files_1.Files();
@@ -99,32 +97,6 @@ function startDockerContainers(environement) {
     });
 }
 exports.startDockerContainers = startDockerContainers;
-function updateORMConfig(environement) {
-    if (environement === void 0) { environement = null; }
-    if (environement === null) {
-        var nfwFile = new JsonFileWriter();
-        nfwFile.openSync(".nfw");
-        environement = nfwFile.getNodeValue("env", "development");
-        nfwFile.saveSync();
-    }
-    var envFileContent = fs.readFileSync(environement + ".env");
-    var ormconfigFile = new JsonFileWriter();
-    ormconfigFile.openSync("ormconfig.json");
-    var envFile = dotenv.parse(envFileContent);
-    ormconfigFile.setNodeValue("cli.migrationsDir", path.join("./src/migration/", environement));
-    ormconfigFile.setNodeValue("migrations", [
-        "src/migration/" + environement + "/*.ts"
-    ]);
-    ormconfigFile.setNodeValue("type", envFile.TYPEORM_TYPE);
-    ormconfigFile.setNodeValue("name", envFile.TYPEORM_NAME);
-    ormconfigFile.setNodeValue("host", envFile.TYPEORM_HOST);
-    ormconfigFile.setNodeValue("database", envFile.TYPEORM_DB);
-    ormconfigFile.setNodeValue("username", envFile.TYPEORM_USER);
-    ormconfigFile.setNodeValue("password", envFile.TYPEORM_PWD);
-    ormconfigFile.setNodeValue("port", envFile.TYPEORM_PORT);
-    return ormconfigFile.saveSync();
-}
-exports.updateORMConfig = updateORMConfig;
 function checkConnectToDatabase(databaseStrategy) {
     return __awaiter(this, void 0, void 0, function () {
         var currentEnv, e_1;

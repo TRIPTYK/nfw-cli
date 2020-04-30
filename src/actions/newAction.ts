@@ -103,9 +103,6 @@ export class NewActionClass {
 
     
         if (this.defaultEnv) {
-            
-            const ormConfigPath = newPath === undefined ? `ormconfig.json` : path.resolve(newPath.path, `ormconfig.json`);
-    
             //Gets .env files from root dir to write env values in each of them
             const extenstion = '.env';
             const files = fs.readdirSync('./');
@@ -125,21 +122,6 @@ export class NewActionClass {
 
                 envFileWriter.saveSync();
             }
-
-            const jsonFileWriter = new JsonFileWriter();
-            jsonFileWriter.openSync(ormConfigPath);
-    
-            jsonFileWriter.setNodeValue("host",this.envVar.TYPEORM_HOST);
-            jsonFileWriter.setNodeValue("port",this.envVar.TYPEORM_PORT);
-            jsonFileWriter.setNodeValue("username",this.envVar.TYPEORM_USER);
-            jsonFileWriter.setNodeValue("password",this.envVar.TYPEORM_PWD);
-            jsonFileWriter.setNodeValue("database",this.envVar.TYPEORM_DB);
-            jsonFileWriter.setNodeValue("type", this.envVar.TYPEORM_TYPE);
-            jsonFileWriter.setNodeValue("authSource", "admin");
-            jsonFileWriter.setNodeValue("useNewUrlParser", true);
-            jsonFileWriter.setNodeValue("useUnifiedTopology", true);
-
-            jsonFileWriter.saveSync();
         }
     
         if(this.envVar.TYPEORM_TYPE === 'mysql'){

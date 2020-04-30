@@ -51,7 +51,5 @@ export async function handler (argv: any): Promise<void> {
     nfwFile.setNodeValue('env',env);
     nfwFile.saveSync();
 
-    commandUtils.updateORMConfig(env);
-
     process.exit();
 };
