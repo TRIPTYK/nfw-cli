@@ -93,11 +93,13 @@ function handler(argv) {
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     spinner.start();
                     return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "init").main()
-                            .then(function (generated) {
-                            var migrationDir = generated[0];
-                            spinner.stop();
-                            Log.success("Executed migration successfully");
-                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                            .then(function (isSuccess) {
+                            if (isSuccess) {
+                                Log.success("Executed migration successfully");
+                            }
+                            else {
+                                Log.error("Migration failed , please check console output");
+                            }
                         })
                             .catch(function (e) {
                             spinner.stop();

@@ -58,7 +58,6 @@ var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 var fs = require("fs");
 var dotenv = require("dotenv");
-var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
 var clui_1 = require("clui");
@@ -138,14 +137,16 @@ function handler(argv) {
                     _a.sent();
                     _a.label = 9;
                 case 9: return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
-                        .then(function (generated) {
-                        var migrationDir = generated[0];
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
-                        connected = true;
+                        .then(function (isSuccess) {
+                        if (isSuccess) {
+                            Log.success("Executed migration successfully");
+                        }
+                        else {
+                            Log.error("Migration failed , please check console output");
+                        }
                     })
-                        .catch(function (err) {
-                        connected = err;
+                        .catch(function (e) {
+                        Log.error(e.message);
                     })];
                 case 10:
                     _a.sent();

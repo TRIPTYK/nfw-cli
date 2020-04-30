@@ -71,20 +71,22 @@ export async function handler (argv: any): Promise<void> {
 
     const strategyInstance = Singleton.getInstance();
     const databaseStrategy: AdaptatorStrategy = strategyInstance.setDatabaseStrategy();
+    const {TYPEORM_MIGRATIONS_DIR} = commandUtils.getCurrentEnvironment().envVariables;
 
     commandUtils.validateDirectory();
     await commandUtils.checkConnectToDatabase(databaseStrategy);
-  
-    commandUtils.updateORMConfig();
 
     spinner.start();
 
-    await new MigrateActionClass(databaseStrategy, modelName,restore,dump,revert).main()
-        .then((generated) => {
-            const [migrationDir] = generated;
+    await new MigrateActionClass(databaseStrategy, modelName, TYPEORM_MIGRATIONS_DIR).main()
+        .then((isSuccess) => {
             spinner.stop();
-            Log.success(`Executed migration successfully`);
-            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+
+            if (isSuccess) {
+                Log.success(`Executed migration successfully`);
+            }else{
+                Log.error(`Migration failed , please check console output`);
+            }
         })
         .catch((e) => {
             spinner.stop();

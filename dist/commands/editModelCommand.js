@@ -50,7 +50,6 @@ var migrate = require("../actions/migrateAction");
 var utils_1 = require("../actions/lib/utils");
 //Node Modules
 var clui_1 = require("clui");
-var chalk_1 = require("chalk");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'editModel <model> <action> [columnName]';
@@ -104,11 +103,14 @@ function handler(argv) {
                                     case 0:
                                         spinner.start();
                                         return [4 /*yield*/, new migrate.MigrateActionClass(databaseStrategy, "remove-" + columnName + "-from-" + model).main()
-                                                .then(function (generated) {
-                                                var migrationDir = generated[0];
+                                                .then(function (isSuccess) {
                                                 spinner.stop();
-                                                Log.success("Executed migration successfully");
-                                                Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                                                if (isSuccess) {
+                                                    Log.success("Executed migration successfully");
+                                                }
+                                                else {
+                                                    Log.error("Migration failed , please check console output");
+                                                }
                                             })
                                                 .catch(function (e) {
                                                 spinner.stop();
@@ -136,11 +138,14 @@ function handler(argv) {
                                     case 0:
                                         spinner.start();
                                         return [4 /*yield*/, new migrate.MigrateActionClass(databaseStrategy, "remove-" + columnName + "-from-" + model).main()
-                                                .then(function (generated) {
-                                                var migrationDir = generated[0];
+                                                .then(function (isSuccess) {
                                                 spinner.stop();
-                                                Log.success("Executed migration successfully");
-                                                Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                                                if (isSuccess) {
+                                                    Log.success("Executed migration successfully");
+                                                }
+                                                else {
+                                                    Log.error("Migration failed , please check console output");
+                                                }
                                             })
                                                 .catch(function (e) {
                                                 spinner.stop();

@@ -74,15 +74,18 @@ export async function handler  (argv: any): Promise<void> {
     spinner.start();
 
     await new MigrateActionClass(databaseStrategy, modelName).main()
-        .then((generated) => {
-            const [migrationDir] = generated;
+        .then((isSuccess) => {
             spinner.stop();
-            Log.success(`Executed migration successfully`);
-            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+
+            if (isSuccess) {
+                Log.success(`Executed migration successfully`);
+            }else{
+                Log.error(`Migration failed , please check console output`);
+            }
         })
         .catch((e) => {
+            spinner.stop();
             Log.error(e.message);
-            process.exit();
         });
 
 

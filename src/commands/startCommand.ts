@@ -82,12 +82,12 @@ export async function handler (argv: any): Promise<void> {
             if (confirmation) await databaseStrategy.createDatabase(dbName);
 
             await new MigrateActionClass(databaseStrategy, `create-db-${dbName}`).main()
-                .then((generated) => {
-
-                    const [migrationDir] = generated;
-                    Log.success(`Executed migration successfully`);
-                    Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
-                    connected = true;
+                .then((isSuccess) => {
+                    if (isSuccess) {
+                        Log.success(`Executed migration successfully`);
+                    }else{
+                        Log.error(`Migration failed , please check console output`);
+                    }
                 })
                 .catch((err) => {
                     

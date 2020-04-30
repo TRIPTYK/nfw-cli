@@ -15,6 +15,7 @@ import Log = require('../utils/log');
 
 // project modules
 import {modelFileExists, columnExist, relationExist, capitalizeEntity} from './lib/utils';
+import { SyntaxKind, Node, PropertyAssignment } from 'ts-morph';
 
 
 export class CreateRelationActionClass {
@@ -54,33 +55,25 @@ export class CreateRelationActionClass {
         await project.save();
     }
 
+    // TODO : fix relations adding l
     //description : add relationship in the serializer of an entity
     addToSerializer (entity: string, column: string, model, m1Name: string, m2Name: string) {
-        const serializerFile = project.getSourceFile(`src/api/serializers/${entity}.serializer.ts`);
+        const serializerFile = project.getSourceFile(`src/api/serializers/schemas/${entity}.serializer.schema.ts`);
         const serializerClass = serializerFile.getClasses()[0];
-        const constructor: any = serializerClass.getConstructors()[0];
-        const relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
-        const serializerType = dashify(model);
 
-        if (!relationshipsInitializer.getProperty(column)) {
-            relationshipsInitializer.addPropertyAssignment({
-                name: column,
-                initializer: `{type : '${serializerType}'}`
-            });
-        }
-        if (constructor.getStructure().statements.findIndex((e) => {
-            if (typeof e === 'string')
-                return e.match(new RegExp(`this.serializer.register.*${model}`)) !== null;
-            else
-                return false;
-        }) === -1) {
-            constructor.addStatements(writer => {
-                writer.write(`this.serializer.register("${serializerType}",`).block(() => {
-                    writer.write(`whitelist : ${capitalizeEntity(model)}Serializer.whitelist`);
-                }).write(");");
-            });
-        }
+        const getter = serializerClass.getGetAccessor("schema").getBody();
 
+        const [returnStatement] = getter.getChildrenOfKind(SyntaxKind.ReturnStatement);
+        const [objectLiteralExpression] = returnStatement.getChildrenOfKind(SyntaxKind.ObjectLiteralExpression) as any;
+
+        objectLiteralExpression.getProperty("relationships").getInitializer().addPropertyAssignment({
+            name: column,
+            initializer: `{
+type : ${capitalizeEntity(model)}SerializerSchema.type,
+whitelist : ${capitalizeEntity(model)}SerializerSchema.serialize
+}`
+        });
+        
         serializerFile.fixMissingImports();
         serializerFile.fixUnusedIdentifiers();
 

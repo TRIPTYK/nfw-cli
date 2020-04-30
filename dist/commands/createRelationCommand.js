@@ -49,7 +49,6 @@ var Log = require("../utils/log");
 var utils_1 = require("../actions/lib/utils");
 //node modules
 var clui_1 = require("clui");
-var chalk_1 = require("chalk");
 var pluralize_1 = require("pluralize");
 var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command syntax
@@ -123,11 +122,14 @@ function handler(argv) {
                                         spinner = new clui_1.Spinner("Generating and executing migration");
                                         spinner.start();
                                         return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, model1 + "-" + model2).main()
-                                                .then(function (generated) {
+                                                .then(function (isSuccess) {
                                                 spinner.stop();
-                                                var migrationDir = generated[0];
-                                                Log.success("Executed migration successfully");
-                                                Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                                                if (isSuccess) {
+                                                    Log.success("Executed migration successfully");
+                                                }
+                                                else {
+                                                    Log.error("Migration failed , please check console output");
+                                                }
                                             })
                                                 .catch(function (e) {
                                                 spinner.stop();

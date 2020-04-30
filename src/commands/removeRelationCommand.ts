@@ -57,17 +57,15 @@ export async function handler (argv: any): Promise<void> {
             Log.error("Cannot remove relation : " + e.message);
         });
 
-    const spinner = new Spinner("Generating and executing migration");
-    spinner.start();
     await new MigrateActionClass(databaseStrategy, `${model1}-${model2}`).main()
-        .then((generated) => {
-            spinner.stop();
-            const [migrationDir] = generated;
-            Log.success(`Executed migration successfully`);
-            Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+        .then((isSuccess) => {
+            if (isSuccess) {
+                Log.success(`Executed migration successfully`);
+            }else{
+                Log.error(`Migration failed , please check console output`);
+            }
         })
         .catch((e) => {
-            spinner.stop();
             Log.error(e.message);
         });
 

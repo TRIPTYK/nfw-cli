@@ -64,11 +64,13 @@ export async function handler (argv: any): Promise<void> {
             .then(async () =>{
                 spinner.start();
                 await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()
-                    .then((generated) => {
-                        const [migrationDir] = generated;
+                    .then((isSuccess) => {
                         spinner.stop();
-                        Log.success(`Executed migration successfully`);
-                        Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+                        if (isSuccess) {
+                            Log.success(`Executed migration successfully`);
+                        }else{
+                            Log.error(`Migration failed , please check console output`);
+                        }
                     })
                     .catch((e) => {
                         spinner.stop();
@@ -84,11 +86,13 @@ export async function handler (argv: any): Promise<void> {
             .then(async () => {
                 spinner.start();
                 await new migrate.MigrateActionClass(databaseStrategy, `remove-${columnName}-from-${model}`).main()
-                    .then((generated) => {
-                        const [migrationDir] = generated;
+                .then((isSuccess) => {
                         spinner.stop();
-                        Log.success(`Executed migration successfully`);
-                        Log.info(`Generated in ${chalk.cyan(migrationDir)}`);
+                        if (isSuccess) {
+                            Log.success(`Executed migration successfully`);
+                        }else{
+                            Log.error(`Migration failed , please check console output`);
+                        }
                     })
                     .catch((e) => {
                         spinner.stop();

@@ -41,9 +41,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// node modules
-var clui_1 = require("clui");
-var chalk_1 = require("chalk");
 // project imports
 var commandUtils = require("./commandUtils");
 var removeRelationAction_1 = require("../actions/removeRelationAction");
@@ -70,7 +67,7 @@ exports.builder = builder;
 //Main function 
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var model1, model2, type, strategyInstance, databaseStrategy, spinner;
+        var model1, model2, type, strategyInstance, databaseStrategy;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -93,17 +90,16 @@ function handler(argv) {
                         })];
                 case 3:
                     _a.sent();
-                    spinner = new clui_1.Spinner("Generating and executing migration");
-                    spinner.start();
                     return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, model1 + "-" + model2).main()
-                            .then(function (generated) {
-                            spinner.stop();
-                            var migrationDir = generated[0];
-                            Log.success("Executed migration successfully");
-                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                            .then(function (isSuccess) {
+                            if (isSuccess) {
+                                Log.success("Executed migration successfully");
+                            }
+                            else {
+                                Log.error("Migration failed , please check console output");
+                            }
                         })
                             .catch(function (e) {
-                            spinner.stop();
                             Log.error(e.message);
                         })];
                 case 4:

@@ -47,12 +47,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @module startCommand
- * @description Command module to handle server start and monitoring
- * @author Deflorenne Amaury
- */
-var chalk_1 = require("chalk");
 // node modules
 var inquirer_1 = require("../utils/inquirer");
 // Project imports
@@ -130,11 +124,13 @@ function handler(argv) {
                     _a.sent();
                     _a.label = 8;
                 case 8: return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, "create-db-" + dbName).main()
-                        .then(function (generated) {
-                        var migrationDir = generated[0];
-                        Log.success("Executed migration successfully");
-                        Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
-                        connected = true;
+                        .then(function (isSuccess) {
+                        if (isSuccess) {
+                            Log.success("Executed migration successfully");
+                        }
+                        else {
+                            Log.error("Migration failed , please check console output");
+                        }
                     })
                         .catch(function (err) {
                         connected = err;

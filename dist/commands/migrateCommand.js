@@ -44,7 +44,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Node modules
 var reservedWords = require("reserved-words");
 var clui_1 = require("clui");
-var chalk_1 = require("chalk");
 // Project imports
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
@@ -94,7 +93,7 @@ var _validateArgs = function (argv, options) {
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var modelName, restore, dump, revert, spinner, strategyInstance, databaseStrategy;
+        var modelName, restore, dump, revert, spinner, strategyInstance, databaseStrategy, TYPEORM_MIGRATIONS_DIR;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -105,18 +104,22 @@ function handler(argv) {
                     spinner = new clui_1.Spinner("Generating and executing migration");
                     strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
                     databaseStrategy = strategyInstance.setDatabaseStrategy();
+                    TYPEORM_MIGRATIONS_DIR = commandUtils.getCurrentEnvironment().envVariables.TYPEORM_MIGRATIONS_DIR;
+                    console.log(TYPEORM_MIGRATIONS_DIR);
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
                 case 1:
                     _a.sent();
-                    commandUtils.updateORMConfig();
                     spinner.start();
                     return [4 /*yield*/, new migrateAction_1.MigrateActionClass(databaseStrategy, modelName, restore, dump, revert).main()
-                            .then(function (generated) {
-                            var migrationDir = generated[0];
+                            .then(function (isSuccess) {
                             spinner.stop();
-                            Log.success("Executed migration successfully");
-                            Log.info("Generated in " + chalk_1.default.cyan(migrationDir));
+                            if (isSuccess) {
+                                Log.success("Executed migration successfully");
+                            }
+                            else {
+                                Log.error("Migration failed , please check console output");
+                            }
                         })
                             .catch(function (e) {
                             spinner.stop();

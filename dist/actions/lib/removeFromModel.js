@@ -52,6 +52,7 @@ var WriteFile = Util.promisify(FS.writeFile);
 //project modules
 var Log = require("../../utils/log");
 var project = require("../../utils/project");
+var ts_morph_1 = require("ts-morph");
 //description :  Remove relationship from serializer and controller
 function removeFromRelationTable(entity, column) {
     var relationFile = project.getSourceFile("src/api/enums/json-api/" + entity + ".enum.ts");
@@ -77,18 +78,6 @@ exports.removeFromRelationTable = removeFromRelationTable;
 function removeFromSerializer(entity, column, otherModel, isRelation) {
     var serializerFile = project.getSourceFile("src/api/serializers/" + entity + ".serializer.ts");
     var serializerClass = serializerFile.getClasses()[0];
-    var constructor = serializerClass.getConstructors()[0];
-    var relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
-    var line = constructor.getStructure().statements.findIndex(function (e) {
-        if (typeof e === 'string')
-            return e.match(new RegExp("this.serializer.register.*" + otherModel)) !== null;
-        else
-            return false;
-    });
-    if (line !== -1)
-        constructor.removeStatement(line);
-    if (relationshipsInitializer.getProperty(column))
-        relationshipsInitializer.getProperty(column).remove();
     if (!isRelation) {
         var relationFile = project.getSourceFile("src/api/enums/json-api/" + entity + ".enum.ts");
         var deserializeDeclaration = relationFile.getVariableDeclaration(entity + "Deserialize").getInitializer();
@@ -107,6 +96,16 @@ function removeFromSerializer(entity, column, otherModel, isRelation) {
             serializeDeclaration.removeElement(index);
         relationFile.fixMissingImports();
         relationFile.fixUnusedIdentifiers();
+    }
+    else {
+        var serializerFile_1 = project.getSourceFile("src/api/serializers/schemas/" + entity + ".serializer.schema.ts");
+        var serializerClass_1 = serializerFile_1.getClasses()[0];
+        var getter = serializerClass_1.getGetAccessor("schema").getBody();
+        var returnStatement = getter.getChildrenOfKind(ts_morph_1.SyntaxKind.ReturnStatement)[0];
+        var objectLiteralExpression = returnStatement.getChildrenOfKind(ts_morph_1.SyntaxKind.ObjectLiteralExpression)[0];
+        objectLiteralExpression.getProperty("relationships").getInitializer().getProperty(column).remove();
+        serializerFile_1.fixMissingImports();
+        serializerFile_1.fixUnusedIdentifiers();
     }
     serializerFile.fixMissingImports();
     serializerFile.fixUnusedIdentifiers();

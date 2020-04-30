@@ -44,12 +44,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // node modules
 var pluralize_1 = require("pluralize");
 var stringifyObject = require("stringify-object");
-var dashify = require("dashify");
 // project object
 var project = require("../utils/project");
 var Log = require("../utils/log");
 // project modules
 var utils_1 = require("./lib/utils");
+var ts_morph_1 = require("ts-morph");
 var CreateRelationActionClass = /** @class */ (function () {
     function CreateRelationActionClass(model1, model2, relation, name, refCol, m1Name, m2Name) {
         var _this = this;
@@ -170,31 +170,18 @@ var CreateRelationActionClass = /** @class */ (function () {
             });
         });
     };
+    // TODO : fix relations adding l
     //description : add relationship in the serializer of an entity
     CreateRelationActionClass.prototype.addToSerializer = function (entity, column, model, m1Name, m2Name) {
-        var serializerFile = project.getSourceFile("src/api/serializers/" + entity + ".serializer.ts");
+        var serializerFile = project.getSourceFile("src/api/serializers/schemas/" + entity + ".serializer.schema.ts");
         var serializerClass = serializerFile.getClasses()[0];
-        var constructor = serializerClass.getConstructors()[0];
-        var relationshipsInitializer = constructor.getVariableDeclaration("data").getInitializer().getProperty("relationships").getInitializer();
-        var serializerType = dashify(model);
-        if (!relationshipsInitializer.getProperty(column)) {
-            relationshipsInitializer.addPropertyAssignment({
-                name: column,
-                initializer: "{type : '" + serializerType + "'}"
-            });
-        }
-        if (constructor.getStructure().statements.findIndex(function (e) {
-            if (typeof e === 'string')
-                return e.match(new RegExp("this.serializer.register.*" + model)) !== null;
-            else
-                return false;
-        }) === -1) {
-            constructor.addStatements(function (writer) {
-                writer.write("this.serializer.register(\"" + serializerType + "\",").block(function () {
-                    writer.write("whitelist : " + utils_1.capitalizeEntity(model) + "Serializer.whitelist");
-                }).write(");");
-            });
-        }
+        var getter = serializerClass.getGetAccessor("schema").getBody();
+        var returnStatement = getter.getChildrenOfKind(ts_morph_1.SyntaxKind.ReturnStatement)[0];
+        var objectLiteralExpression = returnStatement.getChildrenOfKind(ts_morph_1.SyntaxKind.ObjectLiteralExpression)[0];
+        objectLiteralExpression.getProperty("relationships").getInitializer().addPropertyAssignment({
+            name: column,
+            initializer: "{\ntype : " + utils_1.capitalizeEntity(model) + "SerializerSchema.type,\nwhitelist : " + utils_1.capitalizeEntity(model) + "SerializerSchema.serialize\n}"
+        });
         serializerFile.fixMissingImports();
         serializerFile.fixUnusedIdentifiers();
         Log.info("Updated " + serializerFile.getFilePath());
