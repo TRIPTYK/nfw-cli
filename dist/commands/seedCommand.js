@@ -37,7 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var seedAction_1 = require("../actions/seedAction");
+/* THIS COMMAND NEEDS REWORK */
+//import {main} from '../actions/seedAction';
 var commandUtils = require("./commandUtils");
 //Yargs command syntax
 exports.command = 'seed';
@@ -50,14 +51,8 @@ exports.describe = 'read database and write json/xlsx file or read json/xlsx fil
 function handler() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    commandUtils.validateDirectory();
-                    return [4 /*yield*/, seedAction_1.main()];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+            commandUtils.validateDirectory();
+            return [2 /*return*/];
         });
     });
 }

@@ -1,6 +1,8 @@
 // node modules 
 
-import {main} from '../actions/seedAction';
+/* THIS COMMAND NEEDS REWORK */
+
+//import {main} from '../actions/seedAction';
 import commandUtils = require('./commandUtils');
 
 //Yargs command syntax
@@ -17,6 +19,6 @@ export const describe: string = 'read database and write json/xlsx file or read 
 //main function
 export async function handler (): Promise<void> {
     commandUtils.validateDirectory();
-    await main();
+    //await main();
 
 }
