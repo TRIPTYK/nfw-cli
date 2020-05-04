@@ -59,7 +59,7 @@ export async function main (modelName: string, crudOptions: object, data = null,
     const relationPath = `src/api/enums/json-api/${lowercase}.enum.ts`;
     const repositoryPath = `src/api/repositories/${lowercase}.repository.ts`;
     const serializerPath = `src/api/serializers/${lowercase}.serializer.ts`;
-    const schemaPath = `src/api/serializers/schemas/${lowercase}.schema.ts`;
+    const schemaPath = `src/api/serializers/schemas/${lowercase}.serializer.schema.ts`;
 
     if (!part || part === 'controller')
         files.push(controllerTemplateFile.main(controllerPath,{

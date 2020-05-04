@@ -91,7 +91,7 @@ function main(modelName, crudOptions, data, part) {
                     relationPath = "src/api/enums/json-api/" + lowercase + ".enum.ts";
                     repositoryPath = "src/api/repositories/" + lowercase + ".repository.ts";
                     serializerPath = "src/api/serializers/" + lowercase + ".serializer.ts";
-                    schemaPath = "src/api/serializers/schemas/" + lowercase + ".schema.ts";
+                    schemaPath = "src/api/serializers/schemas/" + lowercase + ".serializer.schema.ts";
                     if (!part || part === 'controller')
                         files.push(controllerTemplateFile.main(controllerPath, {
                             className: capitalize + "Controller",
