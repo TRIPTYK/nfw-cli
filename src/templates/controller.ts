@@ -94,10 +94,11 @@ export function  main (path: string, {className,options,entityName}) {
         listMethod.addStatements([
             `const [${entityName}, total${entityNameCapitalized}] = await this.repository.jsonApiRequest(req.query,${entityName}Relations).getManyAndCount();`,
             `if(req.query.page) {
+                const page: PaginationQueryParams = req.query.page as any;
                 return new ${entityNameCapitalized}Serializer({
                     pagination: {
-                        page: parseInt(req.query.page.number, 10),
-                        size: parseInt(req.query.page.size, 10),
+                        page: page.number,
+                        size: page.size,
                         total: total${entityNameCapitalized},
                         url: req.url
                     }
