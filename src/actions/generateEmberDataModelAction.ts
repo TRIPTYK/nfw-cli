@@ -72,7 +72,7 @@ export class GenerateEmberDataModelActionClass {
             }
         }
 
-        const ejsTemplateFile = fs.readFileSync(__dirname + '/../templates/emberModel.ejs','utf-8');
+        const ejsTemplateFile = fs.readFileSync(__dirname + '/../../templates/emberModel.ejs','utf-8');
 
         const compiled = ejs.compile(ejsTemplateFile)({
             modelName : theClass.getName(),
