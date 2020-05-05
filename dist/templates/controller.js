@@ -78,7 +78,7 @@ function main(path, _a) {
         listMethod.toggleModifier("public").toggleModifier("async");
         listMethod.addStatements([
             "const [" + entityName + ", total" + entityNameCapitalized + "] = await this.repository.jsonApiRequest(req.query," + entityName + "Relations).getManyAndCount();",
-            "if(req.query.page) {\n                return new " + entityNameCapitalized + "Serializer({\n                    pagination: {\n                        page: parseInt(req.query.page.number, 10),\n                        size: parseInt(req.query.page.size, 10),\n                        total: total" + entityNameCapitalized + ",\n                        url: req.url\n                    }\n                }).serialize(" + entityName + ");\n            }",
+            "if(req.query.page) {\n                const page: PaginationQueryParams = req.query.page as any;\n                return new " + entityNameCapitalized + "Serializer({\n                    pagination: {\n                        page: page.number,\n                        size: page.size,\n                        total: total" + entityNameCapitalized + ",\n                        url: req.url\n                    }\n                }).serialize(" + entityName + ");\n            }",
             "return this.serializer.serialize(" + entityName + ");"
         ]);
         listMethod.addJsDoc(function (writer) {
