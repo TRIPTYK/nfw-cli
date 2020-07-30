@@ -1,6 +1,7 @@
 import { capitalizeEntity } from "../actions/lib/utils";
 import project = require('../utils/project');
 import { Scope } from "ts-morph";
+import * as pascalcase from 'pascalcase';
 
 /**
  *
@@ -9,7 +10,7 @@ import { Scope } from "ts-morph";
  * @param options
  * @param entityName
  */
-export function  main (path: string, {className,options,entityName}) {
+export default function main (path: string, modelName: string,{options}) {
     const file = project.createSourceFile(path, null, {
         overwrite: true
     });
@@ -18,10 +19,10 @@ export function  main (path: string, {className,options,entityName}) {
     file.addStatements(writer => writer.writeLine(`import * as HttpStatus from 'http-status';`));
     file.addStatements(writer => writer.writeLine(`import {Request , Response} from "express";`));
 
-    const entityNameCapitalized = capitalizeEntity(entityName);
+    const entityName = pascalcase(modelName);
 
     const controllerClass = file.addClass({
-        name: className
+        name: `${entityName}Controller`
     });
 
     controllerClass.setIsDefaultExport(true);
@@ -31,7 +32,7 @@ export function  main (path: string, {className,options,entityName}) {
         arguments: [`"${entityName}"`]
     }).setIsDecoratorFactory(true);
 
-    controllerClass.addDecorator({name: "RouteMiddleware", arguments: [`DeserializeMiddleware, ${entityNameCapitalized}Serializer`]})
+    controllerClass.addDecorator({name: "RouteMiddleware", arguments: [`DeserializeMiddleware, ${entityName}Serializer`]})
     controllerClass.addDecorator({name: "autoInjectable", arguments: []});
     
     const middlewareFunctionParameters = [
@@ -42,16 +43,16 @@ export function  main (path: string, {className,options,entityName}) {
     controllerClass.addProperty({
         scope: Scope.Private,
         name: 'repository',
-        type: `${entityNameCapitalized}Repository`
+        type: `${entityName}Repository`
     });
 
     controllerClass.addConstructor({
         scope: Scope.Public,
         parameters: [{
-            name: `private serializer?: ${entityNameCapitalized}Serializer`,
+            name: `private serializer?: ${entityName}Serializer`,
             }],
         statements: [
-            `this.repository = getCustomRepository(${entityNameCapitalized}Repository);`
+            `this.repository = getCustomRepository(${entityName}Repository);`
         ],
     });
 
@@ -70,8 +71,8 @@ export function  main (path: string, {className,options,entityName}) {
 
         getMethod.toggleModifier("public").toggleModifier("async")
         .addStatements([
-            `const ${entityName} = await this.repository.jsonApiFindOne(req,req.params.id,${entityName}Relations);`,
-            `if (!${entityName}) { throw Boom.notFound("${entityNameCapitalized} not found"); }`,
+            `const ${entityName} = await this.repository.jsonApiFindOne(req,req.params.id,${modelName}Relations);`,
+            `if (!${entityName}) { throw Boom.notFound("${entityName} not found"); }`,
             `return this.serializer.serialize(${entityName});`,
         ]);
 
@@ -92,14 +93,14 @@ export function  main (path: string, {className,options,entityName}) {
 
         listMethod.toggleModifier("public").toggleModifier("async");
         listMethod.addStatements([
-            `const [${entityName}, total${entityNameCapitalized}] = await this.repository.jsonApiRequest(req.query,${entityName}Relations).getManyAndCount();`,
+            `const [${entityName}, total] = await this.repository.jsonApiRequest(req.query,${modelName}Relations).getManyAndCount();`,
             `if(req.query.page) {
                 const page: PaginationQueryParams = req.query.page as any;
-                return new ${entityNameCapitalized}Serializer({
+                return new ${entityName}Serializer({
                     pagination: {
                         page: page.number,
                         size: page.size,
-                        total: total${entityNameCapitalized},
+                        total: total,
                         url: req.url
                     }
                 }).serialize(${entityName});
@@ -174,12 +175,12 @@ export function  main (path: string, {className,options,entityName}) {
 
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: [`DeserializeRelationsMiddleware, { schema : ${entityNameCapitalized}SerializerSchema }`]
+            arguments: [`DeserializeRelationsMiddleware, { schema : ${entityName}SerializerSchema }`]
         });
 
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: [`ValidationMiddleware, { schema: create${entityNameCapitalized} }`]
+            arguments: [`ValidationMiddleware, { schema: create${entityName} }`]
         });
 
         createMethod.addJsDoc(writer => {
@@ -222,7 +223,7 @@ export function  main (path: string, {className,options,entityName}) {
                 ...req.body, ...{id: req.params.id}
             } as any);`,
             `if (saved === undefined) {
-                throw Boom.notFound("${entityNameCapitalized} not found");
+                throw Boom.notFound("${entityName} not found");
             }`,
             `saved = await this.repository.save(saved);`,
             `return this.serializer.serialize(saved);`
@@ -240,7 +241,7 @@ export function  main (path: string, {className,options,entityName}) {
 
         updateMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: [`ValidationMiddleware, { schema: update${entityNameCapitalized} }`]
+            arguments: [`ValidationMiddleware, { schema: update${entityName} }`]
         });
 
         const updateRelationshipsMethod = controllerClass.addMethod({

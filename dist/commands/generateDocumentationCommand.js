@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.describe = exports.aliases = exports.command = void 0;
 // Node modules imports
 var clui_1 = require("clui");
 // Project imports

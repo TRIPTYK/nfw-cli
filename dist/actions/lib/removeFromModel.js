@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.removeRelationFromModelFile = exports.removeFromValidation = exports.removeFromTest = exports.removeFromSerializer = exports.removeFromRelationTable = void 0;
 // node modules
 var Util = require("util");
 var FS = require("fs");
@@ -53,6 +54,7 @@ var WriteFile = Util.promisify(FS.writeFile);
 var Log = require("../../utils/log");
 var project = require("../../utils/project");
 var ts_morph_1 = require("ts-morph");
+var kebab_case_1 = require("@queso/kebab-case");
 //description :  Remove relationship from serializer and controller
 function removeFromRelationTable(entity, column) {
     var relationFile = project.getSourceFile("src/api/enums/json-api/" + entity + ".enum.ts");
@@ -155,7 +157,7 @@ function removeFromValidation(model, column) {
 exports.removeFromValidation = removeFromValidation;
 ;
 function removeRelationFromModelFile(model, column) {
-    var modelFile = project.getSourceFile("src/api/models/" + model + ".model.ts");
+    var modelFile = project.getSourceFile("src/api/models/" + kebab_case_1.default(model) + ".model.ts");
     var modelClass = modelFile.getClasses()[0];
     var prop = modelClass.getInstanceProperty(function (p) {
         return p.getName() === column || p.getName() === pluralize_1.plural(column);

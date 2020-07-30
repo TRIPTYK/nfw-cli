@@ -1,34 +1,38 @@
-import project = require('../utils/project');
-import TsMorph = require('ts-morph');
-import stringifyObject = require('stringify-object');
+import project = require("../utils/project");
+import TsMorph = require("ts-morph");
+import stringifyObject = require("stringify-object");
 import { buildValidationArgumentsFromObject , capitalizeEntity } from "../actions/lib/utils";
+import * as pascalcase from "pascalcase";
+import kebab from '@queso/kebab-case'
 
-export = (path: string,{entities,options,entityName}) => {
+export = (path: string,entityName: string,{entities,options}) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
-    const entityNameCapitalized = capitalizeEntity(entityName);
+    const entityClassName = pascalcase(entityName);
 
     // filter special columns
-    entities = entities.filter(entity => !['createdAt','updatedAt'].includes(entity.Field));
-    entities = entities.filter(entity => entity.Key !== 'MUL');
+    entities = entities.filter(entity => entity.Key !== "MUL");
 
-    file.addStatements(writer => writer.writeLine(`import * as Joi from '@hapi/joi';`));
-    file.addStatements(writer => writer.writeLine(`import Boom from '@hapi/boom';`));
+    file.addStatements(writer => writer.writeLine(`import * as Joi from "@hapi/joi";`));
+    file.addStatements(writer => writer.writeLine(`import Boom from "@hapi/boom";`));
     file.addStatements(writer => writer.writeLine(`import * as Moment from "moment-timezone";`));
+    file.addStatements(writer => writer.writeLine(`import { ValidationSchema } from "../../core/types/validation";`))
+    file.addStatements(writer => writer.writeLine(`import { ${entityClassName} } from "../models/${kebab(entityName)}.model";`))
 
     if (options.read) {
         let variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: `get${entityNameCapitalized}`,
-                    type: `Schema`,
+                    name: `get${entityClassName}`,
+                    type: `ValidationSchema<${entityClassName}>`,
                     initializer: stringifyObject({
                         id : {
-                            in: ['params'],
-                            errorMessage: 'Please provide a valid id',
-                            isInt: true
+                            in: ["params"],
+                            errorMessage: "Please provide a valid id",
+                            isInt: true,
+                            toInt: true
                         }
                     })
                 }
@@ -40,8 +44,8 @@ export = (path: string,{entities,options,entityName}) => {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: `list${entityNameCapitalized}`,
-                    type: `Schema`,
+                    name: `list${entityClassName}`,
+                    type: `ValidationSchema<${entityClassName}>`,
                     initializer: stringifyObject({
 
                     })
@@ -64,8 +68,8 @@ export = (path: string,{entities,options,entityName}) => {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: `create${entityNameCapitalized}`,
-                    type: `Schema`,
+                    name: `create${entityClassName}`,
+                    type: `ValidationSchema<${entityClassName}>`,
                     initializer: stringifyObject(objectsToInsert)
                 }
             ]
@@ -81,12 +85,12 @@ export = (path: string,{entities,options,entityName}) => {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: `replace${entityNameCapitalized}`,
-                    type: `Schema`,
+                    name: `replace${entityClassName}`,
+                    type: `ValidationSchema<${entityClassName}>`,
                     initializer: writer => {
                         writer.block(() => {
-                            writer.writeLine('...exports.get,');
-                            writer.writeLine('...exports.create');
+                            writer.writeLine(`...exports.get${entityClassName},`);
+                            writer.writeLine(`...exports.create${entityClassName}`);
                         })
                     }
                 }
@@ -105,12 +109,12 @@ export = (path: string,{entities,options,entityName}) => {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: `update${entityNameCapitalized}`,
-                    type: `Schema`,
+                    name: `update${entityClassName}`,
+                    type: `ValidationSchema<${entityClassName}>`,
                     initializer: writer => {
                         writer.block(() => {
-                            writer.writeLine('...exports.get,');
-                            writer.write('...' + stringifyObject(objectsToInsert))
+                            writer.writeLine(`...exports.get${entityClassName},`);
+                            writer.write("..." + stringifyObject(objectsToInsert))
                         })
                     }
                 }

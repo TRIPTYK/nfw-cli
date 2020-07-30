@@ -3,30 +3,34 @@ var project = require("../utils/project");
 var TsMorph = require("ts-morph");
 var stringifyObject = require("stringify-object");
 var utils_1 = require("../actions/lib/utils");
-module.exports = function (path, _a) {
-    var entities = _a.entities, options = _a.options, entityName = _a.entityName;
+var pascalcase = require("pascalcase");
+var kebab_case_1 = require("@queso/kebab-case");
+module.exports = function (path, entityName, _a) {
+    var entities = _a.entities, options = _a.options;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
+    var entityClassName = pascalcase(entityName);
     // filter special columns
-    entities = entities.filter(function (entity) { return !['createdAt', 'updatedAt'].includes(entity.Field); });
-    entities = entities.filter(function (entity) { return entity.Key !== 'MUL'; });
-    file.addStatements(function (writer) { return writer.writeLine("import * as Joi from '@hapi/joi';"); });
-    file.addStatements(function (writer) { return writer.writeLine("import Boom from '@hapi/boom';"); });
+    entities = entities.filter(function (entity) { return entity.Key !== "MUL"; });
+    file.addStatements(function (writer) { return writer.writeLine("import * as Joi from \"@hapi/joi\";"); });
+    file.addStatements(function (writer) { return writer.writeLine("import Boom from \"@hapi/boom\";"); });
     file.addStatements(function (writer) { return writer.writeLine("import * as Moment from \"moment-timezone\";"); });
+    file.addStatements(function (writer) { return writer.writeLine("import { ValidationSchema } from \"../../core/types/validation\";"); });
+    file.addStatements(function (writer) { return writer.writeLine("import { " + entityClassName + " } from \"../models/" + kebab_case_1.default(entityName) + ".model\";"); });
     if (options.read) {
         var variableStatement = file.addVariableStatement({
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: "get" + entityNameCapitalized,
-                    type: "Schema",
+                    name: "get" + entityClassName,
+                    type: "ValidationSchema<" + entityClassName + ">",
                     initializer: stringifyObject({
                         id: {
-                            in: ['params'],
-                            errorMessage: 'Please provide a valid id',
-                            isInt: true
+                            in: ["params"],
+                            errorMessage: "Please provide a valid id",
+                            isInt: true,
+                            toInt: true
                         }
                     })
                 }
@@ -37,8 +41,8 @@ module.exports = function (path, _a) {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: "list" + entityNameCapitalized,
-                    type: "Schema",
+                    name: "list" + entityClassName,
+                    type: "ValidationSchema<" + entityClassName + ">",
                     initializer: stringifyObject({})
                 }
             ]
@@ -58,8 +62,8 @@ module.exports = function (path, _a) {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: "create" + entityNameCapitalized,
-                    type: "Schema",
+                    name: "create" + entityClassName,
+                    type: "ValidationSchema<" + entityClassName + ">",
                     initializer: stringifyObject(objectsToInsert)
                 }
             ]
@@ -74,12 +78,12 @@ module.exports = function (path, _a) {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: "replace" + entityNameCapitalized,
-                    type: "Schema",
+                    name: "replace" + entityClassName,
+                    type: "ValidationSchema<" + entityClassName + ">",
                     initializer: function (writer) {
                         writer.block(function () {
-                            writer.writeLine('...exports.get,');
-                            writer.writeLine('...exports.create');
+                            writer.writeLine("...exports.get" + entityClassName + ",");
+                            writer.writeLine("...exports.create" + entityClassName);
                         });
                     }
                 }
@@ -98,12 +102,12 @@ module.exports = function (path, _a) {
             declarationKind: TsMorph.VariableDeclarationKind.Const,
             declarations: [
                 {
-                    name: "update" + entityNameCapitalized,
-                    type: "Schema",
+                    name: "update" + entityClassName,
+                    type: "ValidationSchema<" + entityClassName + ">",
                     initializer: function (writer) {
                         writer.block(function () {
-                            writer.writeLine('...exports.get,');
-                            writer.write('...' + stringifyObject(objectsToInsert_1));
+                            writer.writeLine("...exports.get" + entityClassName + ",");
+                            writer.write("..." + stringifyObject(objectsToInsert_1));
                         });
                     }
                 }

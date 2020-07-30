@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EditModelClass = void 0;
 // node modules
 var stringifyObject = require("stringify-object");
 // project modules
@@ -51,6 +52,7 @@ var Log = require("../utils/log");
 var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
 var chalk_1 = require("chalk");
+var kebab_case_1 = require("@queso/kebab-case");
 /**
  * Main function
  * @param {string} action
@@ -83,14 +85,15 @@ var EditModelClass = /** @class */ (function () {
                         return [4 /*yield*/, modelSpecs.newColumn(this.column)];
                     case 1:
                         data = _a.sent();
-                        pathModel = "src/api/models/" + utils_1.lowercaseEntity(this.model) + ".model.ts";
+                        pathModel = "src/api/models/" + kebab_case_1.default(this.model) + ".model.ts";
                         if (data === null)
                             throw new Error('Column cancelled');
                         if (utils_1.columnExist(this.model, data.columns.Field))
                             throw new Error('Column already exist');
                         entity = data.columns;
                         project.getSourceFile(pathModel).getClasses()[0].addProperty({ name: data.columns.Field }).addDecorator({
-                            name: 'Column', arguments: stringifyObject(utils_1.buildModelColumnArgumentsFromObject(entity))
+                            name: 'Column',
+                            arguments: stringifyObject(utils_1.buildModelColumnArgumentsFromObject(entity))
                         }).setIsDecoratorFactory(true);
                         addInModels.writeSerializer(this.model, data.columns.Field);
                         addInModels.addToValidations(this.model, data.columns);

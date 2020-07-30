@@ -41,64 +41,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.builder = exports.describe = exports.aliases = exports.command = void 0;
 // Project imports
 var commandUtils = require("./commandUtils");
 var deleteAction_1 = require("../actions/deleteAction");
 var Log = require("../utils/log");
-var DatabaseSingleton_1 = require("../utils/DatabaseSingleton");
 //Yargs command
 exports.command = 'delete <modelName>';
 //Yargs command aliases
 exports.aliases = ['del', 'd'];
 //Yargs command description
 exports.describe = 'Delete a model';
-/**
- * //Yargs command builder
- * @param yargs
- */
 //Yargs command builder
 function builder(yargs) {
-    yargs.option({
-        DROP: {
-            type: 'boolean',
-            default: false
-        }
-    });
+    yargs.option({});
 }
 exports.builder = builder;
 ;
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var modelName, strategyInstance, databaseStrategy;
+        var modelName;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     modelName = argv.modelName;
-                    strategyInstance = DatabaseSingleton_1.Singleton.getInstance();
-                    databaseStrategy = strategyInstance.setDatabaseStrategy();
                     commandUtils.validateDirectory();
                     return [4 /*yield*/, commandUtils.checkVersion()];
                 case 1:
                     _a.sent();
-                    if (!argv.DROP) return [3 /*break*/, 3];
-                    return [4 /*yield*/, commandUtils.checkConnectToDatabase(databaseStrategy)];
+                    return [4 /*yield*/, deleteAction_1.default(modelName)
+                            .then(function (array) {
+                            array.forEach(function (e) {
+                                Log.logModification(e);
+                            });
+                        })
+                            .catch(function (e) {
+                            Log.error("Failed to delete " + modelName + " : " + e.message);
+                        })];
                 case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3: 
-                // TODO : move all error handling messages to this level
-                return [4 /*yield*/, new deleteAction_1.DeleteActionClass(databaseStrategy, modelName, argv.DROP).main()
-                        .then(function (array) {
-                        array.forEach(function (e) {
-                            Log.logModification(e);
-                        });
-                    })
-                        .catch(function (e) {
-                        Log.error("Failed to delete " + modelName + " : " + e.message);
-                    })];
-                case 4:
-                    // TODO : move all error handling messages to this level
                     _a.sent();
                     process.exit();
                     return [2 /*return*/];

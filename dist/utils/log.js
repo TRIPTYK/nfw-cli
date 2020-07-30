@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.info = exports.rainbow = exports.success = exports.warning = exports.error = exports.logModification = void 0;
 /**
  * @module log
  * @description Shortcut module to log colorful text messages

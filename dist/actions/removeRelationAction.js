@@ -41,10 +41,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RemoveRelationActionClass = void 0;
 // project modules
 var utils = require("./lib/utils");
 var project = require("../utils/project");
 var removeFromModel = require("./lib/removeFromModel");
+var kebab_case_1 = require("@queso/kebab-case");
 var _getModelFromRelationProperty = function (model1Class, model2Class, relation) {
     for (var _i = 0, _a = model1Class.getProperties(); _i < _a.length; _i++) {
         var p = _a[_i];
@@ -81,8 +83,8 @@ var RemoveRelationActionClass = /** @class */ (function () {
                             mto: ['ManyToOne', 'OneToMany'],
                             mtm: ['ManyToMany', 'ManyToMany'],
                         };
-                        model1File = project.getSourceFile("src/api/models/" + this.model1 + ".model.ts");
-                        model2File = project.getSourceFile("src/api/models/" + this.model2 + ".model.ts");
+                        model1File = project.getSourceFile("src/api/models/" + kebab_case_1.default(this.model1) + ".model.ts");
+                        model2File = project.getSourceFile("src/api/models/" + kebab_case_1.default(this.model2) + ".model.ts");
                         if (!model1File || !model2File)
                             throw new Error("One of the model does not exists");
                         model1Class = model1File.getClasses()[0];

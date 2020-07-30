@@ -41,9 +41,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CreateRelationActionClass = void 0;
 // node modules
 var pluralize_1 = require("pluralize");
 var stringifyObject = require("stringify-object");
+var kebab_case_1 = require("@queso/kebab-case");
 // project object
 var project = require("../utils/project");
 var Log = require("../utils/log");
@@ -124,7 +126,7 @@ var CreateRelationActionClass = /** @class */ (function () {
         //isFirst Does he carry the foreignKey (Oto) or assure that you write JoinTable only in one side of the relation for mtm
         this._addRelation = function (model1, model2, isFirst, relation, name, refCol, m1Name, m2Name) {
             var addedPropertyName;
-            var modelFile = project.getSourceFile("src/api/models/" + model1 + ".model.ts");
+            var modelFile = project.getSourceFile("src/api/models/" + kebab_case_1.default(model1) + ".model.ts");
             var modelClass = modelFile.getClasses()[0];
             if (relation === 'mtm')
                 addedPropertyName = _this._Mtm(modelClass, model1, model2, isFirst, name, m1Name, m2Name);

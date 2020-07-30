@@ -103,7 +103,6 @@ export async function dbParams (entity: any): Promise<string[]> {
     paramsArray['foreignKeys'] = [];
     console.log(colors.green(`Let's create a table for ${entity}`));
     console.log(colors.green('/!\\ id is added by default .'));
-    paramsArray['createUpdate'] = await inquirer.askForCreateUpdate();
 
     while (!isDoneColumn) {
 

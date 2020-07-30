@@ -54,12 +54,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getEnvFilesNames = exports.buildValidationArgumentsFromObject = exports.buildModelColumnArgumentsFromObject = exports.createDataBaseIfNotExists = exports.isValidParam = exports.isValidVarname = exports.isAlphanumeric = exports.format = exports.relationExist = exports.columnExist = exports.isBridgindTable = exports.buildJoiFromColumn = exports.fileExists = exports.sqlTypeData = exports.lowercaseEntity = exports.capitalizeEntity = exports.modelFileExists = exports.removeEmptyLines = exports.writeToFirstEmptyLine = exports.isImportPresent = exports.prompt = exports.countLines = void 0;
 // node modules
 var FS = require("fs");
 var readline = require("readline");
 var snake = require("to-snake-case");
 var removeAccent = require("remove-accents");
 var reservedWords = require("reserved-words");
+var kebab_case_1 = require("@queso/kebab-case");
 var project = require("../../utils/project");
 var sqlAdaptator_1 = require("../../database/sqlAdaptator");
 var DatabaseEnv_1 = require("../../database/DatabaseEnv");
@@ -121,7 +123,7 @@ function removeEmptyLines(string) {
 exports.removeEmptyLines = removeEmptyLines;
 //description : check if model file exists in projet
 function modelFileExists(entity) {
-    return exports.fileExists(process.cwd() + "/src/api/models/" + exports.lowercaseEntity(entity) + ".model.ts");
+    return exports.fileExists(process.cwd() + "/src/api/models/" + kebab_case_1.default(entity) + ".model.ts");
 }
 exports.modelFileExists = modelFileExists;
 //description : capitalize first letter of String
@@ -188,14 +190,14 @@ exports.isBridgindTable = isBridgindTable;
 ;
 //description : Check if a column exist in a database table
 function columnExist(model, column) {
-    var modelClass = project.getSourceFile("src/api/models/" + module.exports.lowercaseEntity(model) + ".model.ts").getClasses()[0];
+    var modelClass = project.getSourceFile("src/api/models/" + kebab_case_1.default(model) + ".model.ts").getClasses()[0];
     return modelClass.getInstanceProperty(column) !== undefined;
 }
 exports.columnExist = columnExist;
 ;
 //Description : Check if relation exists in model
 function relationExist(model, column) {
-    var modelClass = project.getSourceFile("src/api/models/" + module.exports.lowercaseEntity(model) + ".model.ts").getClasses()[0];
+    var modelClass = project.getSourceFile("src/api/models/" + kebab_case_1.default(model) + ".model.ts").getClasses()[0];
     var relProp = modelClass.getInstanceMember(column);
     if (relProp) {
         relProp.getDecorator(function (declaration) {
@@ -311,7 +313,7 @@ exports.buildModelColumnArgumentsFromObject = buildModelColumnArgumentsFromObjec
 function buildValidationArgumentsFromObject(dbColumnaData, isUpdate) {
     if (isUpdate === void 0) { isUpdate = false; }
     var validationArguments = {};
-    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt', 'updatedAt'].includes(dbColumnaData.Field)))
+    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL')
         validationArguments['exists'] = true;
     else
         validationArguments['optional'] = {
@@ -354,15 +356,13 @@ function buildValidationArgumentsFromObject(dbColumnaData, isUpdate) {
             };
         }
     }
-    if (dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type.includes('date')) {
+    if (dbColumnaData.Type.type.includes('time')) {
         delete validationArguments['isLength'];
-        validationArguments['custom'] = {
-            errorMessage: 'This field is not a valid date',
-            options: function (date) {
-                // @ts-ignore
-                return Moment(date, true).isValid();
-            }
-        };
+        validationArguments['isISO8601'] = true;
+    }
+    else if (dbColumnaData.Type.type.includes('date')) {
+        delete validationArguments['isLength'];
+        validationArguments['isDate'] = true;
     }
     if (dbColumnaData.Type.type === 'enum') {
         delete validationArguments['isLength'];

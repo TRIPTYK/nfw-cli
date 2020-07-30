@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.basicModel = exports.writeModel = void 0;
 /**
  * @module writeModelAction
  * @author Verliefden Romain
@@ -44,20 +45,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-var utils_1 = require("./lib/utils");
 var project = require("../utils/project");
-var modelTemplateFile = require("../templates/model");
+var model_1 = require("../templates/model");
+var kebab_case_1 = require("@queso/kebab-case");
 //action: modelName
 //Description : write a typeorm model from an array of info about an entity
-function writeModel(action, data, dbType) {
+function writeModel(modelName, data, dbType) {
     if (data === void 0) { data = null; }
     return __awaiter(this, void 0, void 0, function () {
-        var lowercase, capitalize, columns, foreignKeys;
+        var columns, foreignKeys;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    lowercase = utils_1.lowercaseEntity(action);
-                    capitalize = utils_1.capitalizeEntity(lowercase);
                     columns = data.columns, foreignKeys = data.foreignKeys;
                     /*
                          filter the foreign keys from columns , they are not needed anymore
@@ -66,10 +65,8 @@ function writeModel(action, data, dbType) {
                     columns = columns.filter(function (column) {
                         return foreignKeys.find(function (elem) { return elem.COLUMN_NAME === column.Field; }) === undefined;
                     }).filter(function (col) { return col.Field !== "id"; });
-                    modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
-                        entities: columns,
-                        className: capitalize,
-                        createUpdate: data.createUpdate
+                    model_1.default("src/api/models/" + kebab_case_1.default(modelName) + ".model.ts", modelName, {
+                        entities: columns
                     }, dbType);
                     return [4 /*yield*/, project.save()];
                 case 1:
@@ -82,21 +79,13 @@ function writeModel(action, data, dbType) {
 exports.writeModel = writeModel;
 ;
 //Description : creates a basic model , with no entites , imports or foreign keys
-function basicModel(action, dbType) {
+function basicModel(modelName, dbType) {
     return __awaiter(this, void 0, void 0, function () {
-        var lowercase, capitalize;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    lowercase = utils_1.lowercaseEntity(action);
-                    capitalize = utils_1.capitalizeEntity(lowercase);
-                    modelTemplateFile("src/api/models/" + lowercase + ".model.ts", {
-                        entities: [],
-                        className: "" + capitalize,
-                        createUpdate: {
-                            createAt: true,
-                            updateAt: true
-                        }
+                    model_1.default("src/api/models/" + kebab_case_1.default(modelName) + ".model.ts", modelName, {
+                        entities: []
                     }, dbType);
                     return [4 /*yield*/, project.save()];
                 case 1:

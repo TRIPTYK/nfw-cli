@@ -42,6 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SqlConnection = void 0;
 // project modules
 //import mysql = require('mysql');
 var util = require("util");

@@ -5,6 +5,7 @@
  * @description Utils for file manipulation
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Files = void 0;
 // node modules
 var fs = require("fs");
 var path = require("path");

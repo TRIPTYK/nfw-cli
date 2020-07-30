@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DeployActionClass = void 0;
 // node modules
 var spawn = require("cross-spawn");
 var util = require("util");

@@ -12,11 +12,12 @@ import readline = require('readline');
 import snake= require('to-snake-case');
 import removeAccent= require('remove-accents');
 import reservedWords = require('reserved-words');
-
+import kebabCase from '@queso/kebab-case'
 import project = require('../../utils/project');
 
 import { SqlConnection } from '../../database/sqlAdaptator';
 import { DatabaseEnv } from '../../database/DatabaseEnv';
+import console = require('console');
 
  
 //description : Count the lines of a file
@@ -79,8 +80,7 @@ export function removeEmptyLines (string: string): string {
 
 //description : check if model file exists in projet
 export function modelFileExists (entity: string): boolean {
-
-    return exports.fileExists(`${process.cwd()}/src/api/models/${exports.lowercaseEntity(entity)}.model.ts`);
+    return exports.fileExists(`${process.cwd()}/src/api/models/${kebabCase(entity)}.model.ts`);
 }
 
 //description : capitalize first letter of String
@@ -156,7 +156,7 @@ export function isBridgindTable (entity: any): boolean {
 //description : Check if a column exist in a database table
 export function columnExist (model: string, column: string): boolean {
 
-    let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
+    let modelClass = project.getSourceFile(`src/api/models/${kebabCase(model)}.model.ts`).getClasses()[0];
     
     return modelClass.getInstanceProperty(column) !== undefined;
 };
@@ -164,7 +164,7 @@ export function columnExist (model: string, column: string): boolean {
 //Description : Check if relation exists in model
 export function relationExist (model: string, column: string): boolean {
 
-    let modelClass = project.getSourceFile(`src/api/models/${module.exports.lowercaseEntity(model)}.model.ts`).getClasses()[0];
+    let modelClass = project.getSourceFile(`src/api/models/${kebabCase(model)}.model.ts`).getClasses()[0];
     const relProp = modelClass.getInstanceMember(column);
 
     if(relProp) {
@@ -276,7 +276,7 @@ export function buildValidationArgumentsFromObject (dbColumnaData: any,isUpdate 
 
     const validationArguments = {};
 
-    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL' && !(['createdAt','updatedAt'].includes(dbColumnaData.Field)))
+    if (!isUpdate && dbColumnaData.Null !== 'NO' && dbColumnaData.Default !== 'NULL')
         validationArguments['exists'] = true;
     else
         validationArguments['optional'] = {
@@ -324,15 +324,12 @@ export function buildValidationArgumentsFromObject (dbColumnaData: any,isUpdate 
         }
     }
 
-    if (dbColumnaData.Type.type.includes('time') || dbColumnaData.Type.type.includes('date')) {
+    if (dbColumnaData.Type.type.includes('time')) {
         delete validationArguments['isLength'];
-        validationArguments['custom'] = {
-            errorMessage : 'This field is not a valid date',
-            options : (date) => {
-                // @ts-ignore
-                return Moment(date, true).isValid()
-            }
-        }
+        validationArguments['isISO8601'] = true;
+    }else if (dbColumnaData.Type.type.includes('date')) {
+        delete validationArguments['isLength'];
+        validationArguments['isDate'] = true;
     }
 
     if (dbColumnaData.Type.type === 'enum') {

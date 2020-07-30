@@ -42,6 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = void 0;
 // Node modules
 var util = require("util");
 var exec = util.promisify(require('child_process').exec);

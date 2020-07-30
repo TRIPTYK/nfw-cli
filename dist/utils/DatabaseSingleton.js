@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Singleton = void 0;
 var sqlAdaptator_1 = require("../database/sqlAdaptator");
 var mongoAdaptator_1 = require("../database/mongoAdaptator");
 var commandUtils_1 = require("../commands/commandUtils");

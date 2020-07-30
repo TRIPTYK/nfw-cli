@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.NewActionClass = void 0;
 /// node modules
 var util = require("util");
 var chalk_1 = require("chalk");

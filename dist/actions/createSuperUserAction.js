@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CreateSuperUserActionClass = void 0;
 // node modules
 var fs = require("fs");
 var ejs = require("ejs");

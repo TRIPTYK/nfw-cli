@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
 var ts_morph_1 = require("ts-morph");
+var pascalcase = require("pascalcase");
 /**
  *
  * @param path
@@ -10,24 +10,24 @@ var ts_morph_1 = require("ts-morph");
  * @param options
  * @param entityName
  */
-function main(path, _a) {
-    var className = _a.className, options = _a.options, entityName = _a.entityName;
+function main(path, modelName, _a) {
+    var options = _a.options;
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
     file.addStatements(function (writer) { return writer.writeLine("import Boom from '@hapi/boom';"); });
     file.addStatements(function (writer) { return writer.writeLine("import * as HttpStatus from 'http-status';"); });
     file.addStatements(function (writer) { return writer.writeLine("import {Request , Response} from \"express\";"); });
-    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
+    var entityName = pascalcase(modelName);
     var controllerClass = file.addClass({
-        name: className
+        name: entityName + "Controller"
     });
     controllerClass.setIsDefaultExport(true);
     controllerClass.addDecorator({
         name: "Controller",
         arguments: ["\"" + entityName + "\""]
     }).setIsDecoratorFactory(true);
-    controllerClass.addDecorator({ name: "RouteMiddleware", arguments: ["DeserializeMiddleware, " + entityNameCapitalized + "Serializer"] });
+    controllerClass.addDecorator({ name: "RouteMiddleware", arguments: ["DeserializeMiddleware, " + entityName + "Serializer"] });
     controllerClass.addDecorator({ name: "autoInjectable", arguments: [] });
     var middlewareFunctionParameters = [
         { type: 'Request', name: 'req' },
@@ -36,15 +36,15 @@ function main(path, _a) {
     controllerClass.addProperty({
         scope: ts_morph_1.Scope.Private,
         name: 'repository',
-        type: entityNameCapitalized + "Repository"
+        type: entityName + "Repository"
     });
     controllerClass.addConstructor({
         scope: ts_morph_1.Scope.Public,
         parameters: [{
-                name: "private serializer?: " + entityNameCapitalized + "Serializer",
+                name: "private serializer?: " + entityName + "Serializer",
             }],
         statements: [
-            "this.repository = getCustomRepository(" + entityNameCapitalized + "Repository);"
+            "this.repository = getCustomRepository(" + entityName + "Repository);"
         ],
     });
     if (options.read) {
@@ -59,8 +59,8 @@ function main(path, _a) {
         });
         getMethod.toggleModifier("public").toggleModifier("async")
             .addStatements([
-            "const " + entityName + " = await this.repository.jsonApiFindOne(req,req.params.id," + entityName + "Relations);",
-            "if (!" + entityName + ") { throw Boom.notFound(\"" + entityNameCapitalized + " not found\"); }",
+            "const " + entityName + " = await this.repository.jsonApiFindOne(req,req.params.id," + modelName + "Relations);",
+            "if (!" + entityName + ") { throw Boom.notFound(\"" + entityName + " not found\"); }",
             "return this.serializer.serialize(" + entityName + ");",
         ]);
         getMethod.addDecorator({
@@ -77,8 +77,8 @@ function main(path, _a) {
         });
         listMethod.toggleModifier("public").toggleModifier("async");
         listMethod.addStatements([
-            "const [" + entityName + ", total" + entityNameCapitalized + "] = await this.repository.jsonApiRequest(req.query," + entityName + "Relations).getManyAndCount();",
-            "if(req.query.page) {\n                const page: PaginationQueryParams = req.query.page as any;\n                return new " + entityNameCapitalized + "Serializer({\n                    pagination: {\n                        page: page.number,\n                        size: page.size,\n                        total: total" + entityNameCapitalized + ",\n                        url: req.url\n                    }\n                }).serialize(" + entityName + ");\n            }",
+            "const [" + entityName + ", total] = await this.repository.jsonApiRequest(req.query," + modelName + "Relations).getManyAndCount();",
+            "if(req.query.page) {\n                const page: PaginationQueryParams = req.query.page as any;\n                return new " + entityName + "Serializer({\n                    pagination: {\n                        page: page.number,\n                        size: page.size,\n                        total: total,\n                        url: req.url\n                    }\n                }).serialize(" + entityName + ");\n            }",
             "return this.serializer.serialize(" + entityName + ");"
         ]);
         listMethod.addJsDoc(function (writer) {
@@ -135,11 +135,11 @@ function main(path, _a) {
         });
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: ["DeserializeRelationsMiddleware, { schema : " + entityNameCapitalized + "SerializerSchema }"]
+            arguments: ["DeserializeRelationsMiddleware, { schema : " + entityName + "SerializerSchema }"]
         });
         createMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: ["ValidationMiddleware, { schema: create" + entityNameCapitalized + " }"]
+            arguments: ["ValidationMiddleware, { schema: create" + entityName + " }"]
         });
         createMethod.addJsDoc(function (writer) {
             writer.writeLine("@description CREATE " + entityName);
@@ -171,7 +171,7 @@ function main(path, _a) {
         updateMethod.toggleModifier('public').toggleModifier('async');
         updateMethod.addStatements([
             "let saved = await this.repository.preload({\n                ...req.body, ...{id: req.params.id}\n            } as any);",
-            "if (saved === undefined) {\n                throw Boom.notFound(\"" + entityNameCapitalized + " not found\");\n            }",
+            "if (saved === undefined) {\n                throw Boom.notFound(\"" + entityName + " not found\");\n            }",
             "saved = await this.repository.save(saved);",
             "return this.serializer.serialize(saved);"
         ]);
@@ -185,7 +185,7 @@ function main(path, _a) {
         });
         updateMethod.addDecorator({
             name: 'MethodMiddleware',
-            arguments: ["ValidationMiddleware, { schema: update" + entityNameCapitalized + " }"]
+            arguments: ["ValidationMiddleware, { schema: update" + entityName + " }"]
         });
         var updateRelationshipsMethod = controllerClass.addMethod({
             name: 'updateRelationships',
@@ -246,5 +246,5 @@ function main(path, _a) {
     }
     return file;
 }
-exports.main = main;
+exports.default = main;
 ;

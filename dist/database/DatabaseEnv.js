@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DatabaseEnv = void 0;
 var dotenv = require("dotenv");
 var DatabaseEnv = /** @class */ (function () {
     function DatabaseEnv(path) {

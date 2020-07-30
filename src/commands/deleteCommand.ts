@@ -6,7 +6,7 @@
 
 // Project imports
 import commandUtils = require('./commandUtils');
-import { DeleteActionClass } from '../actions/deleteAction';
+import deleteAction from '../actions/deleteAction';
 import Log = require('../utils/log');
 import { Singleton } from '../utils/DatabaseSingleton';
 
@@ -20,35 +20,19 @@ export const aliases: string[] = ['del', 'd'];
 //Yargs command description
 export const describe: string = 'Delete a model';
 
-/**
- * //Yargs command builder
- * @param yargs
- */
 //Yargs command builder
 export function builder (yargs: any) {
-    yargs.option({
-        DROP: {
-            type: 'boolean',
-            default: false
-        }
-    })
+    yargs.option({})
 };
 
 
 //Main function
 export async function handler (argv: any): Promise<void> {
-
     const {modelName} = argv;
-    const strategyInstance = Singleton.getInstance();
-    const databaseStrategy = strategyInstance.setDatabaseStrategy();
-
     commandUtils.validateDirectory();
     await commandUtils.checkVersion();
 
-    if (argv.DROP) await commandUtils.checkConnectToDatabase(databaseStrategy);
-
-    // TODO : move all error handling messages to this level
-    await new DeleteActionClass(databaseStrategy, modelName, argv.DROP).main()
+    await deleteAction(modelName)
         .then((array) => {
             array.forEach((e) => {
                 Log.logModification(e);

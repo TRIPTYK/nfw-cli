@@ -1,17 +1,18 @@
 "use strict";
-var utils_1 = require("../actions/lib/utils");
 var project = require("../utils/project");
-module.exports = function (path, _a) {
-    var className = _a.className, entityName = _a.entityName;
+var pascalcase = require("pascalcase");
+var kebab_case_1 = require("@queso/kebab-case");
+module.exports = function (path, entityName) {
     var file = project.createSourceFile(path, null, {
         overwrite: true
     });
-    var entityNameCapitalized = utils_1.capitalizeEntity(entityName);
+    var className = pascalcase(entityName);
+    file.addStatements(function (writer) { return writer.writeLine("import { " + className + " } from \"../models/" + kebab_case_1.default(entityName) + ".model\";"); });
     var serializerClass = file.addClass({
-        name: className
+        name: className + "Serializer"
     });
     serializerClass.setIsExported(true);
-    serializerClass.setExtends("BaseSerializer");
+    serializerClass.setExtends("BaseSerializer<" + className + ">");
     serializerClass.addDecorator({
         name: 'injectable',
         arguments: []
@@ -19,10 +20,11 @@ module.exports = function (path, _a) {
     serializerClass.addConstructor({
         parameters: [{ name: 'serializerParams: SerializerParams', initializer: '{}' }],
         statements: [
-            "super(" + entityNameCapitalized + "SerializerSchema.schema)",
+            "super(" + className + "SerializerSchema.schema)",
             "if(serializerParams.pagination) {\n                this.setupPaginationLinks(serializerParams.pagination);\n            }"
         ]
     })
+        .toggleModifier("public")
         .addJsDoc(entityName + " constructor");
     return file;
 };

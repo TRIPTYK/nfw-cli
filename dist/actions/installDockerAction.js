@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.InstallDockerActionAclass = void 0;
 var util = require("util");
 var exec = util.promisify(require('child_process').exec);
 var Log = require("../utils/log");

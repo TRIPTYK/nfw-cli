@@ -387,26 +387,6 @@ export class Inquirer {
         ];
         return inquirer.prompt(envQuestion);
     }
-
-    /**
-     * TODO
-     */
-    askForCreateUpdate () {
-        const question: inquirer.InputQuestion = [{
-            type: 'confirm',
-            name: 'createAt',
-            message: 'Do you want to add a createAt Column ?',
-            default: true
-        }, {
-            type: 'confirm',
-            name: 'updateAt',
-            message: 'Do you want to add a updateAt Column ?',
-            default: true
-        }];
-
-        return inquirer.prompt(question)
-    }
-
     /**
      * TODO
      */

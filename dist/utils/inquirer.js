@@ -5,6 +5,7 @@
  * @description Module to store inquirer questions
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Inquirer = void 0;
 // node modules
 var inquirer = require("inquirer");
 // project modules
@@ -417,23 +418,6 @@ var Inquirer = /** @class */ (function () {
             },
         ];
         return inquirer.prompt(envQuestion);
-    };
-    /**
-     * TODO
-     */
-    Inquirer.prototype.askForCreateUpdate = function () {
-        var question = [{
-                type: 'confirm',
-                name: 'createAt',
-                message: 'Do you want to add a createAt Column ?',
-                default: true
-            }, {
-                type: 'confirm',
-                name: 'updateAt',
-                message: 'Do you want to add a updateAt Column ?',
-                default: true
-            }];
-        return inquirer.prompt(question);
     };
     /**
      * TODO

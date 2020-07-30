@@ -2,20 +2,22 @@ import {buildModelColumnArgumentsFromObject} from "../actions/lib/utils";
 import project = require('../utils/project');
 import stringifyObject = require('stringify-object');
 import { SourceFile } from "ts-morph";
+import * as pascalcase from 'pascalcase';
 
 /**
  *
  * @param path
  * @param className
  * @param {array} entities
- * @param createUpdate
  * @return {SourceFile}
  */
-export = (path: string, {className,entities,createUpdate}, dbType: string): SourceFile => {
+export default (path: string,modelName: string, {entities}, dbType: string): SourceFile => {
     
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
+
+    const className = pascalcase(modelName);
 
     const modelClass = file.addClass({
         name: className
@@ -25,26 +27,16 @@ export = (path: string, {className,entities,createUpdate}, dbType: string): Sour
     modelClass.addDecorator({name : "Entity"}).setIsDecoratorFactory(true);
     modelClass.setIsExported(true);
 
-    entities = entities.filter(
-        (entity) => {
-            if(entity.Field === "createdAt") {
-                createUpdate['createAt'] = true;
-                return false;
-            }else if (entity.Field === "updatedAt") {
-                createUpdate['updateAt'] = true;
-                return false;
-            }
-            return true;
-        });
-
     if(dbType === "other"){
         const propId = modelClass.addProperty({
             name: 'id: number'
         });
+        propId.toggleModifier("public");
+
         propId.addDecorator({
             name: 'PrimaryGeneratedColumn',
             arguments: []
-        }).setIsDecoratorFactory(true);
+        }).setIsDecoratorFactory(true)
     }
 
     //in typeorm, ObjectID and ObjectIdColumn is used in models inseatd of "normal" column types (number, Long, ...) and PrimaryGeneratedColumn
@@ -62,25 +54,14 @@ export = (path: string, {className,entities,createUpdate}, dbType: string): Sour
 
         const prop = modelClass.addProperty({
             name : entity.Field
-        });
+        })
+        .toggleModifier("public");
 
         prop.addDecorator({
             name : 'Column' ,
             arguments : stringifyObject(buildModelColumnArgumentsFromObject(entity)) as any
         }).setIsDecoratorFactory(true);
     });
-
-    if (createUpdate && createUpdate.createAt) {
-        const prop = modelClass.addProperty({name: 'createdAt'});
-        prop.addDecorator({name: 'CreateDateColumn'}).setIsDecoratorFactory(true);
-        prop.addJsDoc(`@description This column will store a creation date of the inserted object`);
-    }
-
-    if (createUpdate && createUpdate.updateAt) {
-        const prop = modelClass.addProperty({name: 'updatedAt'});
-        prop.addDecorator({name: 'UpdateDateColumn'}).setIsDecoratorFactory(true);
-        prop.addJsDoc(`@description This column will store an update date when the entity is updated`);
-    }
 
     file.fixMissingImports();
 

@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.dbParams = exports.newColumn = void 0;
 // node modules
 var colors = require("colors/safe");
 //project modules
@@ -168,9 +169,9 @@ var needLength = ['int', 'varchar', 'tinyint', 'smallint', 'mediumint', 'bigint'
  */
 function dbParams(entity) {
     return __awaiter(this, void 0, void 0, function () {
-        var isDoneColumn, paramsArray, inquirer, _a, _b, data, confirmation;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var isDoneColumn, paramsArray, inquirer, data, confirmation;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     isDoneColumn = false, paramsArray = [];
                     inquirer = new inquirer_1.Inquirer();
@@ -178,17 +179,12 @@ function dbParams(entity) {
                     paramsArray['foreignKeys'] = [];
                     console.log(colors.green("Let's create a table for " + entity));
                     console.log(colors.green('/!\\ id is added by default .'));
-                    _a = paramsArray;
-                    _b = 'createUpdate';
-                    return [4 /*yield*/, inquirer.askForCreateUpdate()];
+                    _a.label = 1;
                 case 1:
-                    _a[_b] = _c.sent();
-                    _c.label = 2;
-                case 2:
-                    if (!!isDoneColumn) return [3 /*break*/, 5];
+                    if (!!isDoneColumn) return [3 /*break*/, 4];
                     return [4 /*yield*/, module.exports.newColumn().catch(function (e) { return console.log(e.message); })];
-                case 3:
-                    data = _c.sent();
+                case 2:
+                    data = _a.sent();
                     //add value to array that will be returned if value is not null
                     if (data != null && data.columns !== undefined)
                         paramsArray['columns'].push(data.columns);
@@ -196,12 +192,12 @@ function dbParams(entity) {
                         paramsArray['foreignKeys'].push(data.foreignKeys);
                     console.clear();
                     return [4 /*yield*/, inquirer.askForConfirmation("Want to add more column ? ")];
-                case 4:
-                    confirmation = (_c.sent()).confirmation;
+                case 3:
+                    confirmation = (_a.sent()).confirmation;
                     if (!confirmation)
                         isDoneColumn = true;
-                    return [3 /*break*/, 2];
-                case 5: return [2 /*return*/, paramsArray];
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/, paramsArray];
             }
         });
     });

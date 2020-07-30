@@ -7,7 +7,7 @@
 // node modules
 import {plural} from 'pluralize';
 import stringifyObject = require('stringify-object');
-import dashify = require('dashify');
+import kebabCase from '@queso/kebab-case'
 
 // project object
 import project = require('../utils/project');
@@ -16,6 +16,7 @@ import Log = require('../utils/log');
 // project modules
 import {modelFileExists, columnExist, relationExist, capitalizeEntity} from './lib/utils';
 import { SyntaxKind, Node, PropertyAssignment } from 'ts-morph';
+import { model } from 'mongoose';
 
 
 export class CreateRelationActionClass {
@@ -183,7 +184,7 @@ whitelist : ${capitalizeEntity(model)}SerializerSchema.serialize
     _addRelation = (model1: string, model2: string, isFirst: boolean, relation: string, name: string, refCol: string, m1Name: string, m2Name: string) => {
         let addedPropertyName;
 
-        let modelFile = project.getSourceFile(`src/api/models/${model1}.model.ts`);
+        let modelFile = project.getSourceFile(`src/api/models/${kebabCase(model1)}.model.ts`);
         const modelClass = modelFile.getClasses()[0];
 
         if (relation === 'mtm') addedPropertyName = this._Mtm(modelClass, model1 , model2 ,isFirst, name,m1Name,m2Name);

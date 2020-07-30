@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkVersion = exports.getCurrentEnvironment = exports.checkConnectToDatabase = exports.startDockerContainers = exports.checkValidParam = exports.validateDirectory = void 0;
 // node modules
 var chalk_1 = require("chalk");
 var fs = require("fs");
@@ -135,7 +136,7 @@ function checkVersion() {
         var _a, packageJsonCLI, packageJsonNFW;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, Promise.all([readFilePromise(__baseDir + "/package.json", "utf-8"), readFilePromise(process.cwd() + "/package.json", "utf-8")])];
+                case 0: return [4 /*yield*/, Promise.all([readFilePromise(__baseDir + "/../package.json", "utf-8"), readFilePromise(process.cwd() + "/package.json", "utf-8")])];
                 case 1:
                     _a = _b.sent(), packageJsonCLI = _a[0], packageJsonNFW = _a[1];
                     packageJsonCLI = JSON.parse(packageJsonCLI);

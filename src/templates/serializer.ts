@@ -1,20 +1,24 @@
-import { capitalizeEntity } from "../actions/lib/utils";
 import project = require('../utils/project');
+import * as pascalcase from "pascalcase";
+import kebab from '@queso/kebab-case'
 
-export = (path: string,{className,entityName}) => {
+export = (path: string,entityName: string) => {
 
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
 
-    const entityNameCapitalized = capitalizeEntity(entityName);
+    const className = pascalcase(entityName);
+
+    file.addStatements(writer => writer.writeLine(`import { ${className} } from "../models/${kebab(entityName)}.model";`));
+    
 
     const serializerClass = file.addClass({
-        name: className
+        name: `${className}Serializer`
     });
 
     serializerClass.setIsExported(true);
-    serializerClass.setExtends(`BaseSerializer`);
+    serializerClass.setExtends(`BaseSerializer<${className}>`);
 
     serializerClass.addDecorator({
         name: 'injectable',
@@ -24,13 +28,14 @@ export = (path: string,{className,entityName}) => {
     serializerClass.addConstructor({
         parameters : [{ name : 'serializerParams: SerializerParams' , initializer : '{}'}],
         statements : [
-            `super(${entityNameCapitalized}SerializerSchema.schema)`,
+            `super(${className}SerializerSchema.schema)`,
             `if(serializerParams.pagination) {
                 this.setupPaginationLinks(serializerParams.pagination);
             }`
         ]
     })
-    .addJsDoc(`${entityName} constructor`);
+    .toggleModifier("public")
+    .addJsDoc(`${entityName} constructor`)
 
     return file;
 };

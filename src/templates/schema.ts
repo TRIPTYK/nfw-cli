@@ -1,12 +1,15 @@
 import project = require ('../utils/project');
+import * as pascalcase from 'pascalcase';
 
-export = (path: string, {className, entityName}) => {
+export = (path: string, modelName:string) => {
     const file = project.createSourceFile(path,null,{
         overwrite : true
     });
+;
+    const className = pascalcase(modelName);
 
     const addedClass = file.addClass({
-        name : className,
+        name : `${className}SerializerSchema`,
         isDefaultExport : true
     });
 
@@ -14,20 +17,23 @@ export = (path: string, {className, entityName}) => {
         isStatic : true,
         type : "string",
         name : "type",
-        initializer : `"${entityName}"`
-    });
+        initializer : `"${modelName}"`
+    })
+    .toggleModifier("public");
 
     addedClass.addProperty({
         isStatic : true,
         type : "string[]",
         name : "serialize"
-    });
+    })
+    .toggleModifier("public");
 
     addedClass.addProperty({
         isStatic : true,
         type : "string[]",
         name : "deserialize"
-    });
+    })
+    .toggleModifier("public");
 
     addedClass.addGetAccessor({
         isStatic : true,
@@ -36,11 +42,12 @@ export = (path: string, {className, entityName}) => {
     }).setBodyText(`
 return {
     relationships : {},
-    type: ${className}.type,
-    whitelist: ${className}.serialize,
-    whitelistOnDeserialize : ${className}.deserialize
+    type: ${className}SerializerSchema.type,
+    whitelist: ${className}SerializerSchema.serialize,
+    whitelistOnDeserialize : ${className}SerializerSchema.deserialize
 };
-    `);
+    `)
+    .toggleModifier("public");
 
     return file;
 }

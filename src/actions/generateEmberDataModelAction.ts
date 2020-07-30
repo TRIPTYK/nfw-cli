@@ -2,6 +2,7 @@ import project = require('../utils/project');
 import fs = require('fs');
 import copy = require('clipboardy');
 import ejs = require('ejs');
+import kebabCase from '@queso/kebab-case';
 
 export class GenerateEmberDataModelActionClass {
 
@@ -13,7 +14,7 @@ export class GenerateEmberDataModelActionClass {
 
     async main(){
 
-        const file = project.getSourceFileOrThrow(`./src/api/models/${this.model}.model.ts`);
+        const file = project.getSourceFileOrThrow(`./src/api/models/${kebabCase(this.model)}.model.ts`);
         const [theClass] = file.getClasses();
         const elements = [];
         

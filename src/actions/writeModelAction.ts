@@ -6,16 +6,13 @@
  * if the table exist. If the table doesn't exist , the user enter the columns of
  * the future table and the table is created in the database.
  */
-import {capitalizeEntity, lowercaseEntity} from './lib/utils';
 import project = require('../utils/project');
-import modelTemplateFile = require('../templates/model');
-
+import modelTemplateFile from '../templates/model';
+import kebabCase from '@queso/kebab-case'
 
 //action: modelName
 //Description : write a typeorm model from an array of info about an entity
-export async function writeModel (action: string, data = null, dbType: string): Promise<void> {
-    let lowercase = lowercaseEntity(action);
-    let capitalize = capitalizeEntity(lowercase);
+export async function writeModel (modelName: string, data = null, dbType: string): Promise<void> {
     let {columns, foreignKeys} = data;
  
     /*
@@ -27,10 +24,8 @@ export async function writeModel (action: string, data = null, dbType: string): 
     }).filter(col => col.Field !== "id");
 
     
-    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
-        entities : columns,
-        className : capitalize,
-        createUpdate: data.createUpdate
+    modelTemplateFile(`src/api/models/${kebabCase(modelName)}.model.ts`,modelName,{
+        entities : columns
     }, dbType);
 
     await project.save();
@@ -38,17 +33,10 @@ export async function writeModel (action: string, data = null, dbType: string): 
 
 
 //Description : creates a basic model , with no entites , imports or foreign keys
-export async function basicModel (action: string, dbType: string) {
-    let lowercase = lowercaseEntity(action);
-    let capitalize = capitalizeEntity(lowercase);
+export async function basicModel (modelName: string, dbType: string) {
 
-    modelTemplateFile(`src/api/models/${lowercase}.model.ts`,{
-        entities : [],
-        className : `${capitalize}`,
-        createUpdate : {
-            createAt: true,
-            updateAt: true
-        }
+    modelTemplateFile(`src/api/models/${kebabCase(modelName)}.model.ts`,modelName,{
+        entities : []
     }, dbType);
 
     await project.save();

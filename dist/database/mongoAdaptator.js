@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MongoConnection = void 0;
 var DatabaseEnv_1 = require("./DatabaseEnv");
 var mongoose = require("mongoose");
 var fs = require("fs");

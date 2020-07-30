@@ -39,6 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.builder = exports.describe = exports.aliases = exports.command = void 0;
 /**
  * project imports
  */

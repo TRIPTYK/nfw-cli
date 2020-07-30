@@ -8,6 +8,7 @@
 import utils = require('./lib/utils');
 import project = require('../utils/project');
 import removeFromModel = require('./lib/removeFromModel');
+import kebabCase from '@queso/kebab-case'
 
 const _getModelFromRelationProperty = (model1Class,model2Class,relation) => {
     for (const p of model1Class.getProperties()) {
@@ -51,8 +52,8 @@ export class RemoveRelationActionClass {
             mtm : ['ManyToMany','ManyToMany'],
         };
     
-        const model1File = project.getSourceFile(`src/api/models/${this.model1}.model.ts`);
-        const model2File = project.getSourceFile(`src/api/models/${this.model2}.model.ts`);
+        const model1File = project.getSourceFile(`src/api/models/${kebabCase(this.model1)}.model.ts`);
+        const model2File = project.getSourceFile(`src/api/models/${kebabCase(this.model2)}.model.ts`);
     
         if (!model1File || !model2File) throw new Error("One of the model does not exists");
     

@@ -36,10 +36,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GenerateEmberDataModelActionClass = void 0;
 var project = require("../utils/project");
 var fs = require("fs");
 var copy = require("clipboardy");
 var ejs = require("ejs");
+var kebab_case_1 = require("@queso/kebab-case");
 var GenerateEmberDataModelActionClass = /** @class */ (function () {
     function GenerateEmberDataModelActionClass(model) {
         this.model = model;
@@ -48,7 +50,7 @@ var GenerateEmberDataModelActionClass = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var file, theClass, elements, _i, _a, prop, decorator, DSfncName, argument, argType, foundType, argumentType, argumentType, ejsTemplateFile, compiled;
             return __generator(this, function (_b) {
-                file = project.getSourceFileOrThrow("./src/api/models/" + this.model + ".model.ts");
+                file = project.getSourceFileOrThrow("./src/api/models/" + kebab_case_1.default(this.model) + ".model.ts");
                 theClass = file.getClasses()[0];
                 elements = [];
                 for (_i = 0, _a = theClass.getInstanceProperties().filter(function (p) { return p.getName() !== 'id'; }); _i < _a.length; _i++) {
@@ -103,7 +105,7 @@ var GenerateEmberDataModelActionClass = /** @class */ (function () {
                         });
                     }
                 }
-                ejsTemplateFile = fs.readFileSync(__dirname + '/../templates/emberModel.ejs', 'utf-8');
+                ejsTemplateFile = fs.readFileSync(__dirname + '/../../templates/emberModel.ejs', 'utf-8');
                 compiled = ejs.compile(ejsTemplateFile)({
                     modelName: theClass.getName(),
                     elements: elements

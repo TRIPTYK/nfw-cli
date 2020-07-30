@@ -81,7 +81,7 @@ export function getCurrentEnvironment (): DatabaseEnv {
 
 export async function checkVersion (): Promise<void> {
     let [packageJsonCLI,packageJsonNFW]: any = await Promise.all(
-        [readFilePromise(__baseDir + "/package.json","utf-8"),readFilePromise(process.cwd() + "/package.json","utf-8")]
+        [readFilePromise(__baseDir + "/../package.json","utf-8"),readFilePromise(process.cwd() + "/package.json","utf-8")]
     );
     packageJsonCLI = JSON.parse(packageJsonCLI);
     packageJsonNFW = JSON.parse(packageJsonNFW);

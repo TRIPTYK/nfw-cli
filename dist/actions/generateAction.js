@@ -41,6 +41,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GenerateActionClass = void 0;
 // node modules
 var clui_1 = require("clui");
 var chalk_1 = require("chalk");
@@ -132,10 +133,6 @@ var GenerateActionClass = /** @class */ (function () {
                         entityModelData = [];
                         entityModelData['columns'] = [];
                         entityModelData['foreignKeys'] = [];
-                        entityModelData['createUpdate'] = {
-                            createAt: true,
-                            updateAt: true
-                        };
                         return [3 /*break*/, 23];
                     case 14:
                         console.log(chalk_1.default.bgRed(chalk_1.default.black(" /!\\ Process aborted /!\\")));
@@ -144,6 +141,8 @@ var GenerateActionClass = /** @class */ (function () {
                     case 15: return [4 /*yield*/, databaseConnection.getTableInfo(this.modelName)];
                     case 16:
                         _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
+                        // in base class model
+                        columns = columns.filter(function (c) { return !["updated_at", "created_at", "id"].includes(c.Field); });
                         for (j = 0; j < columns.length; j++) {
                             columns[j].Type = utils.sqlTypeData(columns[j].Type);
                         }

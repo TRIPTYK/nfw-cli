@@ -42,6 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MigrateActionClass = void 0;
 // Node modules
 var child_process = require("child_process");
 var path = require("path");

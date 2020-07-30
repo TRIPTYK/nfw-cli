@@ -4,10 +4,6 @@ const Schema = mongoose.Schema;
 
 //Schema and model of the user entity, used when creating a new project while using a MongoDB database.
 var UserSchema = new Schema({
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
     email: {
         type: String,
         required: true,

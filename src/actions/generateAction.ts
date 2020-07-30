@@ -82,10 +82,6 @@ export class GenerateActionClass {
                 entityModelData = [];
                 entityModelData['columns'] = [];
                 entityModelData['foreignKeys'] = [];
-                entityModelData['createUpdate'] = {
-                    createAt: true,
-                    updateAt: true
-                };
                 break;
             case "nothing":
                 console.log(chalk.bgRed(chalk.black(" /!\\ Process aborted /!\\")));
@@ -93,6 +89,10 @@ export class GenerateActionClass {
                 break;
             case 'create from db':
                 let { columns, foreignKeys } = await databaseConnection.getTableInfo(this.modelName);
+                // in base class model
+                columns = columns.filter((c) => !["updated_at","created_at","id"].includes(c.Field));
+
+
                 for (let j = 0; j < columns.length; j++) {
                     columns[j].Type = utils.sqlTypeData(columns[j].Type);
                 }

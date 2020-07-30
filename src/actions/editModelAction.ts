@@ -15,6 +15,7 @@ import Log = require('../utils/log');
 import {format , lowercaseEntity , buildModelColumnArgumentsFromObject , columnExist } from '../actions/lib/utils';
 import project = require('../utils/project');
 import chalk from 'chalk';
+import kebabCase from '@queso/kebab-case'
 
 /**
  * Main function
@@ -54,7 +55,7 @@ export class EditModelClass {
         if (this.action === 'add') {
             let data: any = await modelSpecs.newColumn(this.column);
     
-            let pathModel = `src/api/models/${lowercaseEntity(this.model)}.model.ts`;
+            let pathModel = `src/api/models/${kebabCase(this.model)}.model.ts`;
             if (data === null) throw  new Error('Column cancelled');
             if (columnExist(this.model, data.columns.Field)) throw  new Error('Column already exist');
     

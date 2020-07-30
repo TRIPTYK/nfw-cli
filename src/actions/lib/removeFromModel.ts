@@ -18,7 +18,7 @@ const WriteFile = Util.promisify(FS.writeFile);
 import Log = require('../../utils/log');
 import project = require('../../utils/project');
 import { SyntaxKind } from 'ts-morph';
-
+import kebabCase from '@queso/kebab-case'
 
 //description :  Remove relationship from serializer and controller
 export function removeFromRelationTable (entity: string, column: string) {
@@ -120,7 +120,7 @@ export function removeFromValidation (model: string, column: string) {
 };
 
 export function removeRelationFromModelFile (model,column: string) {
-    let modelFile = project.getSourceFile(`src/api/models/${model}.model.ts`);
+    let modelFile = project.getSourceFile(`src/api/models/${kebabCase(model)}.model.ts`);
     const modelClass = modelFile.getClasses()[0];
 
     const prop = modelClass.getInstanceProperty((p) => {

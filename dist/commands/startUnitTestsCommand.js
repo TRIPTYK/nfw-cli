@@ -52,6 +52,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.describe = exports.aliases = exports.command = void 0;
 // node mosules
 var JsonFileWriter = require("json-file-rw");
 var util = require("util");

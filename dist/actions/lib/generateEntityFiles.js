@@ -43,25 +43,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = void 0;
 // node modules
 var project = require("../../utils/project");
 // project modules
 var Log = require("../../utils/log");
-var utils_1 = require("./utils");
-// false class properties
-var capitalize;
-var lowercase;
-var controllerTemplateFile = require("../../templates/controller");
+var controller_1 = require("../../templates/controller");
 var relationsTemplateFile = require("../../templates/relations");
 var repositoryTemplateFile = require("../../templates/repository");
 var serializerTemplateFile = require("../../templates/serializer");
 var validationTemplateFile = require("../../templates/validation");
 var schemaTemplateFile = require("../../templates/schema");
+var kebab_case_1 = require("@queso/kebab-case");
 //Check entity existence, and write file or not according to the context
 function main(modelName, crudOptions, data, part) {
     if (data === void 0) { data = null; }
     return __awaiter(this, void 0, void 0, function () {
-        var tableColumns, foreignKeys, index, allColumns, files, controllerPath, validationPath, relationPath, repositoryPath, serializerPath, schemaPath;
+        var tableColumns, foreignKeys, filePrefixName, files, controllerPath, validationPath, relationPath, repositoryPath, serializerPath, schemaPath;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -69,61 +67,35 @@ function main(modelName, crudOptions, data, part) {
                         Log.error('Nothing to generate. Please, get entity name parameter.');
                         return [2 /*return*/];
                     }
-                    // assign false class properties
-                    lowercase = utils_1.lowercaseEntity(modelName);
-                    capitalize = utils_1.capitalizeEntity(modelName);
                     tableColumns = data ? data.columns : [];
                     foreignKeys = data ? data.foreignKeys : [];
-                    index = tableColumns.findIndex(function (el) { return el.Field === 'id'; });
-                    // remove id key from array
-                    if (index !== -1)
-                        tableColumns.splice(tableColumns, 1);
-                    allColumns = tableColumns // TODO: do this in view
-                        .map(function (elem) { return "'" + elem.Field + "'"; })
-                        .concat(foreignKeys.map(function (e) { return "'" + e.COLUMN_NAME + "'"; }));
-                    if (data.createUpdate != null && data.createUpdate.createAt)
-                        allColumns.push("'createdAt'");
-                    if (data.createUpdate != null && data.createUpdate.updateAt)
-                        allColumns.push("'updatedAt'");
+                    filePrefixName = kebab_case_1.default(modelName);
                     files = [];
-                    controllerPath = "src/api/controllers/" + lowercase + ".controller.ts";
-                    validationPath = "src/api/validations/" + lowercase + ".validation.ts";
-                    relationPath = "src/api/enums/json-api/" + lowercase + ".enum.ts";
-                    repositoryPath = "src/api/repositories/" + lowercase + ".repository.ts";
-                    serializerPath = "src/api/serializers/" + lowercase + ".serializer.ts";
-                    schemaPath = "src/api/serializers/schemas/" + lowercase + ".serializer.schema.ts";
+                    controllerPath = "src/api/controllers/" + filePrefixName + ".controller.ts";
+                    validationPath = "src/api/validations/" + filePrefixName + ".validation.ts";
+                    relationPath = "src/api/enums/json-api/" + filePrefixName + ".enum.ts";
+                    repositoryPath = "src/api/repositories/" + filePrefixName + ".repository.ts";
+                    serializerPath = "src/api/serializers/" + filePrefixName + ".serializer.ts";
+                    schemaPath = "src/api/serializers/schemas/" + filePrefixName + ".serializer.schema.ts";
                     if (!part || part === 'controller')
-                        files.push(controllerTemplateFile.main(controllerPath, {
-                            className: capitalize + "Controller",
-                            options: crudOptions,
-                            entityName: lowercase
+                        files.push(controller_1.default(controllerPath, modelName, {
+                            options: crudOptions
                         }));
                     if (!part || part === 'relation')
-                        files.push(relationsTemplateFile(relationPath, {
-                            entityName: lowercase,
+                        files.push(relationsTemplateFile(relationPath, modelName, {
                             columns: tableColumns
                         }));
                     if (!part || part === 'repository')
-                        files.push(repositoryTemplateFile(repositoryPath, {
-                            className: capitalize + "Repository",
-                            entityName: lowercase
-                        }));
+                        files.push(repositoryTemplateFile(repositoryPath, modelName));
                     if (!part || part === 'validation')
-                        files.push(validationTemplateFile(validationPath, {
+                        files.push(validationTemplateFile(validationPath, modelName, {
                             options: crudOptions,
-                            entityName: lowercase,
                             entities: tableColumns
                         }));
                     if (!part || part === 'schema')
-                        files.push(schemaTemplateFile(schemaPath, {
-                            className: capitalize + "SerializerSchema",
-                            entityName: lowercase
-                        }));
+                        files.push(schemaTemplateFile(schemaPath, modelName));
                     if (!part || part === 'serializer')
-                        files.push(serializerTemplateFile(serializerPath, {
-                            className: capitalize + "Serializer",
-                            entityName: lowercase,
-                        }));
+                        files.push(serializerTemplateFile(serializerPath, modelName));
                     // auto generate imports
                     files.forEach(function (file) {
                         file.fixMissingImports();

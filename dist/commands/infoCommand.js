@@ -5,6 +5,7 @@
  * @author Deflorenne Amaury
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.builder = exports.describe = exports.aliases = exports.command = void 0;
 // Node modules
 var chalk_1 = require("chalk");
 //yargs command
