@@ -27,7 +27,6 @@ export class DeployActionClass {
 
 
     async main (): Promise<void> {
-
         const loadedEnv = new DatabaseEnv();
         loadedEnv.loadFromFile(this.env + '.env');
 
@@ -36,40 +35,6 @@ export class DeployActionClass {
         if (!deploy.hasOwnProperty(this.env)) {
             throw new Error(`${this.env} environment does not exists`);
         }
-
-        const {stdout} = await exec(path.resolve(`./node_modules/.bin/pm2 -v`));
-        Log.info(`PM2 local version is ${stdout}`);
-
-        if (this.deployDB) {
-            Log.info("connecting to DB ...");
-            const connection = await this.databaseStrategy.getConnectionFromNFW();
-            Log.success('Connected');
-
-            Log.info("Creating dump ...");
-            await connection.dumpAll('tmpdb', {
-                dumpOptions: {
-                    schema: {
-                        table : {
-                            dropIfExist : false
-                        }
-                    },
-                    tables: ['migration_table'],
-                    excludeTables: true,
-                    data: false
-                }
-            });
-            Log.success('Done');
-
-            const dumpFile = fs.readFileSync('tmpdb.sql','utf-8');
-
-            Log.info("Creating database on remote host ...");
-            await connection.db.query(dumpFile);
-            Log.success('Done');
-            
-            Log.info("Cleaning up temp files ...");
-            fs.unlinkSync('tmpdb.sql');
-        }
-
 
         if (this.mode === 'setup') {
             spawn.sync(`./node_modules/.bin/pm2 deploy ${this.env} setup`, [], { stdio: 'inherit' , shell : true });

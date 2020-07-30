@@ -40,9 +40,7 @@ exports.DeployActionClass = void 0;
 // node modules
 var spawn = require("cross-spawn");
 var util = require("util");
-var path = require("path");
 var exec = util.promisify(require('child_process').exec);
-var fs = require("fs");
 var DatabaseEnv_1 = require("../database/DatabaseEnv");
 var Log = require("../utils/log");
 var DeployActionClass = /** @class */ (function () {
@@ -54,67 +52,28 @@ var DeployActionClass = /** @class */ (function () {
     }
     DeployActionClass.prototype.main = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var loadedEnv, deploy, stdout, connection, dumpFile;
+            var loadedEnv, deploy;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        loadedEnv = new DatabaseEnv_1.DatabaseEnv();
-                        loadedEnv.loadFromFile(this.env + '.env');
-                        deploy = require(process.cwd() + "/ecosystem.config").deploy;
-                        if (!deploy.hasOwnProperty(this.env)) {
-                            throw new Error(this.env + " environment does not exists");
-                        }
-                        return [4 /*yield*/, exec(path.resolve("./node_modules/.bin/pm2 -v"))];
-                    case 1:
-                        stdout = (_a.sent()).stdout;
-                        Log.info("PM2 local version is " + stdout);
-                        if (!this.deployDB) return [3 /*break*/, 5];
-                        Log.info("connecting to DB ...");
-                        return [4 /*yield*/, this.databaseStrategy.getConnectionFromNFW()];
-                    case 2:
-                        connection = _a.sent();
-                        Log.success('Connected');
-                        Log.info("Creating dump ...");
-                        return [4 /*yield*/, connection.dumpAll('tmpdb', {
-                                dumpOptions: {
-                                    schema: {
-                                        table: {
-                                            dropIfExist: false
-                                        }
-                                    },
-                                    tables: ['migration_table'],
-                                    excludeTables: true,
-                                    data: false
-                                }
-                            })];
-                    case 3:
-                        _a.sent();
-                        Log.success('Done');
-                        dumpFile = fs.readFileSync('tmpdb.sql', 'utf-8');
-                        Log.info("Creating database on remote host ...");
-                        return [4 /*yield*/, connection.db.query(dumpFile)];
-                    case 4:
-                        _a.sent();
-                        Log.success('Done');
-                        Log.info("Cleaning up temp files ...");
-                        fs.unlinkSync('tmpdb.sql');
-                        _a.label = 5;
-                    case 5:
-                        if (this.mode === 'setup') {
-                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " setup", [], { stdio: 'inherit', shell: true });
-                        }
-                        else if (this.mode === 'update') {
-                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " update", [], { stdio: 'inherit', shell: true });
-                        }
-                        else if (this.mode === 'revert') {
-                            spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " revert 1", [], { stdio: 'inherit', shell: true });
-                        }
-                        else {
-                            Log.warning("No action specified");
-                            process.exit(0);
-                        }
-                        return [2 /*return*/];
+                loadedEnv = new DatabaseEnv_1.DatabaseEnv();
+                loadedEnv.loadFromFile(this.env + '.env');
+                deploy = require(process.cwd() + "/ecosystem.config").deploy;
+                if (!deploy.hasOwnProperty(this.env)) {
+                    throw new Error(this.env + " environment does not exists");
                 }
+                if (this.mode === 'setup') {
+                    spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " setup", [], { stdio: 'inherit', shell: true });
+                }
+                else if (this.mode === 'update') {
+                    spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " update", [], { stdio: 'inherit', shell: true });
+                }
+                else if (this.mode === 'revert') {
+                    spawn.sync("./node_modules/.bin/pm2 deploy " + this.env + " revert 1", [], { stdio: 'inherit', shell: true });
+                }
+                else {
+                    Log.warning("No action specified");
+                    process.exit(0);
+                }
+                return [2 /*return*/];
             });
         });
     };

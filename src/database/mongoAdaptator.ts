@@ -167,7 +167,7 @@ export class MongoConnection implements AdaptatorStrategy{
         return collList;
     }
 
-    async getConnectionFromNFW () {
+    async getConnectionFromNFW (): Promise<MongoConnection>  {
 
         const nfwFile = fs.readFileSync('.nfw','utf-8');
         let nfwEnv = JSON.parse(nfwFile).env;

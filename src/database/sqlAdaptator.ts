@@ -224,7 +224,7 @@ export class SqlConnection implements AdaptatorStrategy {
         return mysqldump(options);
     }
 
-    async getConnectionFromNFW () {
+    async getConnectionFromNFW (): Promise<SqlConnection> {
 
         const nfwFile = fs.readFileSync('.nfw','utf-8');
         let nfwEnv = JSON.parse(nfwFile).env;
