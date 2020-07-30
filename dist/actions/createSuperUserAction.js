@@ -74,7 +74,7 @@ var CreateSuperUserActionClass = /** @class */ (function () {
                     case 2:
                         credentials = _a.sent();
                         credentialsFileName = credentials.login + "-credentials.json";
-                        credentialsTemplate = fs.readFileSync(__baseDir + "/src/templates/custom/userCredentials.ejs", 'utf-8');
+                        credentialsTemplate = fs.readFileSync(__baseDir + "/templates/custom/userCredentials.ejs", 'utf-8');
                         compiled = ejs.compile(credentialsTemplate)({
                             login: credentials.login,
                             password: credentials.password

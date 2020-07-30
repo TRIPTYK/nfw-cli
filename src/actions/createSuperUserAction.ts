@@ -44,7 +44,7 @@ export class CreateSuperUserActionClass {
         });
 
         const credentialsFileName = `${credentials.login}-credentials.json`;
-        const credentialsTemplate = fs.readFileSync(`${__baseDir}/src/templates/custom/userCredentials.ejs`,'utf-8');
+        const credentialsTemplate = fs.readFileSync(`${__baseDir}/templates/custom/userCredentials.ejs`,'utf-8');
     
         const compiled = ejs.compile(credentialsTemplate)({
             login: credentials.login,

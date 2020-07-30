@@ -146,8 +146,22 @@ var GenerateFromDatabaseActionClass = /** @class */ (function () {
                         return [4 /*yield*/, databaseadaptor.getTableInfo(tables[j][tablesIn])];
                     case 5:
                         _b = _c.sent(), columns = _b.columns, foreignKeys = _b.foreignKeys;
-                        console.log(columns);
-                        throw "yolo";
+                        entityModelData = { columns: columns, foreignKeys: foreignKeys };
+                        if (utils.isBridgindTable(entityModelData)) {
+                            Bridgings.push(foreignKeys);
+                            return [3 /*break*/, 8];
+                        }
+                        for (j_1 = 0; j_1 < columns.length; j_1++)
+                            columns[j_1].Type = utils.sqlTypeData(columns[j_1].Type);
+                        for (j_2 = 0; j_2 < foreignKeys.length; j_2++)
+                            foreignConstraint.push(foreignKeys[j_2]);
+                        if (noGenerate.includes(tables[j][tablesIn]))
+                            return [3 /*break*/, 8];
+                        return [4 /*yield*/, modelWrite.writeModel(tables[j][tablesIn], entityModelData, dbType)
+                                .catch(function (e) {
+                                Log.error("Failed to generate model : " + e.message + "\nExiting ...");
+                                process.exit(1);
+                            })];
                     case 6:
                         _c.sent();
                         return [4 /*yield*/, generateEntityFiles.main(tables[j][tablesIn], crudOptions, entityModelData)];
