@@ -15,6 +15,7 @@ yargs
     .command(require('./commands/generateCommand'))
     .command(require('./commands/generateFromDatabaseCommand'))
     .command(require('./commands/generateEmberDataModelCommand'))
+    .command(require('./commands/generateMirageModelCommand'))
     .command(require('./commands/deleteCommand'))
     .command(require('./commands/infoCommand'))
     .command(require('./commands/startCommand'))
