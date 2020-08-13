@@ -52,7 +52,7 @@ var pluralize_1 = require("pluralize");
 function generateModelData(file, model, rows) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
-        var className, theClass, elements, data, relations, _i, _c, prop, type, length_1, columnDecorator, args, _d, _e, objectProp, propertyName, relationDecorator, _f, typeArg, propertyArg, type_1, body, key, index, object, _g, elements_1, _h, name_1, type, length_2, value, _j, relations_1, _k, name_2, type, relationType, array, max, ejsTemplateFile, compiled;
+        var className, theClass, elements, data, relations, _i, _c, prop, type, length_1, columnDecorator, args, _d, _e, objectProp, propertyName, text, relationDecorator, _f, typeArg, propertyArg, type_1, body, key, index, object, _g, elements_1, _h, name_1, type, length_2, value, _j, relations_1, _k, name_2, type, relationType, array, max, ejsTemplateFile, compiled;
         return __generator(this, function (_l) {
             switch (_l.label) {
                 case 0:
@@ -73,7 +73,8 @@ function generateModelData(file, model, rows) {
                                     objectProp = _e[_d];
                                     propertyName = objectProp.getFirstChildByKindOrThrow(ts_morph_1.SyntaxKind.Identifier).getText();
                                     if (propertyName === "type") {
-                                        type = objectProp.getInitializer().getText();
+                                        text = objectProp.getInitializer().getText();
+                                        type = text.replace(/['"]+/g, '');
                                     }
                                     if (propertyName === "length") {
                                         length_1 = objectProp.getInitializer().getText();
@@ -81,11 +82,12 @@ function generateModelData(file, model, rows) {
                                 }
                             }
                             else if (args.length === 2) { // @Column("blah",{...})
-                                type = args[0].getText();
+                                type = args[0].getText().replace(/['"]+/g, '');
                             }
                             if (!type) {
                                 type = prop.getType().getText();
                             }
+                            console.log(type);
                             elements.push({ name: prop.getName(), type: type, length: length_1 });
                         }
                         relationDecorator = (_b = (_a = prop.getDecorator("ManyToMany")) !== null && _a !== void 0 ? _a : prop.getDecorator("OneToMany")) !== null && _b !== void 0 ? _b : prop.getDecorator("OneToOne");
@@ -121,10 +123,13 @@ function generateModelData(file, model, rows) {
                                 case ["text"].includes(type):
                                     value = Faker.lorem.text();
                                     break;
-                                case ['"simple-enum"', '"enum"'].includes(type):
+                                case ["simple-enum", "enum"].includes(type):
                                     value = Faker.lorem.word();
                                     break;
-                                case ["number", "integer", "float", "decimal"].includes(type):
+                                case ["json", "simple-json", "object"].includes(type):
+                                    value = {};
+                                    break;
+                                case ["number", "integer", "float", "decimal", "int", "tinyint"].includes(type):
                                     value = Faker.random.number(255);
                                     break;
                                 case ["boolean"].includes(type):
@@ -136,7 +141,7 @@ function generateModelData(file, model, rows) {
                         for (_j = 0, relations_1 = relations; _j < relations_1.length; _j++) {
                             _k = relations_1[_j], name_2 = _k.name, type = _k.type, relationType = _k.relationType;
                             if (relationType === "ManyToMany" || relationType === "OneToMany") {
-                                array = object[camelCase(name_2) + "Ids"] = [];
+                                array = object[camelCase(pluralize_1.singular(name_2)) + "Ids"] = [];
                                 while (array.length < rows) {
                                     max = Faker.random.number(rows - 1) + 1;
                                     array.push(max);

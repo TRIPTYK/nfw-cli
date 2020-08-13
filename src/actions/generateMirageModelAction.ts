@@ -4,13 +4,13 @@ import copy = require('clipboardy');
 import ejs = require('ejs');
 import kebabCase from '@queso/kebab-case';
 import * as pascalcase from 'pascalcase';
-import { SyntaxKind, ArrowFunction, PropertyAccessExpression, SourceFile } from 'ts-morph';
+import { SyntaxKind, ArrowFunction, PropertyAccessExpression, SourceFile, PropertyAssignment } from 'ts-morph';
 import * as stringifyObject from 'stringify-object';
 import * as camelCase from 'camelcase';
 import * as Faker from "faker";
 import mkdirp = require('mkdirp');
 import { writeFileSync } from 'fs';
-import { plural } from 'pluralize';
+import { plural, singular } from 'pluralize';
 
 export async function generateModelData(file: SourceFile,model: string,rows: number) {
     const className = pascalcase(model);
@@ -31,19 +31,22 @@ export async function generateModelData(file: SourceFile,model: string,rows: num
                 for (const objectProp of args[0].getChildrenOfKind(SyntaxKind.PropertyAssignment)) {
                     const propertyName = objectProp.getFirstChildByKindOrThrow(SyntaxKind.Identifier).getText();
                 if (propertyName === "type") {
-                    type = objectProp.getInitializer().getText();
+                    const text = objectProp.getInitializer().getText();
+                    type = text.replace(/['"]+/g, '');
                 }
                 if (propertyName === "length") {
                     length = objectProp.getInitializer().getText();
                 }
             } 
         }else if (args.length === 2) { // @Column("blah",{...})
-            type = args[0].getText();
+            type = args[0].getText().replace(/['"]+/g, '');
         }
 
         if (!type) {
             type = prop.getType().getText();
         }
+        
+        console.log(type);
 
         elements.push({name: prop.getName(),type,length});
        }
@@ -86,10 +89,13 @@ export async function generateModelData(file: SourceFile,model: string,rows: num
                 case ["text"].includes(type): 
                     value = Faker.lorem.text();
                     break;  
-                case ['"simple-enum"','"enum"'].includes(type): 
+                case ["simple-enum","enum"].includes(type): 
                     value = Faker.lorem.word();
                     break;
-                case ["number","integer","float","decimal"].includes(type): 
+                case ["json","simple-json","object"].includes(type): 
+                    value = {};
+                    break;
+                case ["number","integer","float","decimal","int","tinyint"].includes(type): 
                     value = Faker.random.number(255);
                     break;  
                 case ["boolean"].includes(type): 
@@ -102,13 +108,13 @@ export async function generateModelData(file: SourceFile,model: string,rows: num
 
         for (const {name,type,relationType} of relations) {
             if (relationType === "ManyToMany" || relationType === "OneToMany") {
-                const array = object[`${camelCase(name)}Ids`] = [];
+                const array = object[`${camelCase(singular(name))}Ids`] = [];
                 while (array.length < rows) {
                     const max = Faker.random.number(rows - 1) + 1;
                     array.push(max);
                 }
             }else{
-                object[`${camelCase(name)}Id`] = Faker.random.number(rows - 1) + 1;
+                object[`${camelCase(singular(name))}Id`] = Faker.random.number(rows - 1) + 1;
             }
         }   
 
