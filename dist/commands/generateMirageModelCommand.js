@@ -76,8 +76,7 @@ function handler(argv) {
                     model = argv.model, rows = argv.rows, exclude = argv.exclude;
                     return [4 /*yield*/, generateMirageModelAction_1.default(model, rows, exclude.split(','))
                             .then(function () {
-                            Log.success("Please copy your clipboard to mirage/fixtures/*.js");
-                            Log.info('Copied to clipboard');
+                            Log.success("Please copy your clipboard to mirage/fixtures/");
                         })
                             .catch(function (e) {
                             console.log(e);

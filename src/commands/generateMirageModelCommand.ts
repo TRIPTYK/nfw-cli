@@ -42,8 +42,7 @@ export async function handler (argv: any): Promise<void> {
 
     await generateMirageModelAction(model,rows,exclude.split(','))
         .then(() => {
-            Log.success(`Please copy your clipboard to mirage/fixtures/*.js`);
-            Log.info('Copied to clipboard');
+            Log.success(`Please the content of created folder ./fixtures to mirage/fixtures/`);
         })
         .catch((e) => {
             console.log(e);

@@ -148,7 +148,7 @@ function generateModelData(file, model, rows) {
                                 }
                             }
                             else {
-                                object[camelCase(name_2) + "Id"] = Faker.random.number(rows - 1) + 1;
+                                object[camelCase(pluralize_1.singular(name_2)) + "Id"] = Faker.random.number(rows - 1) + 1;
                             }
                         }
                         data.push(object);
