@@ -46,10 +46,8 @@ exports.handler = exports.builder = exports.describe = exports.aliases = exports
 var commandUtils = require("./commandUtils");
 var Log = require("../utils/log");
 var generateMirageModelAction_1 = require("../actions/generateMirageModelAction");
-var kebab_case_1 = require("@queso/kebab-case");
-var pluralize_1 = require("pluralize");
 //Yargs command
-exports.command = 'generateMirageData <model> [rows]';
+exports.command = 'generateMirageData [model]';
 //Yargs command aliases
 exports.aliases = [];
 //Yargs command description
@@ -60,21 +58,25 @@ function builder(yargs) {
         default: 10,
         type: 'number'
     });
+    yargs.option('exclude', {
+        default: "refresh-token,oauth-token",
+        type: 'number'
+    });
 }
 exports.builder = builder;
 ;
 //Main function
 function handler(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var model, rows;
+        var model, rows, exclude;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     commandUtils.validateDirectory();
-                    model = argv.model, rows = argv.rows;
-                    return [4 /*yield*/, generateMirageModelAction_1.default(model, rows)
+                    model = argv.model, rows = argv.rows, exclude = argv.exclude;
+                    return [4 /*yield*/, generateMirageModelAction_1.default(model, rows, exclude.split(','))
                             .then(function () {
-                            Log.success("Please copy your clipboard to mirage/fixtures/" + kebab_case_1.default(pluralize_1.plural(model)) + ".js");
+                            Log.success("Please copy your clipboard to mirage/fixtures/*.js");
                             Log.info('Copied to clipboard');
                         })
                             .catch(function (e) {

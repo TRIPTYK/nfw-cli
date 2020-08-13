@@ -12,7 +12,7 @@ import kebabCase from '@queso/kebab-case';
 import { plural } from 'pluralize';
 
 //Yargs command
-export const command: string = 'generateMirageData <model> [rows]';
+export const command: string = 'generateMirageData [model]';
 
 //Yargs command aliases
 export const aliases: string[] = [];
@@ -26,17 +26,23 @@ export function builder (yargs) {
         default: 10,
         type: 'number'
     });
+    yargs.option('exclude', {
+        default: "refresh-token,oauth-token",
+        type: 'number'
+    });
 };
 
 //Main function
 export async function handler (argv: any): Promise<void> {
     commandUtils.validateDirectory();
 
-    const { model , rows } = argv;
+    const { model , rows , exclude } = argv;
 
-    await generateMirageModelAction(model,rows)
+    
+
+    await generateMirageModelAction(model,rows,exclude.split(','))
         .then(() => {
-            Log.success(`Please copy your clipboard to mirage/fixtures/${kebabCase(plural(model))}.js`);
+            Log.success(`Please copy your clipboard to mirage/fixtures/*.js`);
             Log.info('Copied to clipboard');
         })
         .catch((e) => {

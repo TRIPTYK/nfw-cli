@@ -4,28 +4,32 @@ import copy = require('clipboardy');
 import ejs = require('ejs');
 import kebabCase from '@queso/kebab-case';
 import * as pascalcase from 'pascalcase';
-import { SyntaxKind } from 'ts-morph';
+import { SyntaxKind, ArrowFunction, PropertyAccessExpression, SourceFile } from 'ts-morph';
 import * as stringifyObject from 'stringify-object';
 import * as camelCase from 'camelcase';
 import * as Faker from "faker";
+import mkdirp = require('mkdirp');
+import { writeFileSync } from 'fs';
+import { plural } from 'pluralize';
 
-export default async function generateMirageModelAction(model: string,rows: number) {
-    const file = project.getSourceFileOrThrow(`./src/api/models/${kebabCase(model)}.model.ts`);
+export async function generateModelData(file: SourceFile,model: string,rows: number) {
     const className = pascalcase(model);
-    const theClass = file.getClass(className);
+    const [theClass] = file.getClasses();
     const elements = [];
     const data = [];
+    const relations = [];
     
-    for (let prop of theClass.getInstanceProperties().filter((p) => p.getName() !== 'id' && p.getDecorator("Column")))
+    for (let prop of theClass.getInstanceProperties().filter((p) => p.getName() !== 'id'))
     {
        let type;
        let length = null;
-       const decorator = prop.getDecorator("Column");
-       const args = decorator.getArguments();
+       const columnDecorator = prop.getDecorator("Column");
+       if (columnDecorator) {
+        const args = columnDecorator.getArguments();
 
         if (args.length === 1) { // @Column({...})
-            for (const objectProp of args[0].getChildrenOfKind(SyntaxKind.PropertyAssignment)) {
-                const propertyName = objectProp.getFirstChildByKindOrThrow(SyntaxKind.Identifier).getText();
+                for (const objectProp of args[0].getChildrenOfKind(SyntaxKind.PropertyAssignment)) {
+                    const propertyName = objectProp.getFirstChildByKindOrThrow(SyntaxKind.Identifier).getText();
                 if (propertyName === "type") {
                     type = objectProp.getInitializer().getText();
                 }
@@ -33,7 +37,7 @@ export default async function generateMirageModelAction(model: string,rows: numb
                     length = objectProp.getInitializer().getText();
                 }
             } 
-        }else if (args.length === 2){ // @Column("blah",{...})
+        }else if (args.length === 2) { // @Column("blah",{...})
             type = args[0].getText();
         }
 
@@ -42,9 +46,29 @@ export default async function generateMirageModelAction(model: string,rows: numb
         }
 
         elements.push({name: prop.getName(),type,length});
-    }
+       }
 
-    console.log(elements);
+       let relationDecorator = prop.getDecorator("ManyToMany") ?? prop.getDecorator("OneToMany") ?? prop.getDecorator("OneToOne");
+
+       if (relationDecorator && relationDecorator.getName() === "OneToOne" && !prop.getDecorator("JoinColumn")) {
+        relationDecorator = null;
+       }
+
+       if (relationDecorator) {
+            const [typeArg,propertyArg] = relationDecorator.getArguments() as [ArrowFunction,ArrowFunction];
+            const type = typeArg.getBodyText();
+            const body = propertyArg.getBody() as PropertyAccessExpression;
+
+            const key = body.getLastChildByKind(SyntaxKind.Identifier).getText();
+
+            relations.push({
+                name: prop.getName(),
+                key,
+                type,
+                relationType: relationDecorator.getName()
+            });
+       }
+    }
 
     for (let index = 1; index <= rows; index++) {
         const object = {id:index};
@@ -75,6 +99,19 @@ export default async function generateMirageModelAction(model: string,rows: numb
 
             object[camelCase(name)] = value;
         }
+
+        for (const {name,type,relationType} of relations) {
+            if (relationType === "ManyToMany" || relationType === "OneToMany") {
+                const array = object[`${camelCase(name)}Ids`] = [];
+                while (array.length < rows) {
+                    const max = Faker.random.number(rows - 1) + 1;
+                    array.push(max);
+                }
+            }else{
+                object[`${camelCase(name)}Id`] = Faker.random.number(rows - 1) + 1;
+            }
+        }   
+
         data.push(object);
     }
 
@@ -85,5 +122,20 @@ export default async function generateMirageModelAction(model: string,rows: numb
         data : stringifyObject(data)
     });
 
-    copy.writeSync(compiled);
+    await mkdirp("fixtures");
+    writeFileSync(`fixtures/${kebabCase(plural(model))}.js`,compiled);
+}
+
+export default async function generateMirageModelAction(model: string,rows: number,excludedModels = []) {
+    if (model) {
+        const file = project.getSourceFileOrThrow(`./src/api/models/${kebabCase(model)}.model.ts`);        
+        await generateModelData(file,model,rows);
+    }else{
+        for (const file of project.getSourceFiles(`./src/api/models/*.model.ts`).filter((modelFile) => {
+            return !excludedModels.includes(modelFile.getBaseNameWithoutExtension().replace(".model",""));
+        })) {
+            console.log(file.getBaseNameWithoutExtension());
+            await generateModelData(file,file.getBaseNameWithoutExtension().replace(".model",""),rows);
+        }
+    }
 }
