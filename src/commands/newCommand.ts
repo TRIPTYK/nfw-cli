@@ -1,4 +1,3 @@
-import { CommandBuilder } from "yargs";
 import { BaseCommand } from "./template";
 
 export class NewCommand extends BaseCommand {
