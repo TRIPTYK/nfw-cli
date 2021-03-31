@@ -4,6 +4,7 @@
   "description": "CLI to kickstart back-end entities creation",
   "main": "dist/index.js",
   "scripts": {
+    "index": "npx cti -b ./src/**/",
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "jsdoc -c -r conf.json"
   },
@@ -24,9 +25,10 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "@types/yargs": "^16.0.1",
     "@types/jsonfile": "^6.0.0",
     "@types/node": "^13.7.4",
+    "@types/yargs": "^16.0.1",
+    "create-ts-index": "^1.13.6",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.6"
   },
