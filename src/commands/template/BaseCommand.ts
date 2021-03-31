@@ -4,7 +4,7 @@ export abstract class BaseCommand implements CommandModule {
 
     public command = "default";
     public aliases = [];
-    public describe = "none";
+    public describe = "";
     public deprecated = false;
     public builder = {};
 
