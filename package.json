@@ -4,7 +4,7 @@
   "description": "CLI to kickstart back-end entities creation",
   "main": "dist/index.js",
   "scripts": {
-    "index": "npx cti -b ./src/**/",
+    "build": "npx cti -b ./src/**/ && npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "jsdoc -c -r conf.json"
   },

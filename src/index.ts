@@ -4,11 +4,16 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import * as Commands from "./commands";
 
-console.log(Commands);
+let yargz = yargs(hideBin(process.argv));
 
-yargs(hideBin(process.argv))
+for (const key in Commands) {
+    if(key !== "BaseCommand") 
+        yargz = yargz.command(new Commands[key]);
+}  
+
+yargz
     .strict()
-    .command(new Commands.Test())
-    .command(new Commands.Banane())
+    .demandCommand()
+    .showHelpOnFail(true)
     .scriptName('nfw')
-    .argv
+    .argv;
