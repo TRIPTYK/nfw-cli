@@ -1,14 +1,11 @@
 import { BaseCommand } from "./template";
 
 export class Init extends BaseCommand {
-    constructor() {
-        super();
-        this.command = "init";
-        this.aliases = [];
-        
-    }
+
+    public command = "init";
+    public aliases = ["ini"];
 
     handler = async (argv: any) => {
-        console.log("inti");
+        console.log("init command");
     } 
 }
