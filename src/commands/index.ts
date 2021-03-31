@@ -2,3 +2,4 @@
 
 export * from './template';
 export * from './initCommand';
+export * from './newCommand';

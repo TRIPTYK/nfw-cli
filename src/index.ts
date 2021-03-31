@@ -8,7 +8,7 @@ let yargz = yargs(hideBin(process.argv));
 
 for (const key in Commands) {
     if(key !== "BaseCommand") 
-        yargz = yargz.command(new Commands[key]);
+        yargz.command(new Commands[key]);
 }  
 
 yargz
