@@ -1,41 +1,43 @@
 {
-	"name": "@triptyk/nfw-cli",
-	"version": "0.1.0",
-	"description": "CLI to kickstart back-end entities creation",
-	"main": "dist/index.js",
-	"scripts": {
-		"build": "npx cti -b ./src/**/ && npx tsc",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"doc": "jsdoc -c -r conf.json"
-	},
-	"keywords": [
-		"NFW",
-		"CLI",
-		"Node"
-	],
-	"bin": {
-		"nfw": "./dist/index.js"
-	},
-	"author": "TRIPTYK",
-	"license": "ISC",
-	"dependencies": {
-		"@triptyk/nfw-core": "file:../nfw-core",
-		"chalk": "^4.1.0",
-		"dotenv": "^8.2.0",
-		"inquirer": "^8.0.0",
-		"jsonfile": "^6.1.0",
-		"typescript": "^4.2.3",
-		"yargs": "^16.2.0"
-	},
-	"devDependencies": {
-		"@types/jsonfile": "^6.0.0",
-		"@types/node": "^13.7.4",
-		"@types/yargs": "^16.0.1",
-		"create-ts-index": "^1.13.6",
-		"ts-node": "^9.1.1",
-		"ts-node-dev": "^1.1.6"
-	},
-	"engines": {
-		"node": ">=14"
-	}
+  "name": "@triptyk/nfw-cli",
+  "version": "0.1.0",
+  "description": "CLI to kickstart back-end entities creation",
+  "scripts": {
+    "build": "npx cti -b ./src/**/ && npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "doc": "jsdoc -c -r conf.json"
+  },
+  "keywords": [
+    "NFW",
+    "CLI",
+    "Node"
+  ],
+  "bin": {
+    "nfw": "./dist/index.js"
+  },
+  "author": "TRIPTYK",
+  "license": "ISC",
+  "dependencies": {
+    "@triptyk/nfw-core": "../nfw-core/",
+    "chalk": "^4.1.0",
+    "cli-spinners": "^2.6.0",
+    "dotenv": "^8.2.0",
+    "inquirer": "^8.0.0",
+    "jsonfile": "^6.1.0",
+    "ora": "^5.4.0",
+    "typescript": "^4.2.3",
+    "yargs": "^16.2.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^7.3.1",
+    "@types/jsonfile": "^6.0.0",
+    "@types/node": "^13.7.4",
+    "@types/yargs": "^16.0.1",
+    "create-ts-index": "^1.13.6",
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.6"
+  },
+  "engines": {
+    "node": ">=14"
+  }
 }

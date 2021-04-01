@@ -4,17 +4,20 @@
  * @author Deflorenne Amaury
  */
 import * as Chalk from "chalk";
+import spinners from "cli-spinners";
+import * as ora from "ora";
 
 /**
  * Static logger class.
  */
 export class Logger {
-	private static types = {
-		error: [Chalk.bold.red, "❌"],
-		warning: [Chalk.yellow, "⚠"],
-		success: [Chalk.green, "✔"],
-		info: [Chalk.blue, "🛈"],
-	} as any;
+    private static types = {
+        error: [Chalk.bold.red, '❌'],
+        warning: [Chalk.yellow, '⚠'],
+        success: [Chalk.green, '✔'],
+        info: [Chalk.blue, "🛈"],
+        loading: ["magenta", spinners.arc],
+    } as any;
 
 	/**
 	 * Error message.
@@ -48,14 +51,21 @@ export class Logger {
 		this.basic("info", text);
 	}
 
-	/**
-	 * Basic message.
-	 * @param type Type of the message.
-	 * @param text Text to display.
-	 */
-	static basic(type: MessageType, text: string) {
-		this.custom(text, this.types[type][1], this.types[type][0]);
-	}
+    static get Loader() {
+        return ora({
+            spinner: this.types.loading[1],
+            color: this.types.loading[0],
+        });
+    }
+
+    /**
+     * Basic message.
+     * @param type Type of the message.
+     * @param text Text to display.
+     */
+    static basic(type: MessageType, text: string) {
+        this.custom(text, this.types[type][1], this.types[type][0]);
+    }
 
 	/**
 	 * Customizable message.
