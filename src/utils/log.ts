@@ -51,12 +51,12 @@ export class Logger {
 		this.basic("info", text);
 	}
 
-     static get Loader() {
+    static get Loader() {
         return ora({
             spinner: this.types.loading[1],
             color: this.types.loading[0],
         });
-    };
+    }
 
     /**
      * Basic message.
