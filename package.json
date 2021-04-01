@@ -2,7 +2,6 @@
   "name": "@triptyk/nfw-cli",
   "version": "0.1.0",
   "description": "CLI to kickstart back-end entities creation",
-  "main": "dist/index.js",
   "scripts": {
     "build": "npx cti -b ./src/**/ && npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,12 +20,15 @@
   "dependencies": {
     "@triptyk/nfw-core": "../nfw-core/",
     "chalk": "^4.1.0",
+    "cli-spinners": "^2.6.0",
     "dotenv": "^8.2.0",
     "inquirer": "^8.0.0",
     "jsonfile": "^6.1.0",
+    "ora": "^5.4.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/inquirer": "^7.3.1",
     "@types/jsonfile": "^6.0.0",
     "@types/node": "^13.7.4",
     "@types/yargs": "^16.0.1",

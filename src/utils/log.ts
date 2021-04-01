@@ -4,6 +4,8 @@
  * @author Deflorenne Amaury
  */
 import * as Chalk from "chalk";
+import spinners from "cli-spinners";
+import * as ora from "ora";
 
 /**
  * Static logger class.
@@ -14,6 +16,7 @@ export class Logger {
         warning: [Chalk.yellow, '⚠'],
         success: [Chalk.green, '✔'],
         info: [Chalk.blue, 'i'],
+        loading: ["magenta", spinners.arc],
     } as any;
 
     /**
@@ -48,6 +51,13 @@ export class Logger {
         this.basic("info", text);
     };
 
+     static get Loader() {
+        return ora({
+            spinner: this.types.loading[1],
+            color: this.types.loading[0],
+        });
+    };
+
     /**
      * Basic message.
      * @param type Type of the message.
@@ -62,8 +72,6 @@ export class Logger {
      * @param text Text to display.
      */
     static custom(text: string, symbol = "", color = Chalk.white) {
-        if(symbol.length)
-            symbol = `[${symbol}]`;
         console.log(`${color(symbol)} ${text}`);
     }
 
