@@ -16,8 +16,18 @@ export class Logger {
         warning: [Chalk.yellow, '⚠'],
         success: [Chalk.green, '✔'],
         info: [Chalk.blue, "🛈"],
-        loading: ["magenta", spinners.arc],
     } as any;
+
+    private static loader = ora({
+        spinner: spinners.arc,
+        color: "magenta",
+    });
+
+    static setStream(stream: NodeJS.WritableStream) {
+        this.loader = {...this.loader, ...ora({
+            stream
+        })};
+    }
 
 	/**
 	 * Error message.
@@ -51,11 +61,11 @@ export class Logger {
 		this.basic("info", text);
 	}
 
-    static get Loader() {
-        return ora({
-            spinner: this.types.loading[1],
-            color: this.types.loading[0],
-        });
+    static loading(text: string) {
+        if(!this.loader.isSpinning)
+            this.loader.start(text);
+        else
+            this.loader.text = text;
     }
 
     /**
@@ -72,11 +82,15 @@ export class Logger {
 	 * @param text Text to display.
 	 */
 	static custom(text: string, symbol = "", color = Chalk.white) {
-		if (symbol.length) {
-			console.log(`${color(symbol)}\t${color(text)}\t${color(symbol)}`);
-		} else {
-			console.log(`  ${text}  `);
-		}
+		text = color(text);
+        symbol = color(symbol);
+        if(this.loader.isSpinning) {
+            this.loader.stopAndPersist({
+                symbol,
+                text,
+            });
+        }  
+        else console.log(`${symbol} ${text}`);
 	}
 }
 

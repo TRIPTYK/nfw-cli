@@ -1,15 +1,15 @@
 import { BaseCommand } from "./template";
 import { prompt } from "inquirer";
 import { Logger as Log, MessageType } from "../utils"
-import { exec as asyncExec } from "child_process";
+import { exec as asyncExec, execSync} from "child_process";
 import { promisify } from "util";
 import { join } from "path";
 import { rmdirSync } from "fs";
-import chalk = require("chalk");
+import { InitCommand } from "./initCommand";
 
 const exec = promisify(asyncExec);
 
-export class NewCommand extends BaseCommand {
+export class NewCommand extends InitCommand {
     public command = "new <name>";
     public describe = "Creates a new project.";
     public aliases = ["n"];
@@ -30,40 +30,44 @@ export class NewCommand extends BaseCommand {
             type: "boolean",
             default: false
         });
+        yargs.option('noInit', {
+            desc: "Prohibit the initiation of the project.",
+            type: "boolean",
+            default: false
+        });
     };
 
     async handler (argv: any) {
         try {
             argv.path = join(process.cwd(), argv.path, argv.name);
-
-            Log.Loader.info("Creation of a new NFW project.");
+            
+            Log.info("Creation of a new NFW project.");
 
             //Cloning
-            Log.Loader.start("Cloning freshly baked NFW repository... 🍞");
+            Log.loading("Cloning freshly baked NFW repository... 🍞");
             const clone = await exec(`git clone https://github.com/TRIPTYK/nfw.git --branch=${argv.branch} ${argv.path}`);
             if(!clone.stderr.length)
                 throw clone.stderr;
-            Log.Loader.succeed("Repository cloned successfully !");
+            Log.success("Repository cloned successfully !");
 
-            Log.Loader.start("Setting up the project... 🚧");
             //Removing .git
-            Log.Loader.text = "Removing some things...";
             rmdirSync(join(argv.path, '.git'), {
                 recursive: true
             });
 
             //Yarn or npm i
-            Log.Loader.text = `Installing packages with ${(argv.yarn)? "yarn" : "npm"}...`;
+            Log.loading(`Installing packages with ${(argv.yarn)? "yarn... 🐈" : "npm... 📦"}`);
             const install = await exec(`cd ${argv.path} && ${(argv.yarn) ? "yarn" : "npm i"}`);
             if(!install.stderr.length) 
                 throw install.stderr;
+            Log.success(`Installation done !`);
 
-            Log.Loader.succeed(`Your project ${argv.name} is ready, have fun coding !`);
-            
+            //Init the project
+            if(!argv.noInit) 
+                await super.handler(argv);
             
         } catch (error) {
-            Log.Loader.fail("Something went wrong, here's a glimpse of the error:\n"+error);
+            Log.error("Something went wrong, here's a glimpse of the error:\n"+error);
         }
-
     }
 }
