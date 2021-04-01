@@ -4,6 +4,7 @@ import * as inquirer from "inquirer";
 import * as chalk from "chalk";
 import { EnvFileWriter } from "../utils/env-file-rw";
 import { strRandom } from "../utils/strRandom";
+import { Logger as log } from "../utils/log";
 
 export class InitCommand extends BaseCommand {
 	public command = "init";
@@ -19,9 +20,7 @@ export class InitCommand extends BaseCommand {
 
 		const rw = new EnvFileWriter(envFiles);
 
-		console.log(
-			chalk.rgb(248, 24, 148)("You will modify the development.env file")
-		);
+		log.info("You are editing the development.env file");
 
 		const arrayOfQuestions = {
 			TYPEORM_HOST: "host name",
