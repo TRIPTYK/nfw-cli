@@ -1,6 +1,6 @@
 import { BaseCommand } from "./template";
 import * as inquirer from "inquirer";
-import * as nfw from "@triptyk/nfw-core";
+import { addRole, save } from "@triptyk/nfw-core";
 
 export class AddRoleCommand extends BaseCommand {
 	public command = "add-role";
@@ -16,8 +16,8 @@ export class AddRoleCommand extends BaseCommand {
 				},
 			])
 			.then((answer) => {
-				nfw.addRole(answer.addRole);
-				nfw.save();
+				addRole(answer.addRole);
+				save();
 			});
 	}
 }
