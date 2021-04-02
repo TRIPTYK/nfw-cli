@@ -15,15 +15,15 @@ export class InitCommand extends BaseCommand {
 			const path = argv.path ?? process.cwd();
 
 			// select only development.env files
-			const envFile = fs.readdirSync(path)
+			const envFile = fs
+				.readdirSync(path)
 				.find((file) => file.includes("development.env"));
 
-			if(!envFile)
-				throw "No development.env file has been found.";
+			if (!envFile) throw "No development.env file has been found.";
 
 			const rw = new EnvFileWriter(join(path, envFile));
 
-			log.info("You are editing the development.env file");
+			log.warning("You are editing the development.env file");
 
 			const arrayOfQuestions = {
 				TYPEORM_HOST: "host name",
@@ -79,7 +79,9 @@ export class InitCommand extends BaseCommand {
 				rw.save();
 			});
 		} catch (error) {
-			log.error("Something went wrong, here's a glimpse of the error:\n"+error);
+			log.error(
+				"Something went wrong, here's a glimpse of the error:\n" + error
+			);
 		}
 	}
 }
