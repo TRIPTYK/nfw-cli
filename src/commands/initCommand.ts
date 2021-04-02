@@ -10,6 +10,7 @@ import { execSync } from "child_process";
 
 export class InitCommand extends BaseCommand {
 	public command = "init";
+	public describe = "Initiation of environment variables and the database.";
 	public aliases = ["ini"];
 
 	public builder = {
