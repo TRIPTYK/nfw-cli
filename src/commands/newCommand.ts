@@ -1,11 +1,10 @@
-import { BaseCommand } from "./template";
-import { prompt } from "inquirer";
-import { Logger as Log, MessageType } from "../utils"
-import { exec as asyncExec, execSync} from "child_process";
+import { Logger as Log } from "../utils"
+import { exec as asyncExec } from "child_process";
 import { promisify } from "util";
 import { join } from "path";
 import { rmdirSync } from "fs";
 import { InitCommand } from "./initCommand";
+import { readFile as readJsonFile, writeFile as writeJsonFile } from "jsonfile";
 
 const exec = promisify(asyncExec);
 
@@ -14,28 +13,29 @@ export class NewCommand extends InitCommand {
     public describe = "Creates a new project.";
     public aliases = ["n"];
     
-    builder = (yargs): any => {
-        yargs.option('path', {
-            desc: "Path where to clone the project",
+    public builder = {
+        ...this.builder,
+        path: {
+            desc: "Path where to clone the project.",
             type: "string",
             default: ""
-        });
-        yargs.option('branch', {
-            desc: "Get a version of the project from a specific branch.",
+        },
+        branch: {
+            desc: "Gets a version of the project from a specific branch.",
             type: "string",
             default: "master"
-        });
-        yargs.option('yarn', {
-            desc: "Use yarn to fetch modules.",
+        },
+        yarn: {
+            desc: "Uses yarn to fetch modules.",
             type: "boolean",
             default: false
-        });
-        yargs.option('noInit', {
-            desc: "Prohibit the initiation of the project.",
+        },
+        noInit: {
+            desc: "Keeps the default configuration and doesn't configure the database.",
             type: "boolean",
             default: false
-        });
-    };
+        }
+    }
 
     async handler (argv: any) {
         try {
@@ -62,9 +62,18 @@ export class NewCommand extends InitCommand {
                 throw install.stderr;
             Log.success(`Installation done !`);
 
+            //Modification of package.json
+            const pjson = await readJsonFile(join(argv.path, "package.json"));
+            pjson.name = argv.name;
+            pjson.version = "0.0.1";
+            await writeJsonFile(join(argv.path, "package.json"), pjson);
+            Log.success(`package.json personnalized.`);
+
             //Init the project
             if(!argv.noInit) 
                 await super.handler(argv);
+
+            Log.success("Your project is ready, have fun coding ! 💻");
             
         } catch (error) {
             Log.error("Something went wrong, here's a glimpse of the error:\n"+error);

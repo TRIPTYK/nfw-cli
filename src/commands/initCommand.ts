@@ -5,15 +5,29 @@ import { EnvFileWriter } from "../utils/env-file-rw";
 import { strRandom } from "../utils/strRandom";
 import { Logger as log } from "../utils/log";
 import { join, resolve } from "path";
+import * as mysql from "mysql2/promise";
+import { execSync } from "child_process";
 
 export class InitCommand extends BaseCommand {
 	public command = "init";
 	public aliases = ["ini"];
 
-	async handler(argv: any) {
-		try {
-			const path = argv.path ?? process.cwd();
+	public builder = {
+		...this.builder,
+        noInitDb : {
+            desc: "Prohibits the initiation of the database.",
+            type: "boolean",
+            default: false
+        }
+    };
 
+	async handler(argv: any) {
+
+		const path: string = argv.path ?? process.cwd();
+		const infos: {[key: string]: any} = {};
+		let connection: mysql.Connection = null;
+
+		try {
 			// select only development.env files
 			const envFile = fs.readdirSync(path)
 				.find((file) => file.includes("development.env"));
@@ -54,9 +68,10 @@ export class InitCommand extends BaseCommand {
 				}
 			}
 
-			inquirer.prompt(questions).then((answer) => {
+			await inquirer.prompt(questions).then(async (answer) => {
 				for (const key in answer) {
 					rw.setNodeValue(key, answer[key]);
+					infos[key] = answer[key];
 				}
 				rw.setNodeValue(
 					"JWT_SECRET",
@@ -78,8 +93,28 @@ export class InitCommand extends BaseCommand {
 				);
 				rw.save();
 			});
+			log.success("Initiation done !");
+
+			//Initiation of DB
+			if(argv.noCreateDb) {
+				connection = await mysql.createConnection({
+					host: infos.TYPEORM_HOST,
+					user: infos.TYPEORM_USER,
+					password: infos.TYPEORM_PWD,
+				});
+				
+				await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB};`);
+				log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
+
+				log.loading("Creation of tables in the database... 📝");
+				execSync(`cd ${path} && ./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js schema:sync`);
+				log.success(`Tables of "${infos.TYPEORM_DB}" created successfully !`);
+			}
+
 		} catch (error) {
 			log.error("Something went wrong, here's a glimpse of the error:\n"+error);
+		} finally {
+			if(connection) await connection.end();
 		}
 	}
 }
