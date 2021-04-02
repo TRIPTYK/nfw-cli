@@ -38,45 +38,40 @@ export class NewCommand extends InitCommand {
     }
 
     async handler (argv: any) {
-        try {
-            argv.path = join(process.cwd(), argv.path, argv.name);
-            
-            Log.info("Creation of a new NFW project.");
+        argv.path = join(process.cwd(), argv.path, argv.name);
 
-            //Cloning
-            Log.loading("Cloning freshly baked NFW repository... 🍞");
-            const clone = await exec(`git clone https://github.com/TRIPTYK/nfw.git --branch=${argv.branch} ${argv.path}`);
-            if(!clone.stderr.length)
-                throw clone.stderr;
-            Log.success("Repository cloned successfully !");
+        Log.info("Creation of a new NFW project.");
 
-            //Removing .git
-            rmdirSync(join(argv.path, '.git'), {
-                recursive: true
-            });
+        //Cloning
+        Log.loading("Cloning freshly baked NFW repository... 🍞");
+        const clone = await exec(`git clone https://github.com/TRIPTYK/nfw.git --branch=${argv.branch} ${argv.path}`);
+        if(!clone.stderr.length)
+            throw clone.stderr;
+        Log.success("Repository cloned successfully !");
 
-            //Yarn or npm i
-            Log.loading(`Installing packages with ${(argv.yarn)? "yarn... 🐈" : "npm... 📦"}`);
-            const install = await exec(`cd ${argv.path} && ${(argv.yarn) ? "yarn" : "npm i"}`);
-            if(!install.stderr.length) 
-                throw install.stderr;
-            Log.success(`Installation done !`);
+        //Removing .git
+        rmdirSync(join(argv.path, '.git'), {
+            recursive: true
+        });
 
-            //Modification of package.json
-            const pjson = await readJsonFile(join(argv.path, "package.json"));
-            pjson.name = argv.name;
-            pjson.version = "0.0.1";
-            await writeJsonFile(join(argv.path, "package.json"), pjson);
-            Log.success(`package.json personnalized.`);
+        //Yarn or npm i
+        Log.loading(`Installing packages with ${(argv.yarn)? "yarn... 🐈" : "npm... 📦"}`);
+        const install = await exec(`cd ${argv.path} && ${(argv.yarn) ? "yarn" : "npm i"}`);
+        if(!install.stderr.length) 
+            throw install.stderr;
+        Log.success(`Installation done !`);
 
-            //Init the project
-            if(!argv.noInit) 
-                await super.handler(argv);
+        //Modification of package.json
+        const pjson = await readJsonFile(join(argv.path, "package.json"));
+        pjson.name = argv.name;
+        pjson.version = "0.0.1";
+        await writeJsonFile(join(argv.path, "package.json"), pjson);
+        Log.success(`package.json personnalized.`);
 
-            Log.success("Your project is ready, have fun coding ! 💻");
-            
-        } catch (error) {
-            Log.error("Something went wrong, here's a glimpse of the error:\n"+error);
-        }
+        //Init the project
+        if(!argv.noInit) 
+            await super.handler(argv);
+
+        Log.success("Your project is ready, have fun coding ! 💻");
     }
 }

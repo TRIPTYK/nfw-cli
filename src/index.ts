@@ -4,6 +4,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import * as Commands from "./commands";
 import { BaseCommand } from "./commands";
+import { Logger as Log } from "./utils";
 
 let yargz = yargs(hideBin(process.argv));
 
@@ -16,6 +17,13 @@ for (const key in Commands) {
 yargz
     .strict()
     .demandCommand()
+    .fail((message, error) => {
+        if(message)
+            console.log(message);
+        if(error)
+            Log.error(`Something went wrong, here's a glimpse of the error:\n${error.message}`);
+        process.exit(1);
+    })
     .showHelpOnFail(true)
     .scriptName('nfw')
     .argv;
