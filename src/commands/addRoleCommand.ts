@@ -1,6 +1,7 @@
 import { BaseCommand } from "./template";
 import * as inquirer from "inquirer";
 import { addRole, save } from "@triptyk/nfw-core";
+import { Logger as log } from "../utils/log";
 
 export class AddRoleCommand extends BaseCommand {
 	public command = "add-role";
@@ -16,8 +17,14 @@ export class AddRoleCommand extends BaseCommand {
 				},
 			])
 			.then((answer) => {
-				addRole(answer.addRole);
-				save();
+				addRole(answer.addRole)
+					.then(() => {
+						save();
+						log.success("Role successfully added");
+					})
+					.catch((error) => {
+						log.error("Error : " + error.message);
+					});
 			});
 	}
 }
