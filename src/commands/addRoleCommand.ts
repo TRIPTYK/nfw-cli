@@ -1,7 +1,6 @@
 import { BaseCommand } from "./template";
 import * as inquirer from "inquirer";
-import * as nfw from "@triptyk/nfw-core";
-import { Logger as log } from "../utils/log";
+import { addRole, save } from "@triptyk/nfw-core";
 
 export class AddRoleCommand extends BaseCommand {
 	public command = "add-role";
