@@ -1,11 +1,11 @@
 import { BaseCommand } from "./template";
 import * as inquirer from "inquirer";
-import { getRoles, addPerms, save } from "@triptyk/nfw-core";
+import { getRoles, removePerms, save } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
 
-export class AddPermsCommand extends BaseCommand {
-	public command = "add-perms <entity> <methodName> <requestMethod>";
-	public aliases = ["adper"];
+export class DelPermsCommand extends BaseCommand {
+	public command = "del-perms <entity> <methodName>";
+	public aliases = ["delper"];
 
 	async handler(argv: any) {
 		const roles = await getRoles();
@@ -13,9 +13,9 @@ export class AddPermsCommand extends BaseCommand {
 		inquirer
 			.prompt([
 				{
-					name: "addPerm",
+					name: "delPerm",
 					type: "list",
-					message: `What role do you want to add to ${argv.route}`,
+					message: `What role do you want to remove to ${argv.route}`,
 					choices: roles,
 				},
 			])
@@ -24,12 +24,9 @@ export class AddPermsCommand extends BaseCommand {
 					const entity = {
 						entity: argv.entity,
 						methodName: argv.methodName,
-						requestMethod: argv.requestMethod,
-						path: "/" + argv.methodName,
-						role: answer.addPerm,
+						role: answer.delPerm,
 					};
-
-					addPerms(entity).catch((error) => {
+					removePerms(entity).catch((error) => {
 						log.error("Error : " + error.message);
 					});
 					save();

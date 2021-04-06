@@ -20,7 +20,7 @@ export class DelRoleCommand extends BaseCommand {
 				},
 			])
 			.then((answer) => {
-				if (answer.deleteRole !== "Cancel") {
+				if (answer.deleteRole !== "--Cancel--") {
 					deleteRole(answer.deleteRole)
 						.then(() => {
 							save();
