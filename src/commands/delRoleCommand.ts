@@ -9,7 +9,7 @@ export class DelRoleCommand extends BaseCommand {
 
 	async handler(argv: any) {
 		const roles = await getRoles();
-		roles.push("Cancel");
+		roles.push("--Cancel--");
 		inquirer
 			.prompt([
 				{
