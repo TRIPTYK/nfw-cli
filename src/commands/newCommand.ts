@@ -3,18 +3,19 @@ import { exec as asyncExec } from "child_process";
 import { promisify } from "util";
 import { join } from "path";
 import { rmdirSync } from "fs";
-import { InitCommand } from "./initCommand";
 import { readFile as readJsonFile, writeFile as writeJsonFile } from "jsonfile";
+import { BaseCommand } from "./template";
+import { CommandsRegistry } from "../application";
 
 const exec = promisify(asyncExec);
 
-export class NewCommand extends InitCommand {
+export class NewCommand extends BaseCommand {
     public command = "new <name>";
     public describe = "Creates a new project.";
     public aliases = ["n"];
     
     public builder = {
-        ...this.builder,
+        ...CommandsRegistry.all.InitCommand.builder,
         path: {
             desc: "Path where to clone the project.",
             type: "string",
@@ -34,7 +35,7 @@ export class NewCommand extends InitCommand {
             desc: "Keeps the default configuration and doesn't configure the database.",
             type: "boolean",
             default: false
-        }
+        }        
     }
 
     async handler (argv: any) {
@@ -62,15 +63,16 @@ export class NewCommand extends InitCommand {
         Log.success(`Installation done !`);
 
         //Modification of package.json
-        const pjson = await readJsonFile(join(argv.path, "package.json"));
-        pjson.name = argv.name;
-        pjson.version = "0.0.1";
-        await writeJsonFile(join(argv.path, "package.json"), pjson);
-        Log.success(`package.json personnalized.`);
+        const pjson = join(argv.path, "package.json");
+        await writeJsonFile(pjson, {
+            ...readJsonFile(pjson),
+            name: argv.name,
+            version: "0.0.1",
+        });
 
         //Init the project
         if(!argv.noInit) 
-            await super.handler(argv);
+            await CommandsRegistry.all.InitCommand.handler(argv);
 
         Log.success("Your project is ready, have fun coding ! 💻");
     }

@@ -7,6 +7,7 @@ import { Logger as log } from "../utils/log";
 import { join, resolve } from "path";
 import * as mysql from "mysql2/promise";
 import { execSync } from "child_process";
+import { CommandsRegistry } from "../application";
 
 export class InitCommand extends BaseCommand {
 	public command = "init";
@@ -14,9 +15,13 @@ export class InitCommand extends BaseCommand {
 	public aliases = ["ini"];
 
 	public builder = {
-		...this.builder,
         noInitDb : {
             desc: "Prohibits the initiation of the database.",
+            type: "boolean",
+            default: false
+        },
+		docker: {
+            desc: "Creates a simple configurated MySQL docker container.",
             type: "boolean",
             default: false
         }
@@ -93,15 +98,40 @@ export class InitCommand extends BaseCommand {
 			rw.save();
 		});
 
+		//Creation of docker
+		if(argv.docker) {
+			await CommandsRegistry.all.createDockerCommand.handler({
+				name: `${infos.TYPEORM_DB}_mysql`,
+				user: infos.TYPEORM_USER,
+				password: infos.TYPEORM_PWD,
+				port: infos.TYPEORM_PORT,
+				nativePassword: true
+			});
+		}
+
 		//Initiation of DB
 		if(!argv.noCreateDb) {
 			let connection: mysql.Connection = null;
+			const maxAttempts = 10;
+			const timeOut = 2000;
 			try {
-				connection = await mysql.createConnection({
-					host: infos.TYPEORM_HOST,
-					user: infos.TYPEORM_USER,
-					password: infos.TYPEORM_PWD,
-				});
+				for(let i= 1; i<=maxAttempts; i++) {
+					try {
+						log.loading(`Attempt ${i} of connection to the MySQL server... 🐬`);
+						connection = await mysql.createConnection({
+							host: infos.TYPEORM_HOST,
+							user: infos.TYPEORM_USER,
+							password: infos.TYPEORM_PWD,
+						});
+						log.success("Connected to the MySQL server !");
+						break;
+					} catch (error) {
+						if(i === maxAttempts) throw error;
+						await new Promise<void>((resolve) => {
+							setTimeout(resolve, timeOut);
+						});
+					}
+				}
 				
 				await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB};`);
 				log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);

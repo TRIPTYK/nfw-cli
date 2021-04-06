@@ -1,4 +1,4 @@
-import Yargs, { CommandModule, CommandBuilder } from "yargs";
+import Yargs, { CommandModule, Options } from "yargs";
 
 export abstract class BaseCommand implements CommandModule {
 
@@ -7,7 +7,7 @@ export abstract class BaseCommand implements CommandModule {
     public describe: string | false = "";
     public deprecated: boolean | string = false;
     
-    public builder: CommandBuilder = {};
+    public builder: any = {};
     public abstract handler(argv: any): Promise<void>;
 
 }
