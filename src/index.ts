@@ -2,28 +2,27 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import * as Commands from "./commands";
-import { BaseCommand } from "./commands";
+import { CommandsRegistry } from "./application";
 import { Logger as Log } from "./utils";
+
+CommandsRegistry.init();
 
 let yargz = yargs(hideBin(process.argv));
 
-for (const key in Commands) {
-    const i = new Commands[key];
-    if(key !== "BaseCommand" && i instanceof BaseCommand) 
-        yargz.command(i);
-}
+for (const key in CommandsRegistry.all)
+    yargz.command(CommandsRegistry.all[key]);
 
 yargz
     .strict()
     .demandCommand()
     .fail((message, error) => {
-        if(message)
-            console.log(message);
+        if(message) {
+            yargz.showHelp();
+            Log.warning(message);
+        } 
         if(error)
             Log.error(`Something went wrong, here's a glimpse of the error:\n${error.message}`);
         process.exit(1);
     })
-    .showHelpOnFail(true)
     .scriptName('nfw')
     .argv;
