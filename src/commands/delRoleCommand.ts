@@ -4,7 +4,7 @@ import { deleteRole, getRoles, save } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
 
 export class DelRoleCommand extends BaseCommand {
-	public command = "delete-role";
+	public command = "del-role";
 	public aliases = ["delro"];
 	public describe = "Delete roles";
 

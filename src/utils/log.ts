@@ -11,23 +11,26 @@ import * as ora from "ora";
  * Static logger class.
  */
 export class Logger {
-    private static types = {
-        error: [Chalk.bold.red, '❌'],
-        warning: [Chalk.yellow, '⚠'],
-        success: [Chalk.green, '✔'],
-        info: [Chalk.blue, "🛈"],
-    } as any;
+	private static types = {
+		error: [Chalk.bold.red, "❌"],
+		warning: [Chalk.yellow, "⚠"],
+		success: [Chalk.green, "✔"],
+		info: [Chalk.blue, "🛈"],
+	} as any;
 
-    private static loader = ora({
-        spinner: spinners.arc,
-        color: "magenta",
-    });
+	private static loader = ora({
+		spinner: spinners.arc,
+		color: "magenta",
+	});
 
-    static setStream(stream: NodeJS.WritableStream) {
-        this.loader = {...this.loader, ...ora({
-            stream
-        })};
-    }
+	static setStream(stream: NodeJS.WritableStream) {
+		this.loader = {
+			...this.loader,
+			...ora({
+				stream,
+			}),
+		};
+	}
 
 	/**
 	 * Error message.
@@ -61,21 +64,19 @@ export class Logger {
 		this.basic("info", text);
 	}
 
-    static loading(text: string) {
-        if(!this.loader.isSpinning)
-            this.loader.start(text);
-        else
-            this.loader.text = text;
-    }
+	static loading(text: string) {
+		if (!this.loader.isSpinning) this.loader.start(text);
+		else this.loader.text = text;
+	}
 
-    /**
-     * Basic message.
-     * @param type Type of the message.
-     * @param text Text to display.
-     */
-    static basic(type: MessageType, text: string) {
-        this.custom(text, this.types[type][1], this.types[type][0]);
-    }
+	/**
+	 * Basic message.
+	 * @param type Type of the message.
+	 * @param text Text to display.
+	 */
+	static basic(type: MessageType, text: string) {
+		this.custom(text, this.types[type][1], this.types[type][0]);
+	}
 
 	/**
 	 * Customizable message.
@@ -83,14 +84,13 @@ export class Logger {
 	 */
 	static custom(text: string, symbol = "", color = Chalk.white) {
 		text = color(text);
-        symbol = color(symbol);
-        if(this.loader.isSpinning) {
-            this.loader.stopAndPersist({
-                symbol,
-                text,
-            });
-        }  
-        else console.log(`${symbol} ${text}`);
+		symbol = color(symbol);
+		if (this.loader.isSpinning) {
+			this.loader.stopAndPersist({
+				symbol,
+				text,
+			});
+		} else console.log(`${symbol} ${text}`);
 	}
 }
 
