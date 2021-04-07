@@ -6,6 +6,7 @@ import { Logger as log } from "../utils/log";
 export class AddPermsCommand extends BaseCommand {
 	public command = "add-perms <entity> <methodName> <requestMethod>";
 	public aliases = ["adper"];
+	public describe = "Add permissions for any route of any entity";
 
 	async handler(argv: any) {
 		const roles = await getRoles();
@@ -33,6 +34,7 @@ export class AddPermsCommand extends BaseCommand {
 						log.error("Error : " + error.message);
 					});
 					save();
+					log.success("Permission successfully added");
 				}
 			});
 	}
