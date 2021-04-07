@@ -1,7 +1,0 @@
-import {Model,attr,hasMany,belongsTo} from 'ember-data';
-
-export default <%- modelName %>Model extends Model {
-<% elements.forEach((element) => { -%>
-  <%- element.property %> =  <%- element.function %>(<%-element.arg%>);
-<% }); -%>
-} 

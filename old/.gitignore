@@ -1,8 +1,0 @@
-node_modules
-out/
-conf.json
-.idea
-yarn.lock
-package-lock.json
-.yarn/
-dist/
