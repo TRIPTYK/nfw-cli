@@ -70,10 +70,8 @@ export class AddColumnCommand extends BaseCommand {
 			enums: argv.enums,
 		};
 
-		addColumn(argv.entity, toSave).catch((error) => {
-			log.error("Error : " + error.message);
-		});
-		save();
+		await addColumn(argv.entity, toSave);
+		await save();
 		log.success("Column successfully added");
 	}
 }

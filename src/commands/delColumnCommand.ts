@@ -8,10 +8,8 @@ export class DelColumnCommand extends BaseCommand {
 	public describe = "Remove a column in the target entity";
 
 	async handler(argv: any) {
-		removeColumn(argv.entity, argv.columnName).catch((error) => {
-			log.error("Error : " + error.message);
-		});
-		save();
+		await removeColumn(argv.entity, argv.columnName);
+		await save();
 		log.success("Column successfully removed");
 	}
 }

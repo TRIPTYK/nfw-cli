@@ -11,7 +11,7 @@ export class DelRoleCommand extends BaseCommand {
 	async handler(argv: any) {
 		const roles = await getRoles();
 		roles.push("--Cancel--");
-		inquirer
+		await inquirer
 			.prompt([
 				{
 					name: "deleteRole",
@@ -20,16 +20,11 @@ export class DelRoleCommand extends BaseCommand {
 					choices: roles,
 				},
 			])
-			.then((answer) => {
+			.then(async (answer) => {
 				if (answer.deleteRole !== "--Cancel--") {
-					deleteRole(answer.deleteRole)
-						.then(() => {
-							save();
-							log.success(`Role ${answer.deleteRole} was successfully deleted`);
-						})
-						.catch((error) => {
-							log.error("Error : " + error.message);
-						});
+					await deleteRole(answer.deleteRole);
+					await save();
+					log.success(`Role ${answer.deleteRole} was successfully deleted`);
 				}
 			});
 	}

@@ -9,17 +9,11 @@ export class AddRoleCommand extends BaseCommand {
 
 	async handler(argv: any) {
 		const regex = /^[a-zA-Z_$][0-9a-zA-Z_$]{1,}$/;
-		if (regex.test(argv.name)) {
-			addRole(argv.name)
-				.then(() => {
-					save();
-					log.success("Role successfully added");
-				})
-				.catch((error) => {
-					log.error("Error : " + error.message);
-				});
-		} else {
-			log.error("Insert a valid role name");
-		}
+		if (!regex.test(argv.name)) 
+			throw "Insert a valid role name";
+
+		await addRole(argv.name);
+		await save();
+		log.success("Role successfully added");
 	}
 }

@@ -16,10 +16,8 @@ export class AddRelationCommand extends BaseCommand {
 			inverseRelationName: argv.inverseName,
 			isNullable: argv.isNullable,
 		};
-		addRelation(argv.entity, params).catch((error) => {
-			log.error("Error : " + error.message);
-		});
-		save();
+		await addRelation(argv.entity, params);
+		await save();
 		log.success("Relation successfully added");
 	}
 }

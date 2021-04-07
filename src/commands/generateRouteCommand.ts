@@ -1,5 +1,4 @@
-import { addEndpoint, generateBasicRoute } from "@triptyk/nfw-core";
-import { Options } from "yargs";
+import { generateBasicRoute, save } from "@triptyk/nfw-core";
 import { Logger as Log, methodList } from "../utils";
 import { BaseCommand } from "./template";
 
@@ -29,6 +28,7 @@ export class generateRouteCommand extends BaseCommand {
             argv.methods = null;
 
         await generateBasicRoute(argv.prefix, argv.methods)
+        await save();
         
         Log.success(`Route /${argv.prefix} created !`);
     }

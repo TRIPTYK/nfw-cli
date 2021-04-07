@@ -8,10 +8,8 @@ export class DelRelationCommand extends BaseCommand {
 	public describe = "Remove relation between entity";
 
 	async handler(argv: any) {
-		removeRelation(argv.entity, argv.relationName).catch((error) => {
-			log.error("Error : " + error.message);
-		});
-		save();
+		await removeRelation(argv.entity, argv.relationName);;
+		await save();
 		log.success("Relation successfully removed");
 	}
 }

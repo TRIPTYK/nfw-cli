@@ -11,7 +11,7 @@ export class AddPermsCommand extends BaseCommand {
 	async handler(argv: any) {
 		const roles = await getRoles();
 		roles.push("--Cancel--");
-		inquirer
+		await inquirer
 			.prompt([
 				{
 					name: "addPerm",
@@ -20,7 +20,7 @@ export class AddPermsCommand extends BaseCommand {
 					choices: roles,
 				},
 			])
-			.then((answer) => {
+			.then(async (answer) => {
 				if (answer.deleteRole !== "--Cancel--") {
 					const entity = {
 						entity: argv.entity,
@@ -30,10 +30,8 @@ export class AddPermsCommand extends BaseCommand {
 						role: answer.addPerm,
 					};
 
-					addPerms(entity).catch((error) => {
-						log.error("Error : " + error.message);
-					});
-					save();
+					await addPerms(entity);
+					await save();
 					log.success("Permission successfully added");
 				}
 			});

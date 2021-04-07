@@ -11,7 +11,7 @@ export class DelPermsCommand extends BaseCommand {
 	async handler(argv: any) {
 		const roles = await getRoles();
 		roles.push("--Cancel--");
-		inquirer
+		await inquirer
 			.prompt([
 				{
 					name: "delPerm",
@@ -20,17 +20,15 @@ export class DelPermsCommand extends BaseCommand {
 					choices: roles,
 				},
 			])
-			.then((answer) => {
+			.then(async (answer) => {
 				if (answer.deleteRole !== "--Cancel--") {
 					const entity = {
 						entity: argv.entity,
 						methodName: argv.methodName,
 						role: answer.delPerm,
 					};
-					removePerms(entity).catch((error) => {
-						log.error("Error : " + error.message);
-					});
-					save();
+					await removePerms(entity);
+					await save();
 					log.success("Permission successfully removed");
 				}
 			});
