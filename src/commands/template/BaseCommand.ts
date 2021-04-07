@@ -1,4 +1,4 @@
-import Yargs, { CommandModule, Options } from "yargs";
+import { CommandModule } from "yargs";
 
 export abstract class BaseCommand implements CommandModule {
 

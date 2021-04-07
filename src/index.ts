@@ -21,7 +21,7 @@ yargz
             Log.warning(message);
         } 
         if(error)
-            Log.error(`Something went wrong, here's a glimpse of the error:\n${error.message}`);
+            Log.error(`Something went wrong, here's a glimpse of the error:\n${error.message ?? error}`);
         process.exit(1);
     })
     .scriptName('nfw')
