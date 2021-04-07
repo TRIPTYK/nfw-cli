@@ -1,4 +1,4 @@
-import { removeEndpoint, save } from "@triptyk/nfw-core";
+import { deleteEndpoint, save } from "@triptyk/nfw-core";
 import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 
@@ -9,7 +9,7 @@ export class DelEndpointCommand extends BaseCommand {
 
     public async handler(argv: any) {
 
-        await removeEndpoint(argv.prefix, argv.tsmethod);
+        await deleteEndpoint(argv.prefix, argv.tsmethod);
 
         await save();
 
