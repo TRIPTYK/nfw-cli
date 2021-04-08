@@ -11,6 +11,7 @@ export * from './delColumnCommand';
 export * from './delPermsCommand';
 export * from './delRelationCommand';
 export * from './delRoleCommand';
+export * from './generateEntityCommand';
 export * from './generateRouteCommand';
 export * from './initCommand';
 export * from './newCommand';

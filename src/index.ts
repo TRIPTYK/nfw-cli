@@ -10,19 +10,22 @@ CommandsRegistry.init();
 let yargz = yargs(hideBin(process.argv));
 
 for (const key in CommandsRegistry.all)
-    yargz.command(CommandsRegistry.all[key]);
+	yargz.command(CommandsRegistry.all[key]);
 
 yargz
-    .strict()
-    .demandCommand()
-    .fail((message, error) => {
-        if(message) {
-            yargz.showHelp();
-            Log.warning(message);
-        } 
-        if(error)
-            Log.error(`Something went wrong, here's a glimpse of the error:\n${error.message ?? error}`);
-        process.exit(1);
-    })
-    .scriptName('nfw')
-    .argv;
+	.strict()
+	.demandCommand()
+	.fail((message, error) => {
+		if (message) {
+			yargz.showHelp();
+			Log.warning(message);
+		}
+		if (error)
+			Log.error(
+				`Something went wrong, here's a glimpse of the error:\n${
+					error.message ?? error
+				}`
+			);
+		process.exit(1);
+	})
+	.scriptName("nfw").argv;
