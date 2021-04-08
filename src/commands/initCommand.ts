@@ -4,10 +4,11 @@ import * as inquirer from "inquirer";
 import { EnvFileWriter } from "../utils/env-file-rw";
 import { strRandom } from "../utils/strRandom";
 import { Logger as log } from "../utils/log";
-import { join, resolve } from "path";
+import { join } from "path";
 import * as mysql from "mysql2/promise";
-import { execSync } from "child_process";
 import { CommandsRegistry } from "../application";
+import { promisifiedExec as exec } from "../utils/promisifiedExec"
+import { attemptAction, sleep } from "../utils/attempts";
 
 export class InitCommand extends BaseCommand {
 	public command = "init";
@@ -79,28 +80,18 @@ export class InitCommand extends BaseCommand {
 			}
 			rw.setNodeValue(
 				"JWT_SECRET",
-				strRandom({
-					includeUpperCase: true,
-					includeNumbers: true,
-					length: 80,
-					startsWithLowerCase: true,
-				})
+				strRandom(80)
 			);
 			rw.setNodeValue(
 				"OAUTH_SALT",
-				strRandom({
-					includeUpperCase: true,
-					includeNumbers: true,
-					length: 32,
-					startsWithLowerCase: true,
-				})
+				strRandom(80)
 			);
 			rw.save();
 		});
 
 		//Creation of docker
 		if(argv.docker) {
-			await CommandsRegistry.all.createDockerCommand.handler({
+			await CommandsRegistry.all.CreateDockerCommand.handler({
 				name: `${infos.TYPEORM_DB}_mysql`,
 				user: infos.TYPEORM_USER,
 				password: infos.TYPEORM_PWD,
@@ -110,34 +101,27 @@ export class InitCommand extends BaseCommand {
 		}
 
 		//Initiation of DB
-		if(!argv.noCreateDb) {
+		if(!argv.noInitDb) {
 			let connection: mysql.Connection = null;
-			const maxAttempts = 10;
-			const timeOut = 2000;
 			try {
-				for(let i= 1; i<=maxAttempts; i++) {
-					try {
-						log.loading(`Attempt ${i} of connection to the MySQL server... 🐬`);
-						connection = await mysql.createConnection({
-							host: infos.TYPEORM_HOST,
-							user: infos.TYPEORM_USER,
-							password: infos.TYPEORM_PWD,
-						});
-						log.success("Connected to the MySQL server !");
-						break;
-					} catch (error) {
-						if(i === maxAttempts) throw error;
-						await new Promise<void>((resolve) => {
-							setTimeout(resolve, timeOut);
-						});
-					}
-				}
+				await attemptAction(async (current) => {
+					log.loading(`Attempt ${current} of connection to the MySQL server... 🐬`);
+					connection = await mysql.createConnection({
+						host: infos.TYPEORM_HOST,
+						user: infos.TYPEORM_USER,
+						password: infos.TYPEORM_PWD,
+					});
+					log.success("Connected to the MySQL server !");
+				}, 10, 2000);
 				
 				await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB};`);
 				log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
 	
 				log.loading("Creation of tables in the database... 📝");
-				execSync(`cd ${path} && ./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js schema:sync`);
+				await exec(`
+					cd ${path}
+					./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js schema:sync
+				`);
 				log.success(`Tables of "${infos.TYPEORM_DB}" created successfully !`);
 	
 				await connection.end();

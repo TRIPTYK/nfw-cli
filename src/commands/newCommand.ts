@@ -1,13 +1,10 @@
 import { Logger as Log } from "../utils"
-import { exec as asyncExec } from "child_process";
-import { promisify } from "util";
 import { join } from "path";
 import { rmdirSync } from "fs";
 import { readFile as readJsonFile, writeFile as writeJsonFile } from "jsonfile";
 import { BaseCommand } from "./template";
 import { CommandsRegistry } from "../application";
-
-const exec = promisify(asyncExec);
+import { promisifiedExec as exec } from "../utils/promisifiedExec";
 
 export class NewCommand extends BaseCommand {
     public command = "new <name>";
@@ -45,9 +42,7 @@ export class NewCommand extends BaseCommand {
 
         //Cloning
         Log.loading("Cloning freshly baked NFW repository... 🍞");
-        const clone = await exec(`git clone https://github.com/TRIPTYK/nfw.git --branch=${argv.branch} ${argv.path}`);
-        if(!clone.stderr.length)
-            throw clone.stderr;
+        await exec(`git clone https://github.com/TRIPTYK/nfw.git --branch=${argv.branch} ${argv.path}`);
         Log.success("Repository cloned successfully !");
 
         //Removing .git
@@ -57,15 +52,18 @@ export class NewCommand extends BaseCommand {
 
         //Yarn or npm i
         Log.loading(`Installing packages with ${(argv.yarn)? "yarn... 🐈" : "npm... 📦"}`);
-        const install = await exec(`cd ${argv.path} && ${(argv.yarn) ? "yarn" : "npm i"}`);
-        if(!install.stderr.length) 
-            throw install.stderr;
+        await exec(`
+            cd ${argv.path}
+            ${(argv.yarn) ? "yarn" : "npm i"}
+            ./node_modules/.bin/pm2 install typescript
+        `);
         Log.success(`Installation done !`);
 
         //Modification of package.json
         const pjson = join(argv.path, "package.json");
+        const content = await readJsonFile(pjson);
         await writeJsonFile(pjson, {
-            ...readJsonFile(pjson),
+            ...content,
             name: argv.name,
             version: "0.0.1",
         });

@@ -12,6 +12,7 @@ export * from './delEndpointCommand';
 export * from './delPermsCommand';
 export * from './delRelationCommand';
 export * from './delRoleCommand';
+export * from './delRouteCommand';
 export * from './generateRouteCommand';
 export * from './initCommand';
 export * from './newCommand';

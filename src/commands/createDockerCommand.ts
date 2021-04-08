@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 
-export class createDockerCommand extends BaseCommand {
+export class CreateDockerCommand extends BaseCommand {
     public command: string | string[] = "docker <name>";
     public aliases = ["dock"]
     public describe = "Creates a MySQL container."
