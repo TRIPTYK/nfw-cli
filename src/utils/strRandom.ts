@@ -1,27 +1,14 @@
-export function strRandom(o: any) {
-	let a = 10,
-		b = "abcdefghijklmnopqrstuvwxyz",
-		c = "",
-		d = 0,
-		e = "" + b;
-
-	if (o) {
-		if (o.startsWithLowerCase) {
-			c = b[Math.floor(Math.random() * b.length)];
-			d = 1;
-		}
-		if (o.length) {
-			a = o.length;
-		}
-		if (o.includeUpperCase) {
-			e += b.toUpperCase();
-		}
-		if (o.includeNumbers) {
-			e += "1234567890";
-		}
-	}
-	for (; d < a; d++) {
-		c += e[Math.floor(Math.random() * e.length)];
-	}
-	return c;
+/**
+ * Generate a string with numbers and letters.
+ * @param length Length of the returned string.
+ * @returns the generated string.
+ */
+export function strRandom(length = 10) {
+	let final = "";
+	for(let i = 0; i<length; i++) {
+		final += Math.random().toString(36).substr(2, 1);
+		if(Math.floor(Math.random() * 2)%2 == 0) 
+			final = final.replace(/.$/, final.slice(-1).toUpperCase());	
+	}	
+	return final;
 }

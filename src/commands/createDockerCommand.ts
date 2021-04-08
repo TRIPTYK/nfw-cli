@@ -1,8 +1,8 @@
-import { execSync } from "child_process";
+import { promisifiedExec as exec } from "../utils/promisifiedExec";
 import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 
-export class createDockerCommand extends BaseCommand {
+export class CreateDockerCommand extends BaseCommand {
     public command: string | string[] = "docker <name>";
     public aliases = ["dock"]
     public describe = "Creates a MySQL container."
@@ -63,7 +63,7 @@ export class createDockerCommand extends BaseCommand {
         `;
 
         Log.loading(`Creation of the container "${argv.name}"... 🐳`);
-        execSync(command.replace(/[\n\t\r]/gm, ' '));
+        await exec(command.replace(/[\n\t\r]/gm, ' '));
         Log.success(`Container "${argv.name}" created with success !`);
 
         if(!argv.noRun)

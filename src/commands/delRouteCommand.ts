@@ -2,7 +2,7 @@ import { deleteBasicRoute, save } from "@triptyk/nfw-core";
 import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 
-export class generateRouteCommand extends BaseCommand {
+export class DelRouteCommand extends BaseCommand {
     public command: string | string[] = "delete-route <prefix>";
     public aliases = ["delroute"];
     public describe = "Deletes a basic route.";
