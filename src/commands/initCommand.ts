@@ -73,7 +73,7 @@ export class InitCommand extends BaseCommand {
 			}
 		}
 
-		await inquirer.prompt(questions).then(async (answer) => {
+		await inquirer.prompt(questions).then((answer) => {
 			for (const key in answer) {
 				rw.setNodeValue(key, answer[key]);
 				infos[key] = answer[key];
@@ -113,16 +113,37 @@ export class InitCommand extends BaseCommand {
 					});
 					log.success("Connected to the MySQL server !");
 				}, 10, 2000);
+
+				let useDb = true;
+				const result = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
 				
-				await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB};`);
-				log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
-	
-				log.loading("Creation of tables in the database... 📝");
-				await exec(`
-					cd ${path}
-					./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js schema:sync
-				`);
-				log.success(`Tables of "${infos.TYPEORM_DB}" created successfully !`);
+				if(result.length) {
+					log.warning(`The database ${infos.TYPEORM_DB} already exists.`);
+					await inquirer.prompt([{
+						name: "USE_IT",
+						type: "confirm",
+						message: "Do you want to create tables in it ?",
+						default: false
+					}])
+					.then((answers) => {
+						useDb = answers["USE_IT"];
+					});
+				}
+				else {
+					await connection.query("CREATE DATABASE ?", [infos.TYPEORM_DB]);
+					log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
+				}
+
+				if(useDb) {
+					log.loading("Creation of tables in the database... 📝");
+					await exec(`
+						cd ${path}
+						./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js schema:sync
+					`);
+					log.success(`Tables of "${infos.TYPEORM_DB}" created successfully !`);
+				}
+				else
+					log.warning("Skipping creation of tables...");
 	
 				await connection.end();
 			} 
