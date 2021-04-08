@@ -18,7 +18,7 @@
   "author": "TRIPTYK",
   "license": "ISC",
   "dependencies": {
-    "@triptyk/nfw-core": "file:../nfw-core",
+    "@triptyk/nfw-core": "../nfw-core",
     "@types/socket.io-client": "^1.4.36",
     "chalk": "^4.1.0",
     "cli-spinners": "^2.6.0",

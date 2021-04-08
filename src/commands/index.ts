@@ -8,6 +8,7 @@ export * from './addRelationCommand';
 export * from './addRoleCommand';
 export * from './createDockerCommand';
 export * from './delColumnCommand';
+export * from './delEndpointCommand';
 export * from './delPermsCommand';
 export * from './delRelationCommand';
 export * from './delRoleCommand';

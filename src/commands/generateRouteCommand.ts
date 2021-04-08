@@ -15,7 +15,7 @@ export class generateRouteCommand extends BaseCommand {
         }
     }
 
-    public async handler(argv: ArgvGenRoute) {
+    public async handler(argv: any) {
         argv.methods = argv.methods.map(v => v.toUpperCase());
 
         if(argv.all)
@@ -32,10 +32,4 @@ export class generateRouteCommand extends BaseCommand {
         
         Log.success(`Route /${argv.prefix} created !`);
     }
-}
-
-interface ArgvGenRoute {
-    prefix: string,
-    methods: string[],
-    all: boolean
 }
