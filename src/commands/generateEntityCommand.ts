@@ -6,7 +6,7 @@ import { Logger as log } from "../utils/log";
 export class GenerateEntity extends BaseCommand {
 	public command = "generate-entity <name>";
 	public aliases = ["genentity"];
-	public describe = "Generates an entity";
+	public describe = "Generate an entity";
 
 	async handler(argv: any) {
 		await generateJsonApiEntity(argv.name).catch((e) => {

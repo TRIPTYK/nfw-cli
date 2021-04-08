@@ -5,7 +5,7 @@ import { BaseCommand } from "./template";
 export class CreateDockerCommand extends BaseCommand {
     public command: string | string[] = "docker <name>";
     public aliases = ["dock"]
-    public describe = "Creates a MySQL container."
+    public describe = "Create a MySQL container."
 
     public builder = {
         port: {

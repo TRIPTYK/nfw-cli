@@ -5,7 +5,7 @@ import { BaseCommand } from "./template";
 export class GenerateRouteCommand extends BaseCommand {
     public command: string | string[] = "generate-route <prefix> [methods..]";
     public aliases = ["genroute"];
-    public describe = "Generates a basic route.";
+    public describe = "Generate a basic route.";
 
     public builder = {
         all: {

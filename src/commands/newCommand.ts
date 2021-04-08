@@ -8,7 +8,7 @@ import { promisifiedExec as exec } from "../utils/promisifiedExec";
 
 export class NewCommand extends BaseCommand {
     public command = "new <name>";
-    public describe = "Creates a new project.";
+    public describe = "Create a new project.";
     public aliases = ["n"];
     
     public builder = {
@@ -19,17 +19,17 @@ export class NewCommand extends BaseCommand {
             default: ""
         },
         branch: {
-            desc: "Gets a version of the project from a specific branch.",
+            desc: "Get a version of the project from a specific branch.",
             type: "string",
             default: "master"
         },
         yarn: {
-            desc: "Uses yarn to fetch modules.",
+            desc: "Use yarn to fetch modules.",
             type: "boolean",
             default: false
         },
         noInit: {
-            desc: "Keeps the default configuration and doesn't configure the database.",
+            desc: "Keep the default configuration and doesn't configure the database.",
             type: "boolean",
             default: false
         }        

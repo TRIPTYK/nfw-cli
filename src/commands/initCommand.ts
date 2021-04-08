@@ -17,12 +17,12 @@ export class InitCommand extends BaseCommand {
 
 	public builder = {
         noInitDb : {
-            desc: "Prohibits the initiation of the database.",
+            desc: "Prohibit the initiation of the database.",
             type: "boolean",
             default: false
         },
 		docker: {
-            desc: "Creates a simple configurated MySQL docker container.",
+            desc: "Create a simple configurated MySQL docker container.",
             type: "boolean",
             default: false
         }

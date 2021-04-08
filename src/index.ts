@@ -28,4 +28,5 @@ yargz
 			);
 		process.exit(1);
 	})
+	.locale("en")
 	.scriptName("nfw").argv;
