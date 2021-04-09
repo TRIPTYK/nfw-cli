@@ -4,7 +4,7 @@ import { getRoles, addPerms, save } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
 
 export class AddPermsCommand extends BaseCommand {
-	public command = "add-perms <entity> <methodName> <requestMethod>";
+	public command = "add-perms <entity> <methodName>";
 	public aliases = ["adper"];
 	public describe = "Add permissions for any route of any entity";
 
@@ -22,10 +22,32 @@ export class AddPermsCommand extends BaseCommand {
 			])
 			.then(async (answer) => {
 				if (answer.deleteRole !== "--Cancel--") {
+					const getArray = [
+						"get",
+						"list",
+						"fetchRelated",
+						"fetchRelationships",
+					];
+					const postArray = ["create", "addRelationships"];
+					const patchArray = ["update", "updateRelationships"];
+					const deleteArray = ["remove", "removeRelationships"];
+					let requestMethod: string;
+					if (getArray.includes(argv.methodName)) {
+						requestMethod = "get";
+					} else if (postArray.includes(argv.methodName)) {
+						requestMethod = "post";
+					} else if (patchArray.includes(argv.methodName)) {
+						requestMethod = "patch";
+					} else if (deleteArray.includes(argv.methodName)) {
+						requestMethod = "delete";
+					} else {
+						requestMethod = "get";
+					}
+
 					const entity = {
 						entity: argv.entity,
 						methodName: argv.methodName,
-						requestMethod: argv.requestMethod,
+						requestMethod,
 						path: "/" + argv.methodName,
 						role: answer.addPerm,
 					};

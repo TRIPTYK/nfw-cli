@@ -11,31 +11,32 @@ CommandsRegistry.init();
 
 for (const command of commands) {
     const current = CommandsRegistry.all[command];
+
     let content = `
-    # ${command}
+        # ${command}
 
-    ${current.describe}
+        ${current.describe}
 
-    ## Usage:
-    ${md.fencedCodeBlock(current.command)}
+        ## Usage:
+        ${md.fencedCodeBlock(current.command)}
 
-    ## Aliases:
-    ${current.aliases.join(', ')}.
+        ## Aliases:
+        ${current.aliases.join(', ')}.
     `;
 
     if(Object.keys(current.builder).length) {
         content += "## Options";
         for (const key in current.builder) {
             content += `
-            ### ${key}
-            - Description: ${current.builder[key].desc}
-            - Default: ${current.builder[key].default || "empty"}
+                ### ${key}
+                - Description: ${current.builder[key].desc}
+                - Default: ${current.builder[key].default || "empty"}
             `
         }
     }
     
-    content = content.replace(/^\s*/gm, '')
-    ;
+    content = content.replace(/^\s*/gm, '');
+    
     writeFileSync(
         join(process.cwd(), "docs", command.replace(/Command/gm, ".md")), 
         content
