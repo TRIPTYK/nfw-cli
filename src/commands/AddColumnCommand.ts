@@ -2,6 +2,9 @@ import { BaseCommand } from "./template";
 import { addColumn, save } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
 
+/**
+ * Test
+ */
 export class AddColumnCommand extends BaseCommand {
 	public command = "add-column <entity> <property> <type>";
 	public aliases = ["adcol"];

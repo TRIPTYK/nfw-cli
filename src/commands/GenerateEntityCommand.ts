@@ -2,7 +2,7 @@ import { BaseCommand } from "./template";
 import { generateJsonApiEntity, save } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
 
-export class GenerateEntity extends BaseCommand {
+export class GenerateEntityCommand extends BaseCommand {
 	public command = "generate-entity <name>";
 	public aliases = ["genentity"];
 	public describe = "Generate an entity";
