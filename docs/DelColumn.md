@@ -1,4 +1,4 @@
-# DelColumnCommand
+# DelColumn.md
 Remove a column in the target entity
 ## Usage:
 ```

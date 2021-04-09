@@ -1,4 +1,4 @@
-# NewCommand
+# New.md
 Create a new project.
 ## Usage:
 ```

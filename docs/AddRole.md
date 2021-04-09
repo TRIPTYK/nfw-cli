@@ -1,8 +1,8 @@
-# AddRoleCommand
+# AddRole.md
 Add roles for permissions
 ## Usage:
 ```
-add-role <name>
+add-role <roleName>
 ```
 ## Alias(es):
 adro

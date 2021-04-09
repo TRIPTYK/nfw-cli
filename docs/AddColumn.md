@@ -1,4 +1,4 @@
-# AddColumnCommand
+# AddColumn.md
 Add a column in the target entity
 ## Usage:
 ```

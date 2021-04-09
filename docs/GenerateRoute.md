@@ -1,4 +1,4 @@
-# GenerateRouteCommand
+# GenerateRoute.md
 Generate a basic route.
 ## Usage:
 ```

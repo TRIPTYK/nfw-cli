@@ -1,4 +1,4 @@
-# GenerateEntityCommand
+# GenerateEntity.md
 Generate an entity
 ## Usage:
 ```

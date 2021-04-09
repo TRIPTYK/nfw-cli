@@ -1,8 +1,8 @@
-# DelEntityCommand
+# DelEntity.md
 Delete an entity
 ## Usage:
 ```
-del-entity <name>
+del-entity <entityName>
 ```
 ## Alias(es):
 delentity

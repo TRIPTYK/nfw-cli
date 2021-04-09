@@ -1,4 +1,4 @@
-# DelRoleCommand
+# DelRole.md
 Delete roles
 ## Usage:
 ```
