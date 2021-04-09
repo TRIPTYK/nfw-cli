@@ -1,4 +1,4 @@
-# DelEntity.md
+# DelEntity
 Delete an entity
 ## Usage:
 ```

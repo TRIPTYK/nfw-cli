@@ -1,4 +1,4 @@
-# GenerateEntity.md
+# GenerateEntity
 Generate an entity
 ## Usage:
 ```

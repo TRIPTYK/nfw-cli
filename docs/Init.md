@@ -1,4 +1,4 @@
-# Init.md
+# Init
 Initiation of environment variables and the database.
 ## Usage:
 ```

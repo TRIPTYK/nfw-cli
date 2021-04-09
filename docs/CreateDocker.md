@@ -1,4 +1,4 @@
-# CreateDocker.md
+# CreateDocker
 Create a MySQL container.
 ## Usage:
 ```

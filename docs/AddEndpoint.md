@@ -1,4 +1,4 @@
-# AddEndpoint.md
+# AddEndpoint
 Add an endpoint to a specific route.
 ## Usage:
 ```

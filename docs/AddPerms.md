@@ -1,4 +1,4 @@
-# AddPerms.md
+# AddPerms
 Add permissions for any route of any entity
 ## Usage:
 ```

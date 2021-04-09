@@ -1,4 +1,4 @@
-# DelPerms.md
+# DelPerms
 ## Usage:
 ```
 del-perms <entity> <methodName>

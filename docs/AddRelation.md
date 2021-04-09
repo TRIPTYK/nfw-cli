@@ -1,4 +1,4 @@
-# AddRelation.md
+# AddRelation
 Add relation between entity
 ## Usage:
 ```

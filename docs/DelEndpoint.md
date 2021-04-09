@@ -1,4 +1,4 @@
-# DelEndpoint.md
+# DelEndpoint
 Delete an endpoint of a specific route.
 ## Usage:
 ```

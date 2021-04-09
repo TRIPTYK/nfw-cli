@@ -1,4 +1,4 @@
-# DelRoute.md
+# DelRoute
 Delete a basic route.
 ## Usage:
 ```

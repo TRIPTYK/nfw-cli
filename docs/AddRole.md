@@ -1,4 +1,4 @@
-# AddRole.md
+# AddRole
 Add roles for permissions
 ## Usage:
 ```

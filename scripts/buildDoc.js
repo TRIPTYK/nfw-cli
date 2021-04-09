@@ -13,7 +13,7 @@ for (const command of commands) {
     const current = CommandsRegistry.all[command];
 
     let content = `
-        # ${command.replace(/Command/gm, ".md")}
+        # ${command.replace(/Command/gm, '')}
 
         ${current.describe}
 

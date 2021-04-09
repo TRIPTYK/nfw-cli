@@ -1,4 +1,4 @@
-# DelRelation.md
+# DelRelation
 Remove relation between entity
 ## Usage:
 ```
