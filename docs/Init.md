@@ -4,12 +4,14 @@ Initiation of environment variables and the database.
 ```
 init
 ```
-## Aliases:
-ini.
+## Alias(es):
+ini
 ## Options
 ### --noInitDb
 - Description: Prohibit the initiation of the database.
-- Default: empty
+- Type: boolean
+- Default: false
 ### --docker
 - Description: Create a simple configurated MySQL docker container.
-- Default: empty
+- Type: boolean
+- Default: false

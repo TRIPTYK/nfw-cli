@@ -4,5 +4,5 @@ Add an endpoint to a specific route.
 ```
 add-endpoint <prefix> <endpoint> <method>
 ```
-## Aliases:
-adend.
+## Alias(es):
+adend

@@ -4,5 +4,5 @@ Delete an entity
 ```
 del-entity <name>
 ```
-## Aliases:
-delentity.
+## Alias(es):
+delentity

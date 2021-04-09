@@ -4,5 +4,5 @@ Delete roles
 ```
 del-role
 ```
-## Aliases:
-delro.
+## Alias(es):
+delro

@@ -4,5 +4,5 @@ Delete an endpoint of a specific route.
 ```
 del-endpoint <prefix> <tsmethod>
 ```
-## Aliases:
-delend.
+## Alias(es):
+delend

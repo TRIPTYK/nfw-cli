@@ -20,8 +20,8 @@ for (const command of commands) {
         ## Usage:
         ${md.fencedCodeBlock(current.command)}
 
-        ## Aliases:
-        ${current.aliases.join(', ')}.
+        ## Alias(es):
+        ${current.aliases.join(', ')}
     `;
 
     if(Object.keys(current.builder).length) {
@@ -30,8 +30,12 @@ for (const command of commands) {
             content += `
                 ### --${key}
                 - Description: ${current.builder[key].desc}
-                - Default: ${current.builder[key].default || "empty"}
-            `
+                - Type: ${current.builder[key].type}
+            `;
+            if(current.builder[key].type === "boolean")
+                content += `- Default: ${current.builder[key].default || "false"}`;
+            else
+                content += `- Default: ${current.builder[key].default || "none"}`;
         }
     }
     

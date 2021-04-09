@@ -4,5 +4,5 @@ Delete a basic route.
 ```
 delete-route <prefix>
 ```
-## Aliases:
-delroute.
+## Alias(es):
+delroute

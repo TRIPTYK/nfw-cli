@@ -4,5 +4,5 @@ Add relation between entity
 ```
 add-relation <entity> <target> <type> <name> <inverseName> <isNullable>
 ```
-## Aliases:
-adrel.
+## Alias(es):
+adrel

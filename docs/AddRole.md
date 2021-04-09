@@ -4,5 +4,5 @@ Add roles for permissions
 ```
 add-role <name>
 ```
-## Aliases:
-adro.
+## Alias(es):
+adro

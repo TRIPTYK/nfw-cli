@@ -4,5 +4,5 @@ Remove a column in the target entity
 ```
 del-column <entity> <columnName>
 ```
-## Aliases:
-delcol.
+## Alias(es):
+delcol

@@ -4,33 +4,42 @@ Add a column in the target entity
 ```
 add-column <entity> <property> <type>
 ```
-## Aliases:
-adcol.
+## Alias(es):
+adcol
 ## Options
 ### --default
 - Description: Default value for the column
-- Default: empty
+- Type: string
+- Default: none
 ### --length
 - Description: Maximun length for the value
-- Default: empty
+- Type: number
+- Default: none
 ### --width
 - Description: Maximun width for the value
-- Default: empty
+- Type: number
+- Default: none
 ### --isUnique
 - Description: Value can be unique ?
-- Default: empty
+- Type: boolean
+- Default: false
 ### --isNullable
 - Description: Value can be nullable ?
-- Default: empty
+- Type: boolean
+- Default: false
 ### --scale
 - Description: Scale of the value
-- Default: empty
+- Type: number
+- Default: none
 ### --precision
 - Description: Precision of the value
-- Default: empty
+- Type: number
+- Default: none
 ### --now
 - Description: Set the date's default value to now
-- Default: empty
+- Type: boolean
+- Default: false
 ### --enums
 - Description: Set a enumeration for the column
-- Default: empty
+- Type: enum
+- Default: none

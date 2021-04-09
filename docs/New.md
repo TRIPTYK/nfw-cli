@@ -4,24 +4,30 @@ Create a new project.
 ```
 new <name>
 ```
-## Aliases:
-n.
+## Alias(es):
+n
 ## Options
 ### --noInitDb
 - Description: Prohibit the initiation of the database.
-- Default: empty
+- Type: boolean
+- Default: false
 ### --docker
 - Description: Create a simple configurated MySQL docker container.
-- Default: empty
+- Type: boolean
+- Default: false
 ### --path
 - Description: Path where to clone the project.
-- Default: empty
+- Type: string
+- Default: none
 ### --branch
 - Description: Get a version of the project from a specific branch.
+- Type: string
 - Default: master
 ### --yarn
 - Description: Use yarn to fetch modules.
-- Default: empty
+- Type: boolean
+- Default: false
 ### --noInit
 - Description: Keep the default configuration and doesn't configure the database.
-- Default: empty
+- Type: boolean
+- Default: false

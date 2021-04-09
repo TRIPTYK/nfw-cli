@@ -4,5 +4,5 @@ Remove relation between entity
 ```
 del-relation <entity> <relationName>
 ```
-## Aliases:
-delrel.
+## Alias(es):
+delrel

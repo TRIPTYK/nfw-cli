@@ -4,9 +4,10 @@ Generate a basic route.
 ```
 generate-route <prefix> [methods..]
 ```
-## Aliases:
-genroute.
+## Alias(es):
+genroute
 ## Options
 ### --all
 - Description: Generate a route for each of all methods.
-- Default: empty
+- Type: boolean
+- Default: false

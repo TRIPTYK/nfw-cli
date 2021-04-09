@@ -4,5 +4,5 @@ Add permissions for any route of any entity
 ```
 add-perms <entity> <methodName>
 ```
-## Aliases:
-adper.
+## Alias(es):
+adper

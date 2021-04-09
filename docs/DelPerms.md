@@ -3,5 +3,5 @@
 ```
 del-perms <entity> <methodName>
 ```
-## Aliases:
-delper.
+## Alias(es):
+delper

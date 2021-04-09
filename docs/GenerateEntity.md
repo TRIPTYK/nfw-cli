@@ -4,5 +4,5 @@ Generate an entity
 ```
 generate-entity <name>
 ```
-## Aliases:
-genentity.
+## Alias(es):
+genentity
