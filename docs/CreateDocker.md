@@ -7,21 +7,21 @@ docker <name>
 ## Aliases:
 dock.
 ## Options
-### port
+### --port
 - Description: Listening port of the server.
 - Default: 3306
-### user
+### --user
 - Description: Username of the created user.
 - Default: user
-### password
+### --password
 - Description: Password of the user.
 - Default: password
-### rootPassword
+### --rootPassword
 - Description: Password of root.
 - Default: root
-### nativePassword
+### --nativePassword
 - Description: Set the default authentication plugin to mysql_native_password (useful for development purpose).
 - Default: empty
-### noRun
+### --noRun
 - Description: Only creates the container, without running it.
 - Default: empty

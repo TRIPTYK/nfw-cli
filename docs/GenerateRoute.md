@@ -7,6 +7,6 @@ generate-route <prefix> [methods..]
 ## Aliases:
 genroute.
 ## Options
-### all
+### --all
 - Description: Generate a route for each of all methods.
 - Default: empty

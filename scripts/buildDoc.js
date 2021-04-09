@@ -28,7 +28,7 @@ for (const command of commands) {
         content += "## Options";
         for (const key in current.builder) {
             content += `
-                ### ${key}
+                ### --${key}
                 - Description: ${current.builder[key].desc}
                 - Default: ${current.builder[key].default || "empty"}
             `

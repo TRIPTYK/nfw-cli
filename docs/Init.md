@@ -7,9 +7,9 @@ init
 ## Aliases:
 ini.
 ## Options
-### noInitDb
+### --noInitDb
 - Description: Prohibit the initiation of the database.
 - Default: empty
-### docker
+### --docker
 - Description: Create a simple configurated MySQL docker container.
 - Default: empty

@@ -7,21 +7,21 @@ new <name>
 ## Aliases:
 n.
 ## Options
-### noInitDb
+### --noInitDb
 - Description: Prohibit the initiation of the database.
 - Default: empty
-### docker
+### --docker
 - Description: Create a simple configurated MySQL docker container.
 - Default: empty
-### path
+### --path
 - Description: Path where to clone the project.
 - Default: empty
-### branch
+### --branch
 - Description: Get a version of the project from a specific branch.
 - Default: master
-### yarn
+### --yarn
 - Description: Use yarn to fetch modules.
 - Default: empty
-### noInit
+### --noInit
 - Description: Keep the default configuration and doesn't configure the database.
 - Default: empty
