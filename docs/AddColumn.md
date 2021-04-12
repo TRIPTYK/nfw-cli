@@ -2,7 +2,7 @@
 Add a column in the target entity
 ## Usage:
 ```
-add-column <entity> <property> <type>
+nfw add-column <entity> <property> <type>
 ```
 ## Alias(es):
 adcol

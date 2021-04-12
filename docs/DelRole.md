@@ -2,7 +2,7 @@
 Delete roles
 ## Usage:
 ```
-del-role
+nfw del-role
 ```
 ## Alias(es):
 delro

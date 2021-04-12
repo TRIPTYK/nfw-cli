@@ -2,7 +2,7 @@
 Create a new project.
 ## Usage:
 ```
-new <name>
+nfw new <name>
 ```
 ## Alias(es):
 n

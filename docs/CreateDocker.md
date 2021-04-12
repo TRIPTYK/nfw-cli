@@ -2,7 +2,7 @@
 Create a MySQL container.
 ## Usage:
 ```
-docker <name>
+nfw docker <name>
 ```
 ## Alias(es):
 dock

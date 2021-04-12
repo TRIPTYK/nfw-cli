@@ -2,6 +2,7 @@ const { readdirSync, writeFileSync } = require("fs");
 const { join } = require("path");
 const { CommandsRegistry } = require("../dist/application/CommandsRegistry");
 const md = require("md-writer");
+const chalk = require("chalk");
 
 const commands = readdirSync(join(process.cwd(), "./dist/commands"))
     .filter((command) => command.match(/.+\.js/gm) && command !== "index.js")
@@ -18,7 +19,7 @@ for (const command of commands) {
         ${current.describe}
 
         ## Usage:
-        ${md.fencedCodeBlock(current.command)}
+        ${md.fencedCodeBlock(`nfw ${current.command}`)}
 
         ## Alias(es):
         ${current.aliases.join(', ')}
@@ -45,4 +46,5 @@ for (const command of commands) {
         join(process.cwd(), "docs", command.replace(/Command/gm, ".md")), 
         content
     );
+    console.log(chalk.green(`success: Doc of ${command} built.`));
 }

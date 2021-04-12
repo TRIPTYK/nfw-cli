@@ -2,7 +2,7 @@
 Add relation between entity
 ## Usage:
 ```
-add-relation <entity> <target> <name> <inverseName> <isNullable>
+nfw add-relation <entity> <target> <name> <inverseName> <isNullable>
 ```
 ## Alias(es):
 adrel

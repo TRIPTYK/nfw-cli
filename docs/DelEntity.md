@@ -2,7 +2,7 @@
 Delete an entity
 ## Usage:
 ```
-del-entity <entityName>
+nfw del-entity <entityName>
 ```
 ## Alias(es):
 delentity

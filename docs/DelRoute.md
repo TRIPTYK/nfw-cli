@@ -2,7 +2,7 @@
 Delete a basic route.
 ## Usage:
 ```
-delete-route <prefix>
+nfw delete-route <prefix>
 ```
 ## Alias(es):
 delroute

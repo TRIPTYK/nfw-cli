@@ -2,7 +2,7 @@
 Add roles for permissions
 ## Usage:
 ```
-add-role <roleName>
+nfw add-role <roleName>
 ```
 ## Alias(es):
 adro

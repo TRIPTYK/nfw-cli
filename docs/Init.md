@@ -2,7 +2,7 @@
 Initiation of environment variables and the database.
 ## Usage:
 ```
-init
+nfw init
 ```
 ## Alias(es):
 ini

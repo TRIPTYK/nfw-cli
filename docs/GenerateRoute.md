@@ -2,7 +2,7 @@
 Generate a basic route.
 ## Usage:
 ```
-generate-route <prefix> [methods..]
+nfw generate-route <prefix> [methods..]
 ```
 ## Alias(es):
 genroute

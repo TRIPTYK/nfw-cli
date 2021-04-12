@@ -2,7 +2,7 @@
 Generate an entity
 ## Usage:
 ```
-generate-entity <name>
+nfw generate-entity <name>
 ```
 ## Alias(es):
 genentity
