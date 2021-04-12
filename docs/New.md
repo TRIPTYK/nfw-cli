@@ -7,12 +7,16 @@ nfw new <name>
 ## Alias(es):
 n
 ## Options
-### --noInitDb
-- Description: Prohibit the initiation of the database.
+### --noConfigDb
+- Description: Prohibit the configuration of the database infos.
+- Type: boolean
+- Default: false
+### --seed
+- Description: Populate database with some entries (only if noInitDb is false).
 - Type: boolean
 - Default: false
 ### --docker
-- Description: Create a simple configurated MySQL docker container.
+- Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
 - Default: false
 ### --path
@@ -28,6 +32,6 @@ n
 - Type: boolean
 - Default: false
 ### --noInit
-- Description: Keep the default configuration and doesn't configure the database.
+- Description: Keep the default configuration and doesn't configure the database (Override noInitDb).
 - Type: boolean
 - Default: false

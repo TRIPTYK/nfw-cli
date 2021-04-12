@@ -5,7 +5,7 @@ import { BaseCommand } from "./template";
 export class CreateDockerCommand extends BaseCommand {
     public command: string | string[] = "docker <name>";
     public aliases = ["dock"]
-    public describe = "Create a MySQL container."
+    public describe = "Create a MySQL container with a database of the same name inside."
 
     public builder = {
         port: {
@@ -37,6 +37,11 @@ export class CreateDockerCommand extends BaseCommand {
             desc: "Only creates the container, without running it.",
             type: "boolean",
             default: false
+        },
+        noDb: {
+            desc: "Prevent the creation of the db in the container.",
+            type: "boolean",
+            default: false
         }
     }
 
@@ -46,10 +51,13 @@ export class CreateDockerCommand extends BaseCommand {
             -e MYSQL_USER=${argv.user}
             -e MYSQL_PASSWORD=${argv.password}
             -e MYSQL_ROOT_PASSWORD=${argv.rootPassword} 
-        `
+        `;
         if(argv.user === "root") {
             Log.warning("You're using root as only user.");
             envs = `-e MYSQL_ROOT_PASSWORD=${argv.password}`;
+        }
+        if(!argv.noDb) {
+            envs += `\n-e MYSQL_DATABASE=${argv.name}`;
         }
 
         const command = `docker 

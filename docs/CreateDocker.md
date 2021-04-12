@@ -1,5 +1,5 @@
 # CreateDocker
-Create a MySQL container.
+Create a MySQL container with a database of the same name inside.
 ## Usage:
 ```
 nfw docker <name>
@@ -29,5 +29,9 @@ dock
 - Default: false
 ### --noRun
 - Description: Only creates the container, without running it.
+- Type: boolean
+- Default: false
+### --noDb
+- Description: Prevent the creation of the db in the container.
 - Type: boolean
 - Default: false

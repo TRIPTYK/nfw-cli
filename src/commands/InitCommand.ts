@@ -16,13 +16,18 @@ export class InitCommand extends BaseCommand {
 	public aliases = ["ini"];
 
 	public builder = {
-        noInitDb : {
-            desc: "Prohibit the initiation of the database.",
+        noConfigDb : {
+            desc: "Prohibit the configuration of the database infos.",
             type: "boolean",
             default: false
         },
+		seed:{
+			desc: "Populate database with some entries (only if noInitDb is false).",
+			type: "boolean",
+			default: false
+		},
 		docker: {
-            desc: "Create a simple configurated MySQL docker container.",
+            desc: "Create a simple configurated MySQL docker container (only if noConfigDb is false).",
             type: "boolean",
             default: false
         }
@@ -92,7 +97,7 @@ export class InitCommand extends BaseCommand {
 		//Creation of docker
 		if(argv.docker) {
 			await CommandsRegistry.all.CreateDockerCommand.handler({
-				name: `${infos.TYPEORM_DB}_mysql`,
+				name: infos.TYPEORM_DB,
 				user: infos.TYPEORM_USER,
 				password: infos.TYPEORM_PWD,
 				port: infos.TYPEORM_PORT,
@@ -102,6 +107,7 @@ export class InitCommand extends BaseCommand {
 
 		//Initiation of DB
 		if(!argv.noInitDb) {
+			let useDb = true;
 			let connection: mysql.Connection = null;
 			infos.TYPEORM_DB = infos.TYPEORM_DB.replace(/[;=]/gm, '');
 
@@ -112,28 +118,30 @@ export class InitCommand extends BaseCommand {
 						host: infos.TYPEORM_HOST,
 						user: infos.TYPEORM_USER,
 						password: infos.TYPEORM_PWD,
+						port: infos.TYPEORM_PORT
 					});
 					log.success("Connected to the MySQL server !");
-				}, 10, 2000);
+				}, 15, 2000);
 
-				let useDb = true;
-				const result: any[] = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
-				
-				if(result[0].length) {
-					log.warning(`The database ${infos.TYPEORM_DB} already exists.`);
-					await inquirer.prompt([{
-						name: "USE_IT",
-						type: "confirm",
-						message: "Do you want to create tables in it ?",
-						default: false
-					}])
-					.then((answers) => {
-						useDb = answers["USE_IT"];
-					});
-				}
-				else {
-					await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB}`);
-					log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
+				if(!argv.docker) {
+					const result: any[] = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
+					
+					if(result[0].length) {
+						log.warning(`The database ${infos.TYPEORM_DB} already exists.`);
+						await inquirer.prompt([{
+							name: "USE_IT",
+							type: "confirm",
+							message: "Do you want to create tables in it ?",
+							default: false
+						}])
+						.then((answers) => {
+							useDb = answers["USE_IT"];
+						});
+					}
+					else {
+						await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB}`);
+						log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
+					}
 				}
 
 				if(useDb) {
@@ -146,6 +154,12 @@ export class InitCommand extends BaseCommand {
 				}
 				else
 					log.warning("Skipping creation of tables...");
+				
+				if(argv.seed) {
+					log.loading("Seeding tables... 🌱");
+					await exec("./node_modules/.bin/ts-node ./node_modules/typeorm-seeding/dist/cli.js seed")
+					log.success("Basic entries created !");
+				}
 	
 				await connection.end();
 			} 
@@ -154,6 +168,8 @@ export class InitCommand extends BaseCommand {
 				throw error;
 			}
 		}
+
+		
 
 		log.success("Initiation done !");
 	}

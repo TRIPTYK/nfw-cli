@@ -29,7 +29,7 @@ export class NewCommand extends BaseCommand {
             default: false
         },
         noInit: {
-            desc: "Keep the default configuration and doesn't configure the database.",
+            desc: "Keep the default configuration and doesn't configure the database (Override noInitDb).",
             type: "boolean",
             default: false
         }        
@@ -63,9 +63,18 @@ export class NewCommand extends BaseCommand {
         const pjson = join(argv.path, "package.json");
         const content = await readJsonFile(pjson);
         await writeJsonFile(pjson, {
-            ...content,
             name: argv.name,
             version: "0.0.1",
+            description: "NFW generated project !",
+            main: content.main,
+            scripts: content.scripts,
+            author: "",
+            license: "MIT",
+            dependencies: content.dependencies,
+            devDependencies: content.devDependencies,
+            engines: content.engines
+        }, {
+           spaces: 4
         });
 
         //Init the project
