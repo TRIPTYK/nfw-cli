@@ -103,6 +103,8 @@ export class InitCommand extends BaseCommand {
 		//Initiation of DB
 		if(!argv.noInitDb) {
 			let connection: mysql.Connection = null;
+			infos.TYPEORM_DB = infos.TYPEORM_DB.replace(/[;=]/gm, '');
+
 			try {
 				await attemptAction(async (current) => {
 					log.loading(`Attempt ${current} of connection to the MySQL server... 🐬`);
@@ -115,9 +117,9 @@ export class InitCommand extends BaseCommand {
 				}, 10, 2000);
 
 				let useDb = true;
-				const result = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
+				const result: any[] = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
 				
-				if(result.length) {
+				if(result[0].length) {
 					log.warning(`The database ${infos.TYPEORM_DB} already exists.`);
 					await inquirer.prompt([{
 						name: "USE_IT",
@@ -130,7 +132,7 @@ export class InitCommand extends BaseCommand {
 					});
 				}
 				else {
-					await connection.query("CREATE DATABASE ?", [infos.TYPEORM_DB]);
+					await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB}`);
 					log.success(`Database "${infos.TYPEORM_DB}" created successfully !`);
 				}
 
