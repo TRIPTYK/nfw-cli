@@ -8,6 +8,7 @@ export class DelEntityCommand extends BaseCommand {
 	public describe = "Delete an entity";
 
 	async handler(argv: any) {
+		log.loading("Deleting an entity in progress");
 		await deleteJsonApiEntity(argv.entityName);
 		await save();
 		log.success("Entity successfully deleted");

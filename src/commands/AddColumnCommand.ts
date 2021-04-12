@@ -73,6 +73,7 @@ export class AddColumnCommand extends BaseCommand {
 			enums: argv.enums,
 		};
 
+		log.loading("Adding a column in progress");
 		await addColumn(argv.entity, toSave);
 		await save();
 		log.success("Column successfully added");
