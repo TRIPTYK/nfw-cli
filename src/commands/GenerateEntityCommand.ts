@@ -8,6 +8,7 @@ export class GenerateEntityCommand extends BaseCommand {
 	public describe = "Generate an entity";
 
 	async handler(argv: any) {
+		log.loading("Generating an entity in progress");
 		await generateJsonApiEntity(argv.name).catch((e) => {
 			console.log(e);
 		});

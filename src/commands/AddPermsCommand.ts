@@ -51,7 +51,7 @@ export class AddPermsCommand extends BaseCommand {
 						path: "/" + argv.methodName,
 						role: answer.addPerm,
 					};
-
+					log.loading("Adding a perms in progress");
 					await addPerms(entity);
 					await save();
 					log.success("Permission successfully added");

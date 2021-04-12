@@ -6,7 +6,7 @@ import { Logger as log } from "../utils/log";
 export class DelPermsCommand extends BaseCommand {
 	public command = "del-perms <entity> <methodName>";
 	public aliases = ["delper"];
-	public desc = "Remove permissions for any route of any entity";
+	public describe = "Remove permissions for any route of any entity";
 
 	async handler(argv: any) {
 		const roles = await getRoles();
@@ -27,6 +27,7 @@ export class DelPermsCommand extends BaseCommand {
 						methodName: argv.methodName,
 						role: answer.delPerm,
 					};
+					log.loading("Deleting a perms in progress");
 					await removePerms(entity);
 					await save();
 					log.success("Permission successfully removed");

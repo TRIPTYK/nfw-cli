@@ -22,6 +22,7 @@ export class DelRoleCommand extends BaseCommand {
 			])
 			.then(async (answer) => {
 				if (answer.deleteRole !== "--Cancel--") {
+					log.loading("Deleting a role in progress");
 					await deleteRole(answer.deleteRole);
 					await save();
 					log.success(`Role ${answer.deleteRole} was successfully deleted`);

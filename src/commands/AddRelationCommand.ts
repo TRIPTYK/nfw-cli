@@ -30,6 +30,7 @@ export class AddRelationCommand extends BaseCommand {
 						inverseRelationName: argv.inverseName,
 						isNullable: argv.isNullable,
 					};
+					log.loading("Adding a relation in progress");
 					await addRelation(argv.entity, params);
 					await save();
 					log.success("Relation successfully added");
