@@ -3,21 +3,22 @@ import { Logger as Log, methodList } from "../utils";
 import { BaseCommand } from "./template";
 
 export class AddEndpointCommand extends BaseCommand {
-    public command: string | string[] = "add-endpoint <prefix> <endpoint> <method>";
-    public aliases = ["adend"]
-    public describe = "Add an endpoint to a specific route."
+	public command: string | string[] =
+		"add-endpoint <prefix> <endpoint> <method>";
+	public aliases = ["adend"];
+	public describe = "Add an endpoint to a specific route.";
 
-    public async handler(argv: any) {
+	public async handler(argv: any) {
+		argv.method = argv.method.toUpperCase();
 
-        argv.method = argv.method.toUpperCase();
+		if (!methodList.includes(argv.method))
+			throw `The method "${argv.method}" is not valid, it must be one of these values: ${methodList}`;
 
-        if(!methodList.includes(argv.method))
-            throw `The method "${argv.method}" is not valid, it must be one of these values: ${methodList}`;
+		Log.loading("Adding an endpoint in progress");
+		await addEndpoint(argv.prefix, argv.method, argv.endpoint);
 
-        await addEndpoint(argv.prefix, argv.method, argv.endpoint);
+		await save();
 
-        await save();
-
-        Log.success(`Endpoint /${argv.prefix}/${argv.endpoint} created !`);
-    }
+		Log.success(`Endpoint /${argv.prefix}/${argv.endpoint} created !`);
+	}
 }
