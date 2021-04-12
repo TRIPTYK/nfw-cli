@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "CLI to kickstart back-end entities creation",
   "scripts": {
-    "build": "rm -rf ./dist && npx cti -b ./src/**/ && npx tsc && node ./scripts/buildDoc.js",
+    "build": "npx cti -b ./src/**/ && npx tsc && node ./scripts/buildDoc.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
