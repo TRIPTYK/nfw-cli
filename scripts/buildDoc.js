@@ -29,13 +29,17 @@ for (const command of commands) {
     if(Object.keys(current.builder).length) {
         content += "## Options";
         for (const key in current.builder) {
+            let option = `--${key}`;
             content += `
-                ### --${key}
+                ### ${option}
                 - Description: ${current.builder[key].desc}
                 - Type: ${current.builder[key].type}
             `;
-            if(current.builder[key].alias)
-                content += `- Alias: ${current.builder[key].alias}\n`;
+            if(current.builder[key].alias) {
+                content += `- Alias: -${current.builder[key].alias}\n`;
+                option += ` / -${current.builder[key].alias}`;
+            }
+                
             content += "- Default: ";
             if(current.builder[key].type === "boolean")
                 content += current.builder[key].default || "false";
@@ -43,7 +47,7 @@ for (const command of commands) {
                 content += current.builder[key].default || "*none*";
         
             content += '\n- Example:\n' + md.fencedShCodeBlock(
-                `${example} --${key} ${(current.builder[key].type === "boolean")? "" : `<${key}>`}`
+                `${example} ${option} ${(current.builder[key].type === "boolean")? "" : `<${key}>`}`
             );
         }
     }

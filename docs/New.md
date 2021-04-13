@@ -58,9 +58,9 @@ $ nfw new <path> --noInit
 ### --force
 - Description: Force the cloning of the repo.
 - Type: boolean
-- Alias: f
+- Alias: -f
 - Default: false
 - Example:
 ```sh
-$ nfw new <path> --force 
+$ nfw new <path> --force / -f 
 ```
