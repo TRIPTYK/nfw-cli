@@ -16,6 +16,7 @@ export class Logger {
 		warning: [Chalk.yellow, "⚠"],
 		success: [Chalk.green, "✔"],
 		info: [Chalk.blue, "🛈"],
+		debug: [Chalk.magentaBright, ""],
 	} as any;
 
 	private static loader = ora({
@@ -64,9 +65,21 @@ export class Logger {
 		this.basic("info", text);
 	}
 
+	/**
+	 * Loading message.
+	 * @param text Text to display.
+	 */
 	static loading(text: string) {
 		if (!this.loader.isSpinning) this.loader.start(text);
 		else this.loader.text = text;
+	}
+
+	/**
+	 * Debug message.
+	 * @param text Text to display.
+	 */
+	static debug(...texts: any[]) {
+		this.basic("debug", texts.map(v=>(typeof v === "object")?JSON.stringify(v):v).join('\n'));
 	}
 
 	/**
@@ -94,4 +107,4 @@ export class Logger {
 	}
 }
 
-export type MessageType = "success" | "warning" | "error" | "info";
+export type MessageType = "success" | "warning" | "error" | "info" | "debug";

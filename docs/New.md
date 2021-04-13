@@ -18,26 +18,29 @@ $ nfw new <path> --noConfigDb
 ### --seed
 - Description: Populate database with some entries (only if noConfigDb is false).
 - Type: boolean
+- Alias: -s
 - Default: false
 - Example:
 ```sh
-$ nfw new <path> --seed 
+$ nfw new <path> --seed / -s 
 ```
 ### --docker
 - Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
+- Alias: -d
 - Default: false
 - Example:
 ```sh
-$ nfw new <path> --docker 
+$ nfw new <path> --docker / -d 
 ```
 ### --branch
-- Description: Get a version of the project from a specific branch.
+- Description: Get a version of the project from a specific version/branch/commit hash.
 - Type: string
+- Alias: -b
 - Default: master
 - Example:
 ```sh
-$ nfw new <path> --branch <branch>
+$ nfw new <path> --branch / -b <value for branch>
 ```
 ### --yarn
 - Description: Use yarn to fetch modules.

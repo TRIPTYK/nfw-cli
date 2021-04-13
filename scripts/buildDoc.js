@@ -8,8 +8,6 @@ const commands = readdirSync(join(process.cwd(), "./dist/commands"))
     .filter((command) => command.match(/.+\.js/gm) && command !== "index.js")
     .map((command) => command.replace(/\.js/gm, ''));
 
-CommandsRegistry.init();
-
 for (const command of commands) {
     const current = CommandsRegistry.all[command];
     const example = `nfw ${current.command}`;
@@ -47,7 +45,7 @@ for (const command of commands) {
                 content += current.builder[key].default || "*none*";
         
             content += '\n- Example:\n' + md.fencedShCodeBlock(
-                `${example} ${option} ${(current.builder[key].type === "boolean")? "" : `<${key}>`}`
+                `${example} ${option} ${(current.builder[key].type === "boolean")? "" : `<value for ${key}>`}`
             );
         }
     }

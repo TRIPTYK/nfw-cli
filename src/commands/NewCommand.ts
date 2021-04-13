@@ -1,6 +1,5 @@
 import { Logger as Log } from "../utils"
 import { isAbsolute, join, sep } from "path";
-import { rmdirSync } from "fs";
 import { readFile as readJsonFile, writeFile as writeJsonFile } from "jsonfile";
 import { BaseCommand } from "./template";
 import { CommandsRegistry } from "../application";
@@ -15,9 +14,10 @@ export class NewCommand extends BaseCommand {
     public builder = {
         ...CommandsRegistry.all.InitCommand.builder,
         branch: {
-            desc: "Get a version of the project from a specific branch.",
+            desc: "Get a version of the project from a specific version/branch/commit hash.",
             type: "string",
-            default: "master"
+            default: "master",
+            alias: 'b'
         },
         yarn: {
             desc: "Use yarn to fetch modules.",
@@ -34,7 +34,7 @@ export class NewCommand extends BaseCommand {
             alias: 'f',
             type: "boolean",
             default: false
-        }       
+        }
     }
 
     async handler (argv: any) {

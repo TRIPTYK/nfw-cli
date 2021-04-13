@@ -18,16 +18,18 @@ $ nfw init --noConfigDb
 ### --seed
 - Description: Populate database with some entries (only if noConfigDb is false).
 - Type: boolean
+- Alias: -s
 - Default: false
 - Example:
 ```sh
-$ nfw init --seed 
+$ nfw init --seed / -s 
 ```
 ### --docker
 - Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
+- Alias: -d
 - Default: false
 - Example:
 ```sh
-$ nfw init --docker 
+$ nfw init --docker / -d 
 ```

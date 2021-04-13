@@ -23,11 +23,13 @@ export class InitCommand extends BaseCommand {
         },
 		seed:{
 			desc: "Populate database with some entries (only if noConfigDb is false).",
+			alias: 's',
 			type: "boolean",
 			default: false
 		},
 		docker: {
             desc: "Create a simple configurated MySQL docker container (only if noConfigDb is false).",
+			alias: 'd',
             type: "boolean",
             default: false
         }
@@ -128,15 +130,12 @@ export class InitCommand extends BaseCommand {
 					
 					if(result[0].length) {
 						log.warning(`The database ${infos.TYPEORM_DB} already exists.`);
-						await inquirer.prompt([{
-							name: "USE_IT",
+						useDb = await inquirer.prompt([{
+							name: "useDb",
 							type: "confirm",
 							message: "Do you want to create tables in it ?",
 							default: false
-						}])
-						.then((answers) => {
-							useDb = answers["USE_IT"];
-						});
+						}])["useDb"];
 					}
 					else {
 						await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB}`);

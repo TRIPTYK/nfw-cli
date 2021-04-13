@@ -13,7 +13,7 @@ dock
 - Default: 3306
 - Example:
 ```sh
-$ nfw docker <name> --port <port>
+$ nfw docker <name> --port <value for port>
 ```
 ### --user
 - Description: Username of the created user.
@@ -21,7 +21,7 @@ $ nfw docker <name> --port <port>
 - Default: user
 - Example:
 ```sh
-$ nfw docker <name> --user <user>
+$ nfw docker <name> --user <value for user>
 ```
 ### --password
 - Description: Password of the user.
@@ -29,7 +29,7 @@ $ nfw docker <name> --user <user>
 - Default: password
 - Example:
 ```sh
-$ nfw docker <name> --password <password>
+$ nfw docker <name> --password <value for password>
 ```
 ### --rootPassword
 - Description: Password of root.
@@ -37,7 +37,7 @@ $ nfw docker <name> --password <password>
 - Default: root
 - Example:
 ```sh
-$ nfw docker <name> --rootPassword <rootPassword>
+$ nfw docker <name> --rootPassword <value for rootPassword>
 ```
 ### --nativePassword
 - Description: Set the default authentication plugin to mysql_native_password (useful for development purpose).
