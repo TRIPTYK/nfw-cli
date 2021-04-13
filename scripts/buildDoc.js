@@ -34,11 +34,13 @@ for (const command of commands) {
                 - Description: ${current.builder[key].desc}
                 - Type: ${current.builder[key].type}
             `;
+            if(current.builder[key].alias)
+                content += `- Alias: ${current.builder[key].alias}\n`;
             content += "- Default: ";
             if(current.builder[key].type === "boolean")
                 content += current.builder[key].default || "false";
             else
-                content += current.builder[key].default || "none";
+                content += current.builder[key].default || "*none*";
         
             content += '\n- Example:\n' + md.fencedShCodeBlock(
                 `${example} --${key} ${(current.builder[key].type === "boolean")? "" : `<${key}>`}`

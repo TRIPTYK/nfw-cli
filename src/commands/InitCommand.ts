@@ -22,7 +22,7 @@ export class InitCommand extends BaseCommand {
             default: false
         },
 		seed:{
-			desc: "Populate database with some entries (only if noInitDb is false).",
+			desc: "Populate database with some entries (only if noConfigDb is false).",
 			type: "boolean",
 			default: false
 		},

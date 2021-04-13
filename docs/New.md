@@ -2,7 +2,7 @@
 Create a new project.
 ## Usage:
 ```sh
-$ nfw new <name>
+$ nfw new <path>
 ```
 ## Alias(es):
 n
@@ -13,15 +13,15 @@ n
 - Default: false
 - Example:
 ```sh
-$ nfw new <name> --noConfigDb 
+$ nfw new <path> --noConfigDb 
 ```
 ### --seed
-- Description: Populate database with some entries (only if noInitDb is false).
+- Description: Populate database with some entries (only if noConfigDb is false).
 - Type: boolean
 - Default: false
 - Example:
 ```sh
-$ nfw new <name> --seed 
+$ nfw new <path> --seed 
 ```
 ### --docker
 - Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
@@ -29,15 +29,7 @@ $ nfw new <name> --seed
 - Default: false
 - Example:
 ```sh
-$ nfw new <name> --docker 
-```
-### --path
-- Description: Path where to clone the project.
-- Type: string
-- Default: none
-- Example:
-```sh
-$ nfw new <name> --path <path>
+$ nfw new <path> --docker 
 ```
 ### --branch
 - Description: Get a version of the project from a specific branch.
@@ -45,7 +37,7 @@ $ nfw new <name> --path <path>
 - Default: master
 - Example:
 ```sh
-$ nfw new <name> --branch <branch>
+$ nfw new <path> --branch <branch>
 ```
 ### --yarn
 - Description: Use yarn to fetch modules.
@@ -53,13 +45,22 @@ $ nfw new <name> --branch <branch>
 - Default: false
 - Example:
 ```sh
-$ nfw new <name> --yarn 
+$ nfw new <path> --yarn 
 ```
 ### --noInit
-- Description: Keep the default configuration and doesn't configure the database (Override noInitDb).
+- Description: Keep the default configuration and doesn't configure the database (Override noConfigDb).
 - Type: boolean
 - Default: false
 - Example:
 ```sh
-$ nfw new <name> --noInit 
+$ nfw new <path> --noInit 
+```
+### --force
+- Description: Force the cloning of the repo.
+- Type: boolean
+- Alias: f
+- Default: false
+- Example:
+```sh
+$ nfw new <path> --force 
 ```

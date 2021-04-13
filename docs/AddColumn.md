@@ -10,7 +10,7 @@ adcol
 ### --default
 - Description: Default value for the column
 - Type: string
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --default <default>
@@ -18,7 +18,7 @@ $ nfw add-column <entity> <property> <type> --default <default>
 ### --length
 - Description: Maximun length for the value
 - Type: number
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --length <length>
@@ -26,7 +26,7 @@ $ nfw add-column <entity> <property> <type> --length <length>
 ### --width
 - Description: Maximun width for the value
 - Type: number
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --width <width>
@@ -50,7 +50,7 @@ $ nfw add-column <entity> <property> <type> --isNullable
 ### --scale
 - Description: Scale of the value
 - Type: number
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --scale <scale>
@@ -58,7 +58,7 @@ $ nfw add-column <entity> <property> <type> --scale <scale>
 ### --precision
 - Description: Precision of the value
 - Type: number
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --precision <precision>
@@ -74,7 +74,7 @@ $ nfw add-column <entity> <property> <type> --now
 ### --enums
 - Description: Set a enumeration for the column
 - Type: enum
-- Default: none
+- Default: *none*
 - Example:
 ```sh
 $ nfw add-column <entity> <property> <type> --enums <enums>

@@ -16,7 +16,7 @@ ini
 $ nfw init --noConfigDb 
 ```
 ### --seed
-- Description: Populate database with some entries (only if noInitDb is false).
+- Description: Populate database with some entries (only if noConfigDb is false).
 - Type: boolean
 - Default: false
 - Example:
