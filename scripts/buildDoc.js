@@ -12,6 +12,7 @@ CommandsRegistry.init();
 
 for (const command of commands) {
     const current = CommandsRegistry.all[command];
+    const example = `nfw ${current.command}`;
 
     let content = `
         # ${command.replace(/Command/gm, '')}
@@ -19,7 +20,7 @@ for (const command of commands) {
         ${current.describe}
 
         ## Usage:
-        ${md.fencedCodeBlock(`nfw ${current.command}`)}
+        ${md.fencedShCodeBlock(example)}
 
         ## Alias(es):
         ${current.aliases.join(', ')}
@@ -33,10 +34,15 @@ for (const command of commands) {
                 - Description: ${current.builder[key].desc}
                 - Type: ${current.builder[key].type}
             `;
+            content += "- Default: ";
             if(current.builder[key].type === "boolean")
-                content += `- Default: ${current.builder[key].default || "false"}`;
+                content += current.builder[key].default || "false";
             else
-                content += `- Default: ${current.builder[key].default || "none"}`;
+                content += current.builder[key].default || "none";
+        
+            content += '\n- Example:\n' + md.fencedShCodeBlock(
+                `${example} --${key} ${(current.builder[key].type === "boolean")? "" : `<${key}>`}`
+            );
         }
     }
     

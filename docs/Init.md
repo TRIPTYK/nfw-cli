@@ -1,8 +1,8 @@
 # Init
 Initiation of environment variables and the database.
 ## Usage:
-```
-nfw init
+```sh
+$ nfw init
 ```
 ## Alias(es):
 ini
@@ -11,11 +11,23 @@ ini
 - Description: Prohibit the configuration of the database infos.
 - Type: boolean
 - Default: false
+- Example:
+```sh
+$ nfw init --noConfigDb 
+```
 ### --seed
 - Description: Populate database with some entries (only if noInitDb is false).
 - Type: boolean
 - Default: false
+- Example:
+```sh
+$ nfw init --seed 
+```
 ### --docker
 - Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
 - Default: false
+- Example:
+```sh
+$ nfw init --docker 
+```
