@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"description": "CLI to kickstart back-end entities creation",
 	"scripts": {
-		"build": "npx cti -b ./src/**/ && npx tsc && node ./scripts/buildDoc.js",
+		"build": "npx ctix -c -b ./src/**/ && rm -rf ./src/**/*.bak && npx tsc && node ./scripts/buildDoc.js",
 		"test": "./node_modules/.bin/mocha ./src/test/*.ts"
 	},
 	"keywords": [
@@ -38,7 +38,7 @@
 		"@types/node": "^13.7.4",
 		"@types/yargs": "^16.0.1",
 		"chai": "^4.3.4",
-		"create-ts-index": "^1.13.6",
+		"ctix": "^0.3.1",
 		"md-writer": "^0.2.0",
 		"mocha": "^8.3.2",
 		"ts-node": "^9.1.1",

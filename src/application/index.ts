@@ -1,3 +1,3 @@
-// created from 'create-ts-index'
+// created from ctix
 
 export * from './CommandsRegistry';

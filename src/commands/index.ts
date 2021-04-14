@@ -1,6 +1,5 @@
-// created from 'create-ts-index'
+// created from ctix
 
-export * from './template';
 export * from './AddColumnCommand';
 export * from './AddEndpointCommand';
 export * from './AddPermsCommand';
@@ -18,3 +17,4 @@ export * from './GenerateEntityCommand';
 export * from './GenerateRouteCommand';
 export * from './InitCommand';
 export * from './NewCommand';
+export * from './template';

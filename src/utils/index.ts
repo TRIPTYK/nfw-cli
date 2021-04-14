@@ -1,4 +1,4 @@
-// created from 'create-ts-index'
+// created from ctix
 
 export * from './attempts';
 export * from './env-file-rw';
