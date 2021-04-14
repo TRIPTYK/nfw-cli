@@ -3,7 +3,9 @@
 	"version": "0.1.0",
 	"description": "CLI to kickstart back-end entities creation",
 	"scripts": {
-		"build": "npx ctix -c -b ./src/**/ && rm -rf ./src/**/*.bak && npx tsc && node ./scripts/buildDoc.js",
+		"build": "npx ctix ./src/**/ -c -b false && npx tsc",
+		"build:doc": "node ./scripts/buildDoc.js",
+		"clean:bak": "rm -rf ./src/**/*.bak",
 		"test": "./node_modules/.bin/mocha ./src/test/*.ts"
 	},
 	"keywords": [
