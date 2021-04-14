@@ -18,9 +18,11 @@
 	"license": "ISC",
 	"dependencies": {
 		"@triptyk/nfw-core": "../nfw-core",
+		"@types/degit": "^2.8.2",
 		"@types/socket.io-client": "^1.4.36",
 		"chalk": "^4.1.0",
 		"cli-spinners": "^2.6.0",
+		"degit": "^2.8.4",
 		"dotenv": "^8.2.0",
 		"inquirer": "^8.0.0",
 		"jsonfile": "^6.1.0",

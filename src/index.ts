@@ -5,12 +5,10 @@ import { hideBin } from "yargs/helpers";
 import { CommandsRegistry } from "./application";
 import { Logger as Log } from "./utils";
 
-CommandsRegistry.init();
-
 let yargz = yargs(hideBin(process.argv));
 
-for (const key in CommandsRegistry.all)
-	yargz.command(CommandsRegistry.all[key]);
+for (const command of CommandsRegistry.allValues)
+	yargz.command(command);
 
 yargz
 	.strict()
@@ -27,6 +25,9 @@ yargz
 				}`
 			);
 		process.exit(1);
+	})
+	.parserConfiguration({
+		"dot-notation": false
 	})
 	.locale("en")
 	.scriptName("nfw").argv;

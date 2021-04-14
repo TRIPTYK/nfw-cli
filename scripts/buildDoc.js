@@ -8,10 +8,9 @@ const commands = readdirSync(join(process.cwd(), "./dist/commands"))
     .filter((command) => command.match(/.+\.js/gm) && command !== "index.js")
     .map((command) => command.replace(/\.js/gm, ''));
 
-CommandsRegistry.init();
-
 for (const command of commands) {
     const current = CommandsRegistry.all[command];
+    const example = `nfw ${current.command}`;
 
     let content = `
         # ${command.replace(/Command/gm, '')}
@@ -19,7 +18,7 @@ for (const command of commands) {
         ${current.describe}
 
         ## Usage:
-        ${md.fencedCodeBlock(`nfw ${current.command}`)}
+        ${md.fencedShCodeBlock(example)}
 
         ## Alias(es):
         ${current.aliases.join(', ')}
@@ -28,15 +27,26 @@ for (const command of commands) {
     if(Object.keys(current.builder).length) {
         content += "## Options";
         for (const key in current.builder) {
+            let option = `--${key}`;
             content += `
-                ### --${key}
+                ### ${option}
                 - Description: ${current.builder[key].desc}
                 - Type: ${current.builder[key].type}
             `;
+            if(current.builder[key].alias) {
+                content += `- Alias: -${current.builder[key].alias}\n`;
+                option += ` / -${current.builder[key].alias}`;
+            }
+                
+            content += "- Default: ";
             if(current.builder[key].type === "boolean")
-                content += `- Default: ${current.builder[key].default || "false"}`;
+                content += current.builder[key].default || "false";
             else
-                content += `- Default: ${current.builder[key].default || "none"}`;
+                content += current.builder[key].default || "*none*";
+        
+            content += '\n- Example:\n' + md.fencedShCodeBlock(
+                `${example} ${option} ${(current.builder[key].type === "boolean")? "" : `<value for ${key}>`}`
+            );
         }
     }
     
