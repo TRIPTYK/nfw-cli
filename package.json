@@ -19,7 +19,8 @@
 	"author": "TRIPTYK",
 	"license": "ISC",
 	"dependencies": {
-		"@triptyk/nfw-core": "../nfw-core",
+		"@triptyk/nfw-core": "file:../nfw-core",
+		"@types/pluralize": "0.0.29",
 		"chalk": "^4.1.0",
 		"cli-spinners": "^2.6.0",
 		"degit": "^2.8.4",
@@ -28,6 +29,7 @@
 		"jsonfile": "^6.1.0",
 		"mysql2": "^2.2.5",
 		"ora": "^5.4.0",
+		"pluralize": "^8.0.0",
 		"typescript": "^4.2.4",
 		"yargs": "^16.2.0"
 	},
