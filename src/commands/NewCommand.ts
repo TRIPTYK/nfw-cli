@@ -45,8 +45,7 @@ export class NewCommand extends BaseCommand {
         
         //Cloning
         Log.loading("Cloning freshly baked NFW repository... 🍞");
-        await degit(`TRIPTYK/nfw#${argv.branch}`, { 
-            cache: true,
+        await degit(`TRIPTYK/nfw#${argv.branch}`, {
             force: argv.f ?? argv.force
         }).clone(argv.path);
         Log.success("Repository cloned successfully !");
