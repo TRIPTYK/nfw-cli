@@ -1,61 +1,93 @@
 import { BaseCommand } from "./template";
 import * as inquirer from "inquirer";
-import { getRoles, addPerms, save } from "@triptyk/nfw-core";
+import { getRoles, addPerms, save, getRoutes } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
+import * as Chalk from "chalk";
+import * as pluralize from "pluralize";
 
 export class AddPermsCommand extends BaseCommand {
-	public command = "add-perms <entity> <methodName>";
+	public command = "add-perms";
 	public aliases = ["adper"];
 	public describe = "Add permissions for any route of any entity";
 
 	async handler(argv: any) {
 		const roles = await getRoles();
+		const routes = await getRoutes();
+
+		console.log(
+			routes.map((r) => {
+				return r.prefix;
+			})
+		);
+
 		roles.push("--Cancel--");
 		await inquirer
 			.prompt([
 				{
-					name: "addPerm",
+					name: "entity",
 					type: "list",
-					message: `What role do you want to add to ${argv.route}`,
-					choices: roles,
+					message: `On which entity do you want to add a permission`,
+					choices: routes.map((r) => {
+						return r.prefix;
+					}),
+					loop: false,
 				},
 			])
 			.then(async (answer) => {
-				if (answer.deleteRole !== "--Cancel--") {
-					const getArray = [
-						"get",
-						"list",
-						"fetchRelated",
-						"fetchRelationships",
-					];
-					const postArray = ["create", "addRelationships"];
-					const patchArray = ["update", "updateRelationships"];
-					const deleteArray = ["remove", "removeRelationships"];
-					let requestMethod: string;
-					if (getArray.includes(argv.methodName)) {
-						requestMethod = "get";
-					} else if (postArray.includes(argv.methodName)) {
-						requestMethod = "post";
-					} else if (patchArray.includes(argv.methodName)) {
-						requestMethod = "patch";
-					} else if (deleteArray.includes(argv.methodName)) {
-						requestMethod = "delete";
-					} else {
-						requestMethod = "get";
+				const entityRoute = routes.filter((r) => {
+					if (r.prefix === answer.entity) {
+						return r;
 					}
+					return null;
+				});
 
-					const entity = {
-						entity: argv.entity,
-						methodName: argv.methodName,
-						requestMethod,
-						path: "/" + argv.methodName,
-						role: answer.addPerm,
-					};
-					log.loading("Adding a perms in progress");
-					await addPerms(entity);
-					await save();
-					log.success("Permission successfully added");
-				}
+				await inquirer
+					.prompt([
+						{
+							name: "method",
+							type: "list",
+							message: `On which method from ${Chalk.blue.bold(
+								answer.entity
+							)} do you want to add a permission`,
+							choices: entityRoute[0].routes.map((m) => {
+								return m.methodName;
+							}),
+							loop: false,
+						},
+						{
+							name: "perm",
+							type: "list",
+							message: `What role do you want to add to ${Chalk.blue.bold(
+								answer.entity
+							)}`,
+							choices: roles,
+							loop: false,
+						},
+					])
+					.then(async (answer2) => {
+						const targetedRoute = entityRoute[0].routes.filter((m) => {
+							if (m.methodName === answer2.method) {
+								return m.methodName;
+							}
+							return null;
+						});
+						if (answer2.perm !== "--Cancel--") {
+							const entity = {
+								entity: pluralize.singular(answer.entity),
+								methodName: answer2.method,
+								requestMethod: targetedRoute[0].requestMethod,
+								path: targetedRoute[0].path,
+								role: answer2.perm,
+							};
+
+							log.loading("Adding a perms in progress");
+							await addPerms(entity);
+							await save();
+							log.success("Permission successfully added");
+						} else {
+							log.error("Cancelled");
+						}
+					});
 			});
 	}
 }

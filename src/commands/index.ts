@@ -17,4 +17,5 @@ export * from './GenerateEntityCommand';
 export * from './GenerateRouteCommand';
 export * from './InitCommand';
 export * from './NewCommand';
+export * from './testCommand';
 export * from './template';
