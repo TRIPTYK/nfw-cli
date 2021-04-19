@@ -24,6 +24,7 @@ export class DelPermsCommand extends BaseCommand {
 					choices: routes.map((r) => {
 						return r.prefix;
 					}),
+					loop: false,
 				},
 			])
 			.then(async (answer) => {
@@ -31,6 +32,7 @@ export class DelPermsCommand extends BaseCommand {
 					if (r.prefix === answer.entity) {
 						return r;
 					}
+					return null;
 				});
 
 				await inquirer
@@ -44,6 +46,7 @@ export class DelPermsCommand extends BaseCommand {
 							choices: entityRoute[0].routes.map((m) => {
 								return m.methodName;
 							}),
+							loop: false,
 						},
 						{
 							name: "perm",
@@ -52,6 +55,7 @@ export class DelPermsCommand extends BaseCommand {
 								answer.entity
 							)}`,
 							choices: roles,
+							loop: false,
 						},
 					])
 					.then(async (answer2) => {
@@ -59,17 +63,22 @@ export class DelPermsCommand extends BaseCommand {
 							if (m.methodName === answer2.method) {
 								return m.methodName;
 							}
+							return null;
 						});
-						const entity = {
-							entity: pluralize.singular(answer.entity),
-							methodName: answer2.method,
-							role: answer2.perm,
-						};
+						if (answer2.perm !== "--Cancel--") {
+							const entity = {
+								entity: pluralize.singular(answer.entity),
+								methodName: answer2.method,
+								role: answer2.perm,
+							};
 
-						log.loading("Deleting a perms in progress");
-						await removePerms(entity);
-						await save();
-						log.success("Permission successfully removed");
+							log.loading("Deleting a perms in progress");
+							await removePerms(entity);
+							await save();
+							log.success("Permission successfully removed");
+						} else {
+							log.error("Cancelled");
+						}
 					});
 			});
 	}
