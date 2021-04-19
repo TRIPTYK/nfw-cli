@@ -2,7 +2,7 @@
 Add permissions for any route of any entity
 ## Usage:
 ```sh
-$ nfw add-perms <entity> <methodName>
+$ nfw add-perms
 ```
 ## Alias(es):
 adper

@@ -2,7 +2,7 @@
 Remove permissions for any route of any entity
 ## Usage:
 ```sh
-$ nfw del-perms <entity> <methodName>
+$ nfw del-perms
 ```
 ## Alias(es):
 delper
