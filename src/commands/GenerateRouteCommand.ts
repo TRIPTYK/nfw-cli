@@ -1,4 +1,4 @@
-import { generateBasicRoute, save } from "@triptyk/nfw-core";
+import { generateBasicRoute, httpRequestMethods, save } from "@triptyk/nfw-core";
 import { Logger as Log, methodList } from "../utils";
 import { BaseCommand } from "./template";
 
@@ -16,16 +16,12 @@ export class GenerateRouteCommand extends BaseCommand {
 	};
 
 	public async handler(argv: any) {
-		argv.methods = argv.methods.map((v) => v.toUpperCase());
-
-		if (argv.all) argv.methods = methodList;
-
-		if (argv.methods.find((v) => !methodList.includes(v)))
-			throw `One of the methods is not valid, methods must be in these values: ${methodList}`;
+		if (argv.all) argv.methods = httpRequestMethods;
 
 		if (!argv.methods.length) argv.methods = null;
 
 		Log.loading("Generating a route in progress");
+		
 		await generateBasicRoute(argv.prefix, argv.methods);
 		await save();
 

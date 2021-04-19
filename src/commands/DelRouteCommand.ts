@@ -1,4 +1,4 @@
-import { deleteBasicRoute, save } from "@triptyk/nfw-core";
+import { deleteBasicRoute, getRoutes, save } from "@triptyk/nfw-core";
 import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 

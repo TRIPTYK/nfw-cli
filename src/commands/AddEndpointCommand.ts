@@ -11,9 +11,6 @@ export class AddEndpointCommand extends BaseCommand {
 	public async handler(argv: any) {
 		argv.method = argv.method.toUpperCase();
 
-		if (!methodList.includes(argv.method))
-			throw `The method "${argv.method}" is not valid, it must be one of these values: ${methodList}`;
-
 		Log.loading("Adding an endpoint in progress");
 		await addEndpoint(argv.prefix, argv.method, argv.endpoint);
 
