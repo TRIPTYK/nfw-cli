@@ -1,5 +1,5 @@
 # GenerateRoute
-Generate a basic route.
+Generates a basic route.
 ## Usage:
 ```sh
 $ nfw generate-route <prefix> [methods..]
@@ -8,7 +8,7 @@ $ nfw generate-route <prefix> [methods..]
 genroute
 ## Options
 ### --all
-- Description: Generate a route for each of all methods.
+- Description: Generates a route for each of all methods.
 - Type: boolean
 - Default: false
 - Example:

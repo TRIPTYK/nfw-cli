@@ -1,5 +1,5 @@
 # AddColumn
-Add a column in the target entity
+Adds a column in the target entity
 ## Usage:
 ```sh
 $ nfw add-column <entity> <property> <type>

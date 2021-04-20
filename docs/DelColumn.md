@@ -1,5 +1,5 @@
 # DelColumn
-Remove a column in the target entity
+Removes a column in the target entity
 ## Usage:
 ```sh
 $ nfw del-column <entity> <columnName>

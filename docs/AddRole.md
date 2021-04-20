@@ -1,5 +1,5 @@
 # AddRole
-Add roles for permissions
+Adds roles for permissions
 ## Usage:
 ```sh
 $ nfw add-role <roleName>

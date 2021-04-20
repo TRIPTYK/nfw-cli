@@ -8,7 +8,7 @@ import { Logger as log } from "../utils/log";
 export class AddColumnCommand extends BaseCommand {
 	public command = "add-column <entity> <property> <type>";
 	public aliases = ["adcol"];
-	public describe = "Add a column in the target entity";
+	public describe = "Adds a column in the target entity";
 
 	public builder = {
 		default: {

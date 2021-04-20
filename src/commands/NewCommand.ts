@@ -8,29 +8,29 @@ import * as degit from "degit";
 
 export class NewCommand extends BaseCommand {
     public command = "new <path>";
-    public describe = "Create a new project.";
+    public describe = "Creates a new project.";
     public aliases = ["n"];
     
     public builder = {
         ...CommandsRegistry.all.InitCommand.builder,
         branch: {
-            desc: "Get a version of the project from a specific version/branch/commit hash.",
+            desc: "Gets a version of the project from a specific version/branch/commit hash.",
             type: "string",
             default: "master",
             alias: 'b'
         },
         yarn: {
-            desc: "Use yarn to fetch modules.",
+            desc: "Uses yarn to fetch modules.",
             type: "boolean",
             default: false
         },
         noInit: {
-            desc: "Keep the default configuration and doesn't configure the database (Override noConfigDb).",
+            desc: "Keeps the default configuration and doesn't configure the database (Override noConfigDb).",
             type: "boolean",
             default: false
         },
         force: {
-            desc: "Force the cloning of the repo.",
+            desc: "Forces the cloning of the repo.",
             alias: 'f',
             type: "boolean",
             default: false

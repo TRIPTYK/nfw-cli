@@ -17,18 +17,18 @@ export class InitCommand extends BaseCommand {
 
 	public builder = {
         noConfigDb : {
-            desc: "Prohibit the configuration of the database infos.",
+            desc: "Prohibits the configuration of the database infos.",
             type: "boolean",
             default: false
         },
 		seed:{
-			desc: "Populate database with some entries (only if noConfigDb is false).",
+			desc: "Populates database with some entries (only if noConfigDb is false).",
 			alias: 's',
 			type: "boolean",
 			default: false
 		},
 		docker: {
-            desc: "Create a simple configurated MySQL docker container (only if noConfigDb is false).",
+            desc: "Creates a simple configurated MySQL docker container (only if noConfigDb is false).",
 			alias: 'd',
             type: "boolean",
             default: false

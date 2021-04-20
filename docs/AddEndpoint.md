@@ -1,5 +1,5 @@
 # AddEndpoint
-Add an endpoint to a specific route.
+Adds an endpoint to a specific route.
 ## Usage:
 ```sh
 $ nfw add-endpoint <prefix> <endpoint> <method>

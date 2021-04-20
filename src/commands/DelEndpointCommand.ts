@@ -6,7 +6,7 @@ import { BaseCommand } from "./template";
 export class DelEndpointCommand extends BaseCommand {
 	public command: string | string[] = "del-endpoint <prefix> <subroute> <requestMethod>";
 	public aliases = ["delend"];
-	public describe = "Delete an endpoint of a specific route.";
+	public describe = "Deletes an endpoint of a specific route.";
 
 	public async handler(argv: any) {
 		Log.loading("Deleting an endpoint in progress");

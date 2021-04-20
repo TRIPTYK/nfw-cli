@@ -1,5 +1,5 @@
 # New
-Create a new project.
+Creates a new project.
 ## Usage:
 ```sh
 $ nfw new <path>
@@ -8,7 +8,7 @@ $ nfw new <path>
 n
 ## Options
 ### --noConfigDb
-- Description: Prohibit the configuration of the database infos.
+- Description: Prohibits the configuration of the database infos.
 - Type: boolean
 - Default: false
 - Example:
@@ -16,7 +16,7 @@ n
 $ nfw new <path> --noConfigDb 
 ```
 ### --seed
-- Description: Populate database with some entries (only if noConfigDb is false).
+- Description: Populates database with some entries (only if noConfigDb is false).
 - Type: boolean
 - Alias: -s
 - Default: false
@@ -25,7 +25,7 @@ $ nfw new <path> --noConfigDb
 $ nfw new <path> --seed / -s 
 ```
 ### --docker
-- Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
+- Description: Creates a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
 - Alias: -d
 - Default: false
@@ -34,7 +34,7 @@ $ nfw new <path> --seed / -s
 $ nfw new <path> --docker / -d 
 ```
 ### --branch
-- Description: Get a version of the project from a specific version/branch/commit hash.
+- Description: Gets a version of the project from a specific version/branch/commit hash.
 - Type: string
 - Alias: -b
 - Default: master
@@ -43,7 +43,7 @@ $ nfw new <path> --docker / -d
 $ nfw new <path> --branch / -b <value for branch>
 ```
 ### --yarn
-- Description: Use yarn to fetch modules.
+- Description: Uses yarn to fetch modules.
 - Type: boolean
 - Default: false
 - Example:
@@ -51,7 +51,7 @@ $ nfw new <path> --branch / -b <value for branch>
 $ nfw new <path> --yarn 
 ```
 ### --noInit
-- Description: Keep the default configuration and doesn't configure the database (Override noConfigDb).
+- Description: Keeps the default configuration and doesn't configure the database (Override noConfigDb).
 - Type: boolean
 - Default: false
 - Example:
@@ -59,7 +59,7 @@ $ nfw new <path> --yarn
 $ nfw new <path> --noInit 
 ```
 ### --force
-- Description: Force the cloning of the repo.
+- Description: Forces the cloning of the repo.
 - Type: boolean
 - Alias: -f
 - Default: false

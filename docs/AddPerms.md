@@ -1,5 +1,5 @@
 # AddPerms
-Add permissions for any route of any entity
+Adds permissions for any route of any entity
 ## Usage:
 ```sh
 $ nfw add-perms

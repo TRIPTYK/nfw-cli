@@ -8,7 +8,7 @@ $ nfw init
 ini
 ## Options
 ### --noConfigDb
-- Description: Prohibit the configuration of the database infos.
+- Description: Prohibits the configuration of the database infos.
 - Type: boolean
 - Default: false
 - Example:
@@ -16,7 +16,7 @@ ini
 $ nfw init --noConfigDb 
 ```
 ### --seed
-- Description: Populate database with some entries (only if noConfigDb is false).
+- Description: Populates database with some entries (only if noConfigDb is false).
 - Type: boolean
 - Alias: -s
 - Default: false
@@ -25,7 +25,7 @@ $ nfw init --noConfigDb
 $ nfw init --seed / -s 
 ```
 ### --docker
-- Description: Create a simple configurated MySQL docker container (only if noConfigDb is false).
+- Description: Creates a simple configurated MySQL docker container (only if noConfigDb is false).
 - Type: boolean
 - Alias: -d
 - Default: false

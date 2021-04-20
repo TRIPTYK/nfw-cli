@@ -1,5 +1,5 @@
 # List
-List all objects of a given kind.
+Lists all objects of a given kind.
 ## Usage:
 ```sh
 $ nfw list <kind>

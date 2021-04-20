@@ -1,5 +1,5 @@
 # DelRoute
-Delete a basic route.
+Deletes a basic route.
 ## Usage:
 ```sh
 $ nfw delete-route <prefix>

@@ -6,7 +6,7 @@ export class AddEndpointCommand extends BaseCommand {
 	public command: string | string[] =
 		"add-endpoint <prefix> <endpoint> <method>";
 	public aliases = ["adend"];
-	public describe = "Add an endpoint to a specific route.";
+	public describe = "Adds an endpoint to a specific route.";
 
 	public async handler(argv: any) {
 		argv.method = argv.method.toUpperCase();

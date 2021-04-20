@@ -1,5 +1,5 @@
 # DelRole
-Delete roles
+Deletes roles
 ## Usage:
 ```sh
 $ nfw del-role

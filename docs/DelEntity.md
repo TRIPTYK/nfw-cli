@@ -1,5 +1,5 @@
 # DelEntity
-Delete an entity
+Deletes an entity
 ## Usage:
 ```sh
 $ nfw del-entity <entityName>

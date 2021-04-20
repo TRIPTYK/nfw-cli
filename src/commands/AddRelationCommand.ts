@@ -7,7 +7,7 @@ export class AddRelationCommand extends BaseCommand {
 	public command =
 		"add-relation <entity> <target> <name> <inverseName> <isNullable>";
 	public aliases = ["adrel"];
-	public describe = "Add relation between entity";
+	public describe = "Adds relation between entity";
 
 	async handler(argv: any) {
 		const relations = ["one-to-one", "one-to-many", "many-to-many"];

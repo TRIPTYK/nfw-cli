@@ -8,7 +8,7 @@ import * as pluralize from "pluralize";
 export class DelPermsCommand extends BaseCommand {
 	public command = "del-perms";
 	public aliases = ["delper"];
-	public describe = "Remove permissions for any route of any entity";
+	public describe = "Removes permissions for any route of any entity";
 
 	async handler(argv: any) {
 		const roles = await getRoles();

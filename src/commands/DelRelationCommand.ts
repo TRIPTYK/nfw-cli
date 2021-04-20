@@ -5,7 +5,7 @@ import { Logger as log } from "../utils/log";
 export class DelRelationCommand extends BaseCommand {
 	public command = "del-relation <entity> <relationName>";
 	public aliases = ["delrel"];
-	public describe = "Remove relation between entity";
+	public describe = "Removes relation between entity";
 
 	async handler(argv: any) {
 		log.loading("Deleting a relation in progress");

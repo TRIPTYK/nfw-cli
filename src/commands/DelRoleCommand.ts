@@ -6,7 +6,7 @@ import { Logger as log } from "../utils/log";
 export class DelRoleCommand extends BaseCommand {
 	public command = "del-role";
 	public aliases = ["delro"];
-	public describe = "Delete roles";
+	public describe = "Deletes roles";
 
 	async handler(argv: any) {
 		const roles = await getRoles();

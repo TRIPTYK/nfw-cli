@@ -1,5 +1,5 @@
 # CreateDocker
-Create a MySQL container with a database of the same name inside.
+Creates a MySQL container with a database of the same name inside.
 ## Usage:
 ```sh
 $ nfw docker <name>
@@ -40,7 +40,7 @@ $ nfw docker <name> --password <value for password>
 $ nfw docker <name> --rootPassword <value for rootPassword>
 ```
 ### --nativePassword
-- Description: Set the default authentication plugin to mysql_native_password (useful for development purpose).
+- Description: Sets the default authentication plugin to mysql_native_password (useful for development purpose).
 - Type: boolean
 - Default: false
 - Example:
@@ -56,7 +56,7 @@ $ nfw docker <name> --nativePassword
 $ nfw docker <name> --noRun 
 ```
 ### --noDb
-- Description: Prevent the creation of the db in the container.
+- Description: Prevents the creation of the db in the container.
 - Type: boolean
 - Default: false
 - Example:

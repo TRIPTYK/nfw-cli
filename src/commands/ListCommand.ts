@@ -5,7 +5,7 @@ import { BaseCommand } from "./template";
 export class ListCommand extends BaseCommand {
     public command: string = "list <kind>";
     public aliases: string[] = ["ls"];
-    public describe: string = "List all objects of a given kind.";
+    public describe: string = "Lists all objects of a given kind.";
 
     public async handler(argv: any) {
         const kinds = ["routes", "prefixes"];

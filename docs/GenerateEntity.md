@@ -1,5 +1,5 @@
 # GenerateEntity
-Generate an entity
+Generates an entity
 ## Usage:
 ```sh
 $ nfw generate-entity <name>

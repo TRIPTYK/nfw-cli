@@ -8,7 +8,7 @@ import * as pluralize from "pluralize";
 export class AddPermsCommand extends BaseCommand {
 	public command = "add-perms";
 	public aliases = ["adper"];
-	public describe = "Add permissions for any route of any entity";
+	public describe = "Adds permissions for any route of any entity";
 
 	async handler(argv: any) {
 		const roles = await getRoles();

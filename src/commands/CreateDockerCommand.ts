@@ -5,7 +5,7 @@ import { BaseCommand } from "./template";
 export class CreateDockerCommand extends BaseCommand {
     public command: string | string[] = "docker <name>";
     public aliases = ["dock"]
-    public describe = "Create a MySQL container with a database of the same name inside."
+    public describe = "Creates a MySQL container with a database of the same name inside."
 
     public builder = {
         port: {
@@ -29,7 +29,7 @@ export class CreateDockerCommand extends BaseCommand {
             default: "root"
         },
         nativePassword: {
-            desc: "Set the default authentication plugin to mysql_native_password (useful for development purpose).",
+            desc: "Sets the default authentication plugin to mysql_native_password (useful for development purpose).",
             type: "boolean",
             default: false
         },
@@ -39,7 +39,7 @@ export class CreateDockerCommand extends BaseCommand {
             default: false
         },
         noDb: {
-            desc: "Prevent the creation of the db in the container.",
+            desc: "Prevents the creation of the db in the container.",
             type: "boolean",
             default: false
         }

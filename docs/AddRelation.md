@@ -1,5 +1,5 @@
 # AddRelation
-Add relation between entity
+Adds relation between entity
 ## Usage:
 ```sh
 $ nfw add-relation <entity> <target> <name> <inverseName> <isNullable>
