@@ -18,6 +18,16 @@ try {
 
             ${current.describe}
 
+        `;
+
+        if(current.note) {
+            content += `
+               > ${current.note} 
+               
+            `;
+        }
+            
+        content += `
             ## Usage:
             ${md.fencedShCodeBlock(example)}
 

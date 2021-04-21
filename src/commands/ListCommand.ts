@@ -6,14 +6,15 @@ export class ListCommand extends BaseCommand {
     public command: string = "list <kind>";
     public aliases: string[] = ["ls"];
     public describe: string = "Lists all objects of a given kind.";
+    public kinds = ["routes", "prefixes"];
+    public note = `Possible values: ${this.kinds}.`;
 
     public async handler(argv: any) {
-        const kinds = ["routes", "prefixes"];
 
         argv.kind = argv.kind.toLowerCase();
 
-        if(!kinds.includes(argv.kind))
-            throw `Unvalid kind. List of valid ones: ${kinds}`;
+        if(!this.kinds.includes(argv.kind))
+            throw `Unvalid kind. List of valid ones: ${this.kinds}`;
         
         console.log(
             (await getRoutes()).map(v => {
