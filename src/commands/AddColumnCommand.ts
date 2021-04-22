@@ -1,12 +1,13 @@
 import { BaseCommand } from "./template";
-import { addColumn, save } from "@triptyk/nfw-core";
+import { addColumn, save, getSupportedTypes } from "@triptyk/nfw-core";
 import { Logger as log } from "../utils/log";
+import * as inquirer from "inquirer";
 
 /**
  * Test
  */
 export class AddColumnCommand extends BaseCommand {
-	public command = "add-column <entity> <property> <type>";
+	public command = "add-column <entity> <propertyName>";
 	public aliases = ["adcol"];
 	public describe = "Adds a column in the target entity";
 
@@ -53,29 +54,65 @@ export class AddColumnCommand extends BaseCommand {
 		},
 		enums: {
 			desc: "Set a enumeration for the column",
-			type: "enum",
-			default: "",
+			type: "boolean",
+			default: false,
 		},
 	};
 
 	async handler(argv: any) {
-		const toSave = {
-			name: argv.property,
-			type: argv.type,
-			default: argv.default,
-			now: argv.now,
-			length: argv.length,
-			isUnique: argv.isUnique,
-			isNullable: argv.isNullable,
-			width: argv.width,
-			scale: argv.scale,
-			precision: argv.precision,
-			enums: argv.enums,
-		};
+		const types = await getSupportedTypes();
 
-		log.loading("Adding a column in progress");
-		await addColumn(argv.entity, toSave);
-		await save();
-		log.success("Column successfully added");
+		await inquirer
+			.prompt([
+				{
+					name: "type",
+					type: "list",
+					message: "Which type do you want to add ?",
+					choices: types,
+					loop: false,
+				},
+			])
+			.then(async (answer) => {
+				let toSave = {
+					name: argv.propertyName,
+					type: answer.type,
+					default: argv.default,
+					now: argv.now,
+					length: argv.length,
+					isUnique: argv.isUnique,
+					isNullable: argv.isNullable,
+					width: argv.width,
+					scale: argv.scale,
+					precision: argv.precision,
+					enums: argv.enums,
+				};
+				if ((answer.type === "set" || answer.type === "enum") && argv.enums) {
+					await inquirer
+						.prompt([
+							{
+								name: "enum",
+								type: "input",
+								message: "Insert each value separated by a comma",
+							},
+						])
+						.then((answer2) => {
+							const array = answer2.enum.split(",");
+							toSave.enums = array;
+						});
+				}
+				if (answer.type === "bool" || answer.type === "boolean") {
+					if (argv.default === "true") {
+						toSave.default = 1;
+					} else if (argv.default === "false") {
+						toSave.default = 0;
+					} else {
+						toSave.default = 0;
+					}
+				}
+				log.loading("Adding a column in progress");
+				await addColumn(argv.entity, toSave);
+				await save();
+				log.success("Column successfully added");
+			});
 	}
 }
