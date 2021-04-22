@@ -1,5 +1,6 @@
 import { generateBasicRoute, httpRequestMethods, save } from "@triptyk/nfw-core";
-import { Logger as Log, methodList } from "../utils";
+import { Logger as Log } from "../utils";
+import { variableName } from "../utils/regexes";
 import { BaseCommand } from "./template";
 
 export class GenerateRouteCommand extends BaseCommand {
@@ -19,6 +20,9 @@ export class GenerateRouteCommand extends BaseCommand {
 		if (argv.all) argv.methods = httpRequestMethods;
 
 		if (!argv.methods.length) argv.methods = null;
+
+		if (!(argv.prefix as string).match(variableName))
+			throw "Please enter a valid prefix name.";
 
 		Log.loading("Generating a route in progress");
 		

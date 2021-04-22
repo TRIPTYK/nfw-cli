@@ -37,6 +37,9 @@ export class InitCommand extends BaseCommand {
 
 	async handler(argv: any) {
 
+		argv.docker = argv.d ?? argv.docker;
+		argv.seed = argv.s ?? argv.seed;
+
 		const path: string = argv.path ?? process.cwd();
 		const infos: {[key: string]: any} = {};
 
@@ -108,7 +111,7 @@ export class InitCommand extends BaseCommand {
 		}
 
 		//Initiation of DB
-		if(!argv.noInitDb) {
+		if(!argv.noConfigDb) {
 			let useDb = true;
 			let connection: mysql.Connection = null;
 			infos.TYPEORM_DB = infos.TYPEORM_DB.replace(/[;=]/gm, '');
@@ -135,7 +138,8 @@ export class InitCommand extends BaseCommand {
 							type: "confirm",
 							message: "Do you want to create tables in it ?",
 							default: false
-						}])["useDb"];
+						}])
+						.then(answers => answers["useDb"]);
 					}
 					else {
 						await connection.query(`CREATE DATABASE ${infos.TYPEORM_DB}`);
@@ -156,7 +160,10 @@ export class InitCommand extends BaseCommand {
 				
 				if(argv.seed) {
 					log.loading("Seeding tables... 🌱");
-					await exec("./node_modules/.bin/ts-node ./node_modules/typeorm-seeding/dist/cli.js seed")
+					await exec(`
+						cd ${path}
+						./node_modules/.bin/ts-node ./node_modules/typeorm-seeding/dist/cli.js seed
+					`);
 					log.success("Basic entries created !");
 				}
 	

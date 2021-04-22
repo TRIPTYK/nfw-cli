@@ -38,6 +38,9 @@ export class NewCommand extends BaseCommand {
     }
 
     async handler (argv: any) {
+
+        argv.force = argv.f ?? argv.force;
+        argv.branch = argv.b ?? argv.branch;
         argv.path = join((isAbsolute(argv.path)?"":process.cwd()), argv.path);
         const projectName = argv.path.split(sep).slice(-1)[0];
 
@@ -46,7 +49,7 @@ export class NewCommand extends BaseCommand {
         //Cloning
         Log.loading("Cloning freshly baked NFW repository... 🍞");
         await degit(`TRIPTYK/nfw#${argv.branch}`, {
-            force: argv.f ?? argv.force
+            force: argv.force
         }).clone(argv.path);
         Log.success("Repository cloned successfully !");
 

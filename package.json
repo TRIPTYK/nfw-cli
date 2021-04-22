@@ -20,6 +20,7 @@
 	"author": "TRIPTYK",
 	"license": "ISC",
 	"dependencies": {
+		"@triptyk/nfw-cli": "../nfw-cli",
 		"@triptyk/nfw-core": "file:../nfw-core",
 		"chalk": "^4.1.0",
 		"cli-spinners": "^2.6.0",
@@ -34,13 +35,13 @@
 		"yargs": "^16.2.0"
 	},
 	"devDependencies": {
-		"@types/pluralize": "0.0.29",
 		"@types/chai": "^4.2.16",
 		"@types/degit": "^2.8.2",
 		"@types/inquirer": "^7.3.1",
 		"@types/jsonfile": "^6.0.0",
 		"@types/mocha": "^8.2.2",
 		"@types/node": "^13.7.4",
+		"@types/pluralize": "0.0.29",
 		"@types/socket.io-client": "^1.4.36",
 		"@types/yargs": "^16.0.1",
 		"chai": "^4.3.4",
