@@ -20,7 +20,6 @@
 	"author": "TRIPTYK",
 	"license": "ISC",
 	"dependencies": {
-		"@triptyk/nfw-cli": "../nfw-cli",
 		"@triptyk/nfw-core": "file:../nfw-core",
 		"chalk": "^4.1.0",
 		"cli-spinners": "^2.6.0",
