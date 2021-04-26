@@ -112,13 +112,14 @@ export class InitCommand extends BaseCommand {
 
 		//Initiation of DB
 		if(!argv.noConfigDb) {
+			const maxAttempt = 30;
 			let useDb = true;
 			let connection: mysql.Connection = null;
 			infos.TYPEORM_DB = infos.TYPEORM_DB.replace(/[;=]/gm, '');
 
 			try {
 				await attemptAction(async (current) => {
-					log.loading(`Attempt ${current} of connection to the MySQL server... 🐬`);
+					log.loading(`Attempt ${current}/${maxAttempt} of connection to the MySQL server... 🐬`);
 					connection = await mysql.createConnection({
 						host: infos.TYPEORM_HOST,
 						user: infos.TYPEORM_USER,
@@ -126,7 +127,7 @@ export class InitCommand extends BaseCommand {
 						port: infos.TYPEORM_PORT
 					});
 					log.success("Connected to the MySQL server !");
-				}, 30, 2000);
+				}, maxAttempt, 2000);
 
 				if(!argv.docker) {
 					const result: any[] = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
