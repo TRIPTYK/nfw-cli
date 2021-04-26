@@ -126,7 +126,7 @@ export class InitCommand extends BaseCommand {
 						port: infos.TYPEORM_PORT
 					});
 					log.success("Connected to the MySQL server !");
-				}, 15, 2000);
+				}, 30, 2000);
 
 				if(!argv.docker) {
 					const result: any[] = await connection.query("SHOW DATABASES LIKE ?", [infos.TYPEORM_DB])
