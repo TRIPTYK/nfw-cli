@@ -50,10 +50,10 @@ try {
                 }
                     
                 content += "- Default: ";
-                if(current.builder[key].type === "boolean")
-                    content += current.builder[key].default || "false";
-                else
-                    content += current.builder[key].default || "*none*";
+
+                const defaultVal = (current.builder[key].type === "boolean")? "false" : "*none*";
+                
+                content += current.builder[key].default || defaultVal;
             
                 content += '\n- Example:\n' + md.fencedShCodeBlock(
                     `${example} ${option} ${(current.builder[key].type === "boolean")? "" : `<value for ${key}>`}`
