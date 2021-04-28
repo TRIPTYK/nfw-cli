@@ -4,8 +4,9 @@
 	"description": "CLI to kickstart back-end entities creation",
 	"scripts": {
 		"build": "npx ctix ./src/**/ -c -b false && npx tsc",
+		"build:tests": "node ./scripts/buildTests.js",
 		"build:doc": "node ./scripts/buildDoc.js",
-		"build:full": "npx ctix ./src/**/ -c -b false && npx tsc && node ./scripts/buildDoc.js",
+		"build:full": "npx ctix ./src/**/ -c -b false && node ./scripts/buildTests.js && npx tsc && node ./scripts/buildDoc.js",
 		"clean:bak": "rm -rf ./src/**/*.bak",
 		"test": "./node_modules/.bin/ts-mocha ./src/test/*.ts"
 	},

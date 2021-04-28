@@ -8,3 +8,4 @@ package-lock.json
 dist/
 *.bak
 *.sh
+test_project
