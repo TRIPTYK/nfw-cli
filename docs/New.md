@@ -7,16 +7,16 @@ $ nfw new <path>
 ## Alias(es):
 n
 ## Options
-### --noConfigDb
-- Description: Prohibits the configuration of the database infos.
+### --noInitDb
+- Description: Prohibits the connection to the MySQL server and the creation of the database and its tables.
 - Type: boolean
 - Default: false
 - Example:
 ```sh
-$ nfw new <path> --noConfigDb 
+$ nfw new <path> --noInitDb 
 ```
 ### --seed
-- Description: Populates database with some entries (only if noConfigDb is false).
+- Description: Populates database with some entries (only if noInitDb is false).
 - Type: boolean
 - Alias: -s
 - Default: false
@@ -25,13 +25,22 @@ $ nfw new <path> --noConfigDb
 $ nfw new <path> --seed / -s 
 ```
 ### --docker
-- Description: Creates a simple configurated MySQL docker container (only if noConfigDb is false).
+- Description: Creates a simple configurated MySQL docker container (only if noInitDb is false).
 - Type: boolean
 - Alias: -d
 - Default: false
 - Example:
 ```sh
 $ nfw new <path> --docker / -d 
+```
+### --yes
+- Description: Keeps the default values for the DB configuration.
+- Type: boolean
+- Alias: -y
+- Default: false
+- Example:
+```sh
+$ nfw new <path> --yes / -y 
 ```
 ### --branch
 - Description: Gets a version of the project from a specific version/branch/commit hash.
@@ -51,7 +60,7 @@ $ nfw new <path> --branch / -b <value for branch>
 $ nfw new <path> --yarn 
 ```
 ### --noInit
-- Description: Keeps the default configuration and doesn't configure the database (Override noConfigDb).
+- Description: Keeps the default configuration and doesn't init the database (Override noInitDb and yes).
 - Type: boolean
 - Default: false
 - Example:

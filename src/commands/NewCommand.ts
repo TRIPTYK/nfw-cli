@@ -25,7 +25,7 @@ export class NewCommand extends BaseCommand {
             default: false
         },
         noInit: {
-            desc: "Keeps the default configuration and doesn't configure the database (Override noConfigDb).",
+            desc: "Keeps the default configuration and doesn't init the database (Override noInitDb and yes).",
             type: "boolean",
             default: false
         },

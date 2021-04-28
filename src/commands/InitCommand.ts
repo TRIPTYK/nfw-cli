@@ -16,27 +16,34 @@ export class InitCommand extends BaseCommand {
 	public aliases = ["ini"];
 
 	public builder = {
-        noConfigDb : {
-            desc: "Prohibits the configuration of the database infos.",
+        noInitDb : {
+            desc: "Prohibits the connection to the MySQL server and the creation of the database and its tables.",
             type: "boolean",
             default: false
         },
 		seed:{
-			desc: "Populates database with some entries (only if noConfigDb is false).",
+			desc: "Populates database with some entries (only if noInitDb is false).",
 			alias: 's',
 			type: "boolean",
 			default: false
 		},
 		docker: {
-            desc: "Creates a simple configurated MySQL docker container (only if noConfigDb is false).",
+            desc: "Creates a simple configurated MySQL docker container (only if noInitDb is false).",
 			alias: 'd',
             type: "boolean",
             default: false
-        }
+        },
+		yes: {
+			desc: "Keeps the default values for the DB configuration.",
+			alias: 'y',
+            type: "boolean",
+            default: false
+		}
     };
 
 	async handler(argv: any) {
 
+		argv.yes = argv.y ?? argv.yes;
 		argv.docker = argv.d ?? argv.docker;
 		argv.seed = argv.s ?? argv.seed;
 
@@ -52,7 +59,7 @@ export class InitCommand extends BaseCommand {
 
 		const rw = new EnvFileWriter(join(path, envFile));
 
-		log.warning("You are editing the development.env file");
+		
 
 		const arrayOfQuestions = {
 			TYPEORM_HOST: "host name",
@@ -63,41 +70,52 @@ export class InitCommand extends BaseCommand {
 			TYPEORM_SYNCHRONIZE: "synchronize",
 			TYPEORM_LOGGING: "logging",
 		};
-		const questions = [];
+		
+		//DB configuration
+		if(!argv.yes) {
+			log.warning("You are editing the development.env file");
+			const questions = [];
 
-		for (const key in arrayOfQuestions) {
-			if (key === "TYPEORM_SYNCHRONIZE" || key === "TYPEORM_LOGGING") {
-				questions.push({
-					name: key,
-					type: "confirm",
-					message: `Do you want to enable ${arrayOfQuestions[key]}`,
-					default: rw.getNodeValue(key),
-				});
-			} else {
-				questions.push({
-					name: key,
-					type: "input",
-					message: `Insert a value for the ${arrayOfQuestions[key]}`,
-					default: rw.getNodeValue(key),
-				});
+			for (const key in arrayOfQuestions) {
+				if (key === "TYPEORM_SYNCHRONIZE" || key === "TYPEORM_LOGGING") {
+					questions.push({
+						name: key,
+						type: "confirm",
+						message: `Do you want to enable ${arrayOfQuestions[key]}`,
+						default: rw.getNodeValue(key),
+					});
+				} else {
+					questions.push({
+						name: key,
+						type: "input",
+						message: `Insert a value for the ${arrayOfQuestions[key]}`,
+						default: rw.getNodeValue(key),
+					});
+				}
 			}
+
+			await inquirer.prompt(questions).then((answer) => {
+				for (const key in answer) {
+					rw.setNodeValue(key, answer[key]);
+					infos[key] = answer[key];
+				}
+				rw.setNodeValue(
+					"JWT_SECRET",
+					strRandom(80)
+				);
+				rw.setNodeValue(
+					"OAUTH_SALT",
+					strRandom(80)
+				);
+				rw.save();
+			});
 		}
-
-		await inquirer.prompt(questions).then((answer) => {
-			for (const key in answer) {
-				rw.setNodeValue(key, answer[key]);
-				infos[key] = answer[key];
-			}
-			rw.setNodeValue(
-				"JWT_SECRET",
-				strRandom(80)
-			);
-			rw.setNodeValue(
-				"OAUTH_SALT",
-				strRandom(80)
-			);
-			rw.save();
-		});
+		else {
+			log.warning("Default values are used.");
+			//default values
+			for (const key in arrayOfQuestions) 
+				infos[key] = rw.getNodeValue(key);
+		}
 
 		//Creation of docker
 		if(argv.docker) {
@@ -111,7 +129,7 @@ export class InitCommand extends BaseCommand {
 		}
 
 		//Initiation of DB
-		if(!argv.noConfigDb) {
+		if(!argv.noInitDb) {
 			const maxAttempt = 30;
 			let useDb = true;
 			let connection: mysql.Connection = null;
