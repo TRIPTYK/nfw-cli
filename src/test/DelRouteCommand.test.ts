@@ -1,3 +1,7 @@
+import * as global from "./global"
+
 describe("DelRouteCommand", function() {
-	//your tests here :)
+	before(global.createSimpleProject);
+	//Your test here :)
+	after(global.cleanProject);
 });

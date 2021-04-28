@@ -1,3 +1,7 @@
+import * as global from "./global"
+
 describe("ListCommand", function() {
-	//your tests here :)
+	before(global.createSimpleProject);
+	//Your test here :)
+	after(global.cleanProject);
 });
