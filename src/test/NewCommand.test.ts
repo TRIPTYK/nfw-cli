@@ -1,17 +1,16 @@
 import { expect } from "chai";
 import { promisifiedExec as exec } from "../utils";
+import { cleanProject, projectName } from "./global";
 
 // Please note: to run these tests, you must 
 // have your docker deamon turned on.
-
-const projectName = "test_project";
 
 describe("NewCommand", function() {
 	this.timeout("3600s");
 
 	let command = null;
 
-	afterEach(clean);
+	afterEach(cleanProject);
 	
 	it("Creates a simple project", async () => {
 		command = await exec(`nfw new -dysf --yarn ${projectName}`);
@@ -38,10 +37,3 @@ describe("NewCommand", function() {
 		expect(command).to.contain("Your project is ready");
 	});
 });
-
-async function clean() {
-	try {
-		await exec(`rm -rf ${projectName}`);
-		await exec("docker stop nfw && docker rm nfw");
-	} catch (error) {}
-}
