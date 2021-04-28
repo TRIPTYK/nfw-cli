@@ -2,7 +2,7 @@
 Adds a column in the target entity
 ## Usage:
 ```sh
-$ nfw add-column <entity> <property> <type>
+$ nfw add-column <entity> <propertyName>
 ```
 ## Alias(es):
 adcol
@@ -13,7 +13,7 @@ adcol
 - Default: *none*
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --default <value for default>
+$ nfw add-column <entity> <propertyName> --default <value for default>
 ```
 ### --length
 - Description: Maximun length for the value
@@ -21,7 +21,7 @@ $ nfw add-column <entity> <property> <type> --default <value for default>
 - Default: *none*
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --length <value for length>
+$ nfw add-column <entity> <propertyName> --length <value for length>
 ```
 ### --width
 - Description: Maximun width for the value
@@ -29,7 +29,7 @@ $ nfw add-column <entity> <property> <type> --length <value for length>
 - Default: *none*
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --width <value for width>
+$ nfw add-column <entity> <propertyName> --width <value for width>
 ```
 ### --isUnique
 - Description: Value can be unique ?
@@ -37,7 +37,7 @@ $ nfw add-column <entity> <property> <type> --width <value for width>
 - Default: false
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --isUnique 
+$ nfw add-column <entity> <propertyName> --isUnique 
 ```
 ### --isNullable
 - Description: Value can be nullable ?
@@ -45,7 +45,7 @@ $ nfw add-column <entity> <property> <type> --isUnique
 - Default: false
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --isNullable 
+$ nfw add-column <entity> <propertyName> --isNullable 
 ```
 ### --scale
 - Description: Scale of the value
@@ -53,7 +53,7 @@ $ nfw add-column <entity> <property> <type> --isNullable
 - Default: *none*
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --scale <value for scale>
+$ nfw add-column <entity> <propertyName> --scale <value for scale>
 ```
 ### --precision
 - Description: Precision of the value
@@ -61,7 +61,7 @@ $ nfw add-column <entity> <property> <type> --scale <value for scale>
 - Default: *none*
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --precision <value for precision>
+$ nfw add-column <entity> <propertyName> --precision <value for precision>
 ```
 ### --now
 - Description: Set the date's default value to now
@@ -69,13 +69,13 @@ $ nfw add-column <entity> <property> <type> --precision <value for precision>
 - Default: false
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --now 
+$ nfw add-column <entity> <propertyName> --now 
 ```
 ### --enums
 - Description: Set a enumeration for the column
-- Type: enum
-- Default: *none*
+- Type: boolean
+- Default: false
 - Example:
 ```sh
-$ nfw add-column <entity> <property> <type> --enums <value for enums>
+$ nfw add-column <entity> <propertyName> --enums 
 ```
