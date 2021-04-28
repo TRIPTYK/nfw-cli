@@ -4,10 +4,11 @@ import { promisifiedExec as exec } from "../utils";
 // Please note: to run these tests, you must 
 // have your docker deamon turned on.
 
+const projectName = "test_project";
+
 describe("NewCommand", function() {
 	this.timeout("3600s");
 
-	const projectName = "test_project";
 	let command = null;
 
 	afterEach(clean);
@@ -40,7 +41,7 @@ describe("NewCommand", function() {
 
 async function clean() {
 	try {
-		await exec("rm -rf test_project");
+		await exec(`rm -rf ${projectName}`);
 		await exec("docker stop nfw && docker rm nfw");
 	} catch (error) {}
 }
