@@ -1,5 +1,22 @@
-import * as global from "./global"
+import { expect } from "chai";
+import { exec } from "./global";
 
 describe("GenerateRouteCommand", function() {
-	//Your test here :)
+	this.timeout("20s");
+	let command = null;
+
+	const route = "test";
+
+	it("Generates a controller.", () => {
+		command = exec(`nfw generate-route ${route} --all`);
+
+		expect(command).stdout.to.contain(`Route /${route} created !`);
+	});
+
+	it("Generates an already existing controller.", () => {
+		command = exec(`nfw generate-route ${route}`);
+
+		expect(command).to.exit.with.code(1)
+		.and.stdout.contain("This route already exists.");
+	});
 });

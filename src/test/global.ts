@@ -1,16 +1,32 @@
-import { promisifiedExec as exec } from "../utils";
+import { promisifiedExec } from "../utils";
+import { chaiExecSync } from "@jsdevtools/chai-exec";
+import { join } from "path";
+import { use } from "chai";
 
 /**
  * Name of the test project. Must be common to all tests.
  */
 export const projectName = "test_project";
 
+chaiExecSync.defaults = {
+	options: {
+		cwd: join(process.cwd(), projectName)
+	}
+};
+
+/**
+ * Function to use to execute test commands.
+ */
+export const exec = chaiExecSync;
+
+use(exec);
+
 /**
  * Creates a simple nfw project with a container linked to it.
  * @param name Name of the project (takes the projectName value by default).
  */
 export async function createSimpleProject(name = projectName) {
-	await exec(`nfw new -dysf --yarn ${name} && cd ${name}`);
+	await promisifiedExec(`nfw new -dysf --yarn ${name} && cd ${name}`);
 }
 
 /**
@@ -19,7 +35,7 @@ export async function createSimpleProject(name = projectName) {
  */
 export async function cleanDocker(container = "nfw") {
 	try {
-		await exec(`docker stop ${container} && docker rm ${container}`);
+		await promisifiedExec(`docker stop ${container} && docker rm ${container}`);
 	} catch (error) {
 		console.log("No container to stop.");
 	}
@@ -30,15 +46,7 @@ export async function cleanDocker(container = "nfw") {
  */
 export async function cleanProject() {
 	try {
-		await exec(`rm -rf ${projectName}`);
+		await promisifiedExec(`rm -rf ${projectName}`);
 		await cleanDocker();
 	} catch (error) {}
-}
-/**
- * Execute a command within the test project.
- * @param command Command to execute.
- * @returns The command output.
- */
-export async function execInProject(command: string) {
-	return await exec(`cd ${projectName} && ${command}`);
 }
