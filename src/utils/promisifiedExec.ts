@@ -6,8 +6,8 @@ import { exec } from "child_process";
  */
 export async function promisifiedExec (command: string) {
     return new Promise<string>((res, rej) => {
-        exec(command, (err, stdout) => {
-            if(err) rej(err);
+        exec(command, (err, stdout, stderr) => {
+            if(err) rej({...err, stderr, stdout});
             res(stdout);
         });
     });

@@ -34,7 +34,11 @@ export async function cleanProject() {
 		await cleanDocker();
 	} catch (error) {}
 }
-
+/**
+ * Execute a command within the test project.
+ * @param command Command to execute.
+ * @returns The command output.
+ */
 export async function execInProject(command: string) {
 	return await exec(`cd ${projectName} && ${command}`);
 }
