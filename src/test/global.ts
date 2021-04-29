@@ -20,3 +20,7 @@ export async function cleanProject() {
 		await exec("docker stop nfw && docker rm nfw");
 	} catch (error) {}
 }
+
+export async function goToProject() {
+	await exec(`cd ${projectName}`);
+}
