@@ -35,6 +35,6 @@ export async function cleanProject() {
 	} catch (error) {}
 }
 
-export async function goToProject() {
-	await exec(`cd ${projectName}`);
+export async function execInProject(command: string) {
+	await exec(`cd ${projectName} && ${command}`);
 }
