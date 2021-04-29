@@ -1,11 +1,11 @@
 import { expect } from "chai";
-import { exec } from "./global";
+import { exec, testInput } from "./global";
 
 describe("GenerateRouteCommand", function() {
 	this.timeout("20s");
 	let command = null;
 
-	const route = "test";
+	const route = testInput;
 
 	it("Generates a controller.", () => {
 		command = exec(`nfw generate-route ${route} --all`);

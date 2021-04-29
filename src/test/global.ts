@@ -8,6 +8,12 @@ import { use } from "chai";
  */
 export const projectName = "test_project";
 
+/**
+ * Completely arbitrary string to use as an input for your commands.
+ * @see https://www.youtube.com/watch?v=S-Eyhq-D9yM
+ */
+export const testInput = "bananalegacy";
+
 chaiExecSync.defaults = {
 	options: {
 		cwd: join(process.cwd(), projectName)
