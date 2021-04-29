@@ -36,5 +36,5 @@ export async function cleanProject() {
 }
 
 export async function execInProject(command: string) {
-	await exec(`cd ${projectName} && ${command}`);
+	return await exec(`cd ${projectName} && ${command}`);
 }
