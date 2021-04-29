@@ -7,5 +7,5 @@ package-lock.json
 .yarn/
 dist/
 *.bak
-*.sh
 test_project
+global_test

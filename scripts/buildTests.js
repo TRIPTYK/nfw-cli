@@ -6,18 +6,19 @@ try {
 		.filter((command) => command.match(/.+\.js/gm) && command !== "index.js")
 		.map((command) => command.replace(/\.js/gm, ""));
 
-	for (const command of commands) {
-		const testPath = join(process.cwd(), "src/test", `${command}.test.ts`);
+	for (const key in commands) {
+		const command = commands[key];
+		const testPath = join(process.cwd(), "src/test");
+		const file = join(testPath, `${parseInt(key)+1}_${command}.test.ts`);
+
 		let content = 'import * as global from "./global"\n\n';
 		content += `describe("${command}", function() {\n`;
-		content += `\tbefore(global.createSimpleProject);\n`;
 		content += `\t//Your test here :)\n`;
-		content += `\tafter(global.cleanProject);\n`;
 		content += `});`;
 
-		if (!existsSync(testPath)) {
-			writeFileSync(testPath, content);
-		}
+		
+		if (!existsSync(file) && !readdirSync(testPath).some(v => v.includes(command)))
+			writeFileSync(file, content);
 	}
 } catch (error) {
 	console.log(error.message);

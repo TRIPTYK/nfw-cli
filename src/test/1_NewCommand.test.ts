@@ -18,19 +18,6 @@ describe("NewCommand", function() {
 		expect(command).to.contain("Your project is ready");
 	});
 
-	it("Creates a project then inits it", async () => {
-		command = await exec(`nfw new -f --noInit --yarn ${projectName}`);
-
-		expect(command).to.contain("Your project is ready");
-
-		command = await exec(`
-			cd ${projectName}
-			nfw init -dy
-		`);
-
-		expect(command).to.contain("Initiation done");
-	});
-
 	it("Creates a project but prohibits the MySQL connection", async () => {
 		command = await exec(`nfw new -fy --noInitDb --yarn ${projectName}`);
 
