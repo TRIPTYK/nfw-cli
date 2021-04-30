@@ -1,4 +1,4 @@
-const { writeFileSync, readdirSync, readFileSync, existsSync } = require("fs");
+const { writeFileSync, readdirSync, existsSync } = require("fs");
 const { join } = require("path");
 
 try {

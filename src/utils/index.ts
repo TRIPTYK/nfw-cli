@@ -1,6 +1,7 @@
 // created from ctix
 
 export * from './attempts';
+export * from './capitalize';
 export * from './env-file-rw';
 export * from './log';
 export * from './promisifiedExec';
