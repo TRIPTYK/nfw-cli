@@ -2,7 +2,7 @@
 Deletes a generated route.
 ## Usage:
 ```sh
-$ nfw delete-route [prefix]
+$ nfw del-route [prefix]
 ```
 ## Alias(es):
 delroute

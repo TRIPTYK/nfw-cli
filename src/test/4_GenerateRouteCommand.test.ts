@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { exec, testInput } from "./global";
+import { execInProject as exec , testInput } from "./global";
 
 describe("GenerateRouteCommand", function() {
 	this.timeout("20s");
@@ -10,7 +10,8 @@ describe("GenerateRouteCommand", function() {
 	it("Generates a controller.", () => {
 		command = exec(`nfw generate-route ${route} --all`);
 
-		expect(command).stdout.to.contain(`Route /${route} created !`);
+		expect(command).to.exit.with.code(0)
+		.and.stdout.to.contain(`Route /${route} created !`);
 	});
 
 	it("Generates an already existing controller.", () => {

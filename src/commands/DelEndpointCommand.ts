@@ -12,6 +12,6 @@ export class DelEndpointCommand extends BaseCommand {
 		Log.loading("Deleting an endpoint in progress");
 		await deleteEndpointByUri(argv.prefix, argv.subroute, argv.requestMethod);
 		await save();
-		Log.success(`Endpoint ${join(argv.prefix, argv.subroute)} (${argv.requestMethod.toUpperCase()}) deleted !`);
+		Log.success(`Endpoint /${join(argv.prefix, argv.subroute)} (${argv.requestMethod.toUpperCase()}) deleted !`);
 	}
 }

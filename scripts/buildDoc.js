@@ -3,8 +3,10 @@ const { join } = require("path");
 const { CommandsRegistry } = require("../dist/application/CommandsRegistry");
 const md = require("md-writer");
 const chalk = require("chalk");
+const { execSync } = require("child_process");
 
 try {
+    const docPath = join(process.cwd(), "docs");
     const commands = readdirSync(join(process.cwd(), "./dist/commands"))
         .filter((command) => command.match(/.+\.js/gm) && command !== "index.js")
         .map((command) => command.replace(/\.js/gm, ''));
@@ -64,10 +66,15 @@ try {
         content = content.replace(/^\s*/gm, '');
         
         writeFileSync(
-            join(process.cwd(), "docs", command.replace(/Command/gm, ".md")), 
+            join(docPath, command.replace(/Command/gm, ".md")), 
             content
         );
     }
+    const readme = execSync("nfw --help");
+    writeFileSync(
+        join(docPath, "README.md"),
+        md.fencedShCodeBlock(readme)
+    );
     console.log(chalk.green(`Success: Doc built.`));
 } catch (error) {
     console.log(error);

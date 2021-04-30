@@ -11,7 +11,7 @@ try {
 		const testPath = join(process.cwd(), "src/test");
 		const file = join(testPath, `${parseInt(key)+1}_${command}.test.ts`);
 
-		let content = 'import { exec } from "./global"\n\n';
+		let content = 'import { execInProject as exec } from "./global";\n\n';
 		content += `describe("${command}", function() {\n`;
 		content += `\t//Your test here :)\n`;
 		content += `});`;

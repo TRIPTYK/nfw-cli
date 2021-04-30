@@ -4,7 +4,7 @@ import { Logger as Log } from "../utils";
 import { BaseCommand } from "./template";
 
 export class DelRouteCommand extends BaseCommand {
-	public command: string | string[] = "delete-route [prefix]";
+	public command: string | string[] = "del-route [prefix]";
 	public aliases = ["delroute"];
 	public describe = "Deletes a generated route.";
 
