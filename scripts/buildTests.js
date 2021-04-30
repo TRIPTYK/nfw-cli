@@ -9,7 +9,10 @@ try {
 	for (const key in commands) {
 		const command = commands[key];
 		const testPath = join(process.cwd(), "src/test");
-		const file = join(testPath, `${parseInt(key)+1}_${command}.test.ts`);
+		const index = parseInt(key)+1;
+		if(index<10) 
+			index = "0"+index;
+		const file = join(testPath, `${index}_${command}.test.ts`);
 
 		let content = 'import { execInProject as exec } from "./global";\n\n';
 		content += `describe("${command}", function() {\n`;
