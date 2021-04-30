@@ -21,11 +21,11 @@ chaiExecSync.defaults = {
 };
 
 /**
- * Function to use to execute test commands.
+ * Function to use to execute commands in the test project.
  */
-export const exec = chaiExecSync;
+export const execInProject = chaiExecSync;
 
-use(exec);
+use(execInProject);
 
 /**
  * Creates a simple nfw project with a container linked to it.
@@ -43,7 +43,7 @@ export async function cleanDocker(container = "nfw") {
 	try {
 		await promisifiedExec(`docker stop ${container} && docker rm ${container}`);
 	} catch (error) {
-		console.log("No container to stop.");
+		console.log("No container to clean.");
 	}
 }
 

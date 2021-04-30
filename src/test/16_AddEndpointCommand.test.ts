@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { join } from "path";
-import { exec, testInput } from "./global"
+import { execInProject as exec , testInput } from "./global"
 
 describe("AddEndpointCommand", function() {
 	this.timeout("10s");
@@ -24,9 +24,12 @@ describe("AddEndpointCommand", function() {
 	});
 
 	it("Tries to add an endpoint but with an non-valid method", () => {
-		command = exec(`nfw add-endpoint ${testInput} ${testInput} BANANA`);
+
+		const faultyValue = "BANANA";
+
+		command = exec(`nfw add-endpoint ${testInput} ${testInput} ${faultyValue}`);
 
 		expect(command).to.exit.with.code(1)
-		.and.stdout.to.contain(`BANANA doesn't exist or isn't compatible yet.`);
+		.and.stdout.to.contain(`${faultyValue} doesn't exist or isn't compatible yet.`);
 	});
 });
