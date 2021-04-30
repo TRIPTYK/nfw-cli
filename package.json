@@ -21,7 +21,7 @@
 	"author": "TRIPTYK",
 	"license": "ISC",
 	"dependencies": {
-		"@triptyk/nfw-core": "file:../nfw-core",
+		"@triptyk/nfw-core": "../nfw-core",
 		"chalk": "^4.1.0",
 		"cli-spinners": "^2.6.0",
 		"degit": "^2.8.4",

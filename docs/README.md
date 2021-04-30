@@ -25,7 +25,7 @@ Commands:
                                             any entity         [aliases: delper]
   nfw del-relation <entity> <relationName>  Removes relation between entity
                                                                [aliases: delrel]
-  nfw del-role                              Deletes roles       [aliases: delro]
+  nfw del-role [role]                       Deletes roles       [aliases: delro]
   nfw del-route [prefix]                    Deletes a generated route.
                                                              [aliases: delroute]
   nfw generate-entity <name>                Generates an entity
