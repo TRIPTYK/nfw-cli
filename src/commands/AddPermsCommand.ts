@@ -11,6 +11,9 @@ export class AddPermsCommand extends BaseCommand {
 	public describe = "Adds permissions for any route of any entity";
 
 	async handler(argv: any) {
+
+		//TODO: throw errors in core instead of here if possible.
+		
 		const roles = await getRoles();
 		const routes = await getRoutes();
 
