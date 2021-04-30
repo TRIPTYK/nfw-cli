@@ -5,36 +5,42 @@ import * as inquirer from "inquirer";
 
 export class AddRelationCommand extends BaseCommand {
 	public command =
-		"add-relation <entity> <target> <name> <inverseName> <isNullable>";
+		"add-relation <entity> <target> <name> <inverseName> <isNullable> [relation]";
 	public aliases = ["adrel"];
 	public describe = "Adds relation between entity";
 
 	async handler(argv: any) {
 		const relations = ["one-to-one", "one-to-many", "many-to-many"];
 		relations.push("--Cancel--");
-		await inquirer
+		
+		if(!argv.relation) {
+			const { type } = await inquirer
 			.prompt([
 				{
-					name: "addRelation",
+					name: "type",
 					type: "list",
 					message: "What type of relationship do you want to add ?",
 					choices: relations,
 				},
-			])
-			.then(async (answer) => {
-				if (answer.deleteRole !== "--Cancel--") {
-					const params = {
-						target: argv.target,
-						type: answer.addRelation,
-						name: argv.name,
-						inverseRelationName: argv.inverseName,
-						isNullable: argv.isNullable,
-					};
-					log.loading("Adding a relation in progress");
-					await addRelation(argv.entity, params);
-					await save();
-					log.success("Relation successfully added");
-				}
-			});
+			]);
+			argv.relation = type;
+		}
+
+		if(!relations.includes(argv.relation))
+			throw new Error(`Bad relation, please enter one of these relations: ${relations}.`);
+
+		if (argv.relation === "--Cancel--") return;
+
+		const params = {
+			target: argv.target,
+			type: argv.relation,
+			name: argv.name,
+			inverseRelationName: argv.inverseName,
+			isNullable: argv.isNullable,
+		};
+		log.loading("Adding a relation in progress");
+		await addRelation(argv.entity, params);
+		await save();
+		log.success("Relation successfully added");
 	}
 }
