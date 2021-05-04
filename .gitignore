@@ -5,3 +5,8 @@ conf.json
 yarn.lock
 package-lock.json
 .yarn/
+dist/
+*.bak
+test_project
+global_test
+src/test/index.ts
