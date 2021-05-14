@@ -3,44 +3,108 @@
  * @description Shortcut module to log colorful text messages
  * @author Deflorenne Amaury
  */
-import colors = require('colors/safe');
+import * as Chalk from "chalk";
+import spinners from "cli-spinners";
+import * as ora from "ora";
 
 /**
- *
- * @param {string} fileInfo.fileName File
- * @param {string} fileInfo.type 'add','edit','delete'
+ * Static logger class.
  */
-export function logModification (fileInfo: any) {
-    let typeString = 'add';
+export class Logger {
+	private static types = {
+		error: [Chalk.bold.red, "❌"],
+		warning: [Chalk.yellow, "⚠"],
+		success: [Chalk.green, "✔"],
+		info: [Chalk.blue, "🛈"],
+		debug: [Chalk.magentaBright, ""],
+	} as any;
 
-    if (fileInfo.type === 'add') typeString = 'Created';
-    if (fileInfo.type === 'edit') typeString = 'Updated';
-    if (fileInfo.type === 'delete') typeString = 'Deleted';
+	private static loader = ora({
+		spinner: spinners.arc,
+		color: "magenta",
+	});
 
-    exports.info(`${typeString} ${fileInfo.fileName}`);
-};
+	static setStream(stream: NodeJS.WritableStream) {
+		this.loader = {
+			...this.loader,
+			...ora({
+				stream,
+			}),
+		};
+	}
 
-//Text with a red cross
-export function error (text: string) {
-    console.log(`${colors.red('x')} ${text}`);
-};
+	/**
+	 * Error message.
+	 * @param text Text to display.
+	 */
+	static error(text: string) {
+		this.basic("error", text);
+	}
 
-//Text with a warning symbol
-export function warning (text: string) {
-    console.log(`${colors.yellow('!')} ${text}`);
-};
+	/**
+	 * Warning message.
+	 * @param text Text to display.
+	 */
+	static warning(text: string) {
+		this.basic("warning", text);
+	}
 
-//Text with a success symbol
-export function success (text: string) {
-    console.log(`${colors.green('v')} ${text}`);
-};
+	/**
+	 * Success message.
+	 * @param text Text to display.
+	 */
+	static success(text: string) {
+		this.basic("success", text);
+	}
 
-//Text with rainbow text before
-export function rainbow (preText: string, text?: string) {
-    console.log(`${colors.rainbow(preText)} ${text}`);
-};
+	/**
+	 * Info message.
+	 * @param text Text to display.
+	 */
+	static info(text: string) {
+		this.basic("info", text);
+	}
 
-//Text with an info symbol
-export function info (text: string) {
-    console.log(`${colors.blue('i')} ${text}`);
-};
+	/**
+	 * Loading message.
+	 * @param text Text to display.
+	 */
+	static loading(text: string) {
+		if (!this.loader.isSpinning) this.loader.start(text);
+		else this.loader.text = text;
+	}
+
+	/**
+	 * Debug message.
+	 * @param text Text to display.
+	 */
+	static debug(...texts: any[]) {
+		this.basic("debug", texts.map(v=>(typeof v === "object")?JSON.stringify(v):v).join('\n'));
+	}
+
+	/**
+	 * Basic message.
+	 * @param type Type of the message.
+	 * @param text Text to display.
+	 */
+	static basic(type: MessageType, text: string) {
+		this.custom(text, this.types[type][1], this.types[type][0]);
+	}
+
+	/**
+	 * Customizable message.
+	 * @param text Text to display.
+	 */
+	static custom(text: string, symbol = "", color = Chalk.white) {
+		text = color(text);
+		symbol = color(symbol);
+		if (this.loader.isSpinning) {
+			this.loader.stopAndPersist({
+				symbol,
+				text,
+			});
+		} else console.log(`${symbol} ${text}`);
+	}
+}
+
+export type MessageType = "success" | "warning" | "error" | "info" | "debug";

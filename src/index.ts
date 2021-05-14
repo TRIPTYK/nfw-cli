@@ -1,37 +1,32 @@
 #!/usr/bin/env node
-/**
- * @author Samuel Antoine
- */
-import yargs = require('yargs');
 
-// base cli dir
-//@ts-ignore
-global.__baseDir = __dirname;
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+import { CommandsRegistry } from "./application";
+import { Logger as Log } from "./utils";
 
-yargs
-    .strict()
-    .command(require('./commands/newCommand'))
-    .command(require('./commands/startUnitTestsCommand'))
-    .command(require('./commands/generateCommand'))
-    .command(require('./commands/generateFromDatabaseCommand'))
-    .command(require('./commands/generateEmberDataModelCommand'))
-    .command(require('./commands/deleteCommand'))
-    .command(require('./commands/infoCommand'))
-    .command(require('./commands/startCommand'))
-    .command(require('./commands/migrateCommand'))
-    .command(require('./commands/createSuperUserCommand'))
-    .command(require('./commands/createRelationCommand'))
-    .command(require('./commands/removeRelationCommand'))
-    .command(require('./commands/editModelCommand'))
-    .command(require('./commands/editEnvCommand'))
-    .command(require('./commands/addEnvCommand'))
-    .command(require('./commands/generateDocumentationCommand'))
-    .command(require('./commands/initCommand'))
-    .command(require('./commands/installDockerCommand'))
-    .command(require('./commands/deployCommand'))
-    .command(require('./commands/switchEnvCommand'))
-    // provide a minimum demand and a minimum demand message
-    .demandCommand(1, 'You need at least one command before moving on')
-    .help()
-    .scriptName('nfw')
-    .argv;
+let yargz = yargs(hideBin(process.argv));
+
+for (const command of CommandsRegistry.allValues) yargz.command(command);
+
+yargz
+  .strict()
+  .demandCommand()
+  .fail((message, error) => {
+    if (message) {
+      yargz.showHelp();
+      Log.warning(message);
+    }
+    if (error)
+      Log.error(
+        `Something went wrong, here's a glimpse of the error:\n${
+          error.message ?? error
+        }`
+      );
+    process.exit(1);
+  })
+  .parserConfiguration({
+    "dot-notation": false,
+  })
+  .locale("en")
+  .scriptName("nfw").argv;
