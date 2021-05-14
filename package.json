@@ -12,8 +12,8 @@
     "test": "./node_modules/.bin/ts-mocha -S ./src/test/*.ts"
   },
   "files": [
-    "dist/",
-    ""
+    "dist/**/*",
+    "global.d.ts"
   ],
   "keywords": [
     "NFW",
